@@ -4,7 +4,7 @@ function HomeController() {
 	BaseController.call(this);
 	
 	this.index = function(req, res) {
-		res.sendfile(DIR_VIEW + 'page.html');
+		res.sendFile(DIR_VIEW + 'page.html');
 	}
 }
 

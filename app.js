@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 
 ENV = 'prod';
+BASE_DIR = __dirname;
 require('./core/Config');
 require('./core/Routes');
 
@@ -29,6 +30,7 @@ routes.forEach(function(route) {
 //init static pages - COMMENT OUT WHEN BEHIND NGINX SERVER
 app.use('/view', express.static('view'));
 app.use('/js', express.static('js'));
+app.use('/node_modules', express.static('node_modules'));
 app.use('/css', express.static('css'));
 app.use('/images', express.static('images'));
 
