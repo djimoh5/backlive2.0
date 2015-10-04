@@ -43,9 +43,13 @@
 
 <script>
     System.config({
+        packages: {
+            'component': {defaultExtension: 'js'}, 
+            'service': {defaultExtension: 'js'},
+        },
         baseURL: '/'
     });
-    System.import('component/app.js');
+    System.import('component/app');
 </script>
 
 </html>

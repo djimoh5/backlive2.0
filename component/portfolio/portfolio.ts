@@ -1,4 +1,6 @@
-import {Component, View, bootstrap} from 'angular2/angular2';
+import {Component, View, Injectable, bootstrap} from 'angular2/angular2';
+import {BaseComponent} from '../shared/base';
+import {AppService} from '../../service/app';
 
 @Component({
     selector: 'portfolio'
@@ -6,8 +8,8 @@ import {Component, View, bootstrap} from 'angular2/angular2';
 @View({
     templateUrl: '/view/portfolio/portfolio.html'
 })
-export class PortfolioComponent {
-    constructor () {
-
+export class PortfolioComponent extends BaseComponent {
+    constructor (app: AppService) {
+        super(app);
     }
 }

@@ -31,6 +31,7 @@ routes.forEach(function (route) {
 app.use('/view', express.static('view'));
 app.use('/js', express.static('js'));
 app.use('/component', express.static('component'));
+app.use('/service', express.static('service'));
 app.use('/node_modules', express.static('node_modules'));
 app.use('/css', express.static('css'));
 app.use('/images', express.static('images'));

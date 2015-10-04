@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var angular2_1 = require('angular2/angular2');
+var search_bar_1 = require('./search-bar');
 var HeaderControlComponent = (function () {
     function HeaderControlComponent() {
     }
@@ -18,7 +19,8 @@ var HeaderControlComponent = (function () {
             selector: 'header-control'
         }),
         angular2_1.View({
-            templateUrl: '/view/shared/header-control.html'
+            templateUrl: '/view/shared/header-control.html',
+            directives: [search_bar_1.SearchBarComponent]
         }), 
         __metadata('design:paramtypes', [])
     ], HeaderControlComponent);
