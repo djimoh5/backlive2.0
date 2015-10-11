@@ -12,8 +12,6 @@ export class BaseComponent  {
     app: AppService;
     
     constructor (app: AppService) {
-        console.log(app)
         this.app = app;
-        console.log(this.app.Events);
     }
 }

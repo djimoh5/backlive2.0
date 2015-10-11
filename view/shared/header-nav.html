@@ -66,8 +66,13 @@
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="headerNavCollapse">
-            <ul class="nav navbar-nav">
-                
+            <ul class="nav navbar-nav navbar-right user-nav">
+                <li>
+                    <a href="#" [router-link]="['/portfolio']"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></a>
+                </li>
+                <li>
+                    <button class="btn btn-secondary btn-sm"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></button>
+                </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li class="active"><a href="#" [router-link]="['/research']">Research <span class="sr-only">(current)</span></a></li>

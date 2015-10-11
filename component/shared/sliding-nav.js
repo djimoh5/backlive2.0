@@ -10,22 +10,24 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var angular2_1 = require('angular2/angular2');
-var app_1 = require('../../service/app');
-var BaseComponent = (function () {
-    function BaseComponent(app) {
-        this.app = app;
+var SlidingNavComponent = (function () {
+    function SlidingNavComponent() {
+        this.isActive = false;
     }
-    BaseComponent = __decorate([
+    SlidingNavComponent.prototype.showSideBar = function () {
+        this.isActive = !this.isActive;
+    };
+    SlidingNavComponent = __decorate([
         angular2_1.Component({
-            selector: 'base'
+            selector: 'sliding-nav'
         }),
         angular2_1.View({
-            templateUrl: '/view/shared/base.html'
-        }),
-        angular2_1.Injectable(), 
-        __metadata('design:paramtypes', [app_1.AppService])
-    ], BaseComponent);
-    return BaseComponent;
+            templateUrl: '/view/shared/sliding-nav.html',
+            directives: [angular2_1.NgClass]
+        }), 
+        __metadata('design:paramtypes', [])
+    ], SlidingNavComponent);
+    return SlidingNavComponent;
 })();
-exports.BaseComponent = BaseComponent;
-//# sourceMappingURL=base.js.map
+exports.SlidingNavComponent = SlidingNavComponent;
+//# sourceMappingURL=sliding-nav.js.map

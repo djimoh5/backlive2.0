@@ -9,6 +9,7 @@ var AppService = (function () {
         this.Events[name].push(callback);
     };
     AppService.prototype.notify = function (name, data) {
+        if (data === void 0) { data = null; }
         if (this.Events[name]) {
             this.Events[name].forEach(function (callback) {
                 callback(data);

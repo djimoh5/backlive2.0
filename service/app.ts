@@ -1,5 +1,5 @@
 export class AppService {
-    Events: Object;
+    Events: any;
     
     constructor() {
         this.Events = {};
@@ -13,7 +13,7 @@ export class AppService {
         this.Events[name].push(callback);
     }
     
-    notify(name: string, data: Function) {
+    notify(name: string, data: any = null) {
         if(this.Events[name]) {
             this.Events[name].forEach(callback => {
                 callback(data);

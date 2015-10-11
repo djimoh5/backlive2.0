@@ -14,6 +14,7 @@ var router_1 = require('angular2/router');
 var app_1 = require('../service/app');
 var header_nav_1 = require('./shared/header-nav');
 var header_control_1 = require('./shared/header-control');
+var sliding_nav_1 = require('./shared/sliding-nav');
 var footer_nav_1 = require('./shared/footer-nav');
 var research_1 = require('./research/research');
 var backtest_1 = require('./backtest/backtest');
@@ -25,7 +26,7 @@ var AppComponent = (function () {
         this.location = location;
         console.log(this.location.path());
         app.subscribe("alert", function () {
-            alert(4);
+            console.log(4);
         });
     }
     AppComponent = __decorate([
@@ -35,7 +36,7 @@ var AppComponent = (function () {
         }),
         angular2_1.View({
             templateUrl: '/view/app.html',
-            directives: [router_1.ROUTER_DIRECTIVES, header_nav_1.HeaderNavComponent, header_control_1.HeaderControlComponent, footer_nav_1.FooterNavComponent],
+            directives: [router_1.ROUTER_DIRECTIVES, header_nav_1.HeaderNavComponent, header_control_1.HeaderControlComponent, sliding_nav_1.SlidingNavComponent, footer_nav_1.FooterNavComponent],
         }),
         router_1.RouteConfig([
             { path: '/', component: research_1.ResearchComponent, as: 'research' },

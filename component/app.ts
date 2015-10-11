@@ -5,7 +5,9 @@ import {AppService} from '../service/app';
 
 import {HeaderNavComponent} from './shared/header-nav';
 import {HeaderControlComponent} from './shared/header-control';
+import {SlidingNavComponent} from './shared/sliding-nav';
 import {FooterNavComponent} from './shared/footer-nav';
+
 import {ResearchComponent} from './research/research';
 import {BacktestComponent} from './backtest/backtest';
 import {PortfolioComponent} from './portfolio/portfolio';
@@ -16,7 +18,7 @@ import {PortfolioComponent} from './portfolio/portfolio';
 })
 @View({
     templateUrl: '/view/app.html',
-    directives: [ROUTER_DIRECTIVES, HeaderNavComponent, HeaderControlComponent, FooterNavComponent],
+    directives: [ROUTER_DIRECTIVES, HeaderNavComponent, HeaderControlComponent, SlidingNavComponent, FooterNavComponent],
     /*encapsulation: ViewEncapsulation.Native*/
 })
 @RouteConfig([
@@ -28,7 +30,6 @@ export class AppComponent {
     app: AppService;
     router: Router;
     location: Location;
-    Events: Object;
     
     constructor(router: Router, location: Location, app: AppService) {
         this.app = app;
@@ -37,7 +38,7 @@ export class AppComponent {
         
         console.log(this.location.path());
         app.subscribe("alert", function() {
-            alert(4);
+            console.log(4);
         });
     }
 }
