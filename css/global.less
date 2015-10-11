@@ -14,6 +14,9 @@ body {
     /*letter-spacing:.5px;*/
     font-family: "proxima-nova";
 }
+.navbar {
+    min-height:40px;
+}
 header-nav {
     z-index:2000;
     position:fixed;
@@ -69,6 +72,10 @@ header-nav {
             .btn-sm {
                 margin-top:9px;
             }
+            li a {
+                padding-left:20px;
+                padding-right:20px;
+            }
             @media (max-width: 767px) {
                 li {
                     float:left;
@@ -80,17 +87,30 @@ header-nav {
 }
 
 sliding-nav {
-    color: #c5dbec;
+    z-index:998;
     .sidebar {
         background:darken(#12455a, 15%);
-        color:#fff;
-        width:50px;
+        color:#c5dbec;
+        width:40px;
         height:100%;
         position:fixed;
-        .active {
-            -webkit-transition: all .25s ease-out;
-            -o-transition: all .25s ease-out;
-            transition: all .25s ease-out;
+        top:50px;
+        -webkit-transition: all .25s ease-out;
+        -o-transition: all .25s ease-out;
+        transition: all .25s ease-out;
+        a {
+            margin:5px 0 10px 0;
+            display:block;
+            padding:9px;
+            font-size:1.5em;
+            .glyphicon {
+                color:lighten(#c5dbec, 10%);
+                &:hover {
+                    color:darken(#c5dbec, 15%);
+                }
+            }
+        }
+        &.active {
             width:300px;
         }
         @media (max-width: 767px) {
@@ -108,11 +128,15 @@ sliding-nav {
 
 header-control {
     .navbar-static-top {
-        background:#eee;
-        border:1px solid #d9d9d9;
-        .border-bottom-radius(10px);
+        .pod;
+        min-height:30px;
+        .border-top-radius(0);
         li {
             float:left;
+            a {
+                padding-top:5px;
+                padding-bottom:5px;
+            }
         }
     }
 }
@@ -300,6 +324,31 @@ footer {
         cursor:pointer;
         display:none;
         .opacity(90);
+    }
+}
+
+.pod {
+    background: #FFF;
+    border: 1px #c8c8c8 solid;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    margin: 0 0 20px 0;
+    -webkit-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.09), -1px -1px 2px rgba(0, 0, 0, 0.09);
+    -moz-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.09), -1px -1px 2px rgba(0, 0, 0, 0.09);
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.09), -1px -1px 2px rgba(0, 0, 0, 0.09);
+  
+    .hd {
+        padding: 15px 20px 15px 20px;
+        border-bottom: 1px #EEE solid;
+      
+        h5 {
+            padding: 0;
+            margin: 0;
+        }
+    }
+    .bd {
+      padding: 15px;
     }
 }
 
