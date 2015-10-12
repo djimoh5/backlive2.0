@@ -89,20 +89,32 @@ header-nav {
 sliding-nav {
     z-index:998;
     .sidebar {
+        .icon {
+            float:left;
+        }
+        .component {
+            float:right;
+            width:0;
+            visibility: hidden;
+            opacity: 0;
+            -webkit-transition: width .5s linear, visibility .5s linear, opacity .8s ease;
+            -o-transition: width .5s linear, visibility .5s linear, opacity .8s ease;
+            transition: width .5s linear, visibility .5s linear, opacity .8s ease;
+        }
         background:darken(#12455a, 15%);
         color:#c5dbec;
         width:40px;
         height:100%;
         position:fixed;
         top:50px;
-        -webkit-transition: all .25s ease-out;
-        -o-transition: all .25s ease-out;
-        transition: all .25s ease-out;
+        -webkit-transition: width .25s ease-out;
+        -o-transition: width .25s ease-out;
+        transition: width .25s ease-out;
         a {
             margin:5px 0 10px 0;
             display:block;
             padding:9px;
-            font-size:1.5em;
+            font-size:1.4em;
             .glyphicon {
                 color:lighten(#c5dbec, 10%);
                 &:hover {
@@ -112,6 +124,10 @@ sliding-nav {
         }
         &.active {
             width:300px;
+            .component {
+                visibility: visible;
+                opacity: 1;
+            }
         }
         @media (max-width: 767px) {
         
@@ -143,20 +159,16 @@ header-control {
 
 search-bar {
     float:right;
-    @media screen and (max-width: 767px) {
-        float:none;
-    }
-    .navbar-form {
-        .form-group {
-            position:relative;
-            input {
-                min-width:195px;
-            }
-            button {
-                position:absolute;
-                top:0px;
-                right:0px;
-            }
+    padding:10px 15px;
+    .form-group {
+        position:relative;
+        input {
+            min-width:225px;
+        }
+        button {
+            position:absolute;
+            top:0px;
+            right:0px;
         }
     }
 }

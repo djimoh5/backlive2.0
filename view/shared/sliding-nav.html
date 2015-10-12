@@ -1,6 +1,11 @@
 
 <div class="sidebar" [ng-class]="{ active: isActive }">
-    <a href="#" (click)="showSideBar()"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
+    <div class="clearfix">
+        <a href="#" (click)="showSideBar()" class="icon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
+        <div class="component">
+            <search-bar></search-bar>
+        </div>
+    </div>
     <a href="#" (click)="showSideBar()"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></a>
     <a href="#" (click)="showSideBar()"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a>
     <a href="#" (click)="showSideBar()"><span class="glyphicon glyphicon-signal" aria-hidden="true"></span></a>

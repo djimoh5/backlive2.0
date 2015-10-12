@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var angular2_1 = require('angular2/angular2');
+var search_bar_1 = require('./search-bar');
 var SlidingNavComponent = (function () {
     function SlidingNavComponent() {
         this.isActive = false;
@@ -23,7 +24,7 @@ var SlidingNavComponent = (function () {
         }),
         angular2_1.View({
             templateUrl: '/view/shared/sliding-nav.html',
-            directives: [angular2_1.NgClass]
+            directives: [angular2_1.NgClass, search_bar_1.SearchBarComponent]
         }), 
         __metadata('design:paramtypes', [])
     ], SlidingNavComponent);
