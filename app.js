@@ -11,10 +11,8 @@ require(DIR_LIB + 'calculation');
 //spawner = require('child_process');
 //require('./scripts/scraper.js');
 
-db = require(DIR_LIB + 'Database');
 db.open(function () {
     require(DIR_LIB + 'session');
-  
 	/*u.getDates(function(results, weeks) { 
 		BACKTEST_DATE = results[results.length - 1];
 	}, -1);*/
@@ -30,8 +28,7 @@ routes.forEach(function (route) {
 //init static pages - COMMENT OUT WHEN BEHIND NGINX SERVER
 app.use('/view', express.static('view'));
 app.use('/js', express.static('js'));
-app.use('/component', express.static('component'));
-app.use('/service', express.static('service'));
+app.use('/app', express.static('app'));
 app.use('/node_modules', express.static('node_modules'));
 app.use('/css', express.static('css'));
 app.use('/images', express.static('images'));

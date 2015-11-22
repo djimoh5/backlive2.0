@@ -6,6 +6,12 @@
 ul {
     list-style-type: none;
 }
+a {
+	.transition(color linear 0.2s);
+	&:hover {
+		.transition(color linear 0.2s);
+	}
+}
 
 body {
     background: #f5f5f5; overflow:hidden;
@@ -139,6 +145,7 @@ sliding-nav {
     margin-top:50px;
     .main {
         margin-left:50px;
+        padding: 20px;
     }
 }
 

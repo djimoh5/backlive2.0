@@ -1,5 +1,6 @@
 var Database = {
     MongoClient: require('mongodb').MongoClient,
+    ObjectID: require('mongodb').ObjectID,
     mongo: null,
     mongoPricing: null,
     open: function (callback) {

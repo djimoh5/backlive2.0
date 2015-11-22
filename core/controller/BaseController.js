@@ -1,14 +1,32 @@
+var DIR_ROOT = './../.';
 var express = require('express');
+var bodyParser = require('body-parser');
 
-function BaseController() {
+function BaseController(services) {
 	var self = this,
 		router = express.Router();
 	
-	// middleware specific to this router
-	/*router.use(function timeLog(req, res, next) {
-		console.log('Time: ', Date.now());
+	function initSession(req, res, next) {
+		req.session = new Session(req, res);
 		next();
-	});*/
+	}
+	
+	function injectServices(req, res, next) {
+		if(services) {
+			res.services = {};
+			console.log(req.session)
+			for(var serviceIdentifier in services) {
+				res.services[serviceIdentifier] = new services[serviceIdentifier](req.session);
+			}
+		}
+		
+		next();
+	}
+	
+	router.use(bodyParser.json());
+	router.use(bodyParser.urlencoded());
+	router.use(initSession);
+	router.use(injectServices);
 
 	/*self.action = function (path, callback, method) {
 		switch (method) {
@@ -20,13 +38,21 @@ function BaseController() {
 				break;
 		}
 	}*/
-
+	
+	self.post = {};
+	
 	self.getRouter = function () {
 		for(var key in self) {
-			if(self.hasOwnProperty(key) && key != 'METHOD' && key != 'getRouter') {
-				router.get('/' + (key == 'index' ? '' : key), self[key]);
+			if(self.hasOwnProperty(key) && key != 'METHOD' && key != 'getRouter' && key != 'post') {
+				if(self.post[key]) {
+					router.post('/' + (key == 'index' ? '' : key), self[key]);
+				}
+				else {
+					router.get('/' + (key == 'index' ? '' : key), self[key]);
+				}
+				
 				console.log('- registering route', key);
-			}	
+			}
 		}
 		
 		return router;

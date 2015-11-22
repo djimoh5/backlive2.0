@@ -5,18 +5,24 @@
   	"author": "Deji Jimoh <deji.jimoh@backlivelabs.com>",
 	"dependencies": {
 		"express": ">= 0.0.1",
+		"body-parser": "^1.14.1",
 		"mongodb": ">= 0.0.1",
 		"cookies": ">= 0.0.1",
 		"mandrill-api": ">= 0.0.1",
 		"node-uuid": ">= 0.0.1",
 		"socket.io": ">= 0.0.1",
+		"q": ">= 0.0.1",
 		"http-auth": ">= 0.0.1",
 		"uglify-js": ">= 0.0.1",
 		"jsdom": "3.1.2",
 		"braintree": ">= 0.0.1",
-		"angular2": "2.0.0-alpha.37",
-    	"systemjs": "^0.19",
-    	"traceur": "0.0.91"
-
+		"angular2": "2.0.0-alpha.45",
+    	"systemjs": "0.19.2"
+	},
+	"devDependencies": {
+		"typescript": "^1.6.2"
+	},
+	"scripts": {
+		"tsc": "tsc -p app -w"
 	}
 }

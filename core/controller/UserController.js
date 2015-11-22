@@ -1,21 +1,29 @@
 var BaseController = require("./BaseController.js");
-var UserModel = require("../model/UserModel.js");
+var UserService = require("../service/UserService.js");
 
 function UserController() {
-	BaseController.call(this);
+	BaseController.call(this, { userService: UserService });
 
+	this.index = function (req, res) {
+		res.send(req.session.user);
+	}
+	
 	this.register = function (req, res) {
-		var model = new UserModel(req.body, function() {
-			res.send('register');	
+		res.services.userService.register(req.body).done(function(user) {
+			res.send(user);	
 		});
 	};
 
 	this.login = function (req, res) {
-		res.send('login');
+		res.services.userService.login(req.body).done(function(user) {
+			res.send(user);
+		});
 	};
 
 	this.logout = function (req, res) {
-		res.send('logout');
+		res.services.userService.logout().done(function(data) {
+			res.send(data);	
+		});
 	};
 }
 

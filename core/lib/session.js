@@ -6,7 +6,7 @@ var processes = {};
 db.mongo.collection('session', function(error, collection) {
     collection.find({}).toArray(function(err, results) {
         for(var i = 0, cnt = results.length; i < cnt; i++) {
-            users[results[i].sessId] = { uid:results[i].uid };
+            users[results[i].token] = { uid: results[i].uid, token: results[i].token };
         }
         
         //console.log(users);
@@ -55,7 +55,7 @@ Session = function(request, response) {
                         var sessId = md5.hex_md5(uuid.v1());
                         var uid = results[0]._id.toString();
                         
-                        users[sessId] = { uid:uid, name:results[0].u, email:results[0].e, btuid:results[0].btuid, btpid:results[0].btpid, created:results[0].created };
+                        users[sessId] = { uid:uid, token:sessId, name:results[0].u, email:results[0].e, btuid:results[0].btuid, btpid:results[0].btpid, created:results[0].created };
                         user = users[sessId];
                         
                         //whether user has seen tour or not
@@ -67,7 +67,7 @@ Session = function(request, response) {
                         
                         //persist session to DB
                         db.mongo.collection('session', function(error, collection) {
-                            collection.update({ uid:uid }, { uid:uid, sessId:sessId, date:(new Date).getTime() }, { upsert:true });
+                            collection.update({ uid:uid }, { uid:uid, token:sessId, date:(new Date).getTime() }, { upsert:true });
                         });
                     }
                     else

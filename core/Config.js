@@ -13,6 +13,8 @@ DIR_JS_PLUGINS = DIR_JS +  "plugins/";
 MONGO_DB = "btif";
 MONGO_PRICING_DB = "pricing";
 
+db = require('./.' + DIR_LIB + 'Database');
+
 /*** startup ***/
 STARTUP_PAGE = 'page.html';
 
