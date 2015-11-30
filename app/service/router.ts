@@ -4,41 +4,15 @@ import {Location, Router, RouteDefinition, RouterOutlet, ComponentInstruction} f
 import {UserService} from '../service/user';
 import {Common, Object} from '../utility/common';
 
-// import all components that will be used as routes
-import {SplashComponent} from '../component/home/splash';
-import {LoginComponent} from '../component/home/login';
-import {DashboardComponent} from '../component/home/dashboard';
-import {ResearchComponent} from '../component/research/research';
-import {BacktestComponent} from '../component/backtest/backtest';
-import {PortfolioComponent} from '../component/portfolio/portfolio';
-
-// define routes and map to components
-interface RouteMap {
+export interface RouteMap {
 	route: string[],
 	component: any,
 	isRoot?: boolean,
-	isPublic?: boolean
+	isPublic?: boolean,
+	isDefault?: boolean,
+	isSplash?: boolean
 }
 
-export class Route {
-	public static get Dashboard(): string[] { return ['/Dashboard'] };
-	public static get Splash(): string[] { return ['/Splash'] };
-    public static get Login(): string[] { return ['/Login'] };
-	public static get Research(): string[] { return ['/Research'] };
-	public static get Backtest(): string[] { return ['/Backtest'] };
-	public static get Portfolio(): string[] { return ['/Portfolio'] };
-}
-
-var RouteComponentMap: RouteMap[]  = [
-	{ route: Route.Dashboard, component: DashboardComponent, isRoot: true },
-	{ route: Route.Splash, component: SplashComponent, isPublic: true },
-	{ route: Route.Login, component: LoginComponent, isPublic: true },
-	{ route: Route.Research, component: ResearchComponent },
-	{ route: Route.Backtest, component: BacktestComponent },
-	{ route: Route.Portfolio, component: PortfolioComponent }
-];
-
-/*** WHEN ADDING NEW ROUTES, SHOULD ONLY EVER NEED TO UPDATE ABOVE ROUTE MAPPING, AND NOT THE ACTUAL ROUTER SERVICE BELOW ***/
 @Directive({selector: 'auth-router-outlet'})
 export class AuthRouterOutlet extends RouterOutlet {
 	router: Router;
@@ -56,13 +30,14 @@ export class AuthRouterOutlet extends RouterOutlet {
 		RouterService.lastRoute = route;
 		
 		if(!RouterService.enabled) {
-			nextInstruction = this.router.generate(Route.Splash).component;
+			nextInstruction = this.router.generate(RouterService.splashRoute).component;
 		}
 		else if(RouterService.accessDenied(route)) {
-			this.router.navigate(Route.Login); //include this only if we don't want url to show as page user tried to access
-			nextInstruction = this.router.generate(Route.Login).component;
+			this.router.navigate(RouterService.defaultRoute); //include this only if we don't want url to show as page user tried to access
+			nextInstruction = this.router.generate(RouterService.defaultRoute).component;
 		}
 		
+		console.log(nextInstruction)
 		return super.activate(nextInstruction);
 	}
 }
@@ -71,23 +46,34 @@ export class AuthRouterOutlet extends RouterOutlet {
 export class RouterService {
 	private static router: Router;
 	private static location: Location;
+	private static routeMap: RouteMap[];
 	private static publicRoutes: string[] = [];
 	private static userService: UserService;
-	
+
 	static enabled: boolean;
 	static lastRoute: string[];
 	static rootRouteMap: any;
+	static splashRoute: any;
+	static defaultRoute: any;
 	
 	constructor(router: Router, location: Location, routerOutlet: AuthRouterOutlet, userService: UserService) {
 		RouterService.router = router;
 		RouterService.userService = userService;
 		RouterService.location = location;
 		
-		RouteComponentMap.forEach(map => {
+		RouterService.routeMap.forEach(map => {
 			if(map.isPublic) {
 				RouterService.publicRoutes.push(map.route[0]);
 			}
-		})
+			
+			if(map.isSplash){
+				RouterService.splashRoute = map.route;
+			}
+			
+			if(map.isDefault){
+				RouterService.defaultRoute = map.route;
+			}
+		});
 	}
 	
 	isRouteActive(route: string[]) {
@@ -106,7 +92,7 @@ export class RouterService {
 	static get AppRoutes(): RouteDefinition[] {
 		var routeDefinitions: RouteDefinition[] = [];
 		
-		for(var i = 0, map: any; map = RouteComponentMap[i]; i++) {
+		for(var i = 0, map: any; map = this.routeMap[i]; i++) {
 			if(map.isRoot) {
 				this.rootRouteMap = map;
 			}
@@ -115,6 +101,10 @@ export class RouterService {
 		}
 				
 		return routeDefinitions;
+	}
+	
+	static setRouteMap(routeMap: RouteMap[]) {
+		this.routeMap = routeMap;
 	}
 	
 	static enableRouting() {

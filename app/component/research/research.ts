@@ -4,8 +4,8 @@ import {AlertComponent} from '../shared/alert';
 
 import {AppService} from '../../service/app';
 import {UserService} from '../../service/user';
-import {Route} from '../../service/router';
 
+import {Route} from '../../model/routes';
 import {Event} from '../../model/event';
 
 @Component({

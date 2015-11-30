@@ -1,8 +1,8 @@
 var BaseService = require("./BaseService.js");
 
 function UserService(session) {
-    console.log(session);
 	BaseService.call(this, session);
+    
     var self = this,
         user = session.user;
     //console.log(user);

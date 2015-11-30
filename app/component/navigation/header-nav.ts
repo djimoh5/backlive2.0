@@ -2,9 +2,10 @@ import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
 import {BaseComponent} from '../shared/base';
 
 import {AppService} from '../../service/app';
-import {RouterService, Route} from '../../service/router';
+import {RouterService} from '../../service/router';
 import {UserService} from '../../service/user';
 
+import {Route} from '../../model/routes';
 import {Event} from '../../model/event';
 import {User} from '../../model/user';
 

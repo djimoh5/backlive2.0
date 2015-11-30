@@ -14,7 +14,7 @@ function BaseController(services) {
 	function injectServices(req, res, next) {
 		if(services) {
 			res.services = {};
-			console.log(req.session)
+			//console.log(req.session)
 			for(var serviceIdentifier in services) {
 				res.services[serviceIdentifier] = new services[serviceIdentifier](req.session);
 			}

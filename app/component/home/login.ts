@@ -3,15 +3,14 @@ import {PageComponent} from '../shared/page';
 import {AlertComponent} from '../shared/alert';
 import {AppService} from '../../service/app';
 import {UserService} from '../../service/user';
-import {Route} from '../../service/router';
 
+import {Route} from '../../model/routes';
 import {Event} from '../../model/event';
 import {User} from '../../model/user';
 
 @Component({
     selector: 'app-login',
     templateUrl: '/view/home/login.html',
-    styleUrls: ['../../css/login.less'],
     directives: [FORM_DIRECTIVES, CORE_DIRECTIVES, AlertComponent]
 })
 export class LoginComponent extends PageComponent {

@@ -4,7 +4,7 @@ import {HTTP_PROVIDERS} from 'angular2/http';
 
 /* services */
 import {AppService} from '../service/app';
-import {RouterService, Route, AuthRouterOutlet} from '../service/router';
+import {RouterService, AuthRouterOutlet} from '../service/router';
 import {ApiService} from '../service/api';
 import {UserService} from '../service/user';
 
@@ -16,9 +16,12 @@ import {FooterNavComponent} from './navigation/footer-nav';
 import {ModalComponent} from './shared/modal';
 
 /* models */
+import {RouteComponentMap} from '../model/routes';
 import {Event} from '../model/event';
 import {User} from '../model/user';
 import {Alert} from '../model/alert';
+
+RouterService.setRouteMap(RouteComponentMap);
 
 @Component({
     selector: 'backlive-app',
