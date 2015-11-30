@@ -15,6 +15,9 @@ export class HomeComponent extends BaseComponent {
     screenshotMiddleHeight: number;
     screenshotOverlayLineHeight: number;
     
+    loginVisible: boolean;
+    registerVisible: boolean;
+    
     constructor (appService:AppService) {
         super(appService);
         
@@ -24,14 +27,44 @@ export class HomeComponent extends BaseComponent {
             $(window).resize(() => {
                 this.adjustHeaderHeight();
             });
+            
+            $('.dropdown-menu .login-form').click(function(e) {
+                e.stopPropagation();
+            });
         }
+    }
+    
+    login() {
+        
+    }
+    
+    register() {
+        
+    }
+    
+    forgotPassword() {
+        
+    }
+    
+    showHideLogin() {
+        this.loginVisible = !this.loginVisible;
+        this.registerVisible = false;
+        
+        setTimeout(() => { $('#txt_uname').focus(); });   
+    }
+    
+    showHideRegister() {
+        this.registerVisible = !this.registerVisible;
+        this.loginVisible = false;
+        
+        setTimeout(() => { $('#txt_reg_uname').focus(); });  
     }
     
     adjustHeaderHeight() {
         var winHeight = $(window).height();
-        this.headerHeight = winHeight - 80;
+        this.headerHeight = winHeight;
 
-        var minMargin = 60, ssHeight = 300, introHeight = 554, imgAdj;
+        var minMargin = 60, ssHeight = 300, introHeight = 554, imgAdj: any;
         var marginTop = winHeight - (introHeight + 93);
         
         if(marginTop >= minMargin) {
