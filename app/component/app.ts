@@ -2,6 +2,8 @@
 import {Location, RouteConfig, ROUTER_PROVIDERS, ROUTER_DIRECTIVES, LocationStrategy, HashLocationStrategy} from 'angular2/router';
 import {HTTP_PROVIDERS} from 'angular2/http';
 
+import {RouteComponentMap} from '../config/routes';
+
 /* services */
 import {AppService} from '../service/app';
 import {RouterService, AuthRouterOutlet} from '../service/router';
@@ -16,7 +18,6 @@ import {FooterNavComponent} from './navigation/footer-nav';
 import {ModalComponent} from './shared/modal';
 
 /* models */
-import {RouteComponentMap} from '../model/routes';
 import {Event} from '../model/event';
 import {User} from '../model/user';
 import {Alert} from '../model/alert';

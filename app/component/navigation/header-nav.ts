@@ -5,7 +5,7 @@ import {AppService} from '../../service/app';
 import {RouterService} from '../../service/router';
 import {UserService} from '../../service/user';
 
-import {Route} from '../../model/routes';
+import {Route} from '../../config/routes';
 import {Event} from '../../model/event';
 import {User} from '../../model/user';
 
