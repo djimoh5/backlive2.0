@@ -13,7 +13,7 @@ import {BaseComponent} from '../shared/base';
 import {ModalComponent} from '../shared/modal';
 
 /* models */
-import {RouteComponentMap} from '../../model/marketingroutes';
+import {RouteComponentMap} from '../../config/routes-marketing';
 import {Event} from '../../model/event';
 import {User} from '../../model/user';
 

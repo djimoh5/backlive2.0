@@ -16,16 +16,16 @@ export class UserService extends BaseService {
         return this.userPromise;
     }
     
-    login(username: string, password: string) {
-        return this.post('login', { username:username, password:password }).then(user => this.handleLoginResponse(user));
+    login(loginInfo: Object) {
+        return this.post('login', loginInfo).then(user => this.handleLoginResponse(user));
     }
     
     logout() {
         return this.get('logout').then((user: User) => this.handleLoginResponse(user));
     }
     
-    register(info: Object) {
-        return this.post('register', info).then(user => this.handleLoginResponse(user));
+    register(registerInfo: Object) {
+        return this.post('register', registerInfo).then(user => this.handleLoginResponse(user));
     }
     
     createApplicant(info: Object) {

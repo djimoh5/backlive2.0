@@ -1,14 +1,24 @@
-import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
+import {Component, ControlGroup, Control, Validators, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2';
 import {BaseComponent} from '../shared/base';
 
 import {AppService} from '../../service/app';
+import {UserService} from '../../service/user';
+
+import {Route} from '../../config/routes';
+import {Event} from '../../model/event';
+import {User} from '../../model/user';
 
 @Component({
     selector: 'app-home',
     templateUrl: '/view/marketing/home.html',
-    directives: [CORE_DIRECTIVES]
+    directives: [CORE_DIRECTIVES, FORM_DIRECTIVES]
 })
 export class HomeComponent extends BaseComponent {
+    userService: UserService;
+    loginForm: ControlGroup;
+    registerForm: ControlGroup;
+    errMessage: boolean;
+    
     headerHeight: number;
     introTextMargin: number;
     screenshotHeight: number;
@@ -18,8 +28,22 @@ export class HomeComponent extends BaseComponent {
     loginVisible: boolean;
     registerVisible: boolean;
     
-    constructor (appService:AppService) {
+    constructor (appService:AppService, userService: UserService) {
         super(appService);
+        
+        this.userService = userService;
+        
+        this.loginForm = new ControlGroup({
+            username: new Control("", Validators.required),
+            password: new Control("", Validators.required)
+        });
+        
+        this.registerForm = new ControlGroup({
+            username: new Control("", Validators.required),
+            email: new Control("", Validators.required),
+            password: new Control("", Validators.required),
+            terms: new Control(false, Validators.required)
+        });
         
         if(window) {
             this.adjustHeaderHeight();
@@ -35,29 +59,45 @@ export class HomeComponent extends BaseComponent {
     }
     
     login() {
-        
+        this.errMessage = false;
+        this.userService.login(this.loginForm.value).then(user => this.loginComplete(user));
     }
     
     register() {
+        this.errMessage = false;
+        this.userService.register(this.registerForm.value).then(user => this.loginComplete(user));
+    }
+    
+    loginComplete(user: User) {
+        console.log(user);
         
+        if(user && user.token) {
+            window.location.reload();
+        }
     }
     
     forgotPassword() {
         
     }
     
+    fieldRequired() {
+        
+    }
+    
     showHideLogin() {
+        this.errMessage = false;
         this.loginVisible = !this.loginVisible;
         this.registerVisible = false;
         
-        setTimeout(() => { $('#txt_uname').focus(); });   
+        setTimeout(() => { $('.sign-in-menu input').first().focus(); });   
     }
     
     showHideRegister() {
+        this.errMessage = false;
         this.registerVisible = !this.registerVisible;
         this.loginVisible = false;
         
-        setTimeout(() => { $('#txt_reg_uname').focus(); });  
+        setTimeout(() => { $('.register-menu input').first().focus(); });  
     }
     
     adjustHeaderHeight() {

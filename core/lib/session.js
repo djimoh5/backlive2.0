@@ -6,10 +6,8 @@ var processes = {};
 db.mongo.collection('session', function(error, collection) {
     collection.find({}).toArray(function(err, results) {
         for(var i = 0, cnt = results.length; i < cnt; i++) {
-            users[results[i].token] = { uid: results[i].uid, token: results[i].token };
+            users[results[i].sessId] = { uid: results[i].uid, token: results[i].token, sessId: results[i].sessId };
         }
-        
-        //console.log(users);
     });
 });
 
@@ -17,14 +15,14 @@ Session = function(request, response) {
     var session = this, sessionIdName = 'bti_se$$_id', pwSalt = 'bL1$3', user;  
     var cookies = new Cookies(request, response);
     var sessionId = cookies.get(sessionIdName);
-        
+    
     if(sessionId)
         user = users[sessionId];
     
     if(!user)
         user = { error:'no session id', uid:0 };
     else if(!user.name) {
-        var oid = new db.bson.ObjectID(user.uid);
+        var oid = new db.ObjectID(user.uid);
         
         db.mongo.collection('user', function(error, collection) {
             collection.findOne({ _id:oid }, function(err, result) {
@@ -41,7 +39,7 @@ Session = function(request, response) {
     
     this.login = function(uname, pword, callback) {
         var uuid = require('node-uuid');
-        var md5 = require('../.' + DIR_JS_LIB + 'md5');
+        var md5 = require('../.' + DIR_JS + 'md5');
         //var hexPw = md5.hex_md5(pword);
         
         db.mongo.collection('user', function(error, collection) {
@@ -55,7 +53,7 @@ Session = function(request, response) {
                         var sessId = md5.hex_md5(uuid.v1());
                         var uid = results[0]._id.toString();
                         
-                        users[sessId] = { uid:uid, token:sessId, name:results[0].u, email:results[0].e, btuid:results[0].btuid, btpid:results[0].btpid, created:results[0].created };
+                        users[sessId] = { uid:uid, token:sessId, sessId: sessId, name:results[0].u, email:results[0].e, btuid:results[0].btuid, btpid:results[0].btpid, created:results[0].created };
                         user = users[sessId];
                         
                         //whether user has seen tour or not
@@ -67,7 +65,7 @@ Session = function(request, response) {
                         
                         //persist session to DB
                         db.mongo.collection('session', function(error, collection) {
-                            collection.update({ uid:uid }, { uid:uid, token:sessId, date:(new Date).getTime() }, { upsert:true });
+                            collection.update({ uid:uid }, { uid:uid, token:sessId, sessId: sessId, date:(new Date).getTime() }, { upsert:true });
                         });
                     }
                     else
@@ -108,7 +106,7 @@ Session = function(request, response) {
                             
                             db.mongo.collection("log_bt", function(error, collection) {
                                 for(var i = 0, len = tests.length; i < len; i++) {
-                                    var oid = new db.bson.ObjectID(tests[i]);
+                                    var oid = new db.ObjectID(tests[i]);
                     	            collection.findOne({ _id:oid }, function(err, result) {
                     	                if(result) {
                         				    var bt = result;
@@ -135,7 +133,7 @@ Session = function(request, response) {
     
     this.changePassword = function(opword, npword, callback) {
         var md5 = require('../.' + DIR_JS_LIB + 'md5');
-        var oid = new db.bson.ObjectID(user.uid);
+        var oid = new db.ObjectID(user.uid);
         //console.log(opword, npword);
 
         db.mongo.collection('user', function(error, collection) {
@@ -215,7 +213,7 @@ Session = function(request, response) {
     
     this.updateCustomer = function(custId, payToken, callback) {
         db.mongo.collection('user', function(error, collection) {
-            var oid = new db.bson.ObjectID(user.uid);
+            var oid = new db.ObjectID(user.uid);
             var obj = { btuid:custId, btpt:payToken };
             
             collection.update({ _id:oid }, { $set:obj }, function() {
@@ -227,7 +225,7 @@ Session = function(request, response) {
     
     this.updateSubscription = function(planId, subscrId, payToken, callback) {
         db.mongo.collection('user', function(error, collection) {
-            var oid = new db.bson.ObjectID(user.uid);
+            var oid = new db.ObjectID(user.uid);
             
             collection.update({ _id:oid }, { $set:{ btpid:planId, btsid:subscrId, btpt:payToken } }, function() {
                 user.btpid = planId;
@@ -238,7 +236,7 @@ Session = function(request, response) {
     
     this.getSubscription = function(callback) {
         db.mongo.collection('user', function(error, collection) {
-            var oid = new db.bson.ObjectID(user.uid);
+            var oid = new db.ObjectID(user.uid);
 
             collection.findOne({ _id:oid }, { btsid:1, btpt:1 }, function(error, result) {
                 callback(result);

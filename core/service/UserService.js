@@ -8,12 +8,12 @@ function UserService(session) {
     //console.log(user);
 
     this.register = function(params) {
-    	session.register(params.uname, params.pword, params.email, self.done);
+    	session.register(params.username, params.password, params.email, self.done);
         return self.promise;
 	}
     
     this.login = function(params) {
-        session.login(params[0].uname, params[0].pword, self.done);
+        session.login(params.username, params.password, self.done);
         return self.promise;
 	}
     
@@ -30,7 +30,7 @@ function UserService(session) {
     }
     
     this.forgotpassword = function(params) {
-        session.forgotPassword(params[0].uname, self.done);
+        session.forgotPassword(params.username, self.done);
         return self.promise;
     }
 	

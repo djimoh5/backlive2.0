@@ -42,6 +42,7 @@ export class ApiService {
     
     private getHeaders() {
         var headers = new Headers();
+        headers.append('Accept', 'application/json');
         headers.append('Content-Type', 'application/json');
         
         if(this.token) {

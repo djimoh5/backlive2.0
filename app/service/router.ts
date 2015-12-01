@@ -77,7 +77,7 @@ export class RouterService {
 	}
 	
 	isRouteActive(route: string[]) {
-		return RouterService.router.isRouteActive(RouterService.router.generate(route));
+		return route ? RouterService.router.isRouteActive(RouterService.router.generate(route)) : false;
 	}
 	
 	subscribe(callback: Function) {

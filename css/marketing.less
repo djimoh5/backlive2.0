@@ -1,6 +1,11 @@
 @import "plugins/mixins.less";
 @import "plugins/variables.less";
 
+body {
+    .opacity(99);
+    -webkit-font-smoothing: antialiased;
+    font-family: "proxima-nova";
+}
 h1,h2,h3,h4,h5 {
 	color: @brand-gray;
 }
@@ -401,7 +406,6 @@ footer {
     .error-msg {
         color:#ff0000;
         font-weight:600;
-        display:none;
     }
 }
 

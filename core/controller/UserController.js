@@ -8,12 +8,14 @@ function UserController() {
 		res.send(req.session.user);
 	}
 	
+	this.post.register = true;
 	this.register = function (req, res) {
 		res.services.userService.register(req.body).done(function(user) {
 			res.send(user);	
 		});
 	};
 
+	this.post.login = true;
 	this.login = function (req, res) {
 		res.services.userService.login(req.body).done(function(user) {
 			res.send(user);
