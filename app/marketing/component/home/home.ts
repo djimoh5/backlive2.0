@@ -1,5 +1,6 @@
 import {Component, ControlGroup, Control, Validators, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2';
-import {BaseComponent} from '../../../component/shared/base';
+import {Path} from '../../config/config';
+import {BaseComponent} from '../../../config/imports/shared';
 
 import {AppService, UserService} from '../../../config/imports/service';
 
@@ -9,7 +10,7 @@ import {User} from '../../../service/model/user';
 
 @Component({
     selector: 'app-home',
-    templateUrl: '/view/marketing/home.html',
+    templateUrl: Path.Component('home/home.html'),
     directives: [CORE_DIRECTIVES, FORM_DIRECTIVES]
 })
 export class HomeComponent extends BaseComponent {

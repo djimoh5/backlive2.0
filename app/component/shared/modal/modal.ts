@@ -1,12 +1,14 @@
 import {Component, NgIf} from 'angular2/angular2';
-import {BaseComponent} from '../shared/base';
+import {Path} from '../../../config/config';
+import {BaseComponent, AlertComponent} from '../../../config/imports/shared';
 
-import {AppService} from '../../service/app';
-import {Event} from '../../model/event';
+import {AppService, UserService} from '../../../config/imports/service';
+
+import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'backlive-modal',
-    templateUrl: '/view/shared/modal.html',
+    templateUrl: Path.Component('shared/modal/modal.html'),
     directives: [NgIf]
 })
 export class ModalComponent extends BaseComponent {

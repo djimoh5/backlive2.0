@@ -1,12 +1,13 @@
 ﻿import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
-import {PageComponent} from '../shared/page';
-import {AppService} from '../../service/app-service';
+import {PageComponent, AlertComponent} from '../../config/imports/shared';
 
-import {StrategyComponent} from './strategy';
-import {TickerComponent} from './ticker';
+import {AppService, UserService} from '../../config/imports/service';
 
-import {Event} from '../../model/event';
-import {Alert} from '../../model/alert';
+import {StrategyComponent} from '../backtest/strategy/strategy';
+import {TickerComponent} from '../shared/ticker/ticker';
+
+import {Event} from '../../service/model/event';
+import {Alert} from '../../service/model/alert';
 
 @Component({
     selector: 'app-dashboard',

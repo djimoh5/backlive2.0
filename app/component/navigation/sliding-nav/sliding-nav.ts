@@ -1,8 +1,8 @@
 import {Component, CORE_DIRECTIVES, ElementRef, ComponentRef, DynamicComponentLoader, NgZone} from 'angular2/angular2';
-import {BaseComponent} from '../shared/base';
+import {BaseComponent} from '../../../config/imports/shared';
 
-import {AppService} from '../../service/app';
-import {Event} from '../../model/event';
+import {AppService} from '../../../config/imports/service';
+import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'sliding-nav',

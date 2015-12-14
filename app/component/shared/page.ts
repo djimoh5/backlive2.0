@@ -1,8 +1,9 @@
 import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
-import {BaseComponent} from '../shared/base';
-import {AppService} from '../../service/app';
+import {BaseComponent} from './base';
 
-import {Event} from '../../model/event';
+import {AppService} from '../../config/imports/service';
+
+import {Event} from '../../service/model/event';
 import {Animation} from '../../utility/animation';
 
 @Component({

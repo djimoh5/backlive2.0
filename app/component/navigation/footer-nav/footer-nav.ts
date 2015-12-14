@@ -1,7 +1,7 @@
 import {Component} from 'angular2/angular2';
-import {BaseComponent} from '../shared/base';
+import {BaseComponent} from '../../../config/imports/shared';
 
-import {AppService} from '../../service/app';
+import {AppService} from '../../../config/imports/service';
 
 @Component({
     selector: 'footer-nav',

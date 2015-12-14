@@ -1,8 +1,8 @@
 import {Component, FORM_DIRECTIVES} from 'angular2/angular2';
-import {BaseComponent} from '../shared/base';
+import {BaseComponent} from '../../../config/imports/shared';
 
-import {AppService} from '../../service/app';
-import {Event} from '../../model/event';
+import {AppService} from '../../../config/imports/service';
+import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'search-bar',

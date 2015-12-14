@@ -1,32 +1,27 @@
 ﻿import {Component, bootstrap, bind, ViewEncapsulation, CORE_DIRECTIVES, ElementRef, Attribute} from 'angular2/angular2';
 import {Location, RouteConfig, ROUTER_PROVIDERS, ROUTER_DIRECTIVES, LocationStrategy, HashLocationStrategy} from 'angular2/router';
 import {HTTP_PROVIDERS} from 'angular2/http';
+import {Path} from '../config/config';
 
 import {RouteComponentMap} from '../config/routes';
 
 /* services */
-import {AppService} from '../service/app';
-import {RouterService, AuthRouterOutlet} from '../service/router';
-import {ApiService} from '../service/api';
-import {UserService} from '../service/user';
+import {AppService, RouterService, AuthRouterOutlet, ApiService, UserService} from '../config/imports/service';
 
 /* components */
-import {BaseComponent} from './shared/base';
-import {HeaderNavComponent} from './navigation/header-nav';
-import {SlidingNavComponent} from './navigation/sliding-nav';
-import {FooterNavComponent} from './navigation/footer-nav';
-import {ModalComponent} from './shared/modal';
+import {BaseComponent, ModalComponent} from '../config/imports/shared';
+import {HeaderNavComponent, SlidingNavComponent, FooterNavComponent} from '../config/imports/navigation';
 
 /* models */
-import {Event} from '../model/event';
-import {User} from '../model/user';
-import {Alert} from '../model/alert';
+import {Event} from '../service/model/event';
+import {User} from '../service/model/user';
+import {Alert} from '../service/model/alert';
 
 RouterService.setRouteMap(RouteComponentMap);
 
 @Component({
     selector: 'backlive-app',
-    templateUrl: '/view/app.html',
+    templateUrl: Path.Component('app.html'),
     directives: [CORE_DIRECTIVES, ROUTER_DIRECTIVES, AuthRouterOutlet, HeaderNavComponent, SlidingNavComponent, FooterNavComponent, ModalComponent]
 })
 @RouteConfig(RouterService.AppRoutes)

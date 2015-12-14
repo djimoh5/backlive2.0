@@ -1,12 +1,10 @@
 import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
-import {PageComponent} from '../shared/page';
-import {AlertComponent} from '../shared/alert';
+import {PageComponent, AlertComponent} from '../../config/imports/shared';
 
-import {AppService} from '../../service/app';
-import {UserService} from '../../service/user';
+import {AppService, UserService} from '../../config/imports/service';
 
 import {Route} from '../../config/routes';
-import {Event} from '../../model/event';
+import {Event} from '../../service/model/event';
 
 @Component({
     selector: 'research',

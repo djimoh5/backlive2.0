@@ -2,11 +2,10 @@
 	<header-nav></header-nav>
 </header>
 <div id="mainContainer">
-    <div class="main" [ng-class]="{ 'nav-visible': isSlidingNavVisible }">
+    <div class="main">
         <chart></chart>
         <auth-router-outlet></auth-router-outlet>
     </div>
-    <sliding-nav [ng-class]="{ hide: !isSlidingNavVisible }"></sliding-nav>
 </div>
 <footer>
 	<footer-nav><footer-nav>

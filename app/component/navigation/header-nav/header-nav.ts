@@ -1,13 +1,11 @@
 import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
-import {BaseComponent} from '../shared/base';
+import {BaseComponent} from '../../../config/imports/shared';
 
-import {AppService} from '../../service/app';
-import {RouterService} from '../../service/router';
-import {UserService} from '../../service/user';
+import {AppService, UserService, RouterService} from '../../../config/imports/service';
 
-import {Route} from '../../config/routes';
-import {Event} from '../../model/event';
-import {User} from '../../model/user';
+import {Route} from '../../../config/routes';
+import {Event} from '../../../service/model/event';
+import {User} from '../../../service/model/user';
 
 @Component({
     selector: 'header-nav',
