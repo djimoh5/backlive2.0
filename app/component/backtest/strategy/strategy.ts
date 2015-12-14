@@ -1,18 +1,17 @@
 import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
-import {PageComponent} from '../shared/page';
-import {AppService} from '../../service/app';
+import {Path} from '../../../config/config';
+import {BaseComponent} from '../../../config/imports/shared';
 
-import {StrategyComponent} from './strategy/strategy';
+import {AppService, UserService} from '../../../config/imports/service';
 
-import {Event} from '../../model/event';
-import {Alert} from '../../model/alert';
+import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'app-strategy',
-    templateUrl: '/view/dashboard/strategy.html',
+    templateUrl: Path.Component('dashboard/strategy/strategy.html'),
     directives: [CORE_DIRECTIVES]
 })
-export class StrategyComponent extends PageComponent {
+export class StrategyComponent extends BaseComponent {
     constructor(appService: AppService) {
         super(appService);
         //appService.notify(Event.Alert, new Alert("welcome to the visanow app!"));

@@ -58,5 +58,3 @@ export class AppComponent extends BaseComponent {
         console.log(alert);
     }
 }
-
-bootstrap(AppComponent, [AppService, RouterService, AuthRouterOutlet, UserService, ApiService, ModalComponent, HTTP_PROVIDERS, ROUTER_PROVIDERS, ElementRef, bind(LocationStrategy).toClass(HashLocationStrategy)]);

@@ -1,7 +1,7 @@
 import {Injectable, Directive, ElementRef, DynamicComponentLoader} from 'angular2/angular2';
 import {Location, Router, RouteDefinition, RouterOutlet, ComponentInstruction} from 'angular2/router';
 
-import {UserService} from '../service/user-service';
+import {UserService} from './user-service';
 import {Common, Object} from '../utility/common';
 
 export interface RouteMap {

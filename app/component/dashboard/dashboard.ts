@@ -1,5 +1,6 @@
 ﻿import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
-import {PageComponent, AlertComponent} from '../../config/imports/shared';
+import {Path} from '../../config/config';
+import {PageComponent} from '../../config/imports/shared';
 
 import {AppService, UserService} from '../../config/imports/service';
 
@@ -11,7 +12,7 @@ import {Alert} from '../../service/model/alert';
 
 @Component({
     selector: 'app-dashboard',
-    templateUrl: '/view/dashboard/dashboard.html',
+    templateUrl: Path.Component('dashboard/dashboard.html'),
     directives: [CORE_DIRECTIVES]
 })
 export class DashboardComponent extends PageComponent {

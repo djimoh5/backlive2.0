@@ -1,12 +1,14 @@
 import {Component} from 'angular2/angular2';
-import {PageComponent} from '../shared/page';
-import {AppService} from '../../service/app';
+import {Path} from '../../../config/config';
+import {PageComponent} from '../../../config/imports/shared';
 
-import {Event} from '../../model/event';
+import {AppService} from '../../../config/imports/service';
+
+import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'backlive-splash',
-    templateUrl: '/view/home/splash.html',
+    templateUrl: Path.Component('home/splash/splash.html')
 })
 export class SplashComponent extends PageComponent {
     constructor(appService: AppService) {

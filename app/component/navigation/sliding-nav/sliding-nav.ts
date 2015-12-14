@@ -1,4 +1,5 @@
-import {Component, CORE_DIRECTIVES, ElementRef, ComponentRef, DynamicComponentLoader, NgZone} from 'angular2/angular2';
+import {Component, CORE_DIRECTIVES, ElementRef, ComponentRef, DynamicComponentLoader} from 'angular2/angular2';
+import {Path} from '../../../config/config';
 import {BaseComponent} from '../../../config/imports/shared';
 
 import {AppService} from '../../../config/imports/service';
@@ -6,24 +7,22 @@ import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'sliding-nav',
-    templateUrl: '/view/navigation/sliding-nav.html',
+    templateUrl: Path.Component('navigation/sliding-nav/sliding-nav.html'),
     directives: [CORE_DIRECTIVES]
 })
 export class SlidingNavComponent extends BaseComponent {
     items: NavItem[];
     componentLoader: DynamicComponentLoader;
     elementRef: ElementRef;
-    ngZone: NgZone;
     
     activeComponent: ComponentRef;
     isActive: boolean = false;
     isVisible: boolean = false;
     
-    constructor(appService:AppService, componentLoader: DynamicComponentLoader, elementRef: ElementRef, ngZone: NgZone) {
+    constructor(appService:AppService, componentLoader: DynamicComponentLoader, elementRef: ElementRef) {
         super(appService);
         this.componentLoader = componentLoader;
         this.elementRef = elementRef;
-        this.ngZone = ngZone;
         this.items = [];
         
         //this.appService.clearEvent(Event.SlidingNavItems);

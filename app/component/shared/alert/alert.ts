@@ -1,8 +1,9 @@
 import {Component, NgClass} from 'angular2/angular2';
+import {Path} from '../../../config/config';
 
 @Component({
     selector: 'app-alert',
-    templateUrl: '/view/shared/alert.html',
+    templateUrl: Path.Component('shared/alert/alert.html'),
     inputs: [
         'type: type',
         'message: message'

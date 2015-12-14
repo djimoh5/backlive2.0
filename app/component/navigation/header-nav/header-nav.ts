@@ -1,4 +1,5 @@
 import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
+import {Path} from '../../../config/config';
 import {BaseComponent} from '../../../config/imports/shared';
 
 import {AppService, UserService, RouterService} from '../../../config/imports/service';
@@ -9,7 +10,7 @@ import {User} from '../../../service/model/user';
 
 @Component({
     selector: 'header-nav',
-    templateUrl: '/view/navigation/header-nav.html',
+    templateUrl: Path.Component('navigation/header-nav/header-nav.html'),
     directives: [CORE_DIRECTIVES]
 })
 export class HeaderNavComponent extends BaseComponent {

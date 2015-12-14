@@ -39,7 +39,7 @@ Session = function(request, response) {
     
     this.login = function(uname, pword, callback) {
         var uuid = require('node-uuid');
-        var md5 = require('../.' + DIR_JS + 'md5');
+        var md5 = require('../.' + DIR_JS + 'md5.min');
         //var hexPw = md5.hex_md5(pword);
         
         db.mongo.collection('user', function(error, collection) {
@@ -87,7 +87,7 @@ Session = function(request, response) {
     
     this.register = function(uname, pword, email, callback) {
         if(uname && uname.length >= 4 && pword && pword.length >= 4 && email && u.validEmail(email)) {
-            var md5 = require('../.' + DIR_JS_LIB + 'md5');
+            var md5 = require('../.' + DIR_JS_LIB + 'md5.min');
             
             db.mongo.collection('user', function(error, collection) {
                 collection.find({ u:uname }).toArray(function(err, results) {
@@ -132,7 +132,7 @@ Session = function(request, response) {
     }
     
     this.changePassword = function(opword, npword, callback) {
-        var md5 = require('../.' + DIR_JS_LIB + 'md5');
+        var md5 = require('../.' + DIR_JS_LIB + 'md5.min');
         var oid = new db.ObjectID(user.uid);
         //console.log(opword, npword);
 
@@ -167,7 +167,7 @@ Session = function(request, response) {
     }
     
     this.forgotPassword = function(uname, callback) {
-        var md5 = require('../.' + DIR_JS_LIB + 'md5');
+        var md5 = require('../.' + DIR_JS_LIB + 'md5.min');
 
         db.mongo.collection('user', function(error, collection) {
             collection.findOne({ u:uname }, function(err, result) {

@@ -1,4 +1,5 @@
 import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
+import {Path} from '../../../config/config';
 import {BaseComponent} from '../../../config/imports/shared';
 
 import {AppService} from '../../../config/imports/service';
@@ -8,7 +9,7 @@ import {Alert} from '../../../service/model/alert';
 
 @Component({
     selector: 'app-ticker',
-    templateUrl: '/view/dashboard/ticker.html',
+    templateUrl: Path.Component('shared/ticker/ticker.html'),
     directives: [CORE_DIRECTIVES]
 })
 export class TickerComponent extends BaseComponent {

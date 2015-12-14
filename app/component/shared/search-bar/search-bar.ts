@@ -1,4 +1,5 @@
 import {Component, FORM_DIRECTIVES} from 'angular2/angular2';
+import {Path} from '../../../config/config';
 import {BaseComponent} from '../../../config/imports/shared';
 
 import {AppService} from '../../../config/imports/service';
@@ -6,7 +7,7 @@ import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'search-bar',
-    templateUrl: '/view/shared/search-bar.html',
+    templateUrl: Path.Component('shared/search-bar/search-bar.html'),
     directives: [FORM_DIRECTIVES]
 })
 export class SearchBarComponent extends BaseComponent {
