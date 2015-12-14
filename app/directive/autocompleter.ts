@@ -1,4 +1,4 @@
-import {Directive, ElementRef, EventEmitter, Output} from 'angular2/angular2';
+import {Directive, ElementRef, EventEmitter, Output, OnInit} from 'angular2/angular2';
 import {Common} from '../utility/common';
 
 @Directive({
@@ -7,21 +7,24 @@ import {Common} from '../utility/common';
         'data: autocompleter'
     ]
 })
-export class AutoCompleter {
+export class AutoCompleter implements OnInit {
     data: any;
+    elementRef: ElementRef;
     @Output() onSelect:EventEmitter = new EventEmitter();
     
     constructor(elementRef: ElementRef) {
-        var $elem = $(elementRef.nativeElement);
+        this.elementRef = elementRef;
+    }
+    
+    onInit() {
+        var $elem = $(this.elementRef.nativeElement);
         
-        setTimeout(() => { //inputs are not populated until after constructor is run
-            if(Common.isString(this.data)) {
-                $elem.autocomplete({ serviceUrl: this.data, onSelect: (suggestion: any) => this.selected(suggestion) });
-            }
-            else {
-                $elem.autocomplete({ lookup: this.data, onSelect: (suggestion: any) => this.selected(suggestion) });
-            }
-        });
+        if(Common.isString(this.data)) {
+            $elem.autocomplete({ serviceUrl: this.data, onSelect: (suggestion: any) => this.selected(suggestion) });
+        }
+        else {
+            $elem.autocomplete({ lookup: this.data, onSelect: (suggestion: any) => this.selected(suggestion) });
+        }
     }
     
     selected (suggestion: any) {

@@ -1,7 +1,7 @@
 // import all components that will be used as routes
-import {SplashComponent} from '../component/home/splash';
-import {LoginComponent} from '../component/home/login';
-import {DashboardComponent} from '../component/home/dashboard';
+import {SplashComponent} from '../component/home/splash/splash';
+import {LoginComponent} from '../component/home/login/login';
+import {DashboardComponent} from '../component/dashboard/dashboard';
 import {ResearchComponent} from '../component/research/research';
 import {BacktestComponent} from '../component/backtest/backtest';
 import {PortfolioComponent} from '../component/portfolio/portfolio';

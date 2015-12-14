@@ -8,6 +8,7 @@ function BaseController(services) {
 	
 	function initSession(req, res, next) {
 		req.session = new Session(req, res);
+		console.log(res.session)
 		next();
 	}
 	

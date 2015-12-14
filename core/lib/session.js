@@ -18,7 +18,7 @@ Session = function(request, response) {
     
     if(sessionId)
         user = users[sessionId];
-    
+
     if(!user)
         user = { error:'no session id', uid:0 };
     else if(!user.name) {

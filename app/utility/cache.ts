@@ -1,3 +1,7 @@
+import {jStorage, MD5} from '../config/imports/js';
+System.import(jStorage);
+System.import(MD5);
+
 export class Cache {
 	static set (key: string, data: any, expirationInSeconds: number = 0) {
 		var encryptedKey = md5(key);

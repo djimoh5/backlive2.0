@@ -1,0 +1,1 @@
+export {SortByPipe} from '../../pipe/sortby-pipe';
