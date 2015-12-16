@@ -21,7 +21,7 @@ RouterService.setRouteMap(RouteComponentMap);
 
 @Component({
     selector: 'backlive-app',
-    templateUrl: Path.Component('app.html'),
+    templateUrl: Path.Component('app.component.html'),
     directives: [CORE_DIRECTIVES, ROUTER_DIRECTIVES, AuthRouterOutlet, HeaderNavComponent, SlidingNavComponent, FooterNavComponent, ModalComponent]
 })
 @RouteConfig(RouterService.AppRoutes)

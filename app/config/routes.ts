@@ -1,10 +1,10 @@
 // import all components that will be used as routes
-import {SplashComponent} from '../component/home/splash/splash';
-import {AccessDeniedComponent} from '../component/home/access-denied/access-denied';
-import {DashboardComponent} from '../component/dashboard/dashboard';
-import {ResearchComponent} from '../component/research/research';
-import {BacktestComponent} from '../component/backtest/backtest';
-import {PortfolioComponent} from '../component/portfolio/portfolio';
+import {SplashComponent} from '../component/home/splash/splash.component';
+import {AccessDeniedComponent} from '../component/home/access-denied/access-denied.component';
+import {DashboardComponent} from '../component/dashboard/dashboard.component';
+import {ResearchComponent} from '../component/research/research.component';
+import {BacktestComponent} from '../component/backtest/backtest.component';
+import {PortfolioComponent} from '../component/portfolio/portfolio.component';
 
 // define routes and map to components
 import {RouteMap} from '../service/router-service';
