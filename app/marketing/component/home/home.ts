@@ -1,5 +1,5 @@
 import {Component, ControlGroup, Control, Validators, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2';
-import {Path} from '../../config/config';
+import {Path} from '/app/marketing/config/config';
 import {BaseComponent} from '../../../config/imports/shared';
 
 import {AppService, UserService} from '../../../config/imports/service';

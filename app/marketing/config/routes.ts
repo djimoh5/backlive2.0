@@ -6,14 +6,14 @@ import {FaqComponent} from '../component/faq/faq';
 import {TermsComponent} from '../component/terms/terms';
 
 // define routes and map to components
-import {RouteMap} from '../../service/router-service';
+import {RouteMap} from '../../service/router.service';
 
 export class Route {
-	public static get Home(): string[] { return ['/Home'] };
-	public static get Pricing(): string[] { return ['/Pricing'] };
-    public static get AboutUs(): string[] { return ['/Aboutus'] };
-	public static get Faq(): string[] { return ['/Faq'] };
-	public static get Terms(): string[] { return ['/Terms'] };
+	static Home: string[] = ['/Home'];
+	static Pricing: string[] = ['/Pricing'];
+    static AboutUs: string[] = ['/Aboutus'];
+	static Faq: string[] = ['/Faq'];
+	static Terms: string[] = ['/Terms'];
 }
 
 export var RouteComponentMap: RouteMap[]  = [

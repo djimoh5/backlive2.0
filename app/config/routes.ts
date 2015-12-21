@@ -7,15 +7,15 @@ import {BacktestComponent} from '../component/backtest/backtest.component';
 import {PortfolioComponent} from '../component/portfolio/portfolio.component';
 
 // define routes and map to components
-import {RouteMap} from '../service/router-service';
+import {RouteMap} from '../service/router.service';
 
 export class Route {
-	public static get Dashboard(): string[] { return ['/Dashboard'] };
-	public static get Splash(): string[] { return ['/Splash'] };
-    public static get AccessDenied(): string[] { return ['/Accessdenied'] };
-	public static get Research(): string[] { return ['/Research'] };
-	public static get Backtest(): string[] { return ['/Backtest'] };
-	public static get Portfolio(): string[] { return ['/Portfolio'] };
+	static Dashboard: string[] = ['/Dashboard'];
+	static Splash: string[] = ['/Splash'];
+    static AccessDenied: string[] = ['/Accessdenied'];
+	static Research: string[] = ['/Research'];
+	static Backtest: string[] = ['/Backtest'];
+	static Portfolio: string[] = ['/Portfolio'];
 }
 
 export var RouteComponentMap: RouteMap[]  = [

@@ -11,5 +11,5 @@ for(var key in Services) {
 	serviceBoostrap.push(Services[key]);
 }
 
-import {AppComponent} from './component/app';
+import {AppComponent} from './component/app.component';
 bootstrap(AppComponent, serviceBoostrap.concat([ROUTER_PROVIDERS, HTTP_PROVIDERS, ElementRef]));
