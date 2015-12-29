@@ -1,8 +1,8 @@
-import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
+import {Component} from 'angular2/core';
 import {Path} from '../../config/config';
-import {PageComponent, AlertComponent} from '../../config/imports/shared';
+import {PageComponent, AlertComponent} from 'backlive/component/shared';
 
-import {AppService, UserService} from '../../config/imports/service';
+import {AppService, UserService} from 'backlive/service';
 
 import {Route} from '../../config/routes';
 import {Event} from '../../service/model/event';
@@ -10,7 +10,7 @@ import {Event} from '../../service/model/event';
 @Component({
     selector: 'portfolio',
     templateUrl: Path.Component('portfolio/portfolio.component.html'),
-    directives: [CORE_DIRECTIVES]
+    directives: []
 })
 export class PortfolioComponent extends PageComponent {
     userService: UserService;

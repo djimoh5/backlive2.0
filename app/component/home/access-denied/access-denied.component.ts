@@ -1,7 +1,7 @@
-import {Component} from 'angular2/angular2';
+import {Component} from 'angular2/core';
 import {Path} from '../../../config/config';
-import {PageComponent} from '../../../config/imports/shared';
-import {AppService} from '../../../config/imports/service';
+import {PageComponent} from 'backlive/component/shared';
+import {AppService} from 'backlive/service';
 
 @Component({
     selector: 'access-denied',

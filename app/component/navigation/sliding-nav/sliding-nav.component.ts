@@ -1,14 +1,14 @@
-import {Component, CORE_DIRECTIVES, ElementRef, ComponentRef, DynamicComponentLoader} from 'angular2/angular2';
+import {Component, ElementRef, ComponentRef, DynamicComponentLoader} from 'angular2/core';
 import {Path} from '../../../config/config';
-import {BaseComponent} from '../../../config/imports/shared';
+import {BaseComponent} from 'backlive/component/shared';
 
-import {AppService} from '../../../config/imports/service';
+import {AppService} from 'backlive/service';
 import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'sliding-nav',
     templateUrl: Path.Component('navigation/sliding-nav/sliding-nav.component.html'),
-    directives: [CORE_DIRECTIVES]
+    directives: []
 })
 export class SlidingNavComponent extends BaseComponent {
     items: NavItem[];

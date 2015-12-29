@@ -1,8 +1,8 @@
-import {Component} from 'angular2/angular2';
+import {Component} from 'angular2/core';
 import {Path} from '../../../config/config';
-import {BaseComponent} from '../../../config/imports/shared';
+import {BaseComponent} from 'backlive/component/shared';
 
-import {AppService} from '../../../config/imports/service';
+import {AppService} from 'backlive/service';
 
 @Component({
     selector: 'footer-nav',

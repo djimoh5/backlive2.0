@@ -1,11 +1,11 @@
-﻿import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
+﻿import {Component} from 'angular2/core';
 import {Path} from '../../config/config';
-import {PageComponent} from '../../config/imports/shared';
+import {PageComponent} from 'backlive/component/shared';
 
-import {AppService, UserService} from '../../config/imports/service';
+import {AppService, UserService} from 'backlive/service';
 
-import {StrategyComponent} from '../backtest/strategy/strategy.component';
-import {TickerComponent} from '../shared/ticker/ticker.component';
+import {StrategyComponent} from 'backlive/component/backtest';
+import {TickerComponent} from 'backlive/component/portfolio';
 
 import {Event} from '../../service/model/event';
 import {Alert} from '../../service/model/alert';
@@ -13,7 +13,7 @@ import {Alert} from '../../service/model/alert';
 @Component({
     selector: 'app-dashboard',
     templateUrl: Path.Component('dashboard/dashboard.component.html'),
-    directives: [CORE_DIRECTIVES]
+    directives: []
 })
 export class DashboardComponent extends PageComponent {
     stategies: StrategyComponent[];

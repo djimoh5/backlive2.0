@@ -1,15 +1,15 @@
-import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
+import {Component} from 'angular2/core';
 import {Path} from '../../../config/config';
-import {BaseComponent} from '../../../config/imports/shared';
+import {BaseComponent} from 'backlive/component/shared';
 
-import {AppService, UserService} from '../../../config/imports/service';
+import {AppService, UserService} from 'backlive/service';
 
 import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'app-strategy',
     templateUrl: Path.Component('dashboard/strategy/strategy.html'),
-    directives: [CORE_DIRECTIVES]
+    directives: []
 })
 export class StrategyComponent extends BaseComponent {
     constructor(appService: AppService) {

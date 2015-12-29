@@ -1,15 +1,15 @@
-﻿import {Component, bootstrap, bind, ViewEncapsulation, CORE_DIRECTIVES, ElementRef, Attribute} from 'angular2/angular2';
-import {Location, RouteConfig, ROUTER_PROVIDERS, ROUTER_DIRECTIVES, LocationStrategy, HashLocationStrategy} from 'angular2/router';
+﻿import {Component, bind, ViewEncapsulation, ElementRef, Attribute} from 'angular2/core';
+import {Location, RouteConfig, ROUTER_PROVIDERS, ROUTER_DIRECTIVES} from 'angular2/router';
 import {HTTP_PROVIDERS} from 'angular2/http';
 import {Path} from '../config/config';
 
 import {RouteComponentMap} from '../config/routes';
 
 /* services */
-import {AppService, RouterService, AuthRouterOutlet, ApiService, UserService} from '../config/imports/service';
+import {AppService, RouterService, AuthRouterOutlet, ApiService, UserService} from 'backlive/service';
 
 /* components */
-import {BaseComponent, ModalComponent} from '../config/imports/shared';
+import {BaseComponent, ModalComponent} from 'backlive/component/shared';
 import {HeaderNavComponent, SlidingNavComponent, FooterNavComponent} from '../config/imports/navigation';
 
 /* models */
@@ -22,7 +22,7 @@ RouterService.setRouteMap(RouteComponentMap);
 @Component({
     selector: 'backlive-app',
     templateUrl: Path.Component('app.component.html'),
-    directives: [CORE_DIRECTIVES, ROUTER_DIRECTIVES, AuthRouterOutlet, HeaderNavComponent, SlidingNavComponent, FooterNavComponent, ModalComponent]
+    directives: [ROUTER_DIRECTIVES, AuthRouterOutlet, HeaderNavComponent, SlidingNavComponent, FooterNavComponent, ModalComponent]
 })
 @RouteConfig(RouterService.AppRoutes)
 export class AppComponent extends BaseComponent {
