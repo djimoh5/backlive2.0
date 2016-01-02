@@ -1,5 +1,5 @@
 import {Component, ElementRef, ComponentRef, DynamicComponentLoader} from 'angular2/core';
-import {Path} from '../../../config/config';
+import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
 
 import {AppService} from 'backlive/service';
@@ -7,7 +7,7 @@ import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'sliding-nav',
-    templateUrl: Path.Component('navigation/sliding-nav/sliding-nav.component.html'),
+    templateUrl: Path.Component('navigation/sliding-nav'),
     directives: []
 })
 export class SlidingNavComponent extends BaseComponent {
@@ -25,8 +25,7 @@ export class SlidingNavComponent extends BaseComponent {
         this.elementRef = elementRef;
         this.items = [];
         
-        //this.appService.clearEvent(Event.SlidingNavItems);
-        this.appService.subscribe(Event.SlidingNavItems, (items: NavItem[]) => this.updateItems(items));
+        this.subscribeEvent(Event.SlidingNavItems, (items: NavItem[]) => this.updateItems(items));
     }
     
     updateItems(items: NavItem[]) {

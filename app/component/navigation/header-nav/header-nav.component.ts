@@ -1,16 +1,16 @@
 import {Component} from 'angular2/core';
-import {Path} from '../../../config/config';
+import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
 
 import {AppService, UserService, RouterService} from 'backlive/service';
 
-import {Route} from '../../../config/routes';
+import {Route} from 'backlive/routes';
 import {Event} from '../../../service/model/event';
 import {User} from '../../../service/model/user';
 
 @Component({
     selector: 'header-nav',
-    templateUrl: Path.Component('navigation/header-nav/header-nav.component.html'),
+    templateUrl: Path.ComponentView('navigation/header-nav'),
     directives: []
 })
 export class HeaderNavComponent extends BaseComponent {

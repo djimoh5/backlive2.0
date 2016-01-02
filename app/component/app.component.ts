@@ -1,16 +1,16 @@
 ﻿import {Component, bind, ViewEncapsulation, ElementRef, Attribute} from 'angular2/core';
 import {Location, RouteConfig, ROUTER_PROVIDERS, ROUTER_DIRECTIVES} from 'angular2/router';
 import {HTTP_PROVIDERS} from 'angular2/http';
-import {Path} from '../config/config';
+import {Path} from 'backlive/config';
 
-import {RouteComponentMap} from '../config/routes';
+import {RouteComponentMap} from 'backlive/routes';
 
 /* services */
 import {AppService, RouterService, AuthRouterOutlet, ApiService, UserService} from 'backlive/service';
 
 /* components */
 import {BaseComponent, ModalComponent} from 'backlive/component/shared';
-import {HeaderNavComponent, SlidingNavComponent, FooterNavComponent} from '../config/imports/navigation';
+import {HeaderNavComponent, SlidingNavComponent, FooterNavComponent} from 'backlive/component/navigation';
 
 /* models */
 import {Event} from '../service/model/event';
@@ -39,10 +39,10 @@ export class AppComponent extends BaseComponent {
         
         userService.getUser().then(user => this.initRoute(user));
         
-        this.appService.subscribe(Event.Navigate, (route: string[]) => this.navigate(route));
-        this.appService.subscribe(Event.Alert, this.showAlert);
-        this.appService.subscribe(Event.SlidingNavVisible, (visible: boolean) => this.isSlidingNavVisible = visible);
-        this.appService.subscribe(Event.PageLoading, (loading: boolean) => this.isPageLoading = loading);
+        this.subscribeEvent(Event.Navigate, (route: string[]) => this.navigate(route));
+        this.subscribeEvent(Event.Alert, this.showAlert);
+        this.subscribeEvent(Event.SlidingNavVisible, (visible: boolean) => this.isSlidingNavVisible = visible);
+        this.subscribeEvent(Event.PageLoading, (loading: boolean) => this.isPageLoading = loading);
     }
     
     initRoute(user: User) {

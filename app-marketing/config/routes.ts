@@ -1,12 +1,12 @@
 // import all components that will be used as routes
-import {HomeComponent} from '../component/home/home';
-import {PricingComponent} from '../component/pricing/pricing';
-import {AboutUsComponent} from '../component/aboutus/aboutus';
-import {FaqComponent} from '../component/faq/faq';
-import {TermsComponent} from '../component/terms/terms';
+import {HomeComponent} from '../component/home/home.component';
+import {PricingComponent} from '../component/pricing/pricing.component';
+import {AboutUsComponent} from '../component/aboutus/aboutus.component';
+import {FaqComponent} from '../component/faq/faq.component';
+import {TermsComponent} from '../component/terms/terms.component';
 
 // define routes and map to components
-import {RouteMap} from '../../service/router.service';
+import {RouteMap} from '../../app/service/router.service';
 
 export class Route {
 	static Home: string[] = ['/Home'];

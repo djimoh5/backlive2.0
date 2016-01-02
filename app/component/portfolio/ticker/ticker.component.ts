@@ -1,16 +1,16 @@
-import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
-import {Path} from '../../../config/config';
-import {BaseComponent} from '../../../config/imports/shared';
+import {Component} from 'angular2/core';
+import {Path} from 'backlive/config';
+import {BaseComponent} from 'backlive/component/shared';
 
-import {AppService} from '../../../config/imports/service';
+import {AppService} from 'backlive/service';
 
 import {Event} from '../../../service/model/event';
 import {Alert} from '../../../service/model/alert';
 
 @Component({
-    selector: 'app-ticker',
-    templateUrl: Path.Component('shared/ticker/ticker.component.html'),
-    directives: [CORE_DIRECTIVES]
+    selector: 'backlive-ticker',
+    templateUrl: Path.ComponentView('portfolio/ticker'),
+    directives: []
 })
 export class TickerComponent extends BaseComponent {
     constructor(appService: AppService) {

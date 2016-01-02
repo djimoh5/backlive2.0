@@ -1,5 +1,5 @@
 import {Component} from 'angular2/core';
-import {Path} from '../../../config/config';
+import {Path} from 'backlive/config';
 import {PageComponent} from 'backlive/component/shared';
 
 import {AppService} from 'backlive/service';
@@ -7,8 +7,8 @@ import {AppService} from 'backlive/service';
 import {Event} from '../../../service/model/event';
 
 @Component({
-    selector: 'backlive-splash',
-    templateUrl: Path.Component('home/splash/splash.component.html')
+    selector: 'app-splash',
+    templateUrl: Path.ComponentView('home/splash')
 })
 export class SplashComponent extends PageComponent {
     constructor(appService: AppService) {

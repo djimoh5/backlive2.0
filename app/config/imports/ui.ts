@@ -1,3 +1,4 @@
+export {AlertComponent} from '../../component/shared/ui/alert/alert.component';
 export {ProgressBarComponent} from '../../component/shared/ui/progress-bar.component';
 
 //Buttons

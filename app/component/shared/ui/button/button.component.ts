@@ -1,15 +1,16 @@
 import {Component, Input, Output, EventEmitter, OnChanges} from 'angular2/core';
-import {AppService} from '../../../../config/imports/service';
+import {AppService} from 'backlive/service';
 
 import {Type, Size} from './button.input';
 
 @Component({
-    selector: 'vn-button',
+    selector: 'app-button',
     template: `<button type="{{type =='submit' ? 'submit' : 'button' }}" [class]="btnClass" [disabled]="disabled">
-	               <vn-icon *ngIf="icon" [type]="icon"></vn-icon><ng-content></ng-content>
+	               <vn-icon *ngIf="icon" [type]="icon"></vn-icon><ng-content></ng-content>{{title}}
                </button>`
 })
 export class ButtonComponent implements OnChanges {
+    @Input() title: string;
     @Input() type: string;
     @Input() size: string;
     @Input() disabled: boolean;
@@ -23,7 +24,7 @@ export class ButtonComponent implements OnChanges {
     }
 
     ngOnChanges () {
-        this.btnClass = 'btn ' +(this.type && Type[this.type] ? Type[this.type] : Type.default);
+        this.btnClass = 'btn ' + (this.type && Type[this.type] ? Type[this.type] : Type.default);
         
         if(this.size && Size[this.size]) {
             this.btnClass += ' ' + Size[this.size];

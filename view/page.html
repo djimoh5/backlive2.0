@@ -44,14 +44,28 @@
 <script src="/js/plugins/highcharts/highstock.js" type="text/javascript"></script>
 
 <script>
-    var cacheBuster = '?v=' + Math.ceil(Math.random() * 1000000000);
-    var defaultExt = 'ts' + cacheBuster;
+    var GLOBAL_CACHE_BUSTER = '', defaultExt;
+    var ENV = 'dev';
+    
+    if(ENV == 'dev') {
+        GLOBAL_CACHE_BUSTER = '?v=' + Math.round(Math.random() * 1000000000);
+        defaultExt = 'ts' + GLOBAL_CACHE_BUSTER;
+    }
+    else {
+        defaultExt = 'ts'; //TODO: change to js when we get npm tsc compiler in teamcity build
+    }
     
     System.config({
         transpiler: 'typescript',
         typescriptOptions: { emitDecoratorMetadata: true },
         packages: {
-            'app': {defaultExtension: defaultExt}
+            'app': {defaultExtension: defaultExt},
+            'app-marketing': {defaultExtension: defaultExt}
+        },
+        map: {
+            'backlive/marketing/*': 'app-marketing/config/imports/*',
+            'backlive/design/*': 'app-design/config/imports/*',
+            'backlive/*': 'app/config/imports/*'
         },
         baseURL: '/'
     });

@@ -1,15 +1,15 @@
 import {Component} from 'angular2/core';
-import {Path} from '../../config/config';
-import {PageComponent, AlertComponent} from 'backlive/component/shared';
+import {Path} from 'backlive/config';
+import {PageComponent} from 'backlive/component/shared';
 
 import {AppService, UserService} from 'backlive/service';
 
-import {Route} from '../../config/routes';
+import {Route} from 'backlive/routes';
 import {Event} from '../../service/model/event';
 
 @Component({
-    selector: 'portfolio',
-    templateUrl: Path.Component('portfolio/portfolio.component.html'),
+    selector: 'backlive-portfolio',
+    templateUrl: Path.Component('portfolio'),
     directives: []
 })
 export class PortfolioComponent extends PageComponent {

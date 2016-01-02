@@ -1,7 +1,7 @@
-import {Component} from 'angular2/angular2';
-import {BaseComponent} from '../shared/base';
+import {Component} from 'angular2/core';
+import {BaseComponent} from 'backlive/component/shared';
 
-import {AppService} from '../../service/app';
+import {AppService} from 'backlive/service';
 
 @Component({
     selector: 'app-faq',

@@ -1,5 +1,5 @@
 ﻿import {Component} from 'angular2/core';
-import {Path} from '../../config/config';
+import {Path} from 'backlive/config';
 import {PageComponent} from 'backlive/component/shared';
 
 import {AppService, UserService} from 'backlive/service';
@@ -12,7 +12,7 @@ import {Alert} from '../../service/model/alert';
 
 @Component({
     selector: 'app-dashboard',
-    templateUrl: Path.Component('dashboard/dashboard.component.html'),
+    templateUrl: Path.ComponentView('dashboard'),
     directives: []
 })
 export class DashboardComponent extends PageComponent {

@@ -1,17 +1,18 @@
-import {Component, ControlGroup, Control, Validators, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2';
-import {Path} from '/app/marketing/config/config';
-import {BaseComponent} from '../../../config/imports/shared';
+import {Component} from 'angular2/core';
+import {ControlGroup, Control, Validators, FORM_DIRECTIVES} from 'angular2/common';
+import {Path} from 'backlive/marketing/config';
+import {BaseComponent} from 'backlive/component/shared';
 
-import {AppService, UserService} from '../../../config/imports/service';
+import {AppService, UserService} from 'backlive/service';
 
-import {Route} from '../../config/routes';
-import {Event} from '../../../service/model/event';
-import {User} from '../../../service/model/user';
+import {Route} from 'backlive/marketing/routes';
+import {Event} from '../../../app/service/model/event';
+import {User} from '../../../app/service/model/user';
 
 @Component({
     selector: 'app-home',
-    templateUrl: Path.Component('home/home.html'),
-    directives: [CORE_DIRECTIVES, FORM_DIRECTIVES]
+    templateUrl: Path.ComponentView('home'),
+    directives: [FORM_DIRECTIVES]
 })
 export class HomeComponent extends BaseComponent {
     userService: UserService;

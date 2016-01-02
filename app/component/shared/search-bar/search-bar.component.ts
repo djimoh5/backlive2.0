@@ -1,14 +1,14 @@
 import {Component} from 'angular2/core';
-import {Path} from '../../../config/config';
-import {BaseComponent} from '../../../config/imports/shared';
+import {Path} from 'backlive/config';
+import {BaseComponent} from 'backlive/component/shared';
 
-import {AppService} from '../../../config/imports/service';
+import {AppService} from 'backlive/service';
 
 import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'search-bar',
-    templateUrl: Path.Component('shared/search-bar/search-bar.component.html'),
+    templateUrl: Path.ComponentView('shared/search-bar'),
     directives: []
 })
 export class SearchBarComponent extends BaseComponent {

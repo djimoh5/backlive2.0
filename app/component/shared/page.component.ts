@@ -1,10 +1,10 @@
 import {Component} from 'angular2/core';
 import {BaseComponent} from './base.component';
-import {AppService} from '../../config/imports/service';
+import {AppService} from 'backlive/service';
 
 import {Event} from '../../service/model/event';
 
-import {Animation} from '../../utility/animation';
+import {Animation} from 'backlive/utility';
 
 @Component({
     directives: []
@@ -16,7 +16,7 @@ export class PageComponent extends BaseComponent {
     constructor (appService: AppService, autoAnimateIn: boolean = true, defaultAnimation: string = Animation.FadeIn) {
         super(appService)
 
-        this.appService.notify(Event.SlidingNavVisible, false);
+        this.service().notify(Event.SlidingNavVisible, false);
         
         this.animationType = defaultAnimation;
         this.pageAnimation = Animation.hide(this.animationType);
@@ -25,14 +25,18 @@ export class PageComponent extends BaseComponent {
             this.show();
         }
         else {
-            this.appService.notify(Event.PageLoading, true);
+            this.service().notify(Event.PageLoading, true);
         }
     }
     
     show() {
         setTimeout(() => {
             this.pageAnimation = this.animationType;
-            this.appService.notify(Event.PageLoading, false);
+            this.service().notify(Event.PageLoading, false);
         });
+    }
+    
+    service() {
+        return this.appService;
     }
 }

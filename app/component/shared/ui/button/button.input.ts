@@ -9,5 +9,4 @@ export class Size {
     static tiny: string = 'btn-xs';
     static small: string = 'btn-sm';
     static large: string = 'btn-lg';
-    static default: string = 'btn-md';
 }

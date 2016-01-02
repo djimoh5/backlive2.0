@@ -25,11 +25,8 @@ export class Type {
     static list: string = 'glyphicon-align-justify';
     static grid: string = 'glyphicon-th';
     static video: string = 'glyphicon-facetime-video';
-}
-
-export class Size {
-    static tiny: string = 'tiny';
-    static small: string = 'small';
-    static large: string = 'large';
-    static default: string = 'medium';
+    static recycle: string = 'glyphicon-retweet';
+    static fontColor: string = 'glyphicon-text-color';
+    static touch: string = 'glyphicon-hand-up';
+    static view: string = 'glyphicon-eye-open';
 }

@@ -1,14 +1,14 @@
 import {Component, Type, ElementRef, ComponentRef, DynamicComponentLoader} from 'angular2/core';
-import {Path} from '../../../config/config';
+import {Path} from 'backlive/config';
 import {BaseComponent} from '../base.component';
 
-import {AppService} from '../../../config/imports/service';
+import {AppService} from 'backlive/service';
 
 import {Event} from '../../../service/model/event';
 
 @Component({
-    selector: 'vn-modal',
-    templateUrl: Path.Component('shared/modal/modal.component.html'),
+    selector: 'app-modal',
+    templateUrl: Path.ComponentView('shared/modal'),
     directives: []
 })
 export class ModalComponent extends BaseComponent {
@@ -23,32 +23,32 @@ export class ModalComponent extends BaseComponent {
         this.componentLoader = componentLoader;
         this.elementRef = elementRef;
         
-        this.options = new ModalOptions();
+        this.options = { title: "VISANOW" };
         
         this.subscribeEvent(Event.OpenModal, (options: ModalOptions) => this.open(options));
         this.subscribeEvent(Event.CloseModal, () => this.close());
     }
     
     open (options: ModalOptions) {
-        var self = this;
         this.options = options;
+        console.log(this.options)
         
         if(this.activeComponent != null) {
             this.activeComponent.dispose();
         }
         
         if(options.body) {
-            $('#' + self.id).modal('show');
+            $('#' + this.id).modal('show');
         }
         else {
-            this.componentLoader.loadIntoLocation(options.component, this.elementRef, 'modalbody').then(function (componentRef) {
+            this.componentLoader.loadIntoLocation(options.component, this.elementRef, 'modalbody').then(componentRef => {
                 if(options.model) {
                     componentRef.instance.model = options.model;
                 }
                 
-                self.activeComponent = componentRef;
+                this.activeComponent = componentRef;
                 
-                $('#' + self.id).modal('show');
+                $('#' + this.id).modal('show');
             });
         }
     }
@@ -60,12 +60,19 @@ export class ModalComponent extends BaseComponent {
         
         $('#' + this.id).modal('hide');
     }
+    
+    submit () {
+        if(this.options.onSubmit) {
+            this.options.onSubmit();
+            this.close();
+        }
+    }
 }
 
-export class ModalOptions {
+export interface ModalOptions {
     title: string;
-    body: string;
-    component: Type;
-    model: any;
-    footerVisible: boolean = false;
+    body?: string;
+    component?: Type;
+    model?: any;
+    onSubmit?: Function;
 }

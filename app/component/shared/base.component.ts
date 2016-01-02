@@ -1,5 +1,5 @@
 import {Component, OnDestroy} from 'angular2/core';
-import {AppService} from '../../config/imports/service';
+import {AppService} from 'backlive/service';
 
 @Component({})
 export class BaseComponent implements OnDestroy  {
