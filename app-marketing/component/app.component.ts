@@ -1,6 +1,6 @@
 import {Component} from 'angular2/core';
 import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
-import {Path} from 'backlive/config';
+import {Path} from 'backlive/marketing/config';
 
 /* components */
 import {BaseComponent, ModalComponent} from 'backlive/component/shared';

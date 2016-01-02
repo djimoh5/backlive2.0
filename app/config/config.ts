@@ -5,7 +5,7 @@ export class Path {
 	static ComponentView(path: string) { return this.baseComponentUrl + path + '/' + this.lastPath(path) + '.component.html' + GLOBAL_CACHE_BUSTER };
 	static ComponentStyle(path: string) { return this.baseComponentUrl + path + '/' + this.lastPath(path) + '.component.less' + GLOBAL_CACHE_BUSTER };
 	
-	static JSImports(path: string) { return 'Scripts/imports/' + path + GLOBAL_CACHE_BUSTER };
+	static JSImports(path: string) { return 'js/' + path + GLOBAL_CACHE_BUSTER };
 	
 	private static lastPath(path: string) {
 		var split = path.split('/');

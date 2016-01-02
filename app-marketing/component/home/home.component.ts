@@ -1,7 +1,7 @@
 import {Component} from 'angular2/core';
 import {ControlGroup, Control, Validators, FORM_DIRECTIVES} from 'angular2/common';
 import {Path} from 'backlive/marketing/config';
-import {BaseComponent} from 'backlive/component/shared';
+import {PageComponent} from 'backlive/component/shared';
 
 import {AppService, UserService} from 'backlive/service';
 
@@ -14,7 +14,7 @@ import {User} from '../../../app/service/model/user';
     templateUrl: Path.ComponentView('home'),
     directives: [FORM_DIRECTIVES]
 })
-export class HomeComponent extends BaseComponent {
+export class HomeComponent extends PageComponent {
     userService: UserService;
     loginForm: ControlGroup;
     registerForm: ControlGroup;

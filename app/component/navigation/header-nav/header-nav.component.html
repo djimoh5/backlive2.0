@@ -75,7 +75,7 @@
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li *ng-for="#item of items" [ng-class]="{ active: routerService.isRouteActive(item.route) }">
+                <li *ngFor="#item of items" [class.active]="routerService.isRouteActive(item.route)">
                     <a href="javascript:void(0)" (click)="navigateTo(item)">{{item.name}}</a>
                 </li>
             </ul>

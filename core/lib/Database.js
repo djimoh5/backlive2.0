@@ -1,5 +1,5 @@
-//var IP = '23.23.204.60';
-var IP = 'localhost';
+var IP = '23.23.204.60';
+//var IP = 'localhost';
 
 var Database = {
     MongoClient: require('mongodb').MongoClient,
