@@ -2,7 +2,7 @@ import {Injectable, Directive, ElementRef, DynamicComponentLoader} from 'angular
 import {Location, Router, RouteDefinition, RouterOutlet, ComponentInstruction} from 'angular2/router';
 
 import {UserService} from './user.service';
-import {Common, Object} from '../utility/common';
+import {Common} from 'backlive/utility';
 
 @Directive({selector: 'auth-router-outlet'})
 export class AuthRouterOutlet extends RouterOutlet {
@@ -15,7 +15,7 @@ export class AuthRouterOutlet extends RouterOutlet {
 	}
 	
 	activate(nextInstruction: ComponentInstruction) : Promise<any> {
-		var route = nextInstruction.componentType == RouterService.rootRouteMap.component 
+		var route = RouterService.rootRouteMap && nextInstruction.componentType == RouterService.rootRouteMap.component 
 					? RouterService.rootRouteMap.route : RouterService.pathRoute(nextInstruction.urlPath);
 		
 		RouterService.lastRoute = route;
@@ -46,6 +46,8 @@ export class RouterService {
 	static splashRoute: any;
 	static defaultRoute: any;
 	
+	static childRouteIdentifier: string = '/...';
+	
 	constructor(router: Router, location: Location, routerOutlet: AuthRouterOutlet, userService: UserService) {
 		RouterService.router = router;
 		RouterService.userService = userService;
@@ -53,7 +55,7 @@ export class RouterService {
 		
 		RouterService.routeMap.forEach(map => {
 			if(map.isPublic) {
-				RouterService.publicRoutes.push(map.route[0]);
+				RouterService.publicRoutes.push(RouterService.baseRoute(map.route));
 			}
 			
 			if(map.isSplash){
@@ -87,7 +89,7 @@ export class RouterService {
 				this.rootRouteMap = map;
 			}
 			
-			routeDefinitions.push({ path: map.isRoot ? '/' : this.routePath(map.route), component: map.component, as: this.routeAlias(map.route) });
+			routeDefinitions.push({ path: map.isRoot ? '/' : this.routePath(map.route), component: map.component, name: this.routeAlias(map.route) });
 		}
 				
 		return routeDefinitions;
@@ -131,9 +133,16 @@ export class RouterService {
 		}
 		
 		for(var i = 0, map: RouteMap; map = this.routeMap[i]; i++) {
-			if(map.route[0] == path) {
-				if(map.route[1] && idPath) {
-					map.route[1].id = idPath; 	
+			var baseRoute = this.baseRoute(map.route);
+
+			if(baseRoute == path) {
+				if(map.route[0] != baseRoute) { //route has child routes
+					return [baseRoute + (idPath ? ('/' + idPath.substring(0, 1).toUpperCase() + idPath.substring(1)) : '')];
+				}
+				else if(idPath) {
+					if(map.route[1]) {
+						map.route[1].id = idPath;
+					}
 				}
 				
 				return map.route;
@@ -141,6 +150,10 @@ export class RouterService {
 		}
 
 		return this.defaultRoute;
+	}
+	
+	static baseRoute(route: string[]) {
+		return route[0].replace(this.childRouteIdentifier, '');	
 	}
 	
 	static routePath(route: any[]) {
@@ -156,7 +169,7 @@ export class RouterService {
 	}
 	
 	static routeAlias(route: string[]) {
-		return route[0].substring(1);
+		return this.baseRoute(route).substring(1);
 	}
 }
 

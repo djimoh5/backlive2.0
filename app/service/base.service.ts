@@ -1,6 +1,5 @@
 import {ApiService} from './api.service';
-import {Cache} from '../utility/cache';
-import {Common} from '../utility/common';
+import {Cache, Common} from 'backlive/utility';
 
 export class BaseService {
     protected apiService: ApiService;
@@ -63,7 +62,17 @@ export class BaseService {
     }
     
     private getCacheKey(endpoint: string, data: Object = null) {
-        endpoint = this.endpoint(endpoint);
-        return data ? (endpoint + JSON.stringify(data)) : endpoint;
+        var cacheKey = this.endpoint(endpoint);
+        var apiToken = this.apiService.getToken();
+        
+        if(data) {
+            cacheKey += JSON.stringify(data);
+        }
+        
+        if(apiToken) {
+            cacheKey += apiToken;
+        }
+        
+        return cacheKey;
     }
 }

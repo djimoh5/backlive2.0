@@ -1,4 +1,4 @@
-﻿import {Common} from '../utility/common';
+﻿import {Common} from 'backlive/utility';
 
 export class PopupAlert {
     message: string;
@@ -46,7 +46,7 @@ export class AppService {
         }
     }
 
-    notify(eventName: string, data: any = null) {
+    notify<T>(eventName: string, data: T = null) {
         if (this.Events[eventName]) {
             //Common.log('EVENT: ' + eventName + ' fired to ' + this.Events[eventName].length + ' subscribers with data', data);
             for(var classType in this.Events[eventName]) {

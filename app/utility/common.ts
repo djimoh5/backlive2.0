@@ -1,6 +1,5 @@
-export interface Object {
-    [key: string]: any;
-}
+import {MD5} from '../config/imports/js';
+System.import(MD5);
 
 export class Common {
 	static objectToArray (obj: Object) {
@@ -75,6 +74,10 @@ export class Common {
 		}
 		
 		return isNaN(date.getTime()) ? null : date;
+	}
+    
+    static uniqueId() {
+		return md5(new Date().getTime() + Math.round(Math.random() * 1000000) + Math.round(Math.random() * 1000000) + "");
 	}
 	
 	static log (...data: any[]) {

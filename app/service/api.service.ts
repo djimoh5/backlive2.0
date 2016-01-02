@@ -1,21 +1,36 @@
 import {Injectable} from 'angular2/core';
-import {Http, Headers} from 'angular2/http';
+import {Http, Headers, Response, RequestOptionsArgs} from 'angular2/http';
 import {Observable} from 'rxjs/Observable';
-import {Common} from '../utility/common';
+import {Cache, Common} from 'backlive/utility';
 
 @Injectable()
 export class ApiService {
-	baseUrl: string = '/api/';
-    http: Http;
-    token: string;
+    private TOKEN_CACHE_KEY: string = 'API_TOKEN';
     
+	private baseUrl: string = '/api/';
+    private http: Http;
+    private token: string;
+
     constructor(http: Http) {
         this.http = http;
     }
     
-    get(endpoint: string, data: any = null): Promise<any> {
-        Common.log('API GET: ', endpoint, data);
+    setToken(token: string) {
+        this.token = token;
         
+        if(token == null) {
+            Cache.remove(this.TOKEN_CACHE_KEY);
+        }
+        else {
+            Cache.set(this.TOKEN_CACHE_KEY, this.token, 86400 * 30); //30 day token
+        }
+    }
+    
+    getToken() {
+        return this.token;
+    }
+    
+    get(endpoint: string, data: any = null): Promise<any> { 
         if(data != null) {
             var qs = "";
             
@@ -26,25 +41,21 @@ export class ApiService {
             endpoint += '?' + qs.substring(1);
         }
         
-        return this.execute(this.http.get(this.baseUrl + endpoint,
+        return this.execute(new ApiRequest(this.http, ApiRequestMethod.GET, this.baseUrl + endpoint,
         { 
             headers: this.getHeaders()
         }));
     }
 
     post(endpoint: string, data: any): Promise<any> {
-        Common.log('API POST: ', endpoint, data);
-        
-        return this.execute(this.http.post(this.baseUrl + endpoint, JSON.stringify(data),
+        return this.execute(new ApiRequest(this.http, ApiRequestMethod.POST, this.baseUrl + endpoint,
         {
             headers: this.getHeaders()
-        }));
+        }, JSON.stringify(data)));
     }
     
     delete(endpoint: string): Promise<any> {
-        Common.log('API DELETE: ', endpoint);
-        
-        return this.execute(this.http.delete(this.baseUrl + endpoint,
+        return this.execute(new ApiRequest(this.http, ApiRequestMethod.DELETE, this.baseUrl + endpoint,
         {
             headers: this.getHeaders()
         }));
@@ -60,6 +71,10 @@ export class ApiService {
         headers.append('Accept', 'application/json');
         headers.append('Content-Type', 'application/json');
         
+        if(!this.token) {
+            this.token = Cache.get(this.TOKEN_CACHE_KEY);
+        }
+        
         if(this.token) {
             headers.append('Authorization', 'Basic ' + this.token);
         }
@@ -67,18 +82,24 @@ export class ApiService {
         return headers;
     }
     
-    private execute(observable: any) {
-        return new Promise((resolve, reject) => this.processResults(resolve, reject, observable));
+    private execute(request: ApiRequest) {
+        var observable: Observable<Response> = request.execute();
+        return new Promise((resolve, reject) => this.processResults(resolve, reject, observable, request));
     }
     
-    private processResults(resolve: Function, reject: Function, observable: Observable<any>) {
+    private processResults(resolve: Function, reject: Function, observable: Observable<Response>, request: ApiRequest) {
         observable.subscribe(
-                        (results: any) => resolve(results.json()),
-                        (err: any) => this.processError(err, reject)
-                  );
+            (results: any) => this.processSuccess(results, resolve, request),
+            (err: any) => this.processError(err, reject, request)
+        );
     }
     
-    private processError(err: any, reject: Function) {
+    private processSuccess(results: any, resolve: Function, request: ApiRequest) {
+        resolve(results.json());
+        request.complete();
+    }
+        
+    private processError(err: any, reject: Function, request: ApiRequest) {
         if(err) {
             Common.log(err);
             
@@ -86,5 +107,48 @@ export class ApiService {
                 reject(err);
             }
         }
+        
+        request.complete();
     }
+}
+
+class ApiRequest {
+    service: Http;
+    method: string;
+    url: string;
+    data: string;
+    options: RequestOptionsArgs;
+    
+    startTime: number;
+    
+    constructor(service: Http, method: string, url: string, options: RequestOptionsArgs, data?: string) {
+        this.service = service;
+        this.method = method;
+        this.url = url;
+        this.data = data;
+        this.options = options;
+    }
+    
+    execute() : Observable<Response> {
+        this.startTime = new Date().getTime();
+        
+        if(this.data) {
+            return this.service[this.method](this.url, this.data, this.options);
+        }
+        else {
+            return this.service[this.method](this.url, this.options);
+        }
+    }
+    
+    complete() {
+        var duration = new Date().getTime() - this.startTime;
+        Common.log('API ' + this.method, this.url, this.data ? this.data : '', '- duration', duration, 'ms');
+    }
+}
+
+class ApiRequestMethod {
+    static GET = 'get';
+    static POST = 'post';
+    static DELETE = 'delete';
+    static PUT = 'put';
 }

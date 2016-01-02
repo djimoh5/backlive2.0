@@ -1,4 +1,4 @@
-﻿import {Injectable} from 'angular2/angular2';
+﻿import {Injectable} from 'angular2/core';
 import {BaseService} from './base.service';
 import {ApiService} from './api.service';
 import {User} from './model/user';
@@ -35,7 +35,7 @@ export class UserService extends BaseService {
     private handleLoginResponse(user: User) {
         if(user != null && user.token) {
             this.user = user;
-            this.apiService.token = user.token;
+            this.apiService.setToken(user.token);
         }
         else {
             this.user = null;
