@@ -37,7 +37,7 @@ export class HeaderNavComponent extends BaseComponent {
     
     logoutCompete() {
         if(!this.userService.user) {
-            this.appService.notify(Event.Navigate, Route.Login);
+            window.location.href = '/';
         }
     }
     

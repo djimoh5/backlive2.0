@@ -1,5 +1,8 @@
 var Routes = [
 	{ path: '/', controller: require('./controller/HomeController') },
+    { path: '/backtest', controller: require('./controller/HomeController') },
+    { path: '/research', controller: require('./controller/HomeController') },
+    { path: '/portfolio', controller: require('./controller/HomeController') },
 	{ path: '/api/user', controller: require('./controller/UserController') },
 	/*{ path: '/api/backtest', controller: require('./controller/backtest') },
 	{ path: '/api/portfolio', controller: require('./controller/portfolio') },

@@ -13,6 +13,7 @@ require(DIR_LIB + 'calculation');
 
 db.open(function () {
     require(DIR_LIB + 'session');
+    console.log('database connected');
 	/*u.getDates(function(results, weeks) { 
 		BACKTEST_DATE = results[results.length - 1];
 	}, -1);*/

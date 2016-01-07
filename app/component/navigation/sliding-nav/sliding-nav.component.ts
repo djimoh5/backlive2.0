@@ -7,7 +7,7 @@ import {Event} from '../../../service/model/event';
 
 @Component({
     selector: 'sliding-nav',
-    templateUrl: Path.Component('navigation/sliding-nav'),
+    templateUrl: Path.ComponentView('navigation/sliding-nav'),
     directives: []
 })
 export class SlidingNavComponent extends BaseComponent {

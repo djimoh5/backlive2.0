@@ -40,17 +40,17 @@ Session = function(request, response) {
     this.login = function(uname, pword, callback) {
         var uuid = require('node-uuid');
         var md5 = require('../.' + DIR_JS + 'md5.min');
-        //var hexPw = md5.hex_md5(pword);
+        //var hexPw = md5(pword);
         
         db.mongo.collection('user', function(error, collection) {
             collection.find({ u:uname }).toArray(function(err, results) {
                 if(results.length > 0) {
                     var upw = results[0].p;
                     var salt = upw.substring(11, 15);
-                    var hexPw = md5.hex_md5(salt + pword + pwSalt);
+                    var hexPw = md5(salt + pword + pwSalt);
 
                     if(hexPw == (upw.substring(0, 11) + upw.substring(15))) {
-                        var sessId = md5.hex_md5(uuid.v1());
+                        var sessId = md5(uuid.v1());
                         var uid = results[0]._id.toString();
                         
                         users[sessId] = { uid:uid, token:sessId, sessId: sessId, name:results[0].u, email:results[0].e, btuid:results[0].btuid, btpid:results[0].btpid, created:results[0].created };
@@ -95,7 +95,7 @@ Session = function(request, response) {
                         callback({ error:'the user already exists' });
                     else {
                         var salt = session.generateSalt();
-                        var hexPw = md5.hex_md5(salt + pword + pwSalt);
+                        var hexPw = md5(salt + pword + pwSalt);
                         hexPw = hexPw.substring(0, 11) + salt + hexPw.substring(11);
                         var doc = { u:uname, p:hexPw, e:email, created:(new Date()).getTime() };
             
@@ -142,12 +142,12 @@ Session = function(request, response) {
                     if(npword && npword.length >= 4) {
                         var upw = result.p;
                         var salt = upw.substring(11, 15);
-                        var hexPw = md5.hex_md5(salt + opword + pwSalt);
+                        var hexPw = md5(salt + opword + pwSalt);
     
                         if(hexPw == (upw.substring(0, 11) + upw.substring(15))) {
                             //current password matches, create new one
                             var salt = session.generateSalt();
-                            var hexPw = md5.hex_md5(salt + npword + pwSalt);
+                            var hexPw = md5(salt + npword + pwSalt);
                             hexPw = hexPw.substring(0, 11) + salt + hexPw.substring(11);
                             
                             collection.update({ _id:oid }, { $set:{ p:hexPw } }, function() {
@@ -174,7 +174,7 @@ Session = function(request, response) {
                 if(result) {
                     var pw = session.generatePassword(8);
                     var salt = session.generateSalt();
-                    var hexPw = md5.hex_md5(salt + pw + pwSalt);
+                    var hexPw = md5(salt + pw + pwSalt);
                     hexPw = hexPw.substring(0, 11) + salt + hexPw.substring(11);
 
                     collection.update({ _id:result._id }, { $set:{ p:hexPw } }, function() {

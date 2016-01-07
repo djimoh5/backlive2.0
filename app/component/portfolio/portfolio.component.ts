@@ -9,7 +9,7 @@ import {Event} from '../../service/model/event';
 
 @Component({
     selector: 'backlive-portfolio',
-    templateUrl: Path.Component('portfolio'),
+    templateUrl: Path.ComponentView('portfolio'),
     directives: []
 })
 export class PortfolioComponent extends PageComponent {

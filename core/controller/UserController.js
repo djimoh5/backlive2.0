@@ -17,7 +17,6 @@ function UserController() {
 
 	this.post.login = true;
 	this.login = function (req, res) {
-        console.log(req)
 		res.services.userService.login(req.body).done(function(user) {
 			res.send(user);
 		});
