@@ -1,20 +1,31 @@
-import {Component} from 'angular2/core';
+import {Component, Input, OnInit} from 'angular2/core';
 import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
 
-import {AppService} from 'backlive/service';
+import {AppService, TickerService} from 'backlive/service';
 
-import {Event} from '../../../service/model/event';
-import {Alert} from '../../../service/model/alert';
+import {AppEvent} from '../../../service/model/app-event';
+import {Ticker, Price} from '../../../service/model/ticker';
 
 @Component({
     selector: 'backlive-ticker',
     templateUrl: Path.ComponentView('portfolio/ticker'),
     directives: []
 })
-export class TickerComponent extends BaseComponent {
-    constructor(appService: AppService) {
+export class TickerComponent extends BaseComponent implements OnInit {
+    @Input() ticker;
+    tickerService: TickerService;
+    
+    constructor(appService: AppService, tickerService: TickerService) {
         super(appService);
-        //appService.notify(Event.Alert, new Alert("welcome to the visanow app!"));
+        this.tickerService = tickerService;
+    }
+    
+    ngOnInit() {
+        this.tickerService.getPrices(this.ticker).then((prices: Price[]) => this.loadPrices(prices))
+    }
+    
+    loadPrices(price: Price[]) {
+        console.log(price);
     }
 }

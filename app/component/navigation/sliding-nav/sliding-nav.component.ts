@@ -3,7 +3,7 @@ import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
 
 import {AppService} from 'backlive/service';
-import {Event} from '../../../service/model/event';
+import {AppEvent} from '../../../service/model/app-event';
 
 @Component({
     selector: 'sliding-nav',
@@ -25,13 +25,13 @@ export class SlidingNavComponent extends BaseComponent {
         this.elementRef = elementRef;
         this.items = [];
         
-        this.subscribeEvent(Event.SlidingNavItems, (items: NavItem[]) => this.updateItems(items));
+        this.subscribeEvent(AppEvent.SlidingNavItems, (items: NavItem[]) => this.updateItems(items));
     }
     
     updateItems(items: NavItem[]) {
         //this.items = items
         this.isActive = false;
-        this.appService.notify(Event.SlidingNavVisible, true);
+        this.appService.notify(AppEvent.SlidingNavVisible, true);
         
         //angular bug exists where classes from previous items do not get removed, so instead update each item one by one
         //TODO: remove if this bug gets fixed in later versions

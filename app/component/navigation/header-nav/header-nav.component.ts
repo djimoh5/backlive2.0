@@ -5,7 +5,7 @@ import {BaseComponent} from 'backlive/component/shared';
 import {AppService, UserService, RouterService} from 'backlive/service';
 
 import {Route} from 'backlive/routes';
-import {Event} from '../../../service/model/event';
+import {AppEvent} from '../../../service/model/app-event';
 import {User} from '../../../service/model/user';
 
 @Component({
@@ -42,7 +42,7 @@ export class HeaderNavComponent extends BaseComponent {
     }
     
     navigateTo(navItem: NavItem) {
-        this.appService.notify(Event.Navigate, navItem.route);
+        this.appService.notify(AppEvent.Navigate, navItem.route);
     }
 }
 

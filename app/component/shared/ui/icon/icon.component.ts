@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter, OnChanges} from 'angular2/core';
 import {Type} from './icon.input';
 
 @Component({
-    selector: 'app-icon',
+    selector: 'ui-icon',
     template: `<span [class]="iconClass"></span>`
 })
 export class IconComponent implements OnChanges {

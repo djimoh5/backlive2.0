@@ -7,17 +7,18 @@ import {AppService, UserService} from 'backlive/service';
 import {StrategyComponent} from 'backlive/component/backtest';
 import {TickerComponent} from 'backlive/component/portfolio';
 
-import {Event} from '../../service/model/event';
-import {Alert} from '../../service/model/alert';
+import {AppEvent} from '../../service/model/app-event';
+import {Ticker} from '../../service/model/ticker';
+import {Strategy} from '../../service/model/strategy';
 
 @Component({
     selector: 'app-dashboard',
     templateUrl: Path.ComponentView('dashboard'),
-    directives: []
+    directives: [StrategyComponent, TickerComponent]
 })
 export class DashboardComponent extends PageComponent {
-    stategies: StrategyComponent[];
-    tickers: TickerComponent[];
+    stategies: Strategy[];
+    tickers: Ticker[];
     
     constructor(appService: AppService) {
         super(appService);

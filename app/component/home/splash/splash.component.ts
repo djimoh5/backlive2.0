@@ -4,7 +4,7 @@ import {PageComponent} from 'backlive/component/shared';
 
 import {AppService} from 'backlive/service';
 
-import {Event} from '../../../service/model/event';
+import {AppEvent} from '../../../service/model/app-event';
 
 @Component({
     selector: 'app-splash',

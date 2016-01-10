@@ -4,7 +4,7 @@ import {BaseComponent} from '../base.component';
 
 import {AppService} from 'backlive/service';
 
-import {Event} from '../../../service/model/event';
+import {AppEvent} from '../../../service/model/app-event';
 
 @Component({
     selector: 'app-modal',
@@ -12,7 +12,7 @@ import {Event} from '../../../service/model/event';
     directives: []
 })
 export class ModalComponent extends BaseComponent {
-    id: string = 'vnModal';
+    id: string = 'uiModal';
     options: ModalOptions;
     componentLoader: DynamicComponentLoader;
     elementRef: ElementRef;
@@ -25,8 +25,8 @@ export class ModalComponent extends BaseComponent {
         
         this.options = { title: "VISANOW" };
         
-        this.subscribeEvent(Event.OpenModal, (options: ModalOptions) => this.open(options));
-        this.subscribeEvent(Event.CloseModal, () => this.close());
+        this.subscribeEvent(AppEvent.OpenModal, (options: ModalOptions) => this.open(options));
+        this.subscribeEvent(AppEvent.CloseModal, () => this.close());
     }
     
     open (options: ModalOptions) {

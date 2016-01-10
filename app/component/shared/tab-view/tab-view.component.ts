@@ -3,7 +3,7 @@ import {BaseComponent} from '../base.component';
 
 import {AppService} from 'backlive/service';
 
-import {Event} from '../../../service/model/event';
+import {AppEvent} from '../../../service/model/app-event';
 
 @Component({
     selector: 'tab-item',

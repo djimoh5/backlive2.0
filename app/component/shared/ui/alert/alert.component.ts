@@ -2,7 +2,7 @@ import {Component, Input, OnChanges} from 'angular2/core';
 import {Type} from './alert.input';
 
 @Component({
-    selector: 'app-alert',
+    selector: 'ui-alert',
     template: `<div class="{{alertClass}} fade in alert-dismissible" [ngClass]="{ hide:!message }">
                    <button type="button" class="close hide" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                    {{message}}

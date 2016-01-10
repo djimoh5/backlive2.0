@@ -15,6 +15,9 @@ MONGO_PRICING_DB = "pricing";
 
 db = require('./.' + DIR_LIB + 'Database');
 
+/*** email ***/
+MANDRILL_API_KEY = 'oweoS4RQJE2pOx2s8MXVhQ';
+
 /*** startup ***/
 STARTUP_PAGE = 'page.html';
 

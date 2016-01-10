@@ -1,11 +1,17 @@
 var DIR_ROOT = './../.';
 var express = require('express');
 var bodyParser = require('body-parser');
+var url = require('url');
 
 function BaseController(services) {
 	var self = this,
 		router = express.Router();
 	
+    function queryParser(req, res, next) {
+        req.query = url.parse(req.url, true).query;
+        next();
+    }
+    
 	function initSession(req, res, next) {
 		req.session = new Session(req, res);
 		next();
@@ -25,6 +31,7 @@ function BaseController(services) {
 	
 	router.use(bodyParser.json());
 	router.use(bodyParser.urlencoded());
+    router.use(queryParser);
 	router.use(initSession);
 	router.use(injectServices);
 

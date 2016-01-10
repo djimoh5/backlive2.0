@@ -4,7 +4,7 @@ import {AppService} from 'backlive/service';
 import {Type, Size} from './button.input';
 
 @Component({
-    selector: 'app-button',
+    selector: 'ui-button',
     template: `<button type="{{type =='submit' ? 'submit' : 'button' }}" [class]="btnClass" [disabled]="disabled">
 	               <vn-icon *ngIf="icon" [type]="icon"></vn-icon><ng-content></ng-content>{{title}}
                </button>`

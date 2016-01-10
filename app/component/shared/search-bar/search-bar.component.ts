@@ -4,7 +4,7 @@ import {BaseComponent} from 'backlive/component/shared';
 
 import {AppService} from 'backlive/service';
 
-import {Event} from '../../../service/model/event';
+import {AppEvent} from '../../../service/model/app-event';
 
 @Component({
     selector: 'search-bar',
@@ -19,7 +19,7 @@ export class SearchBarComponent extends BaseComponent {
     constructor (appService: AppService) {
         super(appService);
         this.searchKey = "";
-        this.appService.notify(Event.SearchKeyUp, this.searchKey);
+        this.appService.notify(AppEvent.SearchKeyUp, this.searchKey);
     }
     
     search() {
@@ -33,7 +33,7 @@ export class SearchBarComponent extends BaseComponent {
         if(this.previousKey == this.searchKey) {
             clearInterval(this.typingInterval);
             this.typingInterval = null;
-            this.appService.notify(Event.SearchKeyUp, this.searchKey);
+            this.appService.notify(AppEvent.SearchKeyUp, this.searchKey);
         }
         else {
             this.previousKey = this.searchKey;

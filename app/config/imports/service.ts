@@ -1,4 +1,4 @@
-export {AppService} from '../../service/app.service';
+export {AppService, PopupAlert} from '../../service/app.service';
 export {ApiService} from '../../service/api.service';
 export {UserService} from '../../service/user.service';
 export {StrategyService} from '../../service/strategy.service';

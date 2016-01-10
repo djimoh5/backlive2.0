@@ -10,7 +10,7 @@ import {AppService, RouterService, AuthRouterOutlet, ApiService, UserService} fr
 
 /* models */
 import {RouteComponentMap} from 'backlive/marketing/routes';
-import {Event} from '../../app/service/model/event';
+import {AppEvent} from '../../app/service/model/app-event';
 import {User} from '../../app/service/model/user';
 
 RouterService.setRouteMap(RouteComponentMap);
@@ -32,7 +32,7 @@ export class AppComponent extends BaseComponent {
         this.userService = userService;
         this.routerService = routerService;
         
-        this.subscribeEvent(Event.Navigate, (route: string[]) => this.navigate(route));
+        this.subscribeEvent(AppEvent.Navigate, (route: string[]) => this.navigate(route));
 
         RouterService.enabled = true;
     }

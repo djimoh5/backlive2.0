@@ -11,11 +11,11 @@ export class TickerService extends BaseService {
         super(apiService, 'ticker');
     }
     
-    getPricing(tkr: string){
-        return this.get('pricing/' + tkr);
+    getPrices(tkr: string, years: number = 10){
+        return this.get(tkr + '/prices', { years: years });
     }
     
-    indicators(tkr: string) {
-        return this.get('indciators/' + tkr);
+    getIndicators(tkr: string) {
+        return this.get(tkr + '/indicators');
     }
 }

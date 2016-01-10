@@ -6,16 +6,15 @@ import {Path} from 'backlive/config';
 import {RouteComponentMap} from 'backlive/routes';
 
 /* services */
-import {AppService, RouterService, AuthRouterOutlet, ApiService, UserService} from 'backlive/service';
+import {AppService, PopupAlert, RouterService, AuthRouterOutlet, ApiService, UserService} from 'backlive/service';
 
 /* components */
 import {BaseComponent, ModalComponent} from 'backlive/component/shared';
 import {HeaderNavComponent, SlidingNavComponent, FooterNavComponent} from 'backlive/component/navigation';
 
 /* models */
-import {Event} from '../service/model/event';
+import {AppEvent} from '../service/model/app-event';
 import {User} from '../service/model/user';
-import {Alert} from '../service/model/alert';
 
 RouterService.setRouteMap(RouteComponentMap);
 
@@ -39,10 +38,10 @@ export class AppComponent extends BaseComponent {
         
         userService.getUser().then(user => this.initRoute(user));
         
-        this.subscribeEvent(Event.Navigate, (route: string[]) => this.navigate(route));
-        this.subscribeEvent(Event.Alert, this.showAlert);
-        this.subscribeEvent(Event.SlidingNavVisible, (visible: boolean) => this.isSlidingNavVisible = visible);
-        this.subscribeEvent(Event.PageLoading, (loading: boolean) => this.isPageLoading = loading);
+        this.subscribeEvent(AppEvent.Navigate, (route: string[]) => this.navigate(route));
+        this.subscribeEvent(AppEvent.Alert, this.showAlert);
+        this.subscribeEvent(AppEvent.SlidingNavVisible, (visible: boolean) => this.isSlidingNavVisible = visible);
+        this.subscribeEvent(AppEvent.PageLoading, (loading: boolean) => this.isPageLoading = loading);
     }
     
     initRoute(user: User) {
@@ -54,7 +53,7 @@ export class AppComponent extends BaseComponent {
         this.routerService.navigate(route);
     }
     
-    showAlert=(alert: Alert) => { /* this is an example of an alternate way to preserve "this" in callbacks */
+    showAlert=(alert: PopupAlert) => { /* this is an example of an alternate way to preserve "this" in callbacks */
         console.log(alert);
     }
 }

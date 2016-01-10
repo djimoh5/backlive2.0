@@ -7,12 +7,11 @@ require('./core/Config');
 require('./core/Routes');
 
 require(DIR_LIB + 'calculation');
-//u = require(DIR_JS_LIB + 'common');
 //spawner = require('child_process');
 //require('./scripts/scraper.js');
 
 db.open(function () {
-    require(DIR_LIB + 'session');
+    require(DIR_LIB + 'Session');
     console.log('database connected');
 	/*u.getDates(function(results, weeks) { 
 		BACKTEST_DATE = results[results.length - 1];

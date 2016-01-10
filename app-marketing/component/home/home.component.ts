@@ -6,7 +6,7 @@ import {PageComponent} from 'backlive/component/shared';
 import {AppService, UserService} from 'backlive/service';
 
 import {Route} from 'backlive/marketing/routes';
-import {Event} from '../../../app/service/model/event';
+import {AppEvent} from '../../../app/service/model/app-event';
 import {User} from '../../../app/service/model/user';
 
 @Component({
