@@ -59,7 +59,7 @@ function TickerService(session) {
 	}
     
     this.getPrice = function(ticker, date) {
-        db.mongoPricing.collection(ticker.substring(0, 1).toUpperCase()).findOne({ ticker: ticker, date: date }, { adjClose:1 }, function(err, result) {
+        db.mongoPricing.collection(ticker.substring(0, 1).toUpperCase()).findOne({ ticker: ticker, date: parseInt(date) }, { adjClose:1 }, function(err, result) {
             if(result)
                 self.done({ success:1, price:result.adjClose });
             else
@@ -87,7 +87,7 @@ function TickerService(session) {
                     var tkr = line[0].trim().replace('-', '.');
                     var price = parseFloat(line[1].trim());
                     var chng = parseFloat(line[2].trim());
-                    var perChng = parseFloat(line[2].trim().replace(/[()]/g, ''));
+                    var perChng = parseFloat(line[3].trim().replace(/[()]/g, ''));
                     
                     tkrPrices[tkr] = { ticker: tkr, price:price, chng: chng, perChng: perChng  };
                 }

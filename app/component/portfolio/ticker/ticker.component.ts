@@ -22,8 +22,9 @@ export class TickerComponent extends BaseComponent implements OnInit {
     }
     
     ngOnInit() {
-        this.tickerService.getPrices(this.ticker).then((prices: Price[]) => this.loadPrices(prices))
-        this.tickerService.getPrice(this.ticker, 20150115).then((price: Price) => this.loadPrice(price))
+        this.tickerService.getPrices(this.ticker).then((prices: Price[]) => this.loadPrices(prices));
+        this.tickerService.getPrice(this.ticker, 20160115).then((price: Price) => this.loadPrice(price));
+        this.tickerService.getPrice(this.ticker).then((price: Price) => this.loadPrice(price))
     }
     
     loadPrices(price: Price[]) {
@@ -31,6 +32,6 @@ export class TickerComponent extends BaseComponent implements OnInit {
     }
     
     loadPrice(price: Price) {
-        
+        console.log(price);
     }
 }
