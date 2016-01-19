@@ -9,6 +9,18 @@ function TickerController() {
 			res.send(prices);
 		});
 	};
+    
+    this[':ticker/price'] = function (req, res) {
+		res.services.tickerService.getPrice(req.params.ticker, req.query.date).done(function(price) {
+			res.send(price);
+		});
+	};
+    
+    this[':ticker/lastprice'] = function (req, res) {
+		res.services.tickerService.getLastPrice(req.params.ticker).done(function(price) {
+			res.send(price);
+		});
+	};
 }
 
 TickerController.inherits(BaseController);

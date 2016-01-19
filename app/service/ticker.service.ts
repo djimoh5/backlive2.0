@@ -15,6 +15,15 @@ export class TickerService extends BaseService {
         return this.get(tkr + '/prices', { years: years });
     }
     
+    getPrice(tkr: string, date?: number) {
+        if(date) {
+            return this.get(tkr + '/price', { date: date });
+        }
+        else {
+            return this.get(tkr + '/lastprice');
+        }
+    }
+    
     getIndicators(tkr: string) {
         return this.get(tkr + '/indicators');
     }

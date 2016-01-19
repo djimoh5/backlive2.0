@@ -1,6 +1,7 @@
 var BaseService = require("./BaseService.js");
 var Scraper = require("../lib/Scraper.js");
 var Common = require("../utility/Common.js");
+var whttp = require("../lib/whttp.js");
 
 function TickerService(session) {
 	BaseService.call(this, session);
@@ -57,15 +58,44 @@ function TickerService(session) {
         return self.promise;
 	}
     
-    this.login = function(params) {
-        session.login(params.username, params.password, self.done);
-        return self.promise;
-	}
-    
-    this.logout = function(params) {
-        session.logout(function() {
-            self.done({ success:1 });
+    this.getPrice = function(ticker, date) {
+        db.mongoPricing.collection(ticker.substring(0, 1).toUpperCase()).findOne({ ticker: ticker, date: date }, { adjClose:1 }, function(err, result) {
+            if(result)
+                self.done({ success:1, price:result.adjClose });
+            else
+                self.done({ success:0 });
         });
+        
+        return self.promise;
+    }
+    
+    this.getLastPrice = function(ticker) {
+        //http://download.finance.yahoo.com/d/quotes.csv?s=^DJI&f=sl1c1p2l1bac8
+        if(!ticker) {
+            ticker = '^IXIC+^DJX+^GSPC'; //,^TNX for 10 year
+        }
+         
+        whttp.get('download.finance.yahoo.com', '/d/quotes.csv?s=' + ticker + '&f=sl1c1p2bac8', function(data) {
+            data = data.replace(/"/g, " ").split('\n');
+            var tkrPrices = {};
+
+            for(var i = 0, cnt = data.length; i < cnt; i++) {
+                var line = data[i].split(',');
+                
+                if(line.length > 3) {
+                    //console.log(line);
+                    var tkr = line[0].trim().replace('-', '.');
+                    var price = parseFloat(line[1].trim());
+                    var chng = parseFloat(line[2].trim());
+                    var perChng = parseFloat(line[2].trim().replace(/[()]/g, ''));
+                    
+                    tkrPrices[tkr] = { ticker: tkr, price:price, chng: chng, perChng: perChng  };
+                }
+            }
+            
+            self.done(tkrPrices);
+        });
+        
         return self.promise;
     }
 }

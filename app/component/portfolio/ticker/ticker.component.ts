@@ -23,9 +23,14 @@ export class TickerComponent extends BaseComponent implements OnInit {
     
     ngOnInit() {
         this.tickerService.getPrices(this.ticker).then((prices: Price[]) => this.loadPrices(prices))
+        this.tickerService.getPrice(this.ticker, 20150115).then((price: Price) => this.loadPrice(price))
     }
     
     loadPrices(price: Price[]) {
         console.log(price);
+    }
+    
+    loadPrice(price: Price) {
+        
     }
 }

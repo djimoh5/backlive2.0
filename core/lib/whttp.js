@@ -1,6 +1,6 @@
 var http = require('http');
 
-whttp = {
+var whttp = {
 	max:10,
 	active:0,
 	queue:[],
@@ -70,3 +70,5 @@ whttp = {
 		}
 	}
 }
+
+module.exports = whttp;

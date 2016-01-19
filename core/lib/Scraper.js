@@ -1,6 +1,6 @@
 var jsdom;// = require("jsdom");
 var Common = require("../utility/Common.js");
-require("./whttp.js");
+var whttp = require("./whttp.js");
 
 var Scraper = {
 	loadPricing: function(tkr, siDates, callback) {
