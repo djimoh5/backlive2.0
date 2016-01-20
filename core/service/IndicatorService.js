@@ -6,7 +6,7 @@ function IndicatorService(session) {
     var self = this,
         user = session.user;
         
-    this.getIndicators = function(params) {
+    this.getIndicators = function() {
 		var collection = db.mongo.collection('user_ind');
         
         collection.find({ uid:user.uid }).toArray(function(err, results) {
@@ -29,7 +29,7 @@ function IndicatorService(session) {
         return self.promise;
     }
     
-    this.save = function(indicator) {
+    this.saveIndicator = function(indicator) {
 	    indicator.uid = user.name == 'v1user' ? 0 : user.uid;
             
         db.mongo.collection("user_ind").insert(indicator, function() {
@@ -39,7 +39,7 @@ function IndicatorService(session) {
         return self.promise;
     }
     
-	this.remove = function(indicatorId) {
+	this.removeIndicator = function(indicatorId) {
         var oid = new db.ObjectID(indicatorId);
         var uid = user.name == 'v1user' ? 0 : user.uid;
 
@@ -47,6 +47,11 @@ function IndicatorService(session) {
             self.done({ "success":1 });
         });
         
+        return self.promise;
+    }
+    
+    this.getIndicatorsForTicker = function(tkr) {
+		
         return self.promise;
     }
 }

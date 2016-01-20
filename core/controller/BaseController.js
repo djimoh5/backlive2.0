@@ -46,16 +46,24 @@ function BaseController(services) {
 		}
 	}*/
 	
-	self.post = {};
+	this.post = {};
+    this.delete = {};
 	
-	self.getRouter = function () {
+	this.getRouter = function () {
 		for(var key in self) {
-			if(self.hasOwnProperty(key) && key != 'METHOD' && key != 'getRouter' && key != 'post') {
-				if(self.post[key]) {
-					router.post('/' + (key == 'index' ? '' : key), self[key]);
-				}
+			if(self.hasOwnProperty(key) && key != 'getRoutePath' && key != 'getRouter') {
+                if(key == 'post') {
+                    for(key in self.post) {
+                        router.post(self.getRoutePath(key), self.post[key]);
+                    }
+                }
+				else if(key == 'delete') {
+                    for(key in self.delete) {
+                        router.delete(self.getRoutePath(key), self.delete[key]);
+                    }
+                }
 				else {
-					router.get('/' + (key == 'index' ? '' : key), self[key]);
+					router.get(self.getRoutePath(key), self[key]);
 				}
 				
 				console.log('- registering route', key);
@@ -64,11 +72,10 @@ function BaseController(services) {
 		
 		return router;
 	}
-
-	self.METHOD = {
-		GET: "GET",
-		POST: "POST"
-	}
+    
+    this.getRoutePath = function(key) {
+        return '/' + (key == 'index' ? '' : key.toLowerCase());
+    }
 }
 
 BaseController.prototype = {

@@ -66,7 +66,7 @@ function NewsService(session) {
         return self.promise;
     }
     
-    this.getEconomist() {
+    this.getEconomist = function() {
         var econ = [];		
         whttp.get('www.economist.com', '/feeds/print-sections/79/finance-and-economics.xml', function(data) {
             econ.push(data);			
@@ -74,14 +74,6 @@ function NewsService(session) {
                 econ.push(data);
                 self.done(econ);
             });
-        });
-        
-        return self.promise;
-    }
-    
-    this.getSECDocument = function(path) {
-        whttp.get('ftp://ftp.sec.gov/', '/' + path, function(data) {
-            self.done(data);
         });
         
         return self.promise;

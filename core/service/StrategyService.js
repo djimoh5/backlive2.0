@@ -7,7 +7,7 @@ function StrategyService(session) {
     var self = this,
         user = session.user;
     
-    this.getStrategies = function() {
+    this.getBacktests = function() {
         var query = { name:{ $ne:null }, uid:user.uid };
         db.mongo.collection('log_bt').find(query).sort({"_id":1}, function(err, cursor) {
             cursor.toArray(function(err, results) {
@@ -18,8 +18,8 @@ function StrategyService(session) {
         return self.promise;
     }
     
-    this.save = function(strategyId, name) {
-        var oid = new db.ObjectID(strategyId);
+    this.saveBacktest = function(backtestId, name) {
+        var oid = new db.ObjectID(backtestId);
         var collection = db.mongo.collection('log_bt');
         
         collection.findOne({ _id:oid, uid:user.uid }, function(err, doc) {
@@ -42,8 +42,8 @@ function StrategyService(session) {
         return self.promise;
     }
     
-    this.remove = function(strategyId) {
-        var oid = new db.ObjectID(strategyId);  
+    this.removeBacktest = function(backtestId) {
+        var oid = new db.ObjectID(backtestId);  
         var collection = db.mongo.collection("log_bt");
         
         collection.findOne({ _id:oid, uid:user.uid }, function(err, doc) {
@@ -67,8 +67,8 @@ function StrategyService(session) {
         return this.promise;
     }
     
-    this.share = function(strategyId, username, isPublic) {
-        var oid = new db.ObjectID(strategyId);
+    this.shareBacktest = function(backtestId, username, isPublic) {
+        var oid = new db.ObjectID(backtestId);
         var collection;
         
         if(isPublic) {
@@ -122,8 +122,22 @@ function StrategyService(session) {
         return self.promise;
 	}
     
-    this.automate = function(strategyId, startCapital) {
-        var oid = new db.ObjectID(strategyId);
+    this.getAutomatedStrategy = function(backtestId) {
+        db.mongo.collection('user_stgy').findOne({ uid:user.uid, bt_id:backtestId }, function(err, result) {
+            if(result) {
+                db.mongo.collection('user_stgy_tr').find({ id:result._id.toString() }).sort({ date:1 }).toArray(function(err, data) {
+                    self.done({ id:result._id, bt_id:result.bt_id, capt:result.capt, exec:result.exec, data:data });
+                });
+            }
+            else
+                self.error();
+        });
+        
+        return self.promise;
+    }
+
+    this.automateStrategy = function(backtestId, startCapital) {
+        var oid = new db.ObjectID(backtestId);
 		var collection = db.mongo.collection('log_bt');
         
         collection.findOne({ _id:oid, uid:user.uid }, function(err, doc) {
@@ -137,20 +151,20 @@ function StrategyService(session) {
                         self.done({ "success":0 });
                     else {
                         //add to automation table
-                        db.mongo.collection('user_stgy', function(err, collection) {
-                            var obj = { bt_id:strategyId, uid:user.uid, capt:startCapital, date:(new Date()).getTime(), active:1 };
-                            collection.update({ bt_id:strategyId }, obj, { upsert:true }, function(err) {
-                                if(err)
-                                    self.done({ "success":0 });
-                                else {
-                                    self.done({ "success":1 });
-                                    
-                                    //kick off process to update first strategy positions
-                                    var proc = spawner.fork('scripts/strategy.js');
-                                    proc.send({ bt_id:obj.bt_id });
-                                }
-                            });
+                        var obj = { bt_id:backtestId, uid:user.uid, capt:startCapital, date:(new Date()).getTime(), active:1 };
+                        
+                        db.mongo.collection('user_stgy').update({ bt_id:backtestId }, obj, { upsert:true }, function(err) {
+                            if(err)
+                                self.done({ "success":0 });
+                            else {
+                                self.done({ "success":1 });
+                                
+                                //kick off process to update first strategy positions
+                                var proc = spawner.fork('scripts/strategy.js');
+                                proc.send({ bt_id:obj.bt_id });
+                            }
                         });
+
                         self.done({ "success":1 });
                     }
                 });
@@ -191,6 +205,14 @@ function StrategyService(session) {
         });
         
         return self.promise;
+    }
+    
+    this.markStrategyAsExecuted = function(strategyId, date) {
+        var oid = new db.ObjectID(strategyId);
+                    
+        db.mongo.collection('user_stgy').update({ _id: oid, uid: user.uid }, { $set:{ exec: date } }, function(err) {
+            self.done({ "success":err ? 0 : 1 });
+        });
     }
 }
 
