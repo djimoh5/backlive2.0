@@ -1,6 +1,6 @@
 export interface Ticker {
     name: string;
-    prices: Price;
+    prices?: Price[];
 }
 
 export interface Price {

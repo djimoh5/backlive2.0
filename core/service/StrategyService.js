@@ -9,10 +9,8 @@ function StrategyService(session) {
     
     this.getBacktests = function() {
         var query = { name:{ $ne:null }, uid:user.uid };
-        db.mongo.collection('log_bt').find(query).sort({"_id":1}, function(err, cursor) {
-            cursor.toArray(function(err, results) {
-                self.done(results);
-            });
+        db.mongo.collection('log_bt').find(query).sort({"_id":1}).toArray(function(err, results) {
+            self.done(results);
         });
         
         return self.promise;

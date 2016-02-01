@@ -1,4 +1,13 @@
 <div [class]="pageAnimation">
-	<h1>Dashboard</h1>
-    <backlive-ticker ticker="AAPL"></backlive-ticker>
+    <div *ngIf="strategies" class="strategies" [isotope]="'.strategy'" layoutMode="masonry">
+        <div *ngFor="#strategy of strategies, #i = index" class="strategy col-md-2 col-sm-6 col-xs-12">
+            <div class="pod">
+                <h4 class="name">{{strategy.name}}</h4>
+                <h5 class="date">{{strategy.date | parseDate:'short'}}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="tickers">
+        <backlive-ticker *ngFor="#ticker of tickers" [ticker]="ticker.name"></backlive-ticker>
+    </div>
 </div>

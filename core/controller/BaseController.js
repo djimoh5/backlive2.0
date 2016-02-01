@@ -34,18 +34,7 @@ function BaseController(services) {
     router.use(queryParser);
 	router.use(initSession);
 	router.use(injectServices);
-
-	/*self.action = function (path, callback, method) {
-		switch (method) {
-			case self.METHOD.POST:
-				router.post(path, callback);
-				break;
-			default:
-				router.get(path, callback);
-				break;
-		}
-	}*/
-	
+    
 	this.post = {};
     this.delete = {};
 	

@@ -1,5 +1,5 @@
 import {Directive, ElementRef, EventEmitter, Input, Output, OnInit} from 'angular2/core';
-import {Common} from 'visanow/utility';
+import {Common} from 'backlive/utility';
 
 @Directive({
     selector: '[autocompleter]'
