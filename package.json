@@ -32,6 +32,7 @@
   "devDependencies": {
     "gulp-inline-ng2-template": "^1.1.2",
     "gulp-tsc": "^1.1.4",
+    "less": "^2.6.0",
     "typescript": "^1.7.3"
   }
 }
