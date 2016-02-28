@@ -1,4 +1,4 @@
-﻿import {Component, bind, ViewEncapsulation, ElementRef, Attribute} from 'angular2/core';
+import {Component, bind, ViewEncapsulation, ElementRef, Attribute} from 'angular2/core';
 import {Location, RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
 import {HTTP_PROVIDERS} from 'angular2/http';
 import {Path} from 'backlive/config';
@@ -19,7 +19,21 @@ RouterService.setRouteMap(RouteComponentMap);
 
 @Component({
     selector: 'backlive-app',
-    templateUrl: Path.Component('app.component.html'),
+    template: `
+      <header class="clearfix">
+      	<header-nav></header-nav>
+      </header>
+      <div id="mainContainer">
+          <div class="main clearfix" [class.nav-visible]="isSlidingNavVisible">
+              <chart></chart>
+              <router-outlet></router-outlet>
+          </div>
+          <sliding-nav [class.hidden]="!isSlidingNavVisible"></sliding-nav>
+      </div>
+      <footer>
+      	<footer-nav></footer-nav>
+      </footer>
+    `,
     directives: [ROUTER_DIRECTIVES, AuthRouterOutlet, HeaderNavComponent, SlidingNavComponent, FooterNavComponent, ModalComponent]
 })
 @RouteConfig(RouterService.AppRoutes)

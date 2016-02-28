@@ -1,14 +1,17 @@
 import {Component, ElementRef, ComponentRef, DynamicComponentLoader} from 'angular2/core';
 import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
+import {Tooltip} from 'backlive/directive';
 
 import {AppService} from 'backlive/service';
+
 import {AppEvent} from '../../../service/model/app-event';
 
 @Component({
     selector: 'sliding-nav',
     templateUrl: Path.ComponentView('navigation/sliding-nav'),
-    directives: []
+    styleUrls: [Path.ComponentStyle('navigation/sliding-nav')],
+    directives: [Tooltip]
 })
 export class SlidingNavComponent extends BaseComponent {
     items: NavItem[];
@@ -71,12 +74,9 @@ export class SlidingNavComponent extends BaseComponent {
         if(navItem.component) {
             this.isActive = isActive;
             
-            //dynamically load selected nav item's component, can remove null check once all nav items have a component set (which should be required)
             if(isActive) {
-                var self = this;
-                
-                this.componentLoader.loadIntoLocation(navItem.component, this.elementRef, 'component').then(function (componentRef) {
-                    self.activeComponent = componentRef;
+                this.componentLoader.loadIntoLocation(navItem.component, this.elementRef, 'component').then(componentRef => {
+                    this.activeComponent = componentRef;
                 });
             }
         }
@@ -91,7 +91,7 @@ export class SlidingNavComponent extends BaseComponent {
     }
 }
 
-class NavItem {
+interface NavItem {
     icon: string;
     isActive: boolean;
     component: any; //either component or onClick should be set, component takes precendence

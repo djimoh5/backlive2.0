@@ -1,9 +1,21 @@
-import {platform, Provider} from 'angular2/core';
-import {WORKER_RENDER_APP, WORKER_RENDER_PLATFORM, WORKER_SCRIPT, ServiceMessageBrokerFactory, PRIMITIVE} from 'angular2/platform/worker_render';
+import {platform, provide} from 'angular2/core';
+import {WebWorkerInstance, WORKER_RENDER_APP, WORKER_RENDER_PLATFORM, WORKER_SCRIPT, WORKER_RENDER_ROUTER, ServiceMessageBrokerFactory, PRIMITIVE} from 'angular2/platform/worker_render';
 
-var appRef = platform([WORKER_RENDER_PLATFORM]).application([WORKER_RENDER_APP, new Provider(WORKER_SCRIPT, {useValue: "app/worker.ts"})]);
-var broker = appRef.injector.get(ServiceMessageBrokerFactory).createMessageBroker("channel1");
+import {BrowserPlatformLocation} from "angular2/src/router/browser_platform_location";
+import {MessageBasedPlatformLocation} from "angular2/src/web_workers/ui/platform_location";
 
+let appRef = platform([WORKER_RENDER_PLATFORM]).application([WORKER_RENDER_APP, WORKER_RENDER_ROUTER, provide(WORKER_SCRIPT, {useValue: "app/worker.ts"})]);
+let broker = appRef.injector.get(ServiceMessageBrokerFactory).createMessageBroker("channel1");
+const worker = appRef.injector.get(WebWorkerInstance).worker;
+
+worker.addEventListener('message', function onAppReady(event) {
+  if (event.data === 'APP_READY') {
+    worker.removeEventListener('message', onAppReady, false);
+    //URL.revokeObjectURL(workerScriptUrl);
+    console.log('bootstrap complete');
+    setTimeout(() => document.dispatchEvent(new Event('BootstrapComplete')));
+  }
+}, false);
 
 class PlatformUI {
     constructor() {

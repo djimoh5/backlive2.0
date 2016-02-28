@@ -1,4 +1,5 @@
 var express = require('express');
+var lessMiddleware = require('less-middleware');
 var app = express();
 
 ENV = 'dev';
@@ -26,6 +27,10 @@ routes.forEach(function (route) {
 });
 
 //init static pages - COMMENT OUT WHEN BEHIND NGINX SERVER
+
+app.use('/app', lessMiddleware('app'));
+app.use('/app-marketing', lessMiddleware('app-marketing'));
+
 app.use('/view', express.static('view'));
 app.use('/js', express.static('js'));
 app.use('/app', express.static('app'));

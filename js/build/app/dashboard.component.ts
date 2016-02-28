@@ -1,4 +1,4 @@
-﻿import {Component} from 'angular2/core';
+import {Component} from 'angular2/core';
 import {Path} from 'backlive/config';
 import {PageComponent, SearchBarComponent} from 'backlive/component/shared';
 import {ParseDate} from 'backlive/pipe';
@@ -15,8 +15,40 @@ import {Strategy} from '../../service/model/strategy';
 
 @Component({
     selector: 'app-dashboard',
-    templateUrl: Path.ComponentView('dashboard'),
-    styleUrls: [Path.ComponentStyle('dashboard')],
+    template: `
+      <div [class]="pageAnimation">
+          <div *ngIf="strategies" class="strategies" [isotope]="'.strategy'" layoutMode="masonry">
+              <div *ngFor="#strategy of strategies, #i = index" class="strategy col-md-2 col-sm-6 col-xs-12">
+                  <div class="pod">
+                      <h4 class="name">{{strategy.name}}</h4>
+                      <h5 class="date">{{strategy.date | parseDate:'short'}}</h5>
+                  </div>
+              </div>
+          </div>
+          <div class="tickers">
+              <backlive-ticker *ngFor="#ticker of tickers" [ticker]="ticker.name"></backlive-ticker>
+          </div>
+      </div>
+    `,
+    styles: [`
+      @import "/css/plugins/mixins.less";
+      @import "/css/theme/colors.less";
+
+      .strategies {
+
+      }
+      .strategy .pod {
+          padding: 2px 10px;
+          cursor: pointer;
+      }
+      .strategy .name {
+          font-size: 16px;
+          font-weight: 600;
+      }
+      .strategy .pod:hover {
+          background: #aaa;
+      }
+    `],
     directives: [StrategyComponent, TickerComponent, JIsotope],
     pipes: [ParseDate]
 })

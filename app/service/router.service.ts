@@ -131,7 +131,7 @@ export class RouterService {
 		if(idPath) {
 			path = '/' + split[1];
 		}
-		
+
 		for(var i = 0, map: RouteMap; map = this.routeMap[i]; i++) {
 			var baseRoute = this.baseRoute(map.route);
 

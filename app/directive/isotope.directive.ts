@@ -14,17 +14,15 @@ export class JIsotope implements AfterViewInit {
         console.log(elementRef)
     }
     
-    ngAfterViewInit() {
-        
+    ngAfterViewInit() {        
         setTimeout(() => {
-            console.log($(this.elementRef.nativeElement).find(this.itemSelector))
             var iso = new Isotope(this.elementRef.nativeElement, {
                 itemSelector: this.itemSelector,
                 layoutMode: this.layoutMode,
                 percentPosition: true
             });
             
-            console.log(iso);
+            //console.log(iso);
         });
     }
 }

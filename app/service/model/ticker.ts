@@ -1,3 +1,5 @@
+import {BaseModel} from './base.model';
+
 export interface Ticker {
     name: string;
     prices?: Price[];

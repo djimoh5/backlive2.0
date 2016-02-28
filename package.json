@@ -1,35 +1,37 @@
 {
-  	"name": "BackLive",
-  	"version": "2.0.0",
-  	"description": "Today's Top Stock Backtester",
-  	"author": "Deji Jimoh <deji.jimoh@backlivelabs.com>",
-	"scripts": {
-		"tsc": "tsc -p app -w"
-	},
-    "dependencies": {
-        "express": ">= 0.0.1",
-		"body-parser": "^1.14.1",
-		"mongodb": ">= 0.0.1",
-		"cookies": ">= 0.0.1",
-		"mandrill-api": ">= 0.0.1",
-		"node-uuid": ">= 0.0.1",
-		"socket.io": ">= 0.0.1",
-		"q": ">= 0.0.1",
-        "http": ">= 0.0.1",
-		"http-auth": ">= 0.0.1",
-		"uglify-js": ">= 0.0.1",
-		"jsdom": "3.1.2",
-		"braintree": ">= 0.0.1",
-        
-        "angular2": "2.0.0-beta.0",
-        "systemjs": "0.19.6",
-        "es6-promise": "^3.0.2",
-        "es6-shim": "^0.33.3",
-        "reflect-metadata": "0.1.2",
-        "rxjs": "5.0.0-beta.0",
-        "zone.js": "0.5.10"
-    },
-    "devDependencies": {
-        "typescript": "^1.7.3"
-    }
+  "name": "BackLive",
+  "version": "2.0.0",
+  "description": "Today's Top Stock Backtester",
+  "author": "Deji Jimoh <deji.jimoh@backlivelabs.com>",
+  "scripts": {
+    "tsc": "tsc -p app -w"
+  },
+  "dependencies": {
+    "angular2": "2.0.0-beta.7",
+    "body-parser": "^1.14.1",
+    "braintree": ">= 0.0.1",
+    "cookies": ">= 0.0.1",
+    "es6-promise": "^3.0.2",
+    "es6-shim": "^0.33.3",
+    "express": ">= 0.0.1",
+    "http": ">= 0.0.1",
+    "http-auth": ">= 0.0.1",
+    "jsdom": "3.1.2",
+    "less-middleware": "^2.1.0",
+    "mandrill-api": ">= 0.0.1",
+    "mongodb": ">= 0.0.1",
+    "node-uuid": ">= 0.0.1",
+    "q": ">= 0.0.1",
+    "reflect-metadata": "0.1.2",
+    "rxjs": "5.0.0-beta.0",
+    "socket.io": ">= 0.0.1",
+    "systemjs": "0.19.6",
+    "uglify-js": ">= 0.0.1",
+    "zone.js": "0.5.14"
+  },
+  "devDependencies": {
+    "gulp-inline-ng2-template": "^1.1.2",
+    "gulp-tsc": "^1.1.4",
+    "typescript": "^1.7.3"
+  }
 }

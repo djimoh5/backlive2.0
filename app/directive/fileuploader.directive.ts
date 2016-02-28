@@ -1,4 +1,5 @@
 import {Directive, ElementRef, EventEmitter, Output, Input, OnInit} from 'angular2/core';
+declare var Dropzone: any;
 
 @Directive({
     selector: '[fileuploader]',

@@ -1,0 +1,47 @@
+@import "../../../../css/plugins/mixins.less";
+@import "../../../../css/theme/colors.less";
+
+.sidebar {
+	z-index:97;
+	.icons {
+		float:left;
+		a {
+			cursor:pointer;
+			margin:5px 0 10px 0;
+			display:block;
+			padding:9px;
+			font-size:1.4em;
+			ui-icon {
+                cursor: pointer;
+				color:lighten(#c5dbec, 10%);
+				&:hover {
+					color:darken(#c5dbec, 15%);
+				}
+			}
+			ui-icon.active {
+				color:darken(#c5dbec, 20%);
+			}
+		}
+	}
+	.component {
+		float:right;
+		width:0;
+		visibility: hidden;
+		opacity: 0;
+	}
+
+	.transition(width .25s ease-out);
+	background:darken(@brand-primary, 15%);
+	color:#c5dbec;
+	width:40px;
+	height:100%;
+	position:fixed;
+	top: 50px;       
+	&.active {
+		width:300px;
+		.component {
+			visibility: visible;
+			opacity: 1;
+		}
+	}
+}

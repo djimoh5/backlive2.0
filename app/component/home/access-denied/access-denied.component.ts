@@ -5,7 +5,7 @@ import {AppService} from 'backlive/service';
 
 @Component({
     selector: 'access-denied',
-    templateUrl: Path.ComponentView('home/access-deniedl')
+    templateUrl: Path.ComponentView('home/access-denied')
 })
 export class AccessDeniedComponent extends PageComponent {
     constructor(appService: AppService) {

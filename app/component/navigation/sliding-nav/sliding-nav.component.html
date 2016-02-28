@@ -1,14 +1,10 @@
-
-<div class="sidebar" [class.active]="isActive">
-    <div class="clearfix">
-        <a href="#" (click)="showSideBar()" class="icon"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
-        <div class="component">
-            <search-bar></search-bar>
-        </div>
+<div class="sidebar" [ngClass]="{ active: isActive }">
+    <div class="icons">
+        <a href="#" *ngFor="#item of items" (click)="showSideBar(item)" [tooltip]="item.tooltip" placement="right">
+            <ui-icon [type]="item.icon" [ngClass]="{ active: item.isActive }" aria-hidden="true"></ui-icon>
+        </a>
     </div>
-    <a href="#" (click)="showSideBar()"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></a>
-    <a href="#" (click)="showSideBar()"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a>
-    <a href="#" (click)="showSideBar()"><span class="glyphicon glyphicon-signal" aria-hidden="true"></span></a>
-    <a href="#" (click)="showSideBar()"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>
-    <a href="#" (click)="showSideBar()"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+    <div class="component">
+        <div #component></div>
+    </div>
 </div>

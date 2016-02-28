@@ -1,3 +1,5 @@
+import {BaseModel} from './base.model';
+
 export interface Strategy {
     _id: string;
     name: string;
