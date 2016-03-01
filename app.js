@@ -28,6 +28,8 @@ routes.forEach(function (route) {
 
 //init static pages - COMMENT OUT WHEN BEHIND NGINX SERVER
 
+app.use('/dist', express.static('dist'));
+
 app.use('/app', lessMiddleware('app'));
 app.use('/app-marketing', lessMiddleware('app-marketing'));
 

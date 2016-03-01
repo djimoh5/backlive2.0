@@ -9,7 +9,11 @@ import {AppEvent} from '../../service/model/app-event';
 
 @Component({
     selector: 'app-backtest',
-    templateUrl: Path.ComponentView('backtest'),
+    template: `
+      <div [class]="pageAnimation">
+      	<h1>Backtest</h1>
+      </div>
+    `,
     directives: []
 })
 export class BacktestComponent extends PageComponent {
