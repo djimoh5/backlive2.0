@@ -30,8 +30,16 @@ routes.forEach(function (route) {
 
 app.use('/dist', express.static('dist'));
 
-app.use('/app', lessMiddleware('app'));
-app.use('/app-marketing', lessMiddleware('app-marketing'));
+app.use('/app', lessMiddleware('app', { 
+    preprocess: { 
+        importPaths: function(paths, req) { return '/'; } 
+    }
+}));
+app.use('/app-marketing', lessMiddleware('app-marketing', { 
+    preprocess: { 
+        importPaths: function(paths, req) { return '/'; } 
+    }
+}));
 app.use('/css', lessMiddleware('css'));
 
 app.use('/view', express.static('view'));

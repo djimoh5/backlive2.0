@@ -42,6 +42,7 @@ export class HeaderNavComponent extends BaseComponent {
     
     navigateTo(navItem: NavItem, event: MouseEvent) {
         this.appService.navigate(navItem.route, null, event);
+        event.preventDefault();
     }
     
     getRouteUrl(navItem: NavItem) {

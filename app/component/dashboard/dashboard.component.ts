@@ -11,8 +11,6 @@ import {TickerComponent} from 'backlive/component/portfolio';
 
 import {AppEvent, Ticker, Strategy} from 'backlive/service/model';
 
-console.log(ParseDatePipe)
-
 @Component({
     selector: 'app-dashboard',
     templateUrl: Path.ComponentView('dashboard'),
