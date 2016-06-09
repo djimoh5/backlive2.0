@@ -1,4 +1,4 @@
-import {Component, Input} from 'angular2/core';
+import {Component, Input} from '@angular/core';
 
 @Component({
     selector: 'progress-bar',
@@ -9,4 +9,8 @@ import {Component, Input} from 'angular2/core';
 export class ProgressBarComponent {
     @Input() progress: number;
     constructor () {}
+
+    clearProgress() {
+        this.progress = 0;
+    }
 }

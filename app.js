@@ -4,8 +4,8 @@ var app = express();
 
 ENV = 'dev';
 BASE_DIR = __dirname;
-require('./core/Config');
-require('./core/Routes');
+require('./core/config');
+require('./core/routes');
 
 require(DIR_LIB + 'calculation');
 //spawner = require('child_process');
@@ -32,6 +32,7 @@ app.use('/dist', express.static('dist'));
 
 app.use('/app', lessMiddleware('app'));
 app.use('/app-marketing', lessMiddleware('app-marketing'));
+app.use('/css', lessMiddleware('css'));
 
 app.use('/view', express.static('view'));
 app.use('/js', express.static('js'));

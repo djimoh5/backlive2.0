@@ -1,183 +1,298 @@
-import {Injectable, Directive, ElementRef, DynamicComponentLoader} from 'angular2/core';
-import {Location, Router, RouteDefinition, RouterOutlet, ComponentInstruction} from 'angular2/router';
+import {Injectable, Directive, ElementRef, DynamicComponentLoader, Type, ViewContainerRef, ApplicationRef} from '@angular/core';
+import {Router, RouteDefinition, AsyncRoute, RouterOutlet, ComponentInstruction, Instruction} from '@angular/router-deprecated';
+import {Location} from '@angular/common';
 
 import {UserService} from './user.service';
 import {Common} from 'backlive/utility';
+import {Config} from 'backlive/config';
+
+declare var System: any;
+declare var Appcues: any;
+declare var ga: any; //Google  Analytics
 
 @Directive({selector: 'auth-router-outlet'})
 export class AuthRouterOutlet extends RouterOutlet {
 	router: Router;
 	publicRoutes: string[] = [];
 	
-	constructor(elementRef: ElementRef, loader: DynamicComponentLoader, parentRouter:Router) {
-		super(elementRef, loader, parentRouter, null);
-		this.router = parentRouter;	
+	constructor(viewContainerRef: ViewContainerRef, loader: DynamicComponentLoader, parentRouter:Router) {
+		super(viewContainerRef, loader, parentRouter, null);
+		this.router = parentRouter;
 	}
 	
 	activate(nextInstruction: ComponentInstruction) : Promise<any> {
-		var route = RouterService.rootRouteMap && nextInstruction.componentType == RouterService.rootRouteMap.component 
-					? RouterService.rootRouteMap.route : RouterService.pathRoute(nextInstruction.urlPath);
-		
-		RouterService.lastRoute = route;
-		
-		if(!RouterService.enabled) {
-			nextInstruction = this.router.generate(RouterService.splashRoute).component;
+        RouterService.lastPath = RouterService.location.path();
+        RouterService.currentComponent = nextInstruction.componentType;
+        RouterService.currentInstruction = nextInstruction;
+        
+		if(RouterService.enabled) {
+			if(RouterService.accessDenied(nextInstruction)) {
+                nextInstruction = this.router.generate(RouterService.notFoundRoute.link).component;
+            }
+            
+            return super.activate(nextInstruction);
 		}
-		else if(RouterService.accessDenied(route)) {
-			this.router.navigate(RouterService.defaultRoute); //include this only if we don't want url to show as page user tried to access
-			nextInstruction = this.router.generate(RouterService.defaultRoute).component;
-		}
-
-		return super.activate(nextInstruction);
 	}
 }
 
 @Injectable()
 export class RouterService {
-	private static router: Router;
-	private static location: Location;
-	private static routeMap: RouteMap[];
-	private static publicRoutes: string[] = [];
+	static router: Router;
+	private static routes: RouteInfo[];
+	private static publicRoutes: RouteInfo[] = [];
 	private static userService: UserService;
-
+    
+    static location: Location;
 	static enabled: boolean;
-	static lastRoute: string[];
-	static rootRouteMap: any;
-	static splashRoute: any;
-	static defaultRoute: any;
+	static lastPath: string;
+    static currentComponent: any;
+    static currentInstruction: ComponentInstruction;
+    
+    static defaultRoute: RouteInfo;
+	static notFoundRoute: RouteInfo;
 	
 	static childRouteIdentifier: string = '/...';
+    
+    backSubcriber: Function; //current subscriber to the browser back button
+    routerSubcriber: Function; //current subscriber to route changes
 	
-	constructor(router: Router, location: Location, routerOutlet: AuthRouterOutlet, userService: UserService) {
+	constructor(router: Router, location: Location, applicationRef: ApplicationRef) {
 		RouterService.router = router;
-		RouterService.userService = userService;
 		RouterService.location = location;
-		
-		RouterService.routeMap.forEach(map => {
-			if(map.isPublic) {
-				RouterService.publicRoutes.push(RouterService.baseRoute(map.route));
-			}
-			
-			if(map.isSplash){
-				RouterService.splashRoute = map.route;
-			}
-			
-			if(map.isDefault){
-				RouterService.defaultRoute = map.route;
-			}
-		});
+
+        if (RouterService.routes) {
+            RouterService.routes.forEach(routeInfo => {
+                if (routeInfo.isNotFound) {
+                    RouterService.notFoundRoute = routeInfo;
+                }
+            });
+        }
+
+        router.subscribe((route: string) => {
+            if (!!document['documentMode']) {
+                applicationRef.zone.run(() => applicationRef.tick());
+            }
+
+            if (this.routerSubcriber) {
+                this.routerSubcriber(route);
+            }
+        });
+
+        location.subscribe((value: any) => {
+            if (this.backSubcriber) {
+                this.backSubcriber(value);
+            }
+        });
 	}
 	
-	isRouteActive(route: string[]) {
-		return route ? RouterService.router.isRouteActive(RouterService.router.generate(route)) : false;
+	isRouteActive(route: RouteInfo, componentExactMatch: boolean = false) {
+        return RouterService.isRouteActive(RouterService.router, route, componentExactMatch);
 	}
-	
+    
+    static isRouteActive(router: Router, route: RouteInfo, componentExactMatch: boolean = false) {
+        return route ? 
+                (route.component === RouterService.currentComponent || (!componentExactMatch && router.isRouteActive(router.generate([route.link[0]]))))
+                : false;
+	}
+    
 	subscribe(callback: Function) {
-		RouterService.router.subscribe((route: string) => callback(route));
-	}
+        this.routerSubcriber = callback;
+    }
+
+    unsubscribe() {
+        this.routerSubcriber = null;
+    }
+    
+    subscribeToBack(callback: Function) {
+        this.backSubcriber = callback;
+    }
+    
+    unsubscribeToBack() {
+        this.backSubcriber = null;
+    }
 	
-	navigate(route: string[]) {
-		RouterService.router.navigate(route);
+	navigate(route: RouteInfo, event: MouseEvent = null) {
+        var params = route.params;
+        route.params = null;
+        
+        if(Config.APP_CRASHED) {
+            window.location.href = this.getLinkUrl(route, params);
+            return;
+        }
+        
+        if(!event || !(event.shiftKey || event.ctrlKey)) {
+		    RouterService.router.navigate(this.getRouteLink(route, params));
+            this.setTrackingInfo(this.getLinkUrl(route, params));
+        }
+        else {
+            window.open(this.getLinkUrl(route, params));
+        }
 	}
-	
+
+    getLinkUrl(route: RouteInfo, params: {} = null, relativeToBase: boolean = false) {
+        var instr: Instruction = RouterService.router.generate(this.getRouteLink(route, params));
+        if(instr) {
+            return (relativeToBase ? '' : Config.SITE_URL) + '/' + instr.toLinkUrl();
+        }
+    }
+    
+    private getRouteLink(route: RouteInfo, params: {}) {
+        return params && route.link[1] ? [route.link[0], params] : [route.link[0]];
+    }
+    
+    pushView(path: string) {
+        RouterService.location.go(path);
+        this.setTrackingInfo(path);
+    }
+
+    replaceView(path: string) {
+        RouterService.location.replaceState(path);
+        this.setTrackingInfo(path);
+    }
+    
+    setTrackingInfo(path: string){
+        if(typeof(Appcues) !== 'undefined') {
+            Appcues.identify({ path: path });
+            
+            setTimeout(() => {
+                Appcues.start();
+            }, 2000);
+        }
+
+        if (typeof (ga) !== 'undefined') {
+            ga('set', 'page', path);
+            ga('send', 'pageview');
+        }
+    }
+
 	// application wide routes, these are passed to the @RouteConfig of the main app component
-	static get AppRoutes(): RouteDefinition[] {
+	static AppRoutes(routeInfos: {}, hasParentRoute: boolean = false): RouteDefinition[] {
 		var routeDefinitions: RouteDefinition[] = [];
-		
-		for(var i = 0, map: any; map = this.routeMap[i]; i++) {
-			if(map.isRoot) {
-				this.rootRouteMap = map;
-			}
-			
-			routeDefinitions.push({ path: map.isRoot ? '/' : this.routePath(map.route), component: map.component, name: this.routeAlias(map.route) });
+        var routeInfo: RouteInfo;
+        var routes: RouteInfo[] = [];
+        
+        for(var key in routeInfos) {
+            routeInfo = routeInfos[key];
+            routes.push(routeInfo);
+            
+            if(routeInfo.isRoot || routeInfo.isDefault) {
+                RouterService.defaultRoute = routeInfo;
+            }
+            
+            if(routeInfo.isPublic) {
+                RouterService.publicRoutes.push(routeInfo);
+            }
+        }
+        
+        if(!hasParentRoute) {
+            this.routes = routes;
+        }
+        
+        var defaultFound = false;
+
+		for(var i = 0; routeInfo = routes[i]; i++) {
+            var alias = this.routeAlias(routeInfo, hasParentRoute);
+            var paths = this.routeToPaths(routeInfo, hasParentRoute);
+            
+            for(var j = paths.length - 1; j >= 0; j--) { //add deepest paths first
+                var routeDefinition: RouteDefinition = Common.isString(routeInfo.component) ? new AsyncRoute({
+                        path: paths[j],
+                        loader: this.getRouteLoader(routeInfo.path, <string> routeInfo.component),
+                        name: alias
+                    }) : { path: paths[j], name: alias, component: <Type> routeInfo.component }
+            
+                if(routeInfo.isDefault && !defaultFound && j === 0) {
+                    routeDefinition.useAsDefault = true;
+                    defaultFound = true;
+                }
+                
+                if(routeInfo.isNotFound) {
+                    routeDefinitions.push({ path: '/**', name: alias, component: <Type> routeInfo.component });
+                }
+                
+                routeDefinitions.push(routeDefinition);
+            }
 		}
 				
 		return routeDefinitions;
 	}
-	
-	static setRouteMap(routeMap: RouteMap[]) {
-		this.routeMap = routeMap;
-	}
-	
-	static enableRouting() {
-		this.enabled = true;
-		
-		if(!this.lastRoute) {
-			this.lastRoute = this.pathRoute(this.location.path());
-		}
-		
-		this.router.navigate(this.lastRoute);
+    
+    static getRouteLoader(path: string, component: string) {
+        return () => System.import(path).then(m => m[component]);
+    }
+    
+    static enableRouting() {
+        if(!this.enabled) {
+            this.enabled = true;
+
+            if(this.lastPath) {
+                this.router.navigateByUrl(this.lastPath);
+            }
+            else if(RouterService.defaultRoute) {
+                this.router.navigate(RouterService.defaultRoute.link);
+            }
+        }
 	}
     
-    static accessDenied(route: string[] = null) {
-		if(!route) {
-			route = RouterService.pathRoute(this.location.path());
-		}
+    static accessDenied(componentInstruction: ComponentInstruction) {
+        return false;
+        
+        /*for(var i = 0, routeInfo; routeInfo = this.publicRoutes[i]; i++) {
+            if(routeInfo.component === componentInstruction.componentType) {
+                return false;
+            }
+        }
 		
-        return !this.userService.user && !Common.inArray(route[0], this.publicRoutes);
+        return true;*/
     }
 
-	static pathRoute(path: string) {
-		if(path.substring(0, 1) != '/') {
-			path = '/' + path;
-		}
-		
-		path = '/' + path.substring(1, 2).toUpperCase() + path.substring(2);
-	
-		//check if there's an :id path in route
-		var split = path.split('/'),
-			idPath = split[2];
-
-		if(idPath) {
-			path = '/' + split[1];
-		}
-
-		for(var i = 0, map: RouteMap; map = this.routeMap[i]; i++) {
-			var baseRoute = this.baseRoute(map.route);
-
-			if(baseRoute == path) {
-				if(map.route[0] != baseRoute) { //route has child routes
-					return [baseRoute + (idPath ? ('/' + idPath.substring(0, 1).toUpperCase() + idPath.substring(1)) : '')];
-				}
-				else if(idPath) {
-					if(map.route[1]) {
-						map.route[1].id = idPath;
-					}
-				}
-				
-				return map.route;
-			}
-		}
-
-		return this.defaultRoute;
+    static baseRouteLink(routeLink: any[], hasParentRoute: boolean) {
+		var paths = routeLink[0].split('/');
+        return '/' + paths[paths.length - 1];
 	}
-	
-	static baseRoute(route: string[]) {
-		return route[0].replace(this.childRouteIdentifier, '');	
+    
+    static routeAlias(route: RouteInfo, hasParentRoute: boolean) {
+        var base = this.baseRouteLink(route.link, hasParentRoute);
+		return base.substring(1);
 	}
-	
-	static routePath(route: any[]) {
-		var path = route[0].toLowerCase();
-		
-		if(route.length > 1) {
-			for(var key in route[1]) {
-				path += '/:' + key;
-			}
-		}
-		
+    
+    static routeToPaths(route: RouteInfo, hasParentRoute: boolean) {
+        if(route.isRoot) {
+            return ['/'];
+        }
+        
+		var path = [this.baseRouteLink(route.link, hasParentRoute).toLowerCase()];
+        
+        if(route.hasChildRoutes) {
+            path[0] += this.childRouteIdentifier;
+        }
+        else if(route.link.length > 1) {
+            var tempPath = path[0];
+            for(var key in route.link[1]) {
+                if(route.link[1][key] === true) {
+                    path[0] += '/:' + key;
+                    tempPath = path[0];
+                }
+                else {
+                    tempPath += '/:' + key;
+                    path.push(tempPath);
+                }
+            }
+        }
+        
 		return path;
-	}
-	
-	static routeAlias(route: string[]) {
-		return this.baseRoute(route).substring(1);
 	}
 }
 
-export interface RouteMap {
-	route: any[],
-	component: any,
-	isRoot?: boolean,
-	isPublic?: boolean,
-	isDefault?: boolean,
-	isSplash?: boolean
+export interface RouteInfo {
+	link: any[],
+    component: string | Type;
+    path?: string;
+    hasChildRoutes?: boolean,
+	isRoot?: boolean, //route should be mapped to web root '/'
+	isPublic?: boolean, //route does not require authentication
+	isDefault?: boolean, //on login navigate to this route
+    isNotFound?: boolean; //route not found / access denied page
+    
+    params?: { [key: string]: any } //optional params that can be set when navigating to a route
 }

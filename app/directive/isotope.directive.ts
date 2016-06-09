@@ -1,9 +1,11 @@
-import {Directive, ElementRef, Input, EventEmitter, OnInit, AfterViewInit} from 'angular2/core';
+import {Directive, ElementRef, Input, EventEmitter, OnInit, AfterViewInit} from '@angular/core';
+
+declare var Isotope: any;
 
 @Directive({
     selector: '[isotope]'
 })
-export class JIsotope implements AfterViewInit {
+export class JIsotopeDirective implements AfterViewInit {
     @Input('isotope') itemSelector: string;
     @Input() layoutMode: string = 'masonry';
     

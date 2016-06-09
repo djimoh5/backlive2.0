@@ -1,13 +1,12 @@
-import {Component} from 'angular2/core';
-import {ControlGroup, Control, Validators, FORM_DIRECTIVES} from 'angular2/common';
+import {Component} from '@angular/core';
+import {ControlGroup, Control, Validators, FORM_DIRECTIVES} from '@angular/common';
 import {Path} from 'backlive/marketing/config';
 import {PageComponent} from 'backlive/component/shared';
 
 import {AppService, UserService} from 'backlive/service';
 
 import {Route} from 'backlive/marketing/routes';
-import {AppEvent} from '../../../app/service/model/app-event';
-import {User} from '../../../app/service/model/user';
+import {AppEvent, User} from 'backlive/service/model';
 
 @Component({
     selector: 'app-home',

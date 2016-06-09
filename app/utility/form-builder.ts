@@ -1,16 +1,24 @@
-import {Control, ControlGroup} from 'angular2/common';
+import {Control, ControlGroup} from '@angular/common';
 import {Common} from './common';
 
 export class FormBuilder {
 	static build(fields: {}, validators: FormValidators = {}) : ControlGroup {
 		var form: ControlGroup = new ControlGroup({});
-		
-		for(var key in fields) {
-			form.addControl(key, new Control(fields[key], validators[key]));
+		return FormBuilder.buildForm(form, fields, validators);
+	}
+    
+    private static buildForm(form: ControlGroup, fields: {}, validators: FormValidators = {}) {
+        for(var key in fields) {
+            if(Common.isObject(fields[key])) {
+                 FormBuilder.buildForm(form, fields[key], validators);
+            }
+            else {
+			     form.addControl(key, new Control(fields[key], validators[key]));
+            }
 		}
 
 		return form;
-	}
+    } 
 	
 	static clear(form: ControlGroup) {
 		for(var key in form.controls) {
@@ -21,5 +29,5 @@ export class FormBuilder {
 }
 
 export interface FormValidators {
-	[key: string]: Function;
+	[key: string]: Function | any;
 }

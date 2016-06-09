@@ -1,11 +1,11 @@
-import {Component} from 'angular2/core';
-import {Path} from '../../config/config';
+import {Component} from '@angular/core';
+import {Path} from 'backlive/config';
 import {PageComponent} from 'backlive/component/shared';
 
 import {AppService, UserService} from 'backlive/service';
 
-import {Route} from '../../config/routes';
-import {AppEvent} from '../../service/model/app-event';
+import {Route} from 'backlive/routes';
+import {AppEvent} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-research',

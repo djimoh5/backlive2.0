@@ -1,12 +1,12 @@
-﻿import {Component, bind, ViewEncapsulation, ElementRef, Attribute} from 'angular2/core';
-import {ClientMessageBrokerFactory, PRIMITIVE, UiArguments, FnArg} from 'angular2/platform/worker_app';
+﻿import {Component, bind, ViewEncapsulation, ElementRef, Attribute} from '@angular/core';
+import {ClientMessageBrokerFactory, PRIMITIVE, UiArguments, FnArg} from '@angular/platform/worker_app';
 
-import {Location, RouteConfig, RouterOutlet, ROUTER_DIRECTIVES} from 'angular2/router';
-import {HTTP_PROVIDERS} from 'angular2/http';
+import {RouteConfig, RouterOutlet, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import {HTTP_PROVIDERS} from '@angular/http';
 import {Path} from 'backlive/config';
 
 import {DashboardComponent} from './dashboard/dashboard.component';
-import {RouteComponentMap} from 'backlive/routes';
+import {Route} from 'backlive/routes';
 
 /* services */
 import {AppService, PopupAlert, RouterService, AuthRouterOutlet, ApiService, UserService} from 'backlive/service';
@@ -18,16 +18,12 @@ import {HeaderNavComponent, SlidingNavComponent, FooterNavComponent} from 'backl
 /* models */
 import {AppEvent, User} from 'backlive/service/model';
 
-RouterService.setRouteMap(RouteComponentMap);
-
 @Component({
     selector: 'backlive-app',
     templateUrl: 'app/component/app.component.html',
     directives:[RouterOutlet, /*HeaderNavComponent,*/ SlidingNavComponent, FooterNavComponent/*, ModalComponent*/]
 })
-@RouteConfig([
-    { name: 'Dashboard', path: '/', component: DashboardComponent }
-])
+@RouteConfig(RouterService.AppRoutes(Route))
 export class AppComponent {
     constructor(brokerFactory: ClientMessageBrokerFactory, appService: AppService) {
         var broker = brokerFactory.createMessageBroker("channel1");

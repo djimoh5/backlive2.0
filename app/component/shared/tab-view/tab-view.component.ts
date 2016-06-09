@@ -1,36 +1,58 @@
-import {Component, Input, Output, EventEmitter, HostListener, ContentChildren , AfterContentInit, QueryList} from 'angular2/core';
+import {Component, ElementRef, Input, Output, OnChanges, EventEmitter, HostBinding, HostListener, ContentChildren, AfterContentInit, QueryList} from '@angular/core';
+
 import {BaseComponent} from '../base.component';
 
 import {AppService} from 'backlive/service';
-
-import {AppEvent} from '../../../service/model/app-event';
+import {AppEvent} from 'backlive/service/model';
 
 @Component({
-    selector: 'tab-item',
+    selector: 'tab-link',
     template: `<ng-content></ng-content>`
 })
-export class TabComponent {
+export class TabComponent implements OnChanges {
     @Input() active;
-    @Output() clicked: EventEmitter<any> = new EventEmitter();
+    @Output() clicked: EventEmitter<any> = new EventEmitter<any>();
+    elementRef: ElementRef;
     
-    constructor () {}
+    hasSubscription: boolean;
+    
+    constructor (elementRef: ElementRef) {
+        this.elementRef = elementRef;
+    }
+    
+    setActive(active: boolean) {
+        this.active = active;
+    }
+    
+    ngOnChanges() {
+        if(this.active) {
+            this.onClick(null);
+        }
+    }
+     
+    @HostBinding('class.active') get classActive() {
+        return this.active;
+    }
     
     @HostListener('click', ['$event.target'])
     onClick(event: any) {
-        this.clicked.next(event);
+        this.clicked.emit(event);
     }
 }
 
 @Component({
     selector: 'tab-content',
-    template: `<div [class.hidden]="!visible"><ng-content></ng-content></div>`
+    template: `<div *ngIf="active"><ng-content></ng-content></div>`
 })
 export class TabContentComponent {
-    visible: boolean = false;
+    @Input() active: boolean = false;
     constructor () {}
+    
+    setActive(active: boolean) {
+        this.active = active;
+    }
 }
-
-
+ 
 @Component({
     selector: 'tab-view',
     template: `<ng-content></ng-content>`,
@@ -48,28 +70,42 @@ export class TabViewComponent extends BaseComponent implements AfterContentInit 
     }
     
     ngAfterContentInit() {
+        this.loadTabs();
+        this.tabList.changes.subscribe(() => this.loadTabs());
+    }
+    
+    loadTabs() {
         this.tabs = this.tabList.toArray();
         this.tabContents = this.tabContentList.toArray();
         
         this.tabs.forEach((tab: TabComponent, index: number) => {
             if(tab.active) {
-                this.tabClicked(index);
+                setTimeout(() => this.activateContents(index));
             }
             
-            tab.clicked.subscribe(event => this.tabClicked(index, event));
+            if(!tab.hasSubscription) {
+                tab.clicked.subscribe(event => this.tabClicked(index, event));
+            }
         });
-
-        
-        console.log(this.tabs, this.tabContents);
     }
     
     tabClicked(index: number, event: any = null) {
-        console.log(index);
-        this.tabContents.forEach(tabContent => {
-            tabContent.visible = false;
+        this.tabs.forEach(tab => {
+            tab.setActive(false);
         });
         
-        this.tabContents[index].visible = true;
+        this.tabs[index].setActive(true);
+        this.activateContents(index);
+    }
+    
+    activateContents(index: number) {
+        this.tabContents.forEach(tabContent => {
+            tabContent.setActive(false);
+        });
+        
+        if(this.tabContents[index]) {
+            this.tabContents[index].setActive(true);
+        }
     }
 }
 

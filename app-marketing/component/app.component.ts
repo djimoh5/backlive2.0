@@ -1,26 +1,23 @@
-import {Component} from 'angular2/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
+import {Component} from '@angular/core';
+import {RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 import {Path} from 'backlive/marketing/config';
 
 /* components */
 import {BaseComponent, ModalComponent} from 'backlive/component/shared';
 
 /* services */
-import {AppService, RouterService, AuthRouterOutlet, ApiService, UserService} from 'backlive/service';
+import {AppService, RouterService, AuthRouterOutlet, ApiService, UserService, RouteInfo} from 'backlive/service';
 
 /* models */
-import {RouteComponentMap} from 'backlive/marketing/routes';
-import {AppEvent} from '../../app/service/model/app-event';
-import {User} from '../../app/service/model/user';
-
-RouterService.setRouteMap(RouteComponentMap);
+import {Route} from 'backlive/marketing/routes';
+import {AppEvent, User} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-app',
     templateUrl: Path.Component('app.component.html'),
     directives: [ROUTER_DIRECTIVES, AuthRouterOutlet, ModalComponent]
 })
-@RouteConfig(RouterService.AppRoutes)
+@RouteConfig(RouterService.AppRoutes(Route))
 export class AppComponent extends BaseComponent {
     userService: UserService;
     routerService: RouterService;
@@ -32,12 +29,6 @@ export class AppComponent extends BaseComponent {
         this.userService = userService;
         this.routerService = routerService;
         
-        this.subscribeEvent(AppEvent.Navigate, (route: string[]) => this.navigate(route));
-
         RouterService.enabled = true;
-    }
-
-    navigate(route: string[]) {
-        this.routerService.navigate(route);
     }
 }

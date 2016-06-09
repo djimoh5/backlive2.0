@@ -1,6 +1,6 @@
-<div class="sidebar" [ngClass]="{ active: isActive }">
+<div class="sidebar" [class.active]="isActive">
     <div class="icons">
-        <a href="#" *ngFor="#item of items" (click)="showSideBar(item)" [tooltip]="item.tooltip" placement="right">
+        <a href="javascript:void(0)" *ngFor="let item of items" (click)="showSideBar(item)" [tooltip]="item.tooltip" placement="right">
             <ui-icon [type]="item.icon" [ngClass]="{ active: item.isActive }" aria-hidden="true"></ui-icon>
         </a>
     </div>

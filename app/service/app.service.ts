@@ -1,46 +1,62 @@
-﻿import {Common} from 'backlive/utility';
+﻿import {Injectable} from '@angular/core';
+import {BaseService} from './base.service';
+import {ApiService} from './api.service';
+import {AppEvent} from './model/app-event.model';
+
+import {RouteInfo, RouterService} from './router.service';
+
+import {Common, Cache} from 'backlive/utility';
+import {PlatformUI} from 'backlive/utility/ui';
 
 export class PopupAlert {
     message: string;
     buttons: string[];
 }
 
-export class AppService {
+@Injectable()
+export class AppService extends BaseService {
+    routerService: RouterService;
+    platformUI: PlatformUI;
+    
     Events: { [key: string]: { [key: string]: Function[] } };
-
-    constructor() {
+    
+    constructor(apiService: ApiService, routerService: RouterService, platformUI: PlatformUI) {
+        super(apiService, null, null);
+        this.routerService = routerService;
+        this.platformUI = platformUI;
+        
         this.Events = {};
     }
-
-    subscribe(eventName: string, classInstance: any, callback: Function) {
-        var classType = classInstance.constructor.name;
-        
-        if(classType) {
-            if (!this.Events[eventName]) {
-                this.Events[eventName] = {};
-            }
-            
-            if(!this.Events[eventName][classType]) {
-                this.Events[eventName][classType] = [];
-            }
     
-            this.Events[eventName][classType].push(callback);
+    navigate(route: RouteInfo, params: {} = null, event: MouseEvent = null) {
+        if(params) {
+            route.params = params;
         }
-        else {
-            Common.log('Constructor Name not supported: ' + eventName + ' could not be subscribed to');
+        
+        this.routerService.navigate(route, event);
+        this.platformUI.scrollToTop();
+    }
+
+    subscribe(eventName: string, componentId: any, callback: Function) {
+        if (!this.Events[eventName]) {
+            this.Events[eventName] = {};
         }
+        
+        if(!this.Events[eventName][componentId]) {
+            this.Events[eventName][componentId] = [];
+        }
+
+        this.Events[eventName][componentId].push(callback);
     }
     
-    unsubscribe(classInstance: any, eventName?: string) {
-        var classType = classInstance.constructor.name;
-
-        if(eventName && this.Events[eventName] && this.Events[eventName][classType]) {
-            delete this.Events[eventName][classType];
+    unsubscribe(componentId: any, eventName?: string) {
+        if(eventName && this.Events[eventName] && this.Events[eventName][componentId]) {
+            delete this.Events[eventName][componentId];
         }
         else {
             for(var name in this.Events) {
-                if(this.Events[name][classType]) {
-                    delete this.Events[name][classType];
+                if(this.Events[name][componentId]) {
+                    delete this.Events[name][componentId];
                 }
             }
         }
@@ -48,16 +64,39 @@ export class AppService {
 
     notify<T>(eventName: string, data: T = null) {
         if (this.Events[eventName]) {
-            //Common.log('EVENT: ' + eventName + ' fired to ' + this.Events[eventName].length + ' subscribers with data', data);
-            for(var classType in this.Events[eventName]) {
-                this.Events[eventName][classType].forEach((callback: Function) => {
-                    callback(data);
-                });
-            }
+            setTimeout(() => {
+                var cnt = 0;
+                
+                //notify any services first
+                if(this.Events[eventName][this.ServiceComponentId]) {
+                    this.notifyComponent<T>(this.ServiceComponentId, eventName, data);
+                }
+                
+                for(var componentId in this.Events[eventName]) {
+                    if(componentId != this.ServiceComponentId) {
+                        this.notifyComponent<T>(componentId, eventName, data);
+                    }
+                    
+                    cnt++;
+                }
+                
+                if(cnt == 0) {
+                    Common.log('EVENT: ' + eventName + ' has no subscribers');
+                }
+                else {
+                    //Common.log('EVENT: ' + eventName + ' fired to ' + cnt + ' subscribers with data', data);
+                }
+            });
         }
         else {
             Common.log('EVENT: ' + eventName + ' has no subscribers');
         }
+    }
+    
+    private notifyComponent<T>(componentId: any, eventName: string, data: T = null) {
+        this.Events[eventName][componentId].forEach((callback: Function) => {
+            callback(data); 
+        });
     }
     
     clearEvent(eventName: string) {

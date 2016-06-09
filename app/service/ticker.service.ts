@@ -1,11 +1,12 @@
-import {Injectable} from 'angular2/core';
+import {Injectable} from '@angular/core';
 import {BaseService} from './base.service';
 import {ApiService} from './api.service';
+import {AppService} from './app.service';
 
 @Injectable()
 export class TickerService extends BaseService {
-    constructor(apiService: ApiService) {
-        super(apiService, 'ticker');
+    constructor(apiService: ApiService, appService: AppService) {
+        super(apiService, appService, 'ticker');
     }
     
     getPrices(tkr: string, years: number = 10){

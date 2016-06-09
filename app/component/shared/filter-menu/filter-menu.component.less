@@ -1,0 +1,59 @@
+@import "/css/plugins/mixins.less";
+@import "/css/themes/colors.less";
+@import "/css/themes/text.less";
+
+.filter-menu {
+    width: 470px;
+    background: @white;
+    text-align: left;
+    .clearfix;
+    .col {
+        float: left;
+        height: 400px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    .left-col {
+        padding: 15px 20px;
+        width: 150px;
+        .filter {
+            color: @text-light;
+            margin-bottom: 20px;
+            cursor: pointer;
+            &:hover {
+                color: @text-color;
+            }
+            &.active {
+                color: @brand-primary;
+                font-weight: bold;
+            }
+        }
+    }
+    .right-col {
+        border-left: 1px solid @border-default;
+        width: 315px;
+        ui-icon[type="search"] {
+            margin-left: 15px;
+            color: @gray-light;
+            font-size: @text-larger;
+            position: relative;
+            top: 3px;
+        }
+        input[type="text"] {
+            border: none;
+            padding: 10px 10px 10px 20px;
+            font-size: @text-large;
+            &:focus {
+                outline: none;
+            }
+        }
+        .filter-option {
+            padding: 15px;
+            width: 300px;
+            border-top: 1px solid @border-default;
+            check-box {
+                float: right;
+            }
+        }
+    }
+}

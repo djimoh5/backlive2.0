@@ -1,24 +1,24 @@
-﻿import {Component} from 'angular2/core';
+﻿import {Component} from '@angular/core';
 import {Path} from 'backlive/config';
 import {PageComponent, SearchBarComponent} from 'backlive/component/shared';
-import {ParseDate} from 'backlive/pipe';
-import {JIsotope} from 'backlive/directive';
+import {ParseDatePipe} from 'backlive/pipe';
+import {JIsotopeDirective} from 'backlive/directive';
 
 import {AppService, UserService, StrategyService} from 'backlive/service';
 
 import {StrategyComponent} from 'backlive/component/backtest';
 import {TickerComponent} from 'backlive/component/portfolio';
 
-import {AppEvent} from '../../service/model/app-event';
-import {Ticker} from '../../service/model/ticker';
-import {Strategy} from '../../service/model/strategy';
+import {AppEvent, Ticker, Strategy} from 'backlive/service/model';
+
+console.log(ParseDatePipe)
 
 @Component({
     selector: 'app-dashboard',
     templateUrl: Path.ComponentView('dashboard'),
     styleUrls: [Path.ComponentStyle('dashboard')],
-    directives: [StrategyComponent, TickerComponent, JIsotope],
-    pipes: [ParseDate]
+    directives: [StrategyComponent, TickerComponent, JIsotopeDirective],
+    pipes: [ParseDatePipe]
 })
 export class DashboardComponent extends PageComponent {
     strategyService: StrategyService;

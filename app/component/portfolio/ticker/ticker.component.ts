@@ -1,11 +1,10 @@
-import {Component, Input, OnInit} from 'angular2/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
 
 import {AppService, TickerService} from 'backlive/service';
 
-import {AppEvent} from '../../../service/model/app-event';
-import {Ticker, Price} from '../../../service/model/ticker';
+import {AppEvent, Ticker, Price} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-ticker',

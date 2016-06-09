@@ -1,42 +1,55 @@
-var isWeb = true;
-var dirPrefix = 'app';
+if (typeof System != 'undefined') {
+    var webContext = true;
+    var dirPrefix = 'app';
 
-if(typeof(defaultExt) === 'undefined') {
-    var defaultExt = 'ts';
-    dirPrefix = 'dist';
-    isWeb = false;
-}
+    if (typeof WEB_CONFIG == 'undefined') {
+        WEB_CONFIG = { ComponentExtension: 'ts', BaseUrl: '/' };
+        webContext = false;
+        dirPrefix = 'dist';
+    }
 
-var config = {
-    transpiler: 'typescript',
-    typescriptOptions: { emitDecoratorMetadata: true },
-    packages: {
-        'dist': {defaultExtension: defaultExt},
-        'app': {defaultExtension: defaultExt},
-        'app-marketing': {defaultExtension: defaultExt}
-    },
-    paths: {
-        'backlive/marketing/*': dirPrefix + '-marketing/config/imports/*',
-        'backlive/design/*': dirPrefix + '-design/config/imports/*',
-        'backlive/*': dirPrefix + '/config/imports/*'
-    },
-    baseURL: '/'
-};
-
-if(!isWeb) {
-    config.map = {
-        typescript: 'node_modules/typescript/lib/typescript.js'
+    var config = {
+        baseURL: WEB_CONFIG.BaseUrl,
+        transpiler: 'typescript',
+        typescriptOptions: { emitDecoratorMetadata: true },
+        packages: {
+            'dist': {defaultExtension: WEB_CONFIG.ComponentExtension },
+            'app': { defaultExtension: WEB_CONFIG.ComponentExtension },
+            'app-marketing': { defaultExtension: WEB_CONFIG.ComponentExtension },
+            'node_modules/backlive': { defaultExtension: 'ts' },
+            'node_modules/backlive-dist': { defaultExtension: 'ts' },
+            'rxjs': { defaultExtension: 'js' }
+        },
+        map: {
+            'backlive': 'node_modules/backlive',
+            'rxjs': 'node_modules/rxjs',
+            '@angular': 'node_modules/@angular'
+        }
     };
+    
+    var packageNames = [
+        '@angular/common',
+        '@angular/compiler',
+        '@angular/core',
+        '@angular/http',
+        '@angular/platform-browser',
+        '@angular/platform-browser-dynamic',
+        '@angular/router',
+        '@angular/router-deprecated',
+        '@angular/testing'
+    ];
+    
+    packageNames.forEach(function(pkgName) {
+        var umdBundle = webContext ? (pkgName.split('/')[1] + '.umd.js') : 'index';
+        config.packages[pkgName] = { main: umdBundle, defaultExtension: 'js' };
+    });
 
-    var nodeModulesMap = {
-        angular2: 'node_modules/angular2',
-        rxjs: 'node_modules/rxjs'
+    if (!webContext) {
+        config.map.typescript = 'node_modules/typescript/lib/typescript.js';
+        config.map.backlive = 'node_modules/backlive-dist';
     }
 
-    for (var key in nodeModulesMap) {
-        config.map[key] = nodeModulesMap[key];
-        config.packages[nodeModulesMap[key]] = { defaultExtension: 'js' };
+    if(System.config) {
+        System.config(config);
     }
 }
-
-System.config(config);

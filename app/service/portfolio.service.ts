@@ -1,11 +1,12 @@
-import {Injectable} from 'angular2/core';
+import {Injectable} from '@angular/core';
 import {BaseService} from './base.service';
 import {ApiService} from './api.service';
+import {AppService} from './app.service';
 
 @Injectable()
 export class StrategyService extends BaseService {
-    constructor(apiService: ApiService) {
-        super(apiService, 'portfolio');
+    constructor(apiService: ApiService, appService: AppService) {
+        super(apiService, appService, 'portfolio');
     }
 
     getPortfolio() {

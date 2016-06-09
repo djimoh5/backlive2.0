@@ -68,15 +68,15 @@
         <div class="collapse navbar-collapse" id="headerNavCollapse">
             <ul class="nav navbar-nav navbar-right user-nav">
                 <li>
-                    <a href="#" (click)="navigateTo()"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></a>
+                    <a href="javascript:void(0)" (click)="navigateTo()"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></a>
                 </li>
                 <li>
                     <button class="btn btn-secondary btn-sm"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></button>
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li *ngFor="#item of items" [class.active]="routerService.isRouteActive(item.route)">
-                    <a href="javascript:void(0)" (click)="navigateTo(item)">{{item.name}}</a>
+                <li *ngFor="let item of items" [class.active]="routerService.isRouteActive(item.route)">
+                    <a [href]="getRouteUrl(item)" (click)="navigateTo(item, $event)">{{item.name}}</a>
                 </li>
             </ul>
         </div>

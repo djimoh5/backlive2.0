@@ -1,12 +1,11 @@
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
 
-import {AppService, UserService, RouterService} from 'backlive/service';
+import {AppService, UserService, RouterService, RouteInfo} from 'backlive/service';
 
 import {Route} from 'backlive/routes';
-import {AppEvent} from '../../../service/model/app-event';
-import {User} from '../../../service/model/user';
+import {AppEvent, User} from 'backlive/service/model';
 
 @Component({
     selector: 'header-nav',
@@ -41,13 +40,17 @@ export class HeaderNavComponent extends BaseComponent {
         }
     }
     
-    navigateTo(navItem: NavItem) {
-        this.appService.notify(AppEvent.Navigate, navItem.route);
+    navigateTo(navItem: NavItem, event: MouseEvent) {
+        this.appService.navigate(navItem.route, null, event);
+    }
+    
+    getRouteUrl(navItem: NavItem) {
+        return this.routerService.getLinkUrl(navItem.route);
     }
 }
 
 
 class NavItem {
     name: string;
-    route: string[];
+    route: RouteInfo;
 }

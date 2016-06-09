@@ -1,6 +1,6 @@
-<div [class]="pageAnimation">
-    <div *ngIf="strategies" class="strategies" [isotope]="'.strategy'" layoutMode="masonry">
-        <div *ngFor="#strategy of strategies, #i = index" class="strategy col-md-2 col-sm-6 col-xs-12">
+<div [animate]="pageAnimation">
+    <div *ngIf="strategies" class="strategies" isotope=".strategy" layoutMode="masonry">
+        <div *ngFor="let strategy of strategies; let i = index" class="strategy col-md-2 col-sm-6 col-xs-12">
             <div class="pod">
                 <h4 class="name">{{strategy.name}}</h4>
                 <h5 class="date">{{strategy.date | parseDate:'short'}}</h5>
@@ -8,6 +8,6 @@
         </div>
     </div>
     <div class="tickers">
-        <backlive-ticker *ngFor="#ticker of tickers" [ticker]="ticker.name"></backlive-ticker>
+        <backlive-ticker *ngFor="let ticker of tickers" [ticker]="ticker.name"></backlive-ticker>
     </div>
 </div>

@@ -1,20 +1,25 @@
-//import {WORKER_APP_PLATFORM, WORKER_APP_APPLICATION, WORKER_APP_ROUTER} from 'angular2/platform/worker_app';
-import {bootstrap} from 'angular2/platform/browser';
-import {platform, provide, ApplicationRef, ComponentRef, Injector, ElementRef} from "angular2/core";
-import {PLATFORM_DIRECTIVES} from 'angular2/compiler';
-import {CORE_DIRECTIVES} from 'angular2/common';
-import {ROUTER_PROVIDERS, APP_BASE_HREF, Router} from 'angular2/router';
-import {HTTP_PROVIDERS} from 'angular2/http';
+/// <reference path="../typings/browser.d.ts" />
+
+//import {WORKER_APP_PLATFORM, WORKER_APP_APPLICATION, WORKER_APP_ROUTER} from '@angular/platform/worker_app';
+import {bootstrap} from '@angular/platform-browser-dynamic';
+import {PLATFORM_DIRECTIVES, provide, enableProdMode, ExceptionHandler, ApplicationRef, ComponentRef, Injector} from "@angular/core";
+import {CORE_DIRECTIVES, APP_BASE_HREF} from '@angular/common';
+import {ROUTER_PROVIDERS, Router} from '@angular/router-deprecated';
+import {HTTP_PROVIDERS} from '@angular/http';
 
 
 import * as Services from 'backlive/service';
 var serviceBootstrap: any[] = [];
 
 for(var key in Services) {
-	serviceBootstrap.push(Services[key]);
+    if(Services[key]) {
+        serviceBootstrap.push(Services[key]);
+    }
 }
 
-var platformDirectives: any[] = [CORE_DIRECTIVES];
+/* common platform directives */
+import {AnimateDirective} from 'backlive/directive';
+var platformDirectives: any[] = [CORE_DIRECTIVES, AnimateDirective];
 
 // UI
 import * as UI from 'backlive/component/shared/ui';
@@ -24,9 +29,19 @@ for(var key in UI) {
 		platformDirectives.push(UI[key]);
 	}
 }
-//console.log('dfdd')
+
+import {PlatformUI, DomUI} from 'backlive/utility/ui';
+import {AppExceptionHandler} from 'backlive/utility';
+
+declare var WEB_CONFIG:any;
+if(!WEB_CONFIG.Development) {
+    enableProdMode();
+}
+
 import {AppComponent} from './component/app.component';
-bootstrap(AppComponent, serviceBootstrap.concat([ROUTER_PROVIDERS, HTTP_PROVIDERS, ElementRef, provide(PLATFORM_DIRECTIVES, {useValue: platformDirectives, multi:true})]));
+bootstrap(AppComponent, serviceBootstrap.concat([ROUTER_PROVIDERS, HTTP_PROVIDERS, provide(PLATFORM_DIRECTIVES, {useValue: platformDirectives, multi:true}), 
+    provide(PlatformUI, {useClass: DomUI}), provide(ExceptionHandler, {useClass: AppExceptionHandler})]))
+    .catch(err => console.error(err));
 
 //platform([WORKER_APP_PLATFORM]).application([WORKER_APP_APPLICATION, WORKER_APP_ROUTER, provide(APP_BASE_HREF, { useValue: '/' })]).bootstrap(AppComponent, []);
 /*platform(WORKER_APP_PLATFORM).asyncApplication(() => Promise.resolve([
@@ -36,7 +51,7 @@ bootstrap(AppComponent, serviceBootstrap.concat([ROUTER_PROVIDERS, HTTP_PROVIDER
     provide(PLATFORM_DIRECTIVES, {useValue: platformDirectives, multi:true})
 ]))
 .then((appRef: ApplicationRef) => {
-    return appRef.bootstrap(AppComponent, serviceBootstrap.concat([HTTP_PROVIDERS, ElementRef]));
+    return appRef.bootstrap(AppComponent, serviceBootstrap.concat([HTTP_PROVIDERS]));
 })
 .then((compRef: ComponentRef) => {
     const injector: Injector = compRef.injector;

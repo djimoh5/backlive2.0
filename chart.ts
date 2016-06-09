@@ -1,10 +1,9 @@
-import {Component, View, bootstrap} from 'angular2/angular2';
+import {Component} from '@angular/core';
+import {Path} from 'backlive/config';
 
 @Component({
-    selector: 'chart'
-})
-@View({
-    templateUrl: '/view/chart.html'
+    selector: 'chart',
+    templateUrl: Path.ComponentView('shared/chart')
 })
 export class ChartComponent {
     currRegime: string = null;

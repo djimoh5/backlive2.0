@@ -1,73 +1,142 @@
-import {ApiService} from './api.service';
-import {Cache, Common} from 'backlive/utility';
+import {Injectable} from '@angular/core';
+import {Response} from '@angular/http';
+import {Observable} from 'rxjs/Observable';
 
+import {ApiService} from './api.service';
+import {AppService} from './app.service';
+import {Config} from 'backlive/config';
+import {Cache, Common} from 'backlive/utility';
+import {AppEvent} from './model/app-event.model';
+
+@Injectable()
 export class BaseService {
     protected apiService: ApiService;
-	protected baseUrl: string;
-    private defaultCacheExpiration: number = 10;//600; //in seconds, 10 minutes
-	
-    constructor(apiService: ApiService, baseUrl: string) {
+    protected appService: AppService;
+    protected baseUrl: string;
+    protected get ServiceComponentId() { return 'service' };
+    
+    get AuthorizationHeader(): { [key: string] : string }  { return this.apiService.AuthorizationHeader };
+    
+    constructor(apiService: ApiService, appService: AppService, baseUrl: string) {
         this.apiService = apiService;
-		this.baseUrl = baseUrl;
+        this.appService = appService;
+        this.baseUrl = baseUrl;
     }
     
-    protected get(endpoint: string, data: Object = null, useCache: boolean = false, cacheExpiration: number = this.defaultCacheExpiration) {
-        var cacheKey: string;
+    protected get(endpoint: string, query: {} = null, useCache: boolean = false, cacheOptions: CacheOptions = {}) {
+        var cacheKey: string, dataCacheKey: string;
+        
+        cacheOptions.query = cacheOptions.query ? cacheOptions.query : query;
+        cacheOptions.expiration = cacheOptions.expiration ? cacheOptions.expiration : Config.CACHE_EXPIRATION;
         
         if(useCache) {
-            cacheKey = this.getCacheKey(endpoint, data);
-            var cacheData = Cache.get(cacheKey);
+            cacheKey = this.getCacheKey(endpoint);
+            
+            if(query != null) {
+                dataCacheKey = JSON.stringify(query);
+            }
+            
+            var cacheData = Cache.get(cacheKey, dataCacheKey);
             
             if(cacheData) {
-                Common.log('CACHE GET: ', cacheKey, data);
+                //Common.log('CACHE GET: ', cacheKey, cacheData);
                 return new Promise(resolve => {
                     resolve(cacheData);
                 });
             }
         }
-
-        var promise = this.apiService.get(this.endpoint(endpoint), data);
+        
+        var promise = this.createPromise(this.apiService.get(this.endpoint(endpoint), query));
         
         if(useCache) {
-            promise.then((result: any) => this.cacheResults(cacheKey, result, cacheExpiration));
+            promise.then((result: any) => this.cacheResults(cacheKey, result, cacheOptions.expiration, dataCacheKey));
         }
         
         return promise;
     }
+
+    protected post(endpoint: string, data: Object, suppressPageLoadingEvent: boolean=false) {
+        if (!suppressPageLoadingEvent) {
+            this.appService.notify(AppEvent.PageLoading, true);
+        }
+        
+        return this.createPromise(this.apiService.post(this.endpoint(endpoint), data), !suppressPageLoadingEvent);
+    }
     
-    protected post(endpoint: string, data: Object) {
-        return this.apiService.post(this.endpoint(endpoint), data);
+    protected put(endpoint: string, id: string, data: Object, suppressPageLoadingEvent: boolean=false) {
+        if (!suppressPageLoadingEvent) {
+            this.appService.notify(AppEvent.PageLoading, true);
+        }
+        
+        return this.createPromise(this.apiService.put(this.endpoint(endpoint), id, data), !suppressPageLoadingEvent);
     }
     
     protected delete(endpoint: string) {
-        return this.apiService.delete(this.endpoint(endpoint));
+        this.appService.notify(AppEvent.PageLoading, true);
+        return this.createPromise(this.apiService.delete(this.endpoint(endpoint)), true);
     }
     
-    protected load(endpoint: string) {
-        return this.apiService.load(this.endpoint(endpoint));
+    protected load(endpoint: string, query: {} = null) {
+        this.apiService.load(this.endpoint(endpoint), query);
     }
-
+    
+    private createPromise(observable: Observable<Response>, loadingShown: boolean = false): Promise<any> {
+        return new Promise((resolve, reject) => this.processResults(resolve, observable, loadingShown));
+    }
+    
+    private processResults(resolve: Function, observable: Observable<Response>, loadingShown: boolean = false) {
+        observable.subscribe(
+            (results: Response) => this.completeRequest(observable, () => resolve(results.json()), loadingShown),
+            (err: any) => this.completeRequest(observable, () => this.processError(err), loadingShown)
+        );
+    }
+    
+    private completeRequest (observable: Observable<Response>, requestOp: Function, loadingShown: boolean = false) {
+        observable['request'].complete();
+        
+        if (loadingShown) {
+            this.appService.notify(AppEvent.PageLoading, false);
+        }
+        
+        requestOp();
+    }
+        
+    private processError(err: Response) {
+        if(err) {
+            Common.log(err);
+            var res = err.json();
+            
+            if(this.apiService.getToken() && res.message && res.message.indexOf('Authorization has been denied') >= 0) {
+                this.apiService.setToken(null);
+                this.appService.notify(AppEvent.ReloadApp);
+            }
+            else {
+                if (Config.SHOW_ERRORS) {
+                    this.appService.notify(AppEvent.OpenModal, { title: "API Request Error", body: JSON.stringify(res) });
+                }
+                else {
+                    this.appService.notify(AppEvent.MessageBar, 'an unexpected error occurred');
+                }
+            }
+        }
+    }
+    
     protected endpoint(path: string) {
-        return this.baseUrl + '/' + path;
+        return path.length > 0 ? this.baseUrl + '/' + path : this.baseUrl;
     }
     
-    protected cacheResults(cacheKey: string, result: any, cacheExpiration: number) {
-        Cache.set(cacheKey, result, cacheExpiration);
+    protected cacheResults(cacheKey: string, result: any, cacheExpiration: number, subKey: string) {
+        Cache.set(cacheKey, result, cacheExpiration, subKey);
     }
     
-    protected removeCache(endpoint: string, data: Object = null) {
-        var cacheKey = this.getCacheKey(endpoint, data);
+    protected removeCache(endpoint: string) {
+        var cacheKey = this.getCacheKey(endpoint);
         Cache.remove(cacheKey);
-        Common.log('CACHE Flushed: ', cacheKey, data);
+        //Common.log('CACHE Flushed: ', cacheKey, data);
     }
-    
-    private getCacheKey(endpoint: string, data: Object = null) {
+    private getCacheKey(endpoint: string) {
         var cacheKey = this.endpoint(endpoint);
         var apiToken = this.apiService.getToken();
-        
-        if(data) {
-            cacheKey += JSON.stringify(data);
-        }
         
         if(apiToken) {
             cacheKey += apiToken;
@@ -75,4 +144,8 @@ export class BaseService {
         
         return cacheKey;
     }
+}
+export interface CacheOptions {
+    expiration?: number;
+    query?: {};
 }

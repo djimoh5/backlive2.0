@@ -1,5 +1,7 @@
 import {Observable} from 'rxjs/Observable';
-import {Headers} from 'angular2/http';
+import {Headers, RequestMethod} from '@angular/http';
+
+declare var $: any;
 
 export class JQueryHttp {
 	get(url: string, options?: RequestOptions) : Observable<Response> {
@@ -50,6 +52,7 @@ export class JQueryHttp {
 
 export interface RequestOptions {
 	headers?: Headers;
+    method?: string | RequestMethod;
 }
 
 export class Response {

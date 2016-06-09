@@ -1,10 +1,10 @@
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
 
 import {AppService, UserService} from 'backlive/service';
 
-import {AppEvent} from '../../../service/model/app-event';
+import {AppEvent} from 'backlive/service/model';
 
 @Component({
     selector: 'app-strategy',
@@ -14,6 +14,5 @@ import {AppEvent} from '../../../service/model/app-event';
 export class StrategyComponent extends BaseComponent {
     constructor(appService: AppService) {
         super(appService);
-        //appService.notify(Event.Alert, new Alert("welcome to the visanow app!"));
     }
 }

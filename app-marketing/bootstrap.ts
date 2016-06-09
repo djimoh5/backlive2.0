@@ -1,16 +1,18 @@
-import {bootstrap} from 'angular2/platform/browser';
-import {provide, ElementRef} from 'angular2/core';
-import {PLATFORM_DIRECTIVES} from 'angular2/compiler';
-import {CORE_DIRECTIVES} from 'angular2/common';
-import {ROUTER_PROVIDERS} from 'angular2/router';
-import {HTTP_PROVIDERS} from 'angular2/http';
+/// <reference path="../typings/browser.d.ts" />
+
+import {bootstrap} from '@angular/platform-browser-dynamic';
+import {PLATFORM_DIRECTIVES, provide, enableProdMode, ExceptionHandler} from '@angular/core';
+import {CORE_DIRECTIVES, APP_BASE_HREF} from '@angular/common';
+import {ROUTER_PROVIDERS} from '@angular/router-deprecated';
+import {HTTP_PROVIDERS} from '@angular/http';
 
 /* services */
 import {AppService, RouterService, AuthRouterOutlet, UserService, ApiService} from 'backlive/service';
 var serviceBoostrap: any[] = [];
 
 /* common platform directives */
-var platformDirectives: any[] = [CORE_DIRECTIVES];
+import {AnimateDirective} from 'backlive/directive';
+var platformDirectives: any[] = [CORE_DIRECTIVES, AnimateDirective];
 
 // UI
 import * as UI from 'backlive/component/shared/ui';
@@ -21,5 +23,15 @@ for(var key in UI) {
 	}
 }
 
+import {PlatformUI, DomUI} from 'backlive/utility/ui';
+import {AppExceptionHandler} from 'backlive/utility';
+
+declare var WEB_CONFIG:any;
+if(!WEB_CONFIG.Development) {
+    enableProdMode();
+}
+
 import {AppComponent} from './component/app.component';
-bootstrap(AppComponent, [AppService, RouterService, AuthRouterOutlet, UserService, ApiService, HTTP_PROVIDERS, ROUTER_PROVIDERS, ElementRef, provide(PLATFORM_DIRECTIVES, {useValue: platformDirectives, multi:true})]);
+bootstrap(AppComponent, [AppService, RouterService, AuthRouterOutlet, UserService, ApiService, ROUTER_PROVIDERS, HTTP_PROVIDERS, provide(PLATFORM_DIRECTIVES, {useValue: platformDirectives, multi:true}), 
+    provide(PlatformUI, {useClass: DomUI}), provide(ExceptionHandler, {useClass: AppExceptionHandler})])
+    .catch(err => console.error(err));

@@ -1,20 +1,23 @@
-import {Directive, ElementRef, EventEmitter, Input, Output, OnInit} from 'angular2/core';
+import {Directive, ElementRef, EventEmitter, Input, Output, OnInit} from '@angular/core';
+import {PlatformUI} from 'backlive/utility/ui';
 
 @Directive({
     selector: '[datepicker]'
 })
-export class DatePicker implements OnInit {
+export class DatePickerDirective implements OnInit {
     elementRef: ElementRef;
+    platformUI: PlatformUI;
     @Input('datepicker') date: any;
-    @Output() dateChange: EventEmitter<string> = new EventEmitter();
+    @Output() datepickerChange: EventEmitter<string> = new EventEmitter();
     @Output() timeChange: EventEmitter<number> = new EventEmitter();
     
-    constructor(elementRef: ElementRef) {
+    constructor(elementRef: ElementRef, platformUI: PlatformUI) {
         this.elementRef = elementRef;
+        this.platformUI = platformUI;
     }
     
     ngOnInit() {
-        var $elem = $(this.elementRef.nativeElement);
+        var $elem = this.platformUI.query(this.elementRef.nativeElement);
         
         $elem.datepicker({
             dateFormat: "mm/dd/yy",
@@ -28,6 +31,10 @@ export class DatePicker implements OnInit {
         
         if(!this.date || isNaN(this.date)) {
             if(this.date) {
+                if(this.date.indexOf('-') > 0) {
+                    this.date = this.sqlDateToDefaultFormat(this.date);
+                }
+                
                 $elem.datepicker('setDate', this.date);
             }
         }
@@ -38,10 +45,19 @@ export class DatePicker implements OnInit {
     
     onDateChanged(date: string) {
         this.date = date;
-        this.dateChange.next(this.date);
+        this.datepickerChange.emit(this.getSqlDate());
     }
     
     onTimeChanged(date: string) {
-        this.timeChange.next($(this.elementRef.nativeElement).datepicker('getDate').getTime());
+        this.timeChange.emit($(this.elementRef.nativeElement).datepicker('getDate').getTime());
+    }
+    
+    sqlDateToDefaultFormat(sqlDate: string) {
+        var split = sqlDate.split('T')[0].split('-');
+        return split[1] + '/' + split[2] + '/' + split[0];
+    }
+    
+    getSqlDate() {
+        return $(this.elementRef.nativeElement).datepicker('getDate').format();
     }
 }

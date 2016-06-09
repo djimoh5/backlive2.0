@@ -1,13 +1,13 @@
-import {Pipe, PipeTransform} from 'angular2/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
     name: 'sortBy',
     pure: true
 })
 export class SortByPipe implements PipeTransform  {
-    transform(value: any[], args: any[]) : any[] {
-        var sortBy = args[0], sortDesc = 1;
-        
+    transform(value: any, sortBy: string) : any[] {
+        var sortDesc = 1;
+
         if(sortBy) {
             if(sortBy.substring(0, 1) == '-') {
                 sortDesc = -1;
@@ -15,7 +15,18 @@ export class SortByPipe implements PipeTransform  {
             }
             
             value.sort((a, b) => {
-                return (this.valueFromKeyString(a, sortBy) <= this.valueFromKeyString(b, sortBy) ? -1 : 1) * sortDesc;
+                var valA = this.valueFromKeyString(a, sortBy),
+                    valB = this.valueFromKeyString(b, sortBy);
+                
+                if(valA == null) {
+                    return -1 * sortDesc;
+                }
+                else if(valB == null) {
+                    return 1 * sortDesc;
+                }
+                else {
+                    return (valA <= valB ? -1 : 1) * sortDesc;
+                }
             });
         }
         
@@ -32,7 +43,7 @@ export class SortByPipe implements PipeTransform  {
                 obj = obj[k];
             }
             else {
-                return;
+                return null;
             }
         }
         

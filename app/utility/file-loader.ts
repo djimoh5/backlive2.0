@@ -1,10 +1,12 @@
+declare var window: any;
+
 export class FileLoader {
 	reader: FileReader;
 	options: FileLoaderOptions;
 	callback: Function;
 	
 	constructor(callback: Function, options: FileLoaderOptions) {
-		if (!(window.File && window.FileReader && window.FileList && window.Blob) {
+		if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
 			alert('The File APIs are not fully supported in this browser.');
 		}
 		
@@ -13,11 +15,9 @@ export class FileLoader {
 	}
 	
 	read (evt: Event) {
-		var files = evt.target.files;
+		var files = evt.target['files'];
 		
 		for (var i = 0, f; f = files[i]; i++) {
-			console.log(f.type);
-			
 			//if (!f.type.match('image.*')) {
 				//continue;
 			//}
@@ -29,8 +29,6 @@ export class FileLoader {
 	}
 	
 	private processFile () {
-		console.log(this.reader.result);
-		
 		if(this.options.fileTypes.indexOf(FileType.CSV) >= 0) {
 			var data:any = [],
 				lines = this.reader.result.split("\n");
@@ -75,7 +73,7 @@ export class FileLoader {
 	}
 }
 
-export class FileLoaderOptions {
+export interface FileLoaderOptions {
 	fileTypes?: FileType[];
 	fieldMap?: string[];
 }

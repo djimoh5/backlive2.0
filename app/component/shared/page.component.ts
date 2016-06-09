@@ -1,39 +1,40 @@
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 import {BaseComponent} from './base.component';
+
+import {AnimateDirective, AnimationType} from 'backlive/directive';
+
 import {AppService} from 'backlive/service';
+import {AppEvent} from 'backlive/service/model';
 
-import {AppEvent} from '../../service/model/app-event';
-
-import {Animation} from 'backlive/utility';
-
-@Component({
-    directives: []
-})
+@Component({ template: `` })
 export class PageComponent extends BaseComponent {
     pageAnimation: string;
-    animationType: string = Animation.Rotate3d;
+    defaultAnimation: string;
+    loading: boolean;
     
-    constructor (appService: AppService, autoAnimateIn: boolean = true, defaultAnimation: string = Animation.FadeIn) {
+    constructor (appService: AppService, autoAnimateIn: boolean = true, defaultAnimation: string = AnimationType.FadeIn) {
         super(appService)
 
         this.service().notify(AppEvent.SlidingNavVisible, false);
         
-        this.animationType = defaultAnimation;
-        this.pageAnimation = Animation.hide(this.animationType);
+        this.defaultAnimation = defaultAnimation;
         
         if(autoAnimateIn) {
-            this.show();
+            this.showPage();
         }
         else {
+            this.pageAnimation = AnimationType.Hide;
             this.service().notify(AppEvent.PageLoading, true);
-        }
+            this.loading = true;
+        }   
     }
     
-    show() {
-        setTimeout(() => {
-            this.pageAnimation = this.animationType;
+    showPage() {
+        this.pageAnimation = this.defaultAnimation;
+
+        if(this.loading) {
             this.service().notify(AppEvent.PageLoading, false);
-        });
+        }
     }
     
     service() {

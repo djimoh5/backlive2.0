@@ -1,24 +1,26 @@
-import {Component, ElementRef, ComponentRef, DynamicComponentLoader} from 'angular2/core';
+import {Component, ElementRef, Type, ComponentRef, DynamicComponentLoader, ViewChild, ViewContainerRef} from '@angular/core';
 import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
-import {Tooltip} from 'backlive/directive';
+import {TooltipDirective} from 'backlive/directive';
 
 import {AppService} from 'backlive/service';
 
-import {AppEvent} from '../../../service/model/app-event';
+import {AppEvent} from 'backlive/service/model';
 
 @Component({
     selector: 'sliding-nav',
     templateUrl: Path.ComponentView('navigation/sliding-nav'),
     styleUrls: [Path.ComponentStyle('navigation/sliding-nav')],
-    directives: [Tooltip]
+    directives: [TooltipDirective]
 })
 export class SlidingNavComponent extends BaseComponent {
     items: NavItem[];
     componentLoader: DynamicComponentLoader;
     elementRef: ElementRef;
     
-    activeComponent: ComponentRef;
+    @ViewChild('component', {read: ViewContainerRef}) componentRef: ViewContainerRef;
+    
+    activeComponent: ComponentRef<any>;
     isActive: boolean = false;
     isVisible: boolean = false;
     
@@ -66,7 +68,7 @@ export class SlidingNavComponent extends BaseComponent {
         });
 
         if(this.activeComponent != null) {
-            this.activeComponent.dispose();
+            this.activeComponent.destroy();
         }
         
         navItem.isActive = isActive;
@@ -75,7 +77,7 @@ export class SlidingNavComponent extends BaseComponent {
             this.isActive = isActive;
             
             if(isActive) {
-                this.componentLoader.loadIntoLocation(navItem.component, this.elementRef, 'component').then(componentRef => {
+                this.componentLoader.loadNextToLocation(navItem.component, this.componentRef).then(componentRef => {
                     this.activeComponent = componentRef;
                 });
             }
@@ -96,4 +98,5 @@ interface NavItem {
     isActive: boolean;
     component: any; //either component or onClick should be set, component takes precendence
     onClick: Function;
+    tooltip: string;
 }

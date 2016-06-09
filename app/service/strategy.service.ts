@@ -1,15 +1,16 @@
-import {Injectable} from 'angular2/core';
+import {Injectable} from '@angular/core';
 import {BaseService} from './base.service';
 import {ApiService} from './api.service';
-import {User} from './model/user';
+import {AppService} from './app.service';
+import {User} from './model/user.model';
 
 @Injectable()
 export class StrategyService extends BaseService {
     user: User;
     userPromise: Promise<any>;
     
-    constructor(apiService: ApiService) {
-        super(apiService, 'strategy');
+    constructor(apiService: ApiService, appService: AppService) {
+        super(apiService, appService, 'strategy');
     }
 
     getBacktests() {
