@@ -45,7 +45,7 @@ export class AccordionComponent extends BaseComponent implements AfterViewInit {
         this.elementRef = elementRef;
         this.ngZone = ngZone;
 
-        this.expandId = 'acc-' + Common.uniqueId
+        this.expandId = 'acc-' + Common.uniqueId();
         this.collapseId = this.expandId + 'Collapse';
     }
 
@@ -102,7 +102,7 @@ export class AccordionGroupComponent extends BaseComponent implements AfterConte
     
     constructor (appService: AppService) {
         super(appService);
-        this.panelGroupId = 'acc-group-' + Guid.NewGuid();
+        this.panelGroupId = 'acc-group-' + Common.uniqueId();
     }
 
     ngAfterContentInit() {

@@ -40,7 +40,7 @@ if (typeof System != 'undefined') {
     ];
     
     packageNames.forEach(function(pkgName) {
-        var umdBundle = webContext ? (pkgName.split('/')[1] + '.umd.js') : 'index';
+        var umdBundle = webContext ? 'bundles/' + (pkgName.split('/')[1] + '.umd.min.js') : 'index';
         config.packages[pkgName] = { main: umdBundle, defaultExtension: 'js' };
     });
 

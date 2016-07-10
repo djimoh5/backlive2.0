@@ -11,7 +11,7 @@ function StrategyController() {
 	}
     
     this.post[':backtestId'] = function(req, res) {
-        res.services.strategyService.getBacktest(req.params.backtestId, req.body.name).done(function(strategy) {
+        res.services.strategyService.saveBacktest(req.params.backtestId, req.body.name).done(function(strategy) {
 			res.send(strategy);
 		});
 	}

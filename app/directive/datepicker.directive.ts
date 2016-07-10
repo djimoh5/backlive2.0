@@ -49,7 +49,7 @@ export class DatePickerDirective implements OnInit {
     }
     
     onTimeChanged(date: string) {
-        this.timeChange.emit($(this.elementRef.nativeElement).datepicker('getDate').getTime());
+        this.timeChange.emit(this.platformUI.query(this.elementRef.nativeElement).datepicker('getDate').getTime());
     }
     
     sqlDateToDefaultFormat(sqlDate: string) {
@@ -58,6 +58,6 @@ export class DatePickerDirective implements OnInit {
     }
     
     getSqlDate() {
-        return $(this.elementRef.nativeElement).datepicker('getDate').format();
+        return this.platformUI.query(this.elementRef.nativeElement).datepicker('getDate').format();
     }
 }
