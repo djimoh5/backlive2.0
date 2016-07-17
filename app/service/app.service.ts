@@ -1,10 +1,12 @@
 ﻿import {Injectable} from '@angular/core';
 import {BaseService} from './base.service';
 import {ApiService} from './api.service';
+import {UserService} from './user.service';
 import {AppEvent} from './model/app-event.model';
 
 import {RouteInfo, RouterService} from './router.service';
 
+import {Config} from 'backlive/config';
 import {Common, Cache} from 'backlive/utility';
 import {PlatformUI} from 'backlive/utility/ui';
 
@@ -15,6 +17,7 @@ export class PopupAlert {
 
 @Injectable()
 export class AppService extends BaseService {
+    userService: UserService; //set by app component
     routerService: RouterService;
     platformUI: PlatformUI;
     
@@ -28,13 +31,16 @@ export class AppService extends BaseService {
         this.Events = {};
     }
     
-    navigate(route: RouteInfo, params: {} = null, event: MouseEvent = null) {
-        if(params) {
-            route.params = params;
-        }
-        
-        this.routerService.navigate(route, event);
+    navigate(route: RouteInfo, params: {} = null, event: MouseEvent = null, queryParams: {} = {}) {
+        route.params = params ? params : {};
+        //route.params[Config.AccountIdRouteKey] = this.userService.user.accountNumber.toLowerCase();
+
+        this.routerService.navigate(route, event, queryParams);
         this.platformUI.scrollToTop();
+    }
+
+    subscribeToParams(componentId: number, callback: Function) {
+        this.routerService.subscribeToParams(componentId, callback);
     }
 
     subscribe(eventName: string, componentId: any, callback: Function) {
@@ -47,6 +53,10 @@ export class AppService extends BaseService {
         }
 
         this.Events[eventName][componentId].push(callback);
+    }
+
+    unsubscribeToParams(componentId: number) {
+        this.routerService.unsubsribeToParams(componentId);
     }
     
     unsubscribe(componentId: any, eventName?: string) {

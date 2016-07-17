@@ -8,7 +8,7 @@ function HomeController() {
 			res.sendFile(DIR_VIEW + 'page.html');
 		}
 		else {
-			res.sendFile(DIR_VIEW + 'marketing/page.html');
+			res.sendFile(DIR_HOME + 'index.html');
 		}
 	}
 }

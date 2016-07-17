@@ -5,7 +5,6 @@ var app = express();
 ENV = 'dev';
 BASE_DIR = __dirname;
 require('./core/config');
-require('./core/routes');
 
 require(DIR_LIB + 'calculation');
 //spawner = require('child_process');
@@ -35,17 +34,12 @@ app.use('/app', lessMiddleware('app', {
         importPaths: function(paths, req) { return '/'; } 
     }
 }));
-app.use('/app-marketing', lessMiddleware('app-marketing', { 
-    preprocess: { 
-        importPaths: function(paths, req) { return '/'; } 
-    }
-}));
-app.use('/css', lessMiddleware('css'));
 
+app.use('/home', express.static('home'));
+app.use('/css', lessMiddleware('css'));
 app.use('/view', express.static('view'));
 app.use('/js', express.static('js'));
 app.use('/app', express.static('app'));
-app.use('/app-marketing', express.static('app-marketing'));
 app.use('/app-design', express.static('app-design'));
 app.use('/node_modules', express.static('node_modules'));
 app.use('/css', express.static('css'));

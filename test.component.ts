@@ -1,7 +1,7 @@
 ﻿import {Component, bind, ViewEncapsulation, ElementRef, Attribute} from '@angular/core';
 import {ClientMessageBrokerFactory, PRIMITIVE, UiArguments, FnArg} from '@angular/platform/worker_app';
 
-import {RouteConfig, RouterOutlet, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import {RouteConfig, RouterOutlet, ROUTER_DIRECTIVES} from '@angular/router';
 import {HTTP_PROVIDERS} from '@angular/http';
 import {Path} from 'backlive/config';
 

@@ -2,12 +2,18 @@
 
 //import {WORKER_APP_PLATFORM, WORKER_APP_APPLICATION, WORKER_APP_ROUTER} from '@angular/platform/worker_app';
 import {bootstrap} from '@angular/platform-browser-dynamic';
-import {PLATFORM_DIRECTIVES, provide, enableProdMode, ExceptionHandler, ApplicationRef, ComponentRef, Injector} from "@angular/core";
-import {CORE_DIRECTIVES, APP_BASE_HREF} from '@angular/common';
-import {ROUTER_PROVIDERS, Router} from '@angular/router-deprecated';
+import {Title} from '@angular/platform-browser';
+import {PLATFORM_DIRECTIVES, provide, enableProdMode, ExceptionHandler, ApplicationRef} from "@angular/core";
+import {CompilerConfig} from '@angular/compiler';
 import {HTTP_PROVIDERS} from '@angular/http';
 
+import {disableDeprecatedForms, provideForms} from '@angular/forms';
+import {APP_BASE_HREF, CORE_DIRECTIVES, DatePipe, UpperCasePipe, LowerCasePipe, CurrencyPipe} from '@angular/common';
 
+/* routes */
+import {APP_ROUTER_PROVIDERS} from './config/routes/bootstrap';
+
+/* services */
 import * as Services from 'backlive/service';
 var serviceBootstrap: any[] = [];
 
@@ -20,6 +26,7 @@ for(var key in Services) {
 /* common platform directives */
 import {AnimateDirective} from 'backlive/directive';
 var platformDirectives: any[] = [CORE_DIRECTIVES, AnimateDirective];
+var platformPipes: any[] = [DatePipe, UpperCasePipe, LowerCasePipe, CurrencyPipe];
 
 // UI
 import * as UI from 'backlive/component/shared/ui';
@@ -39,8 +46,10 @@ if(!WEB_CONFIG.Development) {
 }
 
 import {AppComponent} from './component/app.component';
-bootstrap(AppComponent, serviceBootstrap.concat([ROUTER_PROVIDERS, HTTP_PROVIDERS, provide(PLATFORM_DIRECTIVES, {useValue: platformDirectives, multi:true}), 
-    provide(PlatformUI, {useClass: DomUI}), provide(ExceptionHandler, {useClass: AppExceptionHandler})]))
+
+bootstrap(AppComponent, serviceBootstrap.concat([APP_ROUTER_PROVIDERS, HTTP_PROVIDERS, Title, provide(APP_BASE_HREF, {useValue: WEB_CONFIG.SiteUrl}), disableDeprecatedForms(), provideForms(),
+    provide(PlatformUI, {useClass: DomUI}), provide(PLATFORM_DIRECTIVES, {useValue: platformDirectives, multi:true})/*provide(CompilerConfig, {useValue: new CompilerConfig({ platformDirectives: platformDirectives, platformPipes: platformPipes })})*/, 
+    provide(ExceptionHandler, {useClass: AppExceptionHandler})]))
     .catch(err => console.error(err));
 
 //platform([WORKER_APP_PLATFORM]).application([WORKER_APP_APPLICATION, WORKER_APP_ROUTER, provide(APP_BASE_HREF, { useValue: '/' })]).bootstrap(AppComponent, []);

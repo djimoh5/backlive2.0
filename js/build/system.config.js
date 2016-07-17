@@ -35,7 +35,7 @@ if (typeof System != 'undefined') {
         '@angular/platform-browser',
         '@angular/platform-browser-dynamic',
         '@angular/router',
-        '@angular/router-deprecated',
+        '@angular/forms',
         '@angular/testing'
     ];
     

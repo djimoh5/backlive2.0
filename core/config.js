@@ -3,6 +3,7 @@ DIR_CORE = "./core/";
 DIR_LIB = DIR_CORE + "lib/";
 DIR_MODEL = DIR_CORE + "model/";
 DIR_VIEW = BASE_DIR + "/view/";
+DIR_HOME = BASE_DIR + "/home/";
 DIR_CSS = "./css/";
 DIR_JS = "./js/";
 DIR_JS_LIB = DIR_JS + "lib/";

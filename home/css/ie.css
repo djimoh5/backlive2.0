@@ -1,0 +1,25 @@
+#invite, #company, #screenshot, .get-started, #chart, #pricing, .screenshot-container, .navbar-toggle { display:none; }
+
+/*body { background:#0d1b21; }*/
+.ie { display:block !important; }
+.logo { margin-top:100px; text-align:center; }
+.warning { }
+.header .intro-text {
+    position:static;
+    margin:50px;
+    text-align:center;
+    width:100%;
+}
+.navbar-nav { display:none; }
+.header a.btn {
+    display:inline;
+}
+.container {
+    width:100% !important;
+    padding:50px 200px !important;
+    text-align:center;
+}
+.nav-wrap {
+    text-align:center;
+}
+.ie .warning h4 { font-weight:600; color:#990000; }

@@ -3,7 +3,6 @@
 import {bootstrap} from '@angular/platform-browser-dynamic';
 import {PLATFORM_DIRECTIVES, provide, enableProdMode, ExceptionHandler} from '@angular/core';
 import {CORE_DIRECTIVES, APP_BASE_HREF} from '@angular/common';
-import {ROUTER_PROVIDERS} from '@angular/router-deprecated';
 import {HTTP_PROVIDERS} from '@angular/http';
 
 /* services */
@@ -32,6 +31,6 @@ if(!WEB_CONFIG.Development) {
 }
 
 import {AppComponent} from './component/app.component';
-bootstrap(AppComponent, [AppService, RouterService, AuthRouterOutlet, UserService, ApiService, ROUTER_PROVIDERS, HTTP_PROVIDERS, provide(PLATFORM_DIRECTIVES, {useValue: platformDirectives, multi:true}), 
+bootstrap(AppComponent, [AppService, RouterService, AuthRouterOutlet, UserService, ApiService, HTTP_PROVIDERS, provide(PLATFORM_DIRECTIVES, {useValue: platformDirectives, multi:true}), 
     provide(PlatformUI, {useClass: DomUI}), provide(ExceptionHandler, {useClass: AppExceptionHandler})])
     .catch(err => console.error(err));
