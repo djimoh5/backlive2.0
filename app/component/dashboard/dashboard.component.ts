@@ -9,7 +9,7 @@ import {AppService, UserService, StrategyService} from 'backlive/service';
 import {StrategyComponent} from 'backlive/component/backtest';
 import {TickerComponent} from 'backlive/component/portfolio';
 
-import {AppEvent, Ticker, Strategy} from 'backlive/service/model';
+import {AppEvent, Ticker, Strategy, Performance} from 'backlive/service/model';
 
 @Component({
     selector: 'app-dashboard',
@@ -21,8 +21,12 @@ import {AppEvent, Ticker, Strategy} from 'backlive/service/model';
 export class DashboardComponent extends PageComponent {
     strategyService: StrategyService;
     
+    liveStrategies: Strategy[];
     strategies: Strategy[];
+    stratsById: {[key: string]: Strategy};
     tickers: Ticker[];// = [{ name:'BAC', prices:[] }];
+    
+    iso: any;
     
     constructor(appService: AppService, strategyService: StrategyService) {
         super(appService);
@@ -45,7 +49,47 @@ export class DashboardComponent extends PageComponent {
     }
     
     loadStrategies(strategies: Strategy[]) {
-        console.log(strategies);
-        this.strategies = strategies;
+        this.liveStrategies = [];
+        this.strategies = [];
+        this.stratsById = {};
+        
+        strategies.forEach(strategy => {
+            this.stratsById[strategy._id] = strategy;
+            
+            if(strategy.live) {
+                this.liveStrategies.push(strategy);
+            }
+            else {
+                this.strategies.push(strategy);
+            }
+        });
+        
+        console.log(this.liveStrategies, this.strategies);
+        this.getReturns();
+    }
+    
+    getReturns() {
+        this.strategyService.getReturns(this.liveStrategies.map(strategy => { return strategy._id; }), 20160101, 20170101).then(res => {
+            var strats = res.data;
+            console.log(strats);
+            for(var id in strats) {
+                var lastIndex = strats[id].returns.length - 1;
+                this.stratsById[strats[id].bt_id].results = new Performance(
+                    strats[id].returns[0].capital,
+                    strats[id].returns[lastIndex].capital,
+                    strats[id].returns[0].date,
+                    strats[id].returns[lastIndex].date
+                );
+            }
+            
+            setTimeout(() => {
+                this.iso.resize();
+            }, 1000);
+        });
+    }
+    
+    onIsotopeLoaded(iso: any) {
+        this.iso = iso;
+        console.log(iso);
     }
 }

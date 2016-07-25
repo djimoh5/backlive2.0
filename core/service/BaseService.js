@@ -16,6 +16,7 @@ var BaseService = function(session) {
 	}
     
     this.error = function(msg) {
+        console.log(msg);
         self.deferred.resolve({ success: 0, msg: msg });
     }
 }

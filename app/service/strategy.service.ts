@@ -3,6 +3,7 @@ import {BaseService} from './base.service';
 import {ApiService} from './api.service';
 import {AppService} from './app.service';
 import {User} from './model/user.model';
+import {Strategy} from './model/strategy.model';
 
 @Injectable()
 export class StrategyService extends BaseService {
@@ -15,6 +16,10 @@ export class StrategyService extends BaseService {
 
     getBacktests() {
         return this.get('', null, true);
+    }
+    
+    getReturns(strategyIds: string[], startDate: number, endDate: number) {
+        return this.post('', { strategyIds: strategyIds, startDate: startDate, endDate: endDate });
     }
     
     saveBacktest(backtestId: string, name: string) {

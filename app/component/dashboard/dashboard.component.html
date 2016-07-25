@@ -1,9 +1,27 @@
 <div [animate]="pageAnimation">
-    <div *ngIf="strategies" class="strategies" isotope=".strategy" layoutMode="masonry">
-        <div *ngFor="let strategy of strategies; let i = index" class="strategy col-md-2 col-sm-6 col-xs-12">
-            <div class="pod">
-                <h4 class="name">{{strategy.name}}</h4>
-                <h5 class="date">{{strategy.date | parseDate:'short'}}</h5>
+    <h3>Active Strategies</h3>
+    <div class="strategies"> 
+        <div *ngIf="liveStrategies" isotope=".strategy" layoutMode="masonry" (loaded)="onIsotopeLoaded($event)">
+            <div *ngFor="let strategy of liveStrategies; let i = index" class="strategy col-md-3 col-sm-6 col-xs-12">
+                <div class="pod">
+                    <h4 class="name">{{strategy.name}}</h4>
+                    <h5 class="date">{{strategy.date | parseDate:'short'}}</h5>
+                    <div *ngIf="strategy.results" class="results">
+                        cagr: {{strategy.results.cagr}}% - total: {{strategy.results.return}}%
+                        <div>{{strategy.results.startDate}} - {{strategy.results.endDate}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3>My Saved Strategies</h3>
+    <div class="strategies"> 
+        <div *ngIf="strategies" isotope=".strategy" layoutMode="masonry">
+            <div *ngFor="let strategy of strategies; let i = index" class="strategy col-md-3 col-sm-6 col-xs-12">
+                <div class="pod">
+                    <h4 class="name">{{strategy.name}}</h4>
+                    <h5 class="date">{{strategy.date | parseDate:'short'}}</h5>
+                </div>
             </div>
         </div>
     </div>

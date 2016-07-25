@@ -16,6 +16,12 @@ function StrategyController() {
 		});
 	}
     
+    this.post.index = function(req, res) {
+        res.services.strategyService.getReturns(req.body.strategyIds, req.body.startDate, req.body.endDate).done(function(strategy) {
+			res.send(strategy);
+		});
+	}
+    
     this.delete[':backtestId'] = function(req, res) {
         res.services.strategyService.removeBacktest(req.params.backtestId).done(function(data) {
 			res.send(data);

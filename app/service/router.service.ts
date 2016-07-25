@@ -205,7 +205,7 @@ export class RouterService {
         if (RouterService.activeRoute && RouterService.activeRoute.url && RouterService.activeRoute.url[0]) {
             var pageTitle = RouterService.activeRoute.url[0].path;
             pageTitle = pageTitle.toLowerCase().replace(/-/g, ' ').replace(/\b[a-z](?=[a-z]{2})/g, function(letter) { return letter.toUpperCase(); } );
-            this.titleService.setTitle('VISANOW | ' + pageTitle);
+            this.titleService.setTitle('BackLive | ' + pageTitle);
         }
     }
 

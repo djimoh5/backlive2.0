@@ -22,6 +22,7 @@ export class SearchBarComponent extends BaseComponent  {
     constructor (appService: AppService) {
         super(appService);
         this.searchKey = "";
+        this.placeholder = "search by ticker or company";
     }
     
     search() {

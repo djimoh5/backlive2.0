@@ -2,8 +2,9 @@ var Routes = [
     //Pages
 	{ path: '/', controller: require('./controller/HomeController') },
     { path: '/backtest', controller: require('./controller/HomeController') },
-    { path: '/research', controller: require('./controller/HomeController') },
+    { path: '/dashboard', controller: require('./controller/HomeController') },
     { path: '/portfolio', controller: require('./controller/HomeController') },
+    { path: '/research', controller: require('./controller/HomeController') },
     
     //API Endpoints
 	{ path: '/api/user', controller: require('./controller/UserController') },

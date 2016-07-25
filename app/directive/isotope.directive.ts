@@ -1,4 +1,4 @@
-import {Directive, ElementRef, Input, EventEmitter, OnInit, AfterViewInit} from '@angular/core';
+import {Directive, ElementRef, Input, Output, EventEmitter, OnInit, AfterViewInit} from '@angular/core';
 
 declare var Isotope: any;
 
@@ -8,23 +8,28 @@ declare var Isotope: any;
 export class JIsotopeDirective implements AfterViewInit {
     @Input('isotope') itemSelector: string;
     @Input() layoutMode: string = 'masonry';
+    @Output() loaded: EventEmitter<any> = new EventEmitter();
     
     elementRef: ElementRef;
+    iso: any;
     
     constructor(elementRef: ElementRef) {
         this.elementRef = elementRef;
-        console.log(elementRef)
     }
     
     ngAfterViewInit() {        
         setTimeout(() => {
-            var iso = new Isotope(this.elementRef.nativeElement, {
+            this.iso = new Isotope(this.elementRef.nativeElement, {
                 itemSelector: this.itemSelector,
                 layoutMode: this.layoutMode,
                 percentPosition: true
             });
-            
-            //console.log(iso);
+
+            this.loaded.emit(this.iso);
         });
+    }
+    
+    resize() {
+        this.iso.resize();
     }
 }

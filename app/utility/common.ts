@@ -118,7 +118,7 @@ export class Common {
         return (endDate.getTime() - startDate.getTime()) / 86400000 / period;
     }
 
-    static parseDate (str: string, format: number = -1) {
+    static parseDate (str: any, format: number = -1) {
 		var date: Date;
 
         if(!str) {
@@ -133,18 +133,18 @@ export class Common {
 				date = new Date(parseInt(split[2]), parseInt(split[0]) - 1, parseInt(split[1]), 0, 0, 0, 0);
 				break;
             case 2:
+                var split = str.split('T');
+				var datePart = split[0].split('-');
+				var timePart = split[1] ? split[1].split('.')[0] : '';
+                date = new Date(datePart[1] + '/' + datePart[2] + '/' + datePart[0] + ' ' + timePart);
+                break;
+			default:
                 str = str + "";
 				var monthPart = str.substring(4, 6);
 				if(monthPart.substring(0, 1) == '0') {
 					monthPart = monthPart.substring(1, 2);
 				}
-				date = new Date(parseInt(str.substring(0, 4)), parseInt(monthPart) - 1, parseInt(str.substring(6, 8)), 0, 0, 0, 0);
-				break;
-			default:
-                var split = str.split('T');
-				var datePart = split[0].split('-');
-				var timePart = split[1] ? split[1].split('.')[0] : '';
-                date = new Date(datePart[1] + '/' + datePart[2] + '/' + datePart[0] + ' ' + timePart);
+				date = new Date(parseInt(str.substring(0, 4)), parseInt(monthPart) - 1, parseInt(str.substring(6, 8)), 0, 0, 0, 0);     
 		}
 
 		return isNaN(date.getTime()) ? null : date;

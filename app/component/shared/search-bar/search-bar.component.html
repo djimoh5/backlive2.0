@@ -1,7 +1,4 @@
-﻿<form role="search">
-	<div class="form-group">
-        <div class="search-text">Search for:</div>
-        <div class="search-input"><input id="universal-search" type="text" class="form-control" [placeholder]="placeholder" [(ngModel)]="searchKey" (keyup)="search()">
-        <ui-icon class="hover" type="remove" (click)="clearSearch()"></ui-icon></div>
-    </div>
-</form>
+﻿<div class="form-group">
+    <div class="search-input"><input id="universal-search" type="text" class="form-control" [placeholder]="placeholder" [(ngModel)]="searchKey" (keyup)="search()">
+    <ui-icon class="hover" type="remove" (click)="clearSearch()"></ui-icon></div>
+</div>

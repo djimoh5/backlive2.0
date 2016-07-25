@@ -1,6 +1,7 @@
 /*** directories ***/
 DIR_CORE = "./core/";
 DIR_LIB = DIR_CORE + "lib/";
+DIR_UTILITY = DIR_CORE + "utility/";
 DIR_MODEL = DIR_CORE + "model/";
 DIR_VIEW = BASE_DIR + "/view/";
 DIR_HOME = BASE_DIR + "/home/";

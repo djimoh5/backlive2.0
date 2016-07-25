@@ -1,4 +1,5 @@
 var BaseService = require("./BaseService.js");
+var Common = require("../utility/Common.js");
 var spawner = require('child_process');
 
 function StrategyService(session) {
@@ -6,6 +7,7 @@ function StrategyService(session) {
     
     var self = this,
         user = session.user;
+    this.user = user;
     
     this.getBacktests = function() {
         var query = { name:{ $ne:null }, uid:user.uid };
@@ -13,6 +15,49 @@ function StrategyService(session) {
             self.done(results);
         });
         
+        return self.promise;
+    }
+    
+    this.getStrategies = function() {
+        db.mongo.collection('user_stgy').find({ uid:user.uid, active: 1}).sort({"_id":1}).toArray(function(err, results) {
+            self.done(results);
+        });
+        
+        return self.promise;
+    }
+    
+    this.getReturns = function(strategyIds, startDate, endDate) {
+        var start = Common.parseDate(startDate, 3).getTime();
+        var end = Common.parseDate(endDate, 3).getTime();
+
+        var collection = db.mongo.collection('user_stgy');
+        collection.find({ bt_id: { $in: strategyIds } }).toArray(function(err, strats) {
+            if(err) { self.error(err); return; }
+            
+            var btMap = {};
+            var stratIds = strats.map(function(s) {
+                btMap[s._id] = s.bt_id;
+                return s._id.toString(); 
+            });
+
+            collection = db.mongo.collection('user_stgy_cp');
+            collection.find({ id: { $in: stratIds } }).min({ date: start }).max({ date: end }).sort({ _id:1, date: 1})
+                .toArray(function(err, results) {
+                    if(err) { self.error(err); return; }
+                    
+                    var byStrat = {};
+                    results.forEach(function(result) {
+                        if(!byStrat[result.id]) {
+                            byStrat[result.id] = { bt_id: btMap[result.id], returns: [] };
+                        }
+                        
+                        byStrat[result.id].returns.push({ capital: result.capital, date: new Date(result.date).format() });
+                    });
+                    
+                    self.success(byStrat);
+                });
+        });
+
         return self.promise;
     }
     
@@ -108,12 +153,12 @@ function StrategyService(session) {
                                 });
                             }
                             else
-                                self.done({ success:0, msg:"the backtest does not exist" });
+                                self.error("the backtest does not exist");
                         });
                     });
                 }
                 else
-                    self.done({ success:0, msg:"the user does not exist" });
+                    self.error("the user does not exist");
             });
         }
         

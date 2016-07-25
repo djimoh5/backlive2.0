@@ -1,4 +1,35 @@
-a.btn-runscreen {
+@import "css/plugins/mixins.less";
+
+search-bar {
+    float:right;
+    padding:10px 15px;
+    .form-group {
+        position:relative;
+        input {
+            min-width:225px;
+        }
+        button {
+            position:absolute;
+            top:0px;
+            right:0px;
+        }
+        ui-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 1.2em;
+        }
+    }
+}
+
+ui-icon.hover span {
+    &:hover {
+        .opacity(70);
+    }
+    cursor: pointer;
+}
+
+.btn-runscreen {
     background: transparent url(../images/btn-runscreen-sm.png) 0 0 no-repeat;
 }
 a.btn-backtest {
