@@ -12,7 +12,7 @@ import {AppEvent, Ticker, Price} from 'backlive/service/model';
     directives: []
 })
 export class TickerComponent extends BaseComponent implements OnInit {
-    @Input() ticker;
+    @Input() ticker: string;
     tickerService: TickerService;
     
     constructor(appService: AppService, tickerService: TickerService) {

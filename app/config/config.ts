@@ -19,6 +19,7 @@ export class Path {
 export class Config {
     static Development: boolean = WEB_CONFIG.Development;
     static AccountRouteKey: string = 'loginAccountId';
+    static ENV = 'stocks';
     static CACHE_EXPIRATION = WEB_CONFIG.Development ? 10 : 600; //in seconds
     static BASE_URL = WEB_CONFIG.BaseUrl;
     static SITE_URL = WEB_CONFIG.SiteUrl;

@@ -1,4 +1,5 @@
 import {BaseModel} from './base.model';
+import {Indicator} from './indicator.model';
 import {Common} from 'backlive/utility';
 
 export interface Strategy {
@@ -7,6 +8,7 @@ export interface Strategy {
     date: number;
     type: StrategyType;
     live: boolean;
+    indicators: Indicator[]
     results: Performance;
 }
 
