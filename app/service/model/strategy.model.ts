@@ -21,9 +21,14 @@ export class Performance {
         this.endDate = endDate;
         var dateDiff = Common.dateDiff(Common.parseDate(this.startDate), Common.parseDate(this.endDate), 365);
         
-        this.return = endAmt / startAmt;
-        this.cagr = parseFloat(((Math.pow(this.return, 1 / dateDiff) - 1) * 100).toFixed(2));
-        this.return = parseFloat(((this.return - 1) * 100).toFixed(2));
+        if(startAmt ===  endAmt) {
+            this.return = this.cagr = 0;
+        }
+        else {
+            this.return = endAmt / startAmt;
+            this.cagr = parseFloat(((Math.pow(this.return, 1 / dateDiff) - 1) * 100).toFixed(2));
+            this.return = parseFloat(((this.return - 1) * 100).toFixed(2));
+        }
     }
 }
 

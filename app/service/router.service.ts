@@ -1,7 +1,6 @@
 import {Injectable, Directive, ElementRef, DynamicComponentLoader, Type, ViewContainerRef, ApplicationRef, ComponentFactory, ResolvedReflectiveProvider} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {Router, RouterConfig, Route, RouterOutletMap, ActivatedRoute, ActivatedRouteSnapshot, UrlTree, NavigationStart, NavigationEnd} from '@angular/router';
-import {RouterOutlet} from '@angular/router/src/directives/router_outlet';
 import {Location} from '@angular/common';
 
 import {Observable, Subscribable} from 'rxjs/Observable';
@@ -314,12 +313,12 @@ export class RouterService {
             }
 
             if (routeInfo.requireAccountNumber) {
-                routeInfo.link[0] = `/:${Config.AccountIdRouteKey}${routeInfo.link[0]}`;
+                routeInfo.link[0] = `/:${Config.AccountRouteKey}${routeInfo.link[0]}`;
             }
 
             for (var j = paths.length - 1; j >= 0; j--) { //add deepest paths first
                 if (routeInfo.requireAccountNumber) {
-                    paths[j] = `:${Config.AccountIdRouteKey}/${paths[j]}`;
+                    paths[j] = `:${Config.AccountRouteKey}/${paths[j]}`;
                 }
 
                 var route: Route = { path: paths[j], component: routeInfo.component };

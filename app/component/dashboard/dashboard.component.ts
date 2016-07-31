@@ -1,13 +1,16 @@
 ﻿import {Component} from '@angular/core';
 import {Path} from 'backlive/config';
 import {PageComponent, SearchBarComponent} from 'backlive/component/shared';
-import {ParseDatePipe} from 'backlive/pipe';
-import {JIsotopeDirective} from 'backlive/directive';
+import {FormatDatePipe} from 'backlive/pipe';
+import {JIsotopeDirective, DatePickerDirective} from 'backlive/directive';
 
 import {AppService, UserService, StrategyService} from 'backlive/service';
 
 import {StrategyComponent} from 'backlive/component/backtest';
 import {TickerComponent} from 'backlive/component/portfolio';
+import {RadioButtonComponent, RadioButtonOption} from 'backlive/component/shared/ui';
+
+import {Common} from 'backlive/utility';
 
 import {AppEvent, Ticker, Strategy, Performance} from 'backlive/service/model';
 
@@ -15,8 +18,8 @@ import {AppEvent, Ticker, Strategy, Performance} from 'backlive/service/model';
     selector: 'app-dashboard',
     templateUrl: Path.ComponentView('dashboard'),
     styleUrls: [Path.ComponentStyle('dashboard')],
-    directives: [StrategyComponent, TickerComponent, JIsotopeDirective],
-    pipes: [ParseDatePipe]
+    directives: [StrategyComponent, TickerComponent, JIsotopeDirective, DatePickerDirective],
+    pipes: [FormatDatePipe]
 })
 export class DashboardComponent extends PageComponent {
     strategyService: StrategyService;
@@ -27,6 +30,10 @@ export class DashboardComponent extends PageComponent {
     tickers: Ticker[];// = [{ name:'BAC', prices:[] }];
     
     iso: any;
+    dateOptions: RadioButtonOption[];
+    currentDateOption: number = 0;
+    customStartDate: number;
+    customEndDate: number;
     
     constructor(appService: AppService, strategyService: StrategyService) {
         super(appService);
@@ -42,12 +49,25 @@ export class DashboardComponent extends PageComponent {
         ];
         
         appService.notify(AppEvent.SlidingNavItems, items);
+        
+        this.dateOptions = [
+          { title: '1d', value: 1 },
+          { title: '5d', value: 5 },
+          { title: '1m', value: 30 },
+          { title: '3m', value: 90 },
+          { title: '6m', value: 182 },
+          { title: 'YTD', value: 0 },
+          { title: '1yr', value: 365 },
+          { title: '5yr', value: 1825 },
+          { title: '10yr', value: 3650 },
+          { title: 'Custom', value: -1 },
+        ];
     }
     
     filterMenu() {
         
     }
-    
+
     loadStrategies(strategies: Strategy[]) {
         this.liveStrategies = [];
         this.strategies = [];
@@ -65,13 +85,20 @@ export class DashboardComponent extends PageComponent {
         });
         
         console.log(this.liveStrategies, this.strategies);
-        this.getReturns();
+        this.onDateChange(this.currentDateOption);
     }
     
-    getReturns() {
-        this.strategyService.getReturns(this.liveStrategies.map(strategy => { return strategy._id; }), 20160101, 20170101).then(res => {
+    getReturns(startDate: number, endDate: number) {
+        console.log(startDate, endDate);
+        
+        this.strategyService.getReturns(this.liveStrategies.map(strategy => { return strategy._id; }), startDate, endDate).then(res => {
             var strats = res.data;
             console.log(strats);
+            
+            for(var id in this.stratsById) {
+                this.stratsById[id].results = null;
+            }
+
             for(var id in strats) {
                 var lastIndex = strats[id].returns.length - 1;
                 this.stratsById[strats[id].bt_id].results = new Performance(
@@ -83,13 +110,41 @@ export class DashboardComponent extends PageComponent {
             }
             
             setTimeout(() => {
-                this.iso.resize();
-            }, 1000);
+                if(this.iso) {
+                    this.iso.layout();
+                }
+            });
         });
+    }
+    
+    onDateChange(value: number) {
+        if(value === -1) {
+            return
+        }
+        
+        var today = new Date();
+        var startDate: number;
+        var endDate: number = Common.dbDate(today);
+        
+        if(value > 0) {
+            today.setDate(today.getDate() - value);
+            startDate = Common.dbDate(today);
+        }
+        else if(value === 0) {
+           startDate = parseInt(today.getFullYear() + '0101');
+        }
+        
+        this.getReturns(startDate, endDate);
+    }
+    
+    onCustomDateChange() {
+        if(this.customStartDate && this.customEndDate) {
+            this.getReturns(this.customStartDate, this.customEndDate);
+        }
     }
     
     onIsotopeLoaded(iso: any) {
         this.iso = iso;
-        console.log(iso);
+        this.iso.layout();
     }
 }

@@ -33,7 +33,7 @@ export class AppService extends BaseService {
     
     navigate(route: RouteInfo, params: {} = null, event: MouseEvent = null, queryParams: {} = {}) {
         route.params = params ? params : {};
-        //route.params[Config.AccountIdRouteKey] = this.userService.user.accountNumber.toLowerCase();
+        //route.params[Config.AccountRouteKey] = this.userService.user.accountNumber.toLowerCase();
 
         this.routerService.navigate(route, event, queryParams);
         this.platformUI.scrollToTop();

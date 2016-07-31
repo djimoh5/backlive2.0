@@ -10,11 +10,9 @@ export class JIsotopeDirective implements AfterViewInit {
     @Input() layoutMode: string = 'masonry';
     @Output() loaded: EventEmitter<any> = new EventEmitter();
     
-    elementRef: ElementRef;
     iso: any;
     
-    constructor(elementRef: ElementRef) {
-        this.elementRef = elementRef;
+    constructor(private elementRef: ElementRef) {
     }
     
     ngAfterViewInit() {        
@@ -29,7 +27,7 @@ export class JIsotopeDirective implements AfterViewInit {
         });
     }
     
-    resize() {
-        this.iso.resize();
+    reLayout() {
+        this.iso.$element.isotope('reLayout');
     }
 }

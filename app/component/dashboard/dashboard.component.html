@@ -1,26 +1,35 @@
 <div [animate]="pageAnimation">
-    <h3>Active Strategies</h3>
+    <div class="clearfix">
+        <div class="date-controls">
+            <radio-button size="small" [options]="dateOptions" [(value)]="currentDateOption" (valueChange)="onDateChange($event)"></radio-button>
+            <span [class.hidden]="currentDateOption !== -1" class="custom">
+                <input [(datepicker)]="customStartDate" (datepickerChange)="onCustomDateChange()" class="form-control" type="text" placeholder="start date" /> 
+                <input [(datepicker)]="customEndDate" (datepickerChange)="onCustomDateChange()" class="form-control" type="text" placeholder="end date" />
+            </span>
+        </div>
+    </div>
+    <h3>Live Strategies</h3>
     <div class="strategies"> 
         <div *ngIf="liveStrategies" isotope=".strategy" layoutMode="masonry" (loaded)="onIsotopeLoaded($event)">
             <div *ngFor="let strategy of liveStrategies; let i = index" class="strategy col-md-3 col-sm-6 col-xs-12">
                 <div class="pod">
                     <h4 class="name">{{strategy.name}}</h4>
-                    <h5 class="date">{{strategy.date | parseDate:'short'}}</h5>
+                    <h5 class="date">{{strategy.date | formatDate:'short':true}}</h5>
                     <div *ngIf="strategy.results" class="results">
                         cagr: {{strategy.results.cagr}}% - total: {{strategy.results.return}}%
-                        <div>{{strategy.results.startDate}} - {{strategy.results.endDate}}</div>
+                        <div>{{strategy.results.startDate | formatDate:'shortDate'}} - {{strategy.results.endDate | formatDate:'shortDate'}}</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <h3>My Saved Strategies</h3>
+    <h3>My Saved Backtests</h3>
     <div class="strategies"> 
         <div *ngIf="strategies" isotope=".strategy" layoutMode="masonry">
             <div *ngFor="let strategy of strategies; let i = index" class="strategy col-md-3 col-sm-6 col-xs-12">
                 <div class="pod">
                     <h4 class="name">{{strategy.name}}</h4>
-                    <h5 class="date">{{strategy.date | parseDate:'short'}}</h5>
+                    <h5 class="date">{{strategy.date | formatDate:'short':true}}</h5>
                 </div>
             </div>
         </div>

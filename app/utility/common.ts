@@ -155,6 +155,14 @@ export class Common {
         return formatDate(date, format, options)
     }
     
+    static formatDBDate(date: number, format: string, options: {} = null) {
+        return formatDate(date, format, options)
+    }
+    
+    static dbDate(date: Date) {
+        return parseInt(date.getFullYear() + Common.padDatePart(date.getMonth() + 1) + Common.padDatePart(date.getDate()));
+    }
+    
     static dateToUnixTime(date: Date) {
         return Math.round(date.getTime() / 1000);
     }
@@ -195,30 +203,9 @@ export class Common {
 		return md5(new Date().getTime() + Math.round(Math.random() * 1000000) + Math.round(Math.random() * 1000000) + "");
 	}
 	
-	static getDateNow() {
-		var now = new Date();
-		return formatDate(now, DateFormat.date);
-	}
-
 	static log (...data: any[]) {
         if(Config.Development) {
 		    console.log.apply(console, data);
         }
 	}
-	
-    static emptyGuid: string = "00000000-0000-0000-0000-000000000000";
-
-    static creditCardExpirationDate(expirationMonth, expirationYear) {
-        var ccExpYear = "20" + expirationYear;
-        var ccExpMonth = expirationMonth;
-        var expDate = new Date();
-        expDate.setFullYear(Number(ccExpYear), ccExpMonth, 1);
-        var today = new Date();
-        if (expDate < today) {
-            return false;
-        }
-        else {
-            return true;
-        }
-    }
 }
