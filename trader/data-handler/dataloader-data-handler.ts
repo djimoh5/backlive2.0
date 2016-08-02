@@ -17,8 +17,8 @@ export class DataLoaderDataHandler extends DataHandler {
         super();
     }
     
-    subscribe(obj: any, params: [number, string][], callback: Function) {
-        super.subscribe(obj, new DataEvent(), callback);
+    registerParams(obj: any, params: [number, string][], callback: Function) {
+        this.subscribe(obj, new DataEvent(), callback);
         
         this.setFields(params);
     }
