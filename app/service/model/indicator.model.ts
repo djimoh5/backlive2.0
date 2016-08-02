@@ -2,9 +2,8 @@ import {BaseModel} from './base.model';
 
 export class Indicator {
     _id: string;
-    vars: Indicator[];
-    ops: number[];
-    fields: any[][];
+    vars: (Indicator | [number, string])[] = [];
+    ops: Operator[];
     
     allowNeg: number = 1;
     aggrType: string = 'val';
@@ -26,6 +25,10 @@ export class Indicator {
     exit: number = null;
     threshOp: number = 1;
     thresh: number = 1;
+    
+    //client-side only
+    readonly: boolean = true;
+    compareOn: boolean = false;
 }
 
 export class SportsIndicator extends Indicator {
@@ -38,4 +41,27 @@ export class SportsIndicator extends Indicator {
     playerNum: number = 1;
     
     exclIndTypes: number = 101;
+}
+
+export enum Operator {
+    Add = 0,
+    Subtract = 1,
+    Multiply = 2,
+    Divide = 3
+}
+
+export enum IndicatorParamType {
+    Value = 0,
+    IncomeStatement = 1, 
+    BalanceSheet = 2, 
+    CashFlowStatement = 3, 
+    Statistic = 4, 
+    Proprietary = 5, 
+    Technicals = 6, 
+    Macro = 7, 
+    ShortInterest = 8, 
+    FinancialStatement = 10, 
+    FinancialIndicators = 11, 
+    Funds = 99, 
+    Constant = -1
 }

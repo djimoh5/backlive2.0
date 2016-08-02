@@ -8,7 +8,22 @@ export interface Strategy {
     date: number;
     type: StrategyType;
     live: boolean;
-    indicators: Indicator[]
+    indicators: { short: Indicator[], long: Indicator[] };
+    
+    //portfolio settings
+    initCapt: number;
+    numStocks: number;
+    weight: number;
+    sectNeutral: boolean;
+    leverage: number;
+    shortLeverage: number;
+    stopLoss: number;
+    posStopLoss: number;
+    friction: number;
+    frictionType: number;
+    benchmark: string;
+    
+    //client-side
     results: Performance;
 }
 

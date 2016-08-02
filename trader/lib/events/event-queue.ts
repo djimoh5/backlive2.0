@@ -1,11 +1,18 @@
+import {Base} from '../../base';
+
 import {TraderEvent} from './trader-event';
 import {Common} from 'backlive/utility';
     
-export class EventQueue {
+export class EventQueue extends Base {
     private events: { [key: string]: { [key: string]: Function[] } };
     
-    subscribe(event: TraderEvent, subscriberId: string | number, callback: Function) {
+    constructor() {
+        super();
+    }
+    
+    subscribe(obj: any, event: TraderEvent, callback: Function) {
         var eventName = event.name;
+        var subscriberId: number | string = obj.objectId;
          
         if (!this.events[eventName]) {
             this.events[eventName] = {};
@@ -18,26 +25,30 @@ export class EventQueue {
         this.events[eventName][subscriberId].push(callback);
     }
     
-    unsubscribe(componentId: any, eventName?: string) {
-        if(eventName && this.events[eventName] && this.events[eventName][componentId]) {
-            delete this.events[eventName][componentId];
+    unsubscribe(subscriberId: any, eventName?: string) {
+        if(eventName && this.events[eventName] && this.events[eventName][subscriberId]) {
+            delete this.events[eventName][subscriberId];
         }
         else {
             for(var name in this.events) {
-                if(this.events[name][componentId]) {
-                    delete this.events[name][componentId];
+                if(this.events[name][subscriberId]) {
+                    delete this.events[name][subscriberId];
                 }
             }
         }
     }
 
-    notify<T>(eventName: string, data: T = null) {
+    notify(event: TraderEvent) {
+        var eventName = event.name;
+        
         if (this.events[eventName]) {
             setTimeout(() => {
                 var cnt = 0;
                 
                 for(var subscriberId in this.events[eventName]) {
-                    this.notifySubscriber<T>(subscriberId, eventName, data);
+                    this.events[eventName][subscriberId].forEach((callback: Function) => {
+                        callback(event); 
+                    });
                     cnt++;
                 }
                 
@@ -45,19 +56,13 @@ export class EventQueue {
                     Common.log('EVENT: ' + eventName + ' has no subscribers');
                 }
                 else {
-                    Common.log('EVENT: ' + eventName + ' fired to ' + cnt + ' subscribers with data', data);
+                    Common.log('EVENT: ' + eventName + ' fired to ' + cnt + ' subscribers with data', event);
                 }
             });
         }
         else {
             Common.log('EVENT: ' + eventName + ' has no subscribers');
         }
-    }
-    
-    private notifySubscriber<T>(subscriberId: string | number, eventName: string, data: T = null) {
-        this.events[eventName][subscriberId].forEach((callback: Function) => {
-            callback(data); 
-        });
     }
     
     clearEvent(eventName: string) {

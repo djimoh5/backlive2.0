@@ -7,25 +7,26 @@ export class TraderEvent {
     }
 }
 
-class DataEvent extends TraderEvent {
+export class DataEvent extends TraderEvent {
     constructor() {
         super('Event.Data');
     }
 }
 
-class SignalEvent extends TraderEvent {
+export class SignalEvent extends TraderEvent {
+    tickers: Ticker[];
     constructor() {
         super('Event.Signal');
     }
 }
 
-class OrderEvent extends TraderEvent {
+export class OrderEvent extends TraderEvent {
     constructor() {
         super('Event.Order');
     }
 }
 
-class OrderFillEvent extends TraderEvent {
+export class OrderFillEvent extends TraderEvent {
     constructor() {
         super('Event.OrderFill');
     }
