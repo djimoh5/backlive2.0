@@ -1,5 +1,9 @@
 import {EventQueue} from '../lib/events/event-queue';
 
-export class ExecutionHandler extends EventQueue {
+export interface IExecutionHandler {
+    
+}
+
+export class BaseExecutionHandler extends EventQueue {
     
 }

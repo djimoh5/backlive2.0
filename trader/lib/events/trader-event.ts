@@ -1,4 +1,6 @@
-import {Ticker} from 'backlive/service/model';
+import {DataCache, CacheResult} from '../../data-handler/data-handler';
+
+import {Ticker, Param} from 'backlive/service/model';
 
 export class TraderEvent {
     name: string;
@@ -8,8 +10,14 @@ export class TraderEvent {
 }
 
 export class DataEvent extends TraderEvent {
-    constructor() {
+    constructor(public cache?: DataCache[], public allCacheKeys?: string | number[]) {
         super('Event.Data');
+    }
+}
+
+export class DataSubscriptionEvent extends TraderEvent {
+    constructor(public params?: Param[]) {
+        super('Event.DataSubscription');
     }
 }
 

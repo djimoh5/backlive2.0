@@ -1,6 +1,6 @@
 import {EventQueue} from '../lib/events/event-queue';
-import {ExecutionHandler} from './execution-handler';
+import {BaseExecutionHandler} from './execution-handler';
 
-export class BacktestExecutionHandler extends ExecutionHandler {
+export class BacktestExecutionHandler extends BaseExecutionHandler {
     
 }

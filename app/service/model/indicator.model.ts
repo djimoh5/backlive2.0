@@ -2,7 +2,7 @@ import {BaseModel} from './base.model';
 
 export class Indicator {
     _id: string;
-    vars: (Indicator | [number, string])[] = [];
+    vars: (Indicator | Param)[] = [];
     ops: Operator[];
     
     allowNeg: number = 1;
@@ -65,3 +65,6 @@ export enum IndicatorParamType {
     Funds = 99, 
     Constant = -1
 }
+
+
+export declare type Param = [number, string];

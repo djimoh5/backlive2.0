@@ -32,14 +32,14 @@ export class IndicatorComponent extends BaseComponent {
 
     toggleReadOnly() {
         this.indicator.readonly = !this.indicator.readonly;
-        this.toggleChildren(this.indicator.vars, this.indicator.readonly);
+        this.toggleChildren(<Indicator[]> this.indicator.vars, this.indicator.readonly);
         this.readOnlyChange.emit(this.indicator.readonly);
     }
     
     toggleChildren(vars: Indicator[], toggleVal: boolean) {
         for(var i = vars.length - 1; i >= 0; i--) {
             vars[i].readonly = toggleVal;
-            this.toggleChildren(vars[i].vars, toggleVal);
+            this.toggleChildren(<Indicator[]> vars[i].vars, toggleVal);
         }
     }
     

@@ -4,7 +4,7 @@ import {TraderEvent} from './trader-event';
 import {Common} from 'backlive/utility';
     
 export class EventQueue extends Base {
-    private events: { [key: string]: { [key: string]: Function[] } };
+    protected events: { [key: string]: { [key: string]: Function[] } };
     
     constructor() {
         super();

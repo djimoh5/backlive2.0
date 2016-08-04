@@ -1,22 +1,37 @@
 import {EventQueue} from '../lib/events/event-queue';
-import {Strategy as StrategyModel, Operator, Indicator} from 'backlive/service/model';
+import {AppEventQueue} from '../lib/events/app-event-queue';
+import {DataEvent, DataSubscriptionEvent} from '../lib/events/trader-event';
+import {IDataHandler} from '../data-handler/data-handler';
+
+import {Strategy as StrategyModel, Operator, Indicator, Param} from 'backlive/service/model';
 import {Common} from 'backlive/utility';
 
 export class Strategy extends EventQueue {
+    allIndicators: Indicator[];
+    
     constructor(private model: StrategyModel) {
         super();
+        this.allIndicators = model.indicators.long.concat(model.indicators.short, model.exposure.long, model.exclusions);
+        
+        AppEventQueue.subscribe(this, new DataEvent(), (event: DataEvent) => this.processData(event));
+        AppEventQueue.notify(new DataSubscriptionEvent(this.getIndicatorParams()));
     }
     
-    getIndicatorParams() {
-        var params = [];
-        if(this.model.indicators.short) {
-           this.model.indicators.short.forEach(indicator => {
-                this.getIndicatorParamsHelper(indicator, params);
-            });
-        }
+    processData(data: DataEvent) {
+        console.log(data);
+    }
+    
+    getIndicatorParams(): Param[] {
+        var params: [number, string][] = [];
+        
+        this.allIndicators.forEach(indicator => {
+            this.getIndicatorParamsHelper(indicator, params);
+        });
+        
+        return params;
     }
 
-    private getIndicatorParamsHelper(indicator: Indicator, params: [number, string][]) {
+    private getIndicatorParamsHelper(indicator: Indicator, params: Param[]) {
         for(var i = 0, cnt = indicator.vars.length; i < cnt; i++) {
 			var obj = indicator.vars[i];
 			
@@ -33,11 +48,8 @@ export class Strategy extends EventQueue {
 		}
     }
     
-    
-    
     getModel() {
         return this.model;
     }
     
 }
-

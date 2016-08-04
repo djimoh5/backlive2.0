@@ -8,7 +8,9 @@ export interface Strategy {
     date: number;
     type: StrategyType;
     live: boolean;
-    indicators: { short: Indicator[], long: Indicator[] };
+    indicators: { long: Indicator[], short: Indicator[] };
+    exposure: { long: Indicator[], short: Indicator[] };
+    exclusions: Indicator[];
     
     //portfolio settings
     initCapt: number;
