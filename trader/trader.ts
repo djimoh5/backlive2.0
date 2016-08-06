@@ -25,7 +25,7 @@ export class Trader extends Base {
         Database.open(() => {
             this.dataHandler = new DataLoaderDataHandler();
             this.strategies.push(new Strategy(model));
-            this.portfolios.push(new Portfolio(this.strategies[0]));
+            this.portfolios.push(new Portfolio(this.strategies[0].id));
             this.executionHandler = new BacktestExecutionHandler();
             
             this.dataHandler.init();

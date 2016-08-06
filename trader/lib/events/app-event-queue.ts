@@ -1,5 +1,5 @@
 import {EventQueue} from './event-queue';
-import {TraderEvent} from './trader-event';
+import {AppEvent} from './app-event';
 
 export class AppEventQueue extends EventQueue {
     private static eventQueue: AppEventQueue;
@@ -12,11 +12,11 @@ export class AppEventQueue extends EventQueue {
         AppEventQueue.eventQueue = new AppEventQueue();
     }
     
-    static subscribe(obj: any, event: TraderEvent, callback: Function) {
-        AppEventQueue.eventQueue.subscribe(obj, event, callback);
+    static subscribe(eventType: AppEvent, subscriberId: string, callback: Function) {
+        AppEventQueue.eventQueue.subscribe(eventType, subscriberId, callback);
     }
     
-    static notify(event: TraderEvent) {
+    static notify(event: AppEvent) {
         AppEventQueue.eventQueue.notify(event);
     }
 }

@@ -1,20 +1,20 @@
+import {Base} from '../base'
 import {EventQueue} from '../lib/events/event-queue';
-import {AppEventQueue} from '../lib/events/app-event-queue';
-import {DataEvent, DataSubscriptionEvent} from '../lib/events/trader-event';
+import {DataEvent, DataSubscriptionEvent} from '../lib/events/app-event';
 import {IDataHandler} from '../data-handler/data-handler';
 
 import {Strategy as StrategyModel, Operator, Indicator, Param} from 'backlive/service/model';
 import {Common} from 'backlive/utility';
 
-export class Strategy extends EventQueue {
+export class Strategy extends Base {
     allIndicators: Indicator[];
     
     constructor(private model: StrategyModel) {
         super();
         this.allIndicators = model.indicators.long.concat(model.indicators.short, model.exposure.long, model.exclusions);
         
-        AppEventQueue.subscribe(this, new DataEvent(), (event: DataEvent) => this.processData(event));
-        AppEventQueue.notify(new DataSubscriptionEvent(this.getIndicatorParams()));
+        this.subscribe(DataEvent, (event: DataEvent) => this.processData(event));
+        this.notify(new DataSubscriptionEvent(this.getIndicatorParams()));
     }
     
     processData(data: DataEvent) {

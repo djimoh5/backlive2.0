@@ -24,7 +24,7 @@ export class DataLoaderDataHandler extends BaseDataHandler {
     
     constructor() {
         super();
-        AppEventQueue.subscribe(this, new DataSubscriptionEvent(), (data: DataSubscriptionEvent) => this.setFields(data.params));
+        AppEventQueue.subscribe(this, DataSubscriptionEvent, (data: DataSubscriptionEvent) => this.setFields(data.params));
     }
     
     init() {

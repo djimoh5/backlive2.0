@@ -1,18 +1,14 @@
-import {Base} from '../../base';
-
-import {TraderEvent} from './trader-event';
+import {AppEvent} from './app-event';
 import {Common} from 'backlive/utility';
     
-export class EventQueue extends Base {
+export class EventQueue {
     protected events: { [key: string]: { [key: string]: Function[] } };
     
     constructor() {
-        super();
     }
     
-    subscribe(obj: any, event: TraderEvent, callback: Function) {
-        var eventName = event.name;
-        var subscriberId: number | string = obj.objectId;
+    subscribe(eventType: AppEvent, subscriberId: number | string, callback: Function, filter?: {}) {
+        var eventName = eventType.name;
          
         if (!this.events[eventName]) {
             this.events[eventName] = {};
@@ -38,9 +34,9 @@ export class EventQueue extends Base {
         }
     }
 
-    notify(event: TraderEvent) {
+    notify(event: AppEvent) {
         var eventName = event.name;
-        
+
         if (this.events[eventName]) {
             setTimeout(() => {
                 var cnt = 0;
