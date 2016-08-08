@@ -12,10 +12,18 @@ export interface Strategy {
     exposure: { long: Indicator[], short: Indicator[] };
     exclusions: Indicator[];
     
+    universeType: number;
+    universeTkrs: string[];
+    
     //portfolio settings
+    startYr: number,
+    endYr: number,
+    minMktCap: number,
+    
     initCapt: number;
     numStocks: number;
     weight: number;
+    rebalance: number;
     sectNeutral: boolean;
     leverage: number;
     shortLeverage: number;
@@ -24,6 +32,7 @@ export interface Strategy {
     friction: number;
     frictionType: number;
     benchmark: string;
+    exclSectors: string[];
     
     //client-side
     results: Performance;

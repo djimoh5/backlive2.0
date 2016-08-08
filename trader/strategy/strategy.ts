@@ -14,11 +14,11 @@ export class Strategy extends Base {
         this.allIndicators = model.indicators.long.concat(model.indicators.short, model.exposure.long, model.exclusions);
         
         this.subscribe(DataEvent, (event: DataEvent) => this.processData(event));
-        this.notify(new DataSubscriptionEvent(this.getIndicatorParams()));
+        this.notify(new DataSubscriptionEvent({ params: this.getIndicatorParams(), startDate: model.startYr, endDate: model.endYr, entities: model.universeTkrs }));
     }
     
-    processData(data: DataEvent) {
-        console.log(data);
+    processData(event: DataEvent) {
+        console.log(event);
     }
     
     getIndicatorParams(): Param[] {

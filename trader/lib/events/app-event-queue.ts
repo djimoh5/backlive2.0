@@ -12,7 +12,7 @@ export class AppEventQueue extends EventQueue {
         AppEventQueue.eventQueue = new AppEventQueue();
     }
     
-    static subscribe(eventType: AppEvent, subscriberId: string, callback: Function) {
+    static subscribe(eventType: typeof AppEvent, subscriberId: string, callback: Function) {
         AppEventQueue.eventQueue.subscribe(eventType, subscriberId, callback);
     }
     

@@ -1,7 +1,6 @@
 import {EventQueue} from '../lib/events/event-queue';
-import {AppEventQueue} from '../lib/events/app-event-queue';
 
-import {DataEvent, DataSubscriptionEvent} from '../lib/events/trader-event';
+import {DataEvent, DataSubscriptionEvent} from '../lib/events/app-event';
 import {BaseDataHandler, IDataHandler, DataCache, CacheResult} from './data-handler';
 
 import {RFIELD_MAP} from './field-map';
@@ -14,6 +13,9 @@ import {Database} from '../lib/data-access/database';
 export class DataLoaderDataHandler extends BaseDataHandler {
     fields: Fields;
     ticker: string | string[];
+    startDate: number;
+    endDate: number;
+    
     useDenormTable: boolean = true;
     denormParamTypes: IndicatorParamType[] = [IndicatorParamType.IncomeStatement, IndicatorParamType.BalanceSheet, IndicatorParamType.CashFlowStatement, IndicatorParamType.Statistic];	
     tables = [ "", "is", "bs", "cf", "snt", "mos", "tech", "macro", "shrt_intr", "is_gr", "fs", "fi" ];
@@ -24,7 +26,13 @@ export class DataLoaderDataHandler extends BaseDataHandler {
     
     constructor() {
         super();
-        AppEventQueue.subscribe(this, DataSubscriptionEvent, (data: DataSubscriptionEvent) => this.setFields(data.params));
+        this.subscribe(DataSubscriptionEvent, (event: DataSubscriptionEvent) => {
+            this.ticker = event.data.entities;
+            this.startDate = event.data.startDate;
+            this.endDate = event.data.endDate;
+            
+            this.setFields(event.data.params);
+        });
     }
     
     init() {
@@ -50,7 +58,7 @@ export class DataLoaderDataHandler extends BaseDataHandler {
         });
     }
     
-    private execute(dates : number[], weeks: number[]) {
+    private execute(dates: number[], weeks: number[]) {
         var numFieldTypes = 0;
 		
 		for(var type in this.fields) {
@@ -80,7 +88,7 @@ export class DataLoaderDataHandler extends BaseDataHandler {
                     }
                     
                     if(--cnt == 0) {
-    				    AppEventQueue.notify(new DataEvent(this.cache, this.allCacheKeys));
+    				    this.notify(new DataEvent({ cache: this.cache, allCacheKeys: this.allCacheKeys }));
                     }
                 }, !this.ticker || Common.inArray(parseInt(type), this.nonTickerTypes) ? null : this.ticker);
             }

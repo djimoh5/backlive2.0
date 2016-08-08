@@ -9,7 +9,7 @@ export class Base {
         this.objectId = Common.uniqueId();
     }
     
-    subscribe(eventType: AppEvent, callback: Function) {
+    subscribe(eventType: typeof AppEvent, callback: Function) {
         AppEventQueue.subscribe(eventType, this.objectId, callback);
     }
     

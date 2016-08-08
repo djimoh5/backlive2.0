@@ -3,46 +3,48 @@ import {DataCache, CacheResult} from '../../data-handler/data-handler';
 import {Ticker, Param} from 'backlive/service/model';
 
 export class AppEvent {
-    static get name(): string { return '' };
-    name: string;
+    static get eventName(): string { return '' };
+    eventName: string;
+    data: any;
     
-    constructor(name: string) {
-        this.name = name;
+    constructor(data: any, eventName: string) {
+        this.eventName = eventName;
+        this.data = data;
     }
 }
 
 export class DataEvent extends AppEvent {
-    static get name(): string { return 'Event.Data' };
-    constructor(public cache: DataCache[], public allCacheKeys?: string | number[]) {
-        super(DataEvent.name);
+    static get eventName(): string { return 'Event.Data' };
+    constructor(public data: { cache: DataCache[], allCacheKeys?: string | number[] }) {
+        super(data, DataEvent.eventName);
     }
 }
 
 export class DataSubscriptionEvent extends AppEvent {
-    static get name(): string { return 'Event.DataSubscription' };
-    constructor(public params: Param[]) {
-        super(DataSubscriptionEvent.name);
+    static get eventName(): string { return 'Event.DataSubscription' };
+    constructor(public data: { params: Param[], startDate: number, endDate: number, entities: string[] }) {
+        super(data, DataSubscriptionEvent.eventName);
     }
 }
 
 export class SignalEvent extends AppEvent {
-    static get name(): string { return 'Event.Signal' };
-    tickers: Ticker[];
-    constructor() {
-        super(SignalEvent.name);
+    static get eventName(): string { return 'Event.Signal' };
+    ticker: Ticker[];
+    constructor(public data: {}) {
+        super(data, SignalEvent.eventName);
     }
 }
 
 export class OrderEvent extends AppEvent {
-    static get name(): string { return 'Event.Order' };
-    constructor() {
-        super(OrderEvent.name);
+    static get eventName(): string { return 'Event.Order' };
+    constructor(public data: {}) {
+        super(data, OrderEvent.eventName);
     }
 }
 
 export class OrderFillEvent extends AppEvent {
-    static get name(): string { return 'Event.OrderFill' };
-    constructor() {
-        super(OrderFillEvent.name);
+    static get eventName(): string { return 'Event.OrderFill' };
+    constructor(public data: {}) {
+        super(data, OrderFillEvent.eventName);
     }
 }
