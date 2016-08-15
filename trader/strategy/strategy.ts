@@ -1,4 +1,4 @@
-import {Base} from '../base'
+import {BaseNode} from '../base-node'
 import {EventQueue} from '../lib/events/event-queue';
 import {DataEvent, DataSubscriptionEvent} from '../lib/events/app-event';
 import {IDataHandler} from '../data-handler/data-handler';
@@ -6,15 +6,16 @@ import {IDataHandler} from '../data-handler/data-handler';
 import {Strategy as StrategyModel, Operator, Indicator, Param} from 'backlive/service/model';
 import {Common} from 'backlive/utility';
 
-export class Strategy extends Base {
+export class Strategy extends BaseNode {
     allIndicators: Indicator[];
     
     constructor(private model: StrategyModel) {
         super();
-        this.allIndicators = model.indicators.long.concat(model.indicators.short, model.exposure.long, model.exclusions);
+        var data = model.data;
+        this.allIndicators = data.indicators.long.concat(data.indicators.short, data.exposure.long, data.exclusions);
         
         this.subscribe(DataEvent, (event: DataEvent) => this.processData(event));
-        this.notify(new DataSubscriptionEvent({ params: this.getIndicatorParams(), startDate: model.startYr, endDate: model.endYr, entities: model.universeTkrs }));
+        this.notify(new DataSubscriptionEvent({ params: this.getIndicatorParams(), startDate: data.startYr, endDate: data.endYr, entities: data.universeTkrs.incl === 1 ? data.universeTkrs.tkrs : null }));
     }
     
     processData(event: DataEvent) {

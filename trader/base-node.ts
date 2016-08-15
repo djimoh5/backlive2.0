@@ -3,7 +3,7 @@ import {AppEventQueue} from './lib/events/app-event-queue';
 
 import {Common} from 'backlive/utility';
 
-export class Base {
+export class BaseNode {
     objectId: string;
     constructor() {
         this.objectId = Common.uniqueId();

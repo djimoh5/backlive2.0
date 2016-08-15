@@ -1,4 +1,4 @@
-import {Base} from './base';
+import {BaseNode} from './base-node';
 import {AppEventQueue} from './lib/events/app-event-queue';
 import {Database} from './lib/data-access/database';
 
@@ -13,22 +13,23 @@ import {Portfolio} from './portfolio/portfolio';
 import {IExecutionHandler} from './execution-handler/execution-handler';
 import {BacktestExecutionHandler} from './execution-handler/backtest-execution-handler';
 
-export class Trader extends Base {
+export class Trader {
     dataHandler: IDataHandler;
     portfolios: Portfolio[] = [];
     strategies: Strategy[] = [];
     executionHandler: IExecutionHandler;
     
-    constuctor(model: StrategyModel) {
+    constructor(model: StrategyModel | any) {
+        console.log(model);
         AppEventQueue.global();
         
-        Database.open(() => {
+        /*Database.open(() => {
             this.dataHandler = new DataLoaderDataHandler();
             this.strategies.push(new Strategy(model));
             this.portfolios.push(new Portfolio(model._id));
             this.executionHandler = new BacktestExecutionHandler();
             
             this.dataHandler.init();
-        });
+        });*/
     }
 }

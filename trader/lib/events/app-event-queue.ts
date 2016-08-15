@@ -9,14 +9,14 @@ export class AppEventQueue extends EventQueue {
     }
     
     static global() {
-        AppEventQueue.eventQueue = new AppEventQueue();
+        //AppEventQueue.eventQueue = new AppEventQueue();
     }
     
     static subscribe(eventType: typeof AppEvent, subscriberId: string, callback: Function) {
-        AppEventQueue.eventQueue.subscribe(eventType, subscriberId, callback);
+       // AppEventQueue.eventQueue.subscribe(eventType, subscriberId, callback);
     }
     
     static notify(event: AppEvent) {
-        AppEventQueue.eventQueue.notify(event);
+       // AppEventQueue.eventQueue.notify(event);
     }
 }

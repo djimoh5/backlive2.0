@@ -1,5 +1,5 @@
 import {AppEvent} from './app-event';
-import {Common} from 'backlive/utility';
+import {Common} from '../../../app/utility/common';
 
 import {Observable} from 'rxjs/Observable';
 import {Observer} from 'rxjs/Observer';
