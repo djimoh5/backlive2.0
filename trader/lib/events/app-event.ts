@@ -1,6 +1,7 @@
 import {DataCache, CacheResult} from '../../data-handler/data-handler';
 
-import {Ticker, Param} from 'backlive/service/model';
+import {Ticker} from '../../../app/service/model/ticker.model';
+import {Param} from '../../../app/service/model/indicator.model';
 
 export class AppEvent {
     static get eventName(): string { return '' };

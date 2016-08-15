@@ -1,7 +1,7 @@
 import {AppEvent} from './lib/events/app-event';
 import {AppEventQueue} from './lib/events/app-event-queue';
 
-import {Common} from 'backlive/utility';
+import {Common} from '../app//utility/common';
 
 export class BaseNode {
     objectId: string;

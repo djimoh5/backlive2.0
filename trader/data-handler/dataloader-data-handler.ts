@@ -4,9 +4,9 @@ import {DataEvent, DataSubscriptionEvent} from '../lib/events/app-event';
 import {BaseDataHandler, IDataHandler, DataCache, CacheResult} from './data-handler';
 
 import {RFIELD_MAP} from './field-map';
-import {IndicatorParamType, Param} from 'backlive/service/model';
+import {IndicatorParamType, Param} from '../../app/service/model/indicator.model';
 
-import {Common} from 'backlive/utility';
+import {Common} from '../../app/utility/common';
 
 import {Database} from '../lib/data-access/database';
 
@@ -60,7 +60,7 @@ export class DataLoaderDataHandler extends BaseDataHandler {
     
     private execute(dates: number[], weeks: number[]) {
         var numFieldTypes = 0;
-		
+		console.log(dates);
 		for(var type in this.fields) {
 			numFieldTypes++;
 		}
@@ -69,7 +69,7 @@ export class DataLoaderDataHandler extends BaseDataHandler {
             var cnt = numFieldTypes;
             
             for(var type in this.fields) {
-                this.callDB(date, this.fields[type], type, function(vals, cacheType) {
+                /*this.callDB(date, this.fields[type], type, function(vals, cacheType) {
                     if(this.ticker && date && Common.inArray(parseInt(cacheType), this.nonTickerTypes)) {
                         //set key for ticker to value so that equations can be calculated
                         var tmpVals = { 0:vals[0] };
@@ -90,7 +90,7 @@ export class DataLoaderDataHandler extends BaseDataHandler {
                     if(--cnt == 0) {
     				    this.notify(new DataEvent({ cache: this.cache, allCacheKeys: this.allCacheKeys }));
                     }
-                }, !this.ticker || Common.inArray(parseInt(type), this.nonTickerTypes) ? null : this.ticker);
+                }, !this.ticker || Common.inArray(parseInt(type), this.nonTickerTypes) ? null : this.ticker);*/
             }
         });
     }
