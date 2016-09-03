@@ -1,20 +1,20 @@
 /// <reference path="../typings/index.d.ts" />
 var md5 = require('../js/md5.min.js');
 
-import {BaseNode} from './base-node';
+import {BaseNode} from './node/base-node';
 import {AppEventQueue} from './lib/events/app-event-queue';
 import {Database} from './lib/data-access/database';
 
-import {IDataHandler} from './data-handler/data-handler';
-import {DataLoaderDataHandler} from './data-handler/dataloader-data-handler';
+import {IDataHandler} from './node/data-handler/data-handler';
+import {DataLoaderDataHandler} from './node/data-handler/dataloader-data-handler';
 
-import {Strategy} from './strategy/strategy';
+import {Strategy} from './node/strategy/strategy';
 import {Strategy as StrategyModel} from '../app/service/model/strategy.model';
 
-import {Portfolio} from './portfolio/portfolio';
+import {Portfolio} from './node/portfolio/portfolio';
 
-import {IExecutionHandler} from './execution-handler/execution-handler';
-import {BacktestExecutionHandler} from './execution-handler/backtest-execution-handler';
+import {IExecutionHandler} from './node/execution-handler/execution-handler';
+import {BacktestExecutionHandler} from './node/execution-handler/backtest-execution-handler';
 
 export class Network {
     dataHandler: IDataHandler;

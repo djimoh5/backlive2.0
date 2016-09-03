@@ -1,11 +1,10 @@
 import {BaseNode} from '../base-node'
-import {EventQueue} from '../lib/events/event-queue';
-import {DataEvent, DataSubscriptionEvent} from '../lib/events/app-event';
+import {DataEvent, DataSubscriptionEvent} from '../../lib/events/app-event';
 import {IDataHandler} from '../data-handler/data-handler';
 
-import {Strategy as StrategyModel} from '../../app/service/model/strategy.model';
-import {Operator, Indicator, Param} from '../../app/service/model/indicator.model';
-import {Common} from '../../app//utility/common';;
+import {Strategy as StrategyModel} from '../../../app/service/model/strategy.model';
+import {Operator, Indicator, Param} from '../../../app/service/model/indicator.model';
+import {Common} from '../../../app//utility/common';;
 
 export class Strategy extends BaseNode {
     allIndicators: Indicator[];

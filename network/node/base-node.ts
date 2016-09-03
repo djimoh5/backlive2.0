@@ -1,7 +1,7 @@
-import {BaseEvent} from './lib/events/app-event';
-import {AppEventQueue} from './lib/events/app-event-queue';
+import {BaseEvent} from '../lib/events/app-event';
+import {AppEventQueue} from '../lib/events/app-event-queue';
 
-import {Common} from '../app//utility/common';
+import {Common} from '../../app//utility/common';
 
 export class BaseNode {
     objectId: string;

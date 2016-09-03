@@ -1,9 +1,8 @@
 import {BaseNode} from '../base-node'
 
-import {SignalEvent} from '../lib/events/app-event';
-import {Strategy} from '../strategy/strategy';
+import {SignalEvent} from '../../lib/events/app-event';
 
-import {Strategy as StrategyModel} from '../../app/service/model/strategy.model';
+import {Strategy as StrategyModel} from '../../../app/service/model/strategy.model';
 
 export class Portfolio extends BaseNode {
     constructor(private strategyId: string) {

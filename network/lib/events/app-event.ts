@@ -1,4 +1,4 @@
-import {DataCache, CacheResult} from '../../data-handler/data-handler';
+import {DataCache, CacheResult} from '../../node/data-handler/data-handler';
 
 import {Ticker} from '../../../app/service/model/ticker.model';
 import {Param} from '../../../app/service/model/indicator.model';

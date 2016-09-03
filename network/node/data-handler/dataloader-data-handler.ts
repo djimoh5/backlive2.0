@@ -1,14 +1,12 @@
-import {EventQueue} from '../lib/events/event-queue';
-
-import {DataEvent, DataSubscriptionEvent} from '../lib/events/app-event';
+import {DataEvent, DataSubscriptionEvent} from '../../lib/events/app-event';
 import {BaseDataHandler, IDataHandler, DataCache, CacheResult} from './data-handler';
 
 import {RFIELD_MAP} from './field-map';
-import {IndicatorParamType, Param} from '../../app/service/model/indicator.model';
+import {IndicatorParamType, Param} from '../../../app/service/model/indicator.model';
 
-import {Common} from '../../app/utility/common';
+import {Common} from '../../../app/utility/common';
 
-import {Database} from '../lib/data-access/database';
+import {Database} from '../../lib/data-access/database';
 
 export class DataLoaderDataHandler extends BaseDataHandler {
     fields: Fields;
