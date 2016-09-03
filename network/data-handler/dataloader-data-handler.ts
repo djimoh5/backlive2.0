@@ -70,33 +70,38 @@ export class DataLoaderDataHandler extends BaseDataHandler {
         var date: number = dates.splice(0, 1)[0];
         var cnt: number = numFieldTypes;
         
-        console.log(date);
-        
-        for(var type in this.fields) {
-            var t = parseInt(type);
-            this.callDB(date, this.fields[type], t, function(vals: CacheResult, cacheType: number) {
-                if(self.ticker && date && Common.inArray(cacheType, self.nonTickerTypes)) {
-                    //set key for ticker to value so that equations can be calculated
-                    var tmpVals: CacheResult = { 0:vals[0] };
-                    var tkrs = toString.call(self.ticker) === "[object Array]" ? self.ticker : [self.ticker];
-                    
-                    for(var t = 0, tlen = tkrs.length; t < tlen; t++) {
-                        for(var key in vals) {
-                            tmpVals[<string> tkrs[t]] = vals[key];
+        if(date) {
+            console.log(date);
+            
+            for(var type in this.fields) {
+                var t = parseInt(type);
+                this.callDB(date, this.fields[type], t, function(vals: CacheResult, cacheType: number) {
+                    if(self.ticker && date && Common.inArray(cacheType, self.nonTickerTypes)) {
+                        //set key for ticker to value so that equations can be calculated
+                        var tmpVals: CacheResult = { 0:vals[0] };
+                        var tkrs = toString.call(self.ticker) === "[object Array]" ? self.ticker : [self.ticker];
+                        
+                        for(var t = 0, tlen = tkrs.length; t < tlen; t++) {
+                            for(var key in vals) {
+                                tmpVals[<string> tkrs[t]] = vals[key];
+                            }
                         }
-                    }
 
-                    self.cache[cacheType] = tmpVals;
-                }
-                else {
-                    self.cache[cacheType] = vals;
-                }
-                
-                if(--cnt == 0) {
-                    self.notify(new DataEvent({ cache: self.cache, allCacheKeys: self.allCacheKeys }));
-                    self.execute(dates, weeks);
-                }
-            }, !this.ticker || Common.inArray(parseInt(type), this.nonTickerTypes) ? null : this.ticker);
+                        self.cache[cacheType] = tmpVals;
+                    }
+                    else {
+                        self.cache[cacheType] = vals;
+                    }
+                    
+                    if(--cnt == 0) {
+                        self.notify(new DataEvent({ cache: self.cache, allCacheKeys: self.allCacheKeys }));
+                        self.execute(dates, weeks);
+                    }
+                }, !this.ticker || Common.inArray(parseInt(type), this.nonTickerTypes) ? null : this.ticker);
+            }
+        }
+        else {
+            console.log('DataLoader idle');
         }
     }
     

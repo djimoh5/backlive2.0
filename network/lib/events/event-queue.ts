@@ -1,4 +1,4 @@
-import {AppEvent} from './app-event';
+import {BaseEvent} from './app-event';
 import {Common} from '../../../app/utility/common';
 
 import {Observable} from 'rxjs/Observable';
@@ -6,17 +6,17 @@ import {Observer} from 'rxjs/Observer';
 import {Subscription} from 'rxjs/Subscription';
     
 export class EventQueue {
-    protected events: { [key: string]: Observable<AppEvent> } = {};
-    protected activators: { [key: string]: Observer<AppEvent> } = {};
+    protected events: { [key: string]: Observable<BaseEvent> } = {};
+    protected activators: { [key: string]: Observer<BaseEvent> } = {};
     protected subscribers: { [key: string]: { [key: string]: Subscription[] } } = {};
     
     constructor() {
     }
     
-    subscribe(eventType: typeof AppEvent, subscriberId: number | string, callback: Function, filter?: {}) {
+    subscribe(eventType: typeof BaseEvent, subscriberId: number | string, callback: Function, filter?: {}) {
         console.log(eventType.eventName, 'subcribed to by ' + subscriberId);
         var eventName = eventType.eventName;
-        var observable: Observable<AppEvent>;
+        var observable: Observable<BaseEvent>;
         
         if (!this.events[eventName]) {
             this.events[eventName] = observable = Observable.create(observer => {
@@ -33,7 +33,7 @@ export class EventQueue {
             this.subscribers[eventName][subscriberId] = [];
         }
         
-        this.subscribers[eventName][subscriberId].push(observable.subscribe((event: AppEvent) => {
+        this.subscribers[eventName][subscriberId].push(observable.subscribe((event: BaseEvent) => {
             callback(event);
         }));
     }
@@ -59,7 +59,7 @@ export class EventQueue {
         delete this.subscribers[eventName][subscriberId];
     }
 
-    notify(event: AppEvent) {
+    notify(event: BaseEvent) {
         var eventName = event.eventName;
         
         if (this.activators[eventName]) {

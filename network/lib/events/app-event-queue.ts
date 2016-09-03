@@ -1,5 +1,5 @@
 import {EventQueue} from './event-queue';
-import {AppEvent} from './app-event';
+import {BaseEvent} from './app-event';
 
 export class AppEventQueue extends EventQueue {
     private static eventQueue: AppEventQueue;
@@ -12,11 +12,11 @@ export class AppEventQueue extends EventQueue {
         AppEventQueue.eventQueue = new AppEventQueue();
     }
     
-    static subscribe(eventType: typeof AppEvent, subscriberId: string, callback: Function) {
+    static subscribe(eventType: typeof BaseEvent, subscriberId: string, callback: Function) {
         AppEventQueue.eventQueue.subscribe(eventType, subscriberId, callback);
     }
     
-    static notify(event: AppEvent) {
+    static notify(event: BaseEvent) {
         AppEventQueue.eventQueue.notify(event);
     }
 }

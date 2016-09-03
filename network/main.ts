@@ -28,7 +28,7 @@ new Network({
         "startYr":20100101,
         "endYr":20141231,
         "universeType":"stock",
-        "universeTkrs":{"incl":1,"tkrs":[]},
+        "universeTkrs":{"incl":1,"tkrs":['AAPL', 'GOOG', 'AMZN', 'MSFT']},
         "minMktCap":200,
         "adr":"1",
         "initCapt":585000,
