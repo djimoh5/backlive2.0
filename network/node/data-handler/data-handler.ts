@@ -1,8 +1,9 @@
 import {BaseNode} from '../base-node'
 
-export declare type ParamValue = {[key: string]: number};
-export declare type CacheResult = { [key: string]: (ParamValue | {[key: string]: ParamValue}) };
-export declare type DataCache = {[key: number]: CacheResult};
+export declare type ParamValues = { date: number; ticker: string; [key: string]: number | string};
+export declare type DataResult = { [key: string]: ParamValues };
+export declare type DateDataResult = { [key: number]: { [key: string]: ParamValues } };
+export declare type DataCache = {[key: number]: DataResult}; //number = IndicatorParamType
 
 export interface IDataHandler {
     init();

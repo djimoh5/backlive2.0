@@ -1,18 +1,16 @@
-import {DataCache, CacheResult} from '../../node/data-handler/data-handler';
+import {DataCache, DataResult} from '../../node/data-handler/data-handler';
 
 import {Ticker} from '../../../app/service/model/ticker.model';
-import {Param} from '../../../app/service/model/indicator.model';
+import {IndicatorParam} from '../../../app/service/model/indicator.model';
 
 function AppEvent(name: string) {
     return function (target: typeof BaseEvent) {
         target.eventName = name;
-        console.log(target);
     }
 }
 
 export class BaseEvent {
-    static get eventName() { return ''; };
-    static set eventName(eventName: string) { this.eventName = eventName; };
+    static eventName: string;
     eventName: string;
     data: any;
     
@@ -31,7 +29,21 @@ export class DataEvent extends BaseEvent {
 
 @AppEvent('Event.DataSubscription')
 export class DataSubscriptionEvent extends BaseEvent {
-    constructor(data: { params: Param[], startDate: number, endDate: number, entities: string[] }) {
+    constructor(data: { params: IndicatorParam[] }) {
+        super(data);
+    }
+}
+
+@AppEvent('Event.DataFilter')
+export class DataFilterEvent extends BaseEvent {
+    constructor(data: { startDate: number, endDate: number, entities?: string[] }) {
+        super(data);
+    }
+}
+
+@AppEvent('Event.IndicatorUpdate')
+export class IndicatorUpdateEvent extends BaseEvent {
+    constructor(data: { [key: string]: number }) {
         super(data);
     }
 }

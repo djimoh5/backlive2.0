@@ -1,14 +1,17 @@
 import {BaseNode} from '../base-node'
-import {DataEvent, DataSubscriptionEvent} from '../../lib/events/app-event';
+import {DataFilterEvent, IndicatorUpdateEvent} from '../../lib/events/app-event';
 
 import {Strategy as StrategyModel} from '../../../app/service/model/strategy.model';
-import {Operator, Indicator, Param} from '../../../app/service/model/indicator.model';
+import {Operator, Indicator as IndicatorModel, IndicatorParam} from '../../../app/service/model/indicator.model';
 import {Common} from '../../../app//utility/common';
 
-import {Calculator} from './calculator';
+import {DataCache} from '../../node/data-handler/data-handler';
+
+import {Indicator} from '../indicator/indicator'
+import {Calculator} from '../../lib/algorithm/calculator';
 
 export class Strategy extends BaseNode {
-    allIndicators: Indicator[];
+    allIndicators: IndicatorModel[];
     calculator: Calculator;
     
     constructor(private model: StrategyModel) {
@@ -16,15 +19,19 @@ export class Strategy extends BaseNode {
         var data = model.data;
         this.allIndicators = data.indicators.long.concat(data.indicators.short, data.exposure.long, data.exclusions);
         
-        this.calculator = new Calculator(this.allIndicators);
+        this.allIndicators.forEach(indModel => {
+            new Indicator(indModel);
+        })
         
-        this.subscribe(DataEvent, (event: DataEvent) => this.processData(event));
-        this.notify(new DataSubscriptionEvent({ params: this.calculator.getIndicatorParams(), startDate: data.startYr, endDate: data.endYr, 
+        this.calculator = new Calculator();
+        
+        this.subscribe(IndicatorUpdateEvent, (event: IndicatorUpdateEvent) => this.processIndicator(event));
+        this.notify(new DataFilterEvent({ startDate: data.startYr, endDate: data.endYr, 
             entities: (data.universeTkrs.incl === 1 && data.universeTkrs.tkrs && data.universeTkrs.tkrs.length > 0) ? data.universeTkrs.tkrs : null }));
     }
     
-    processData(event: DataEvent) {
-        console.log('Strategy received event');
+    processIndicator(event: IndicatorUpdateEvent) {
+        console.log('Strategy received an indicator update', event);
     }
     
     getModel() {

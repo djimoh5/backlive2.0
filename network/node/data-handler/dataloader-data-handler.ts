@@ -1,34 +1,38 @@
-import {DataEvent, DataSubscriptionEvent} from '../../lib/events/app-event';
-import {BaseDataHandler, IDataHandler, DataCache, CacheResult} from './data-handler';
+import {DataEvent, DataSubscriptionEvent, DataFilterEvent} from '../../lib/events/app-event';
+import {BaseDataHandler, IDataHandler, DataCache, DataResult, DateDataResult, ParamValues} from './data-handler';
 
 import {RFIELD_MAP} from './field-map';
-import {IndicatorParamType, Param} from '../../../app/service/model/indicator.model';
+import {IndicatorParamType, DENORM_PARAM_TYPES} from '../../../app/service/model/indicator.model';
 
 import {Common} from '../../../app/utility/common';
 
 import {Database} from '../../lib/data-access/database';
 
 export class DataLoaderDataHandler extends BaseDataHandler {
-    fields: Fields;
+    fields: Fields = {};
     ticker: string | string[];
     startDate: number;
     endDate: number;
     
-    useDenormTable: boolean = true;
-    denormParamTypes: IndicatorParamType[] = [IndicatorParamType.IncomeStatement, IndicatorParamType.BalanceSheet, IndicatorParamType.CashFlowStatement, IndicatorParamType.Statistic];	
-    tables = [ "", "is", "bs", "cf", "snt", "mos", "tech", "macro", "shrt_intr", "is_gr", "fs", "fi" ];
-    nonTickerTypes = [IndicatorParamType.Macro];
+    tables: string[] = [ "", "is", "bs", "cf", "snt", "mos", "tech", "macro", "shrt_intr", "is_gr", "fs", "fi" ];
+    nonTickerTypes: IndicatorParamType[] = [IndicatorParamType.Macro];
     
     cache: DataCache;
     allCacheKeys: string[] | number[];
     
     constructor() {
         super();
+        
         this.subscribe(DataSubscriptionEvent, (event: DataSubscriptionEvent) => {
+            //console.log('updating data subscriptions', event.data.params);
+            this.setFields(event.data.params);
+        });
+        
+        this.subscribe(DataFilterEvent, (event: DataFilterEvent) => {
+            //console.log('updating data filters', event.data.startDate, event.data.endDate);
             this.ticker = event.data.entities;
             this.startDate = event.data.startDate;
             this.endDate = event.data.endDate;
-            this.setFields(event.data.params);
         });
     }
     
@@ -46,6 +50,7 @@ export class DataLoaderDataHandler extends BaseDataHandler {
                         if(!results[i].hide) {
                             dates.push(parseInt(results[i].date.toString()));
                             weeks.push(results[i].wk);
+                            break;
                         }
                     }
                 }
@@ -73,10 +78,10 @@ export class DataLoaderDataHandler extends BaseDataHandler {
             
             for(var type in this.fields) {
                 var t = parseInt(type);
-                this.callDB(date, this.fields[type], t, function(vals: CacheResult, cacheType: number) {
+                this.callDB(date, this.fields[type], t, function(vals: DataResult, cacheType: number) {
                     if(self.ticker && date && Common.inArray(cacheType, self.nonTickerTypes)) {
                         //set key for ticker to value so that equations can be calculated
-                        var tmpVals: CacheResult = { 0:vals[0] };
+                        var tmpVals: DataResult = { 0:vals[0] };
                         var tkrs = toString.call(self.ticker) === "[object Array]" ? self.ticker : [self.ticker];
                         
                         for(var t = 0, tlen = tkrs.length; t < tlen; t++) {
@@ -138,9 +143,9 @@ export class DataLoaderDataHandler extends BaseDataHandler {
                     }
                     
                     collection.find(query, fields, function(err, cursor) {
-                        var vals: CacheResult = {};
+                        var vals: DataResult | DateDataResult = {};
 
-                        cursor.each(function(err, result) {
+                        cursor.each(function(err, result: ParamValues) {
                             if(result == null) {
                                 //console.log('Table Time', tables[type], (new Date()).getTime() - st);
     				            callback(vals, type);
@@ -150,8 +155,9 @@ export class DataLoaderDataHandler extends BaseDataHandler {
                                     if(!vals[result.date]) vals[result.date] = {};
                                     vals[result.date][result.ticker] = result;
                                 }
-                                else
+                                else {
                                     vals[result.ticker] = result;
+                                }
                                     
                                 self.allCacheKeys[result.ticker] = 1;
                             }
@@ -166,7 +172,7 @@ export class DataLoaderDataHandler extends BaseDataHandler {
                     var hint = query.ticker ? { hint:{ ticker:1, date:1 } } : { hint:{ date:1 } };
                     
                     collection.find(query, fields, hint, function(err, cursor) {
-            			var vals = {};
+            			var vals: DataResult = {};
     					
     					cursor.each(function(err, result) {
     					    if(result == null)
@@ -182,17 +188,15 @@ export class DataLoaderDataHandler extends BaseDataHandler {
 		});
 	}
 
-    setFields(params: [number, string][]) {
-        this.fields = {};
-        
+    private setFields(params: [number, string][]) {
     	for(var i = 0, cnt = params.length; i < cnt; i++) {
 			var type = params[i][0];
             var field = params[i][1];
             
-            if(type != IndicatorParamType.Constant) { // && (type != ParamType.Statistic || field != "price")) {
+            if(type != IndicatorParamType.Constant) {
                 var map: string = RFIELD_MAP[type] ? RFIELD_MAP[type][field] : null;
 
-                if(this.useDenormTable && Common.inArray(type, this.denormParamTypes)) {
+                if(Common.inArray(type, DENORM_PARAM_TYPES)) {
                     map = this.tables[type] + '_' + (map ? map : field);
                     type = IndicatorParamType.FinancialStatement;
                 }

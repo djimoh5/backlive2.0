@@ -14,7 +14,7 @@ export class EventQueue {
     }
     
     subscribe(eventType: typeof BaseEvent, subscriberId: number | string, callback: Function, filter?: {}) {
-        console.log(eventType.eventName, 'subcribed to by ' + subscriberId);
+        console.log(eventType.eventName, 'subscribed to by ' + subscriberId);
         var eventName = eventType.eventName;
         var observable: Observable<BaseEvent>;
         
@@ -65,6 +65,11 @@ export class EventQueue {
         if (this.activators[eventName]) {
             setTimeout(() => {
                 Common.log('EVENT: ' + eventName + ' fired');// with data', event.data);
+                
+                if(eventName === 'Event.Data') {
+                    console.log(this.subscribers[eventName])    
+                }
+                
                 this.activators[eventName].next(event);
             });
         }

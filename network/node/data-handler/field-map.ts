@@ -1,4 +1,4 @@
-export var FIELD_MAP = {
+export const FIELD_MAP = {
     1: { 
     'sales':'sales', 
     'netinc':'net income', 
@@ -251,7 +251,7 @@ export var FIELD_MAP = {
     }
 }
 //create reverse mapping
-export var RFIELD_MAP = {};
+export const RFIELD_MAP = {};
 
 for(var type in FIELD_MAP) {
     RFIELD_MAP[type] = {};
@@ -261,7 +261,7 @@ for(var type in FIELD_MAP) {
     }
 }
 
-export var DICTIONARY_MAP = {
+export const DICTIONARY_MAP = {
     1: { 
     'sales':'r/revenue.asp', 
     'netinc':'n/netincome.asp', 
