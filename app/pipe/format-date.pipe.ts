@@ -7,7 +7,7 @@ import {Common} from 'backlive/utility';
     pure: true
 })
 export class FormatDatePipe implements PipeTransform  {
-    private datePipe: DatePipe = new DatePipe();
+    private datePipe: DatePipe = new DatePipe('en-US');
 
     transform(value: any, pattern?: string, isTimestamp: boolean = false) : string {
         var date = isTimestamp ? new Date(value) : Common.parseDate(value);

@@ -1,4 +1,4 @@
-import {Component, Type, ComponentRef, DynamicComponentLoader, EventEmitter, ViewChild, ViewContainerRef} from '@angular/core';
+import {Component, Type, ComponentRef, ComponentFactoryResolver, EventEmitter, ViewChild, ViewContainerRef} from '@angular/core';
 import {Path} from 'backlive/config';
 import {Common} from 'backlive/utility';
 import {PlatformUI} from 'backlive/utility/ui';
@@ -10,15 +10,14 @@ import {AppService} from 'backlive/service';
 import {AppEvent} from 'backlive/service/model';
 
 @Component({
-    selector: 'ui-modal',
+    selector: 'backlive-modal',
     templateUrl: Path.ComponentView('shared/modal'),
-    styleUrls: [Path.ComponentStyle('shared/modal')],
-    directives: []
+    styleUrls: [Path.ComponentStyle('shared/modal')]
 })
 export class ModalComponent extends BaseComponent {
-    id: string = 'uiModal';
+    id: string = 'vnModal';
     options: ModalOptions;
-    componentLoader: DynamicComponentLoader;
+    componentResolver: ComponentFactoryResolver;
     platformUI: PlatformUI
 
     componentRefs: ComponentRef<any>[] = [];
@@ -26,12 +25,12 @@ export class ModalComponent extends BaseComponent {
     @ViewChild('modalbody', {read: ViewContainerRef}) modalbodyRef: ViewContainerRef;
     @ViewChild('modalfooter', {read: ViewContainerRef}) modalfooterRef: ViewContainerRef;
 
-    constructor (appService:AppService, componentLoader: DynamicComponentLoader, platformUI: PlatformUI) {
+    constructor(appService: AppService, componentResolver: ComponentFactoryResolver, platformUI: PlatformUI) {
         super(appService);
-        this.componentLoader = componentLoader;
+        this.componentResolver = componentResolver;
         this.platformUI = platformUI;
 
-        this.options = { body: '' };
+        this.options = { title: "BackLive" };
 
         this.subscribeEvent(AppEvent.OpenModal, (options: ModalOptions) => this.open(options));
         this.subscribeEvent(AppEvent.CloseModal, () => this.close());
@@ -49,11 +48,11 @@ export class ModalComponent extends BaseComponent {
         });
 
         if(options.body && !this.isString(options.body)) {
-            this.loadComponent(<Type> options.body, this.modalbodyRef, options.model);
+            this.loadComponent(<Type<any>> options.body, this.modalbodyRef, options.model);
         }
 
         if(options.footer && !this.isString(options.footer)) {
-            this.loadComponent(<Type> options.footer, this.modalfooterRef, options.model);
+            this.loadComponent(<Type<any>> options.footer, this.modalfooterRef, options.model);
         }
 
         this.platformUI.query('#' + this.id).modal('show');
@@ -63,29 +62,29 @@ export class ModalComponent extends BaseComponent {
         this.platformUI.query('#' + this.id).modal('hide');
     }
 
-    loadComponent(component: Type, viewContainerRef: ViewContainerRef, model: {}) {
-        this.componentLoader.loadNextToLocation(component, viewContainerRef).then(componentRef => {
-            if(model) {
-                for(var key in model) {
-                    componentRef.instance[key] = model[key];
-                }
+    loadComponent(component: Type<any>, viewContainerRef: ViewContainerRef, model: {}) {
+        var componentRef = viewContainerRef.createComponent(this.componentResolver.resolveComponentFactory(component));
+
+        if (model) {
+            for (var key in model) {
+                componentRef.instance[key] = model[key];
             }
-            
-            for(var key in componentRef.instance) {
-                if(componentRef.instance[key] instanceof EventEmitter) {
-                    componentRef.instance[key].subscribe(this.fireEvent(key));
-                }
+        }
+
+        for (var key in componentRef.instance) {
+            if (componentRef.instance[key] instanceof EventEmitter) {
+                componentRef.instance[key].subscribe(this.fireEvent(key));
             }
-            
-            if(componentRef.instance.ngOnInit) {
-                componentRef.instance.ngOnInit();
-            }
-            else if(componentRef.instance.ngOnChanges) {
-                componentRef.instance.ngOnChanges();
-            }
-            
-            this.componentRefs.push(componentRef);
-        });
+        }
+
+        if (componentRef.instance.ngOnInit) {
+            componentRef.instance.ngOnInit();
+        }
+        else if (componentRef.instance.ngOnChanges) {
+            componentRef.instance.ngOnChanges({});
+        }
+
+        this.componentRefs.push(componentRef);
     }
 
     submit () {
@@ -107,21 +106,23 @@ export class ModalComponent extends BaseComponent {
         return Common.isString(str);
     }
     
-    onBodyClick() {
+    onBodyClick(event: Event) {
         if(this.options.onBodyClick) {
-            this.options.onBodyClick();
+            this.options.onBodyClick(event);
             this.close();
         }
     }
 }
 
 export interface ModalOptions {
-    title?: string;
+    title: string;
     icon?: string;
-    body: string | Type;
-    footer?: string | Type;
+    body?: string | Type<any>;
+    footer?: string | Type<any>;
+    centerText?: boolean;
     model?: {};
     onSubmit?: Function;
     eventHandlers?: { [key:string]: Function };
     onBodyClick?: Function;
+    size?: string;  // large, full
 }

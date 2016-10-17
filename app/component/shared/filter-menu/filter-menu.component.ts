@@ -11,8 +11,7 @@ import {AppEvent} from 'backlive/service/model';
 @Component({
     selector: 'filter-menu',
     templateUrl: Path.ComponentView('shared/filter-menu'),
-    styleUrls: [Path.ComponentStyle('shared/filter-menu')],
-    directives: [SearchBoxDirective]
+    styleUrls: [Path.ComponentStyle('shared/filter-menu')]
 })
 export class FilterMenuComponent extends BaseComponent implements OnChanges {
     @Input() filters: Filter[];

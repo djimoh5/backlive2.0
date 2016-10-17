@@ -9,8 +9,7 @@ import {AppEvent, Indicator} from 'backlive/service/model';
 
 @Component({
     selector: 'app-strategy',
-    templateUrl: Path.ComponentView('backtest/strategy'),
-    directives: []
+    templateUrl: Path.ComponentView('backtest/strategy')
 })
 export class IndicatorComponent extends BaseComponent {
     compare: number = 2;

@@ -1,12 +1,33 @@
-@import "css/themes/colors.less";
+@import "/Content/themes/colors.less";
+
+.modal {
+    z-index: 9999;
+}
+
+.modal-dialog {
+    @media (min-width: 768px) {
+        &.large {
+            width: 900px;
+        }
+        &.full {
+            width: 95%;
+        }
+    }
+}
 
 .modal-header {
-    ui-icon {
+    vn-icon {
         color: @brand-primary;
         float: left;
         margin-top: 4px;
         margin-right: 10px;
         font-size: 1.2em;
+    }
+}
+
+.modal-body {
+    .center {
+        text-align: center;
     }
 }
 

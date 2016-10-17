@@ -1,20 +1,18 @@
 ﻿{
-	"compilerOptions": {
-		"target": "es5",
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"sourceMap": true,
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"removeComments": false,
-		"noImplicitAny": false,
-        "outDir": "../build"
-	},
-	"exclude": [
-		"node_modules",
-		"typings"
-	],
-    "angularCompilerOptions": {
-		"genDir": "../build"
-	}
+  "compileOnSave": true,
+  "compilerOptions": {
+    "target": "es5",
+    "module": "system",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "removeComments": true,
+    "noImplicitAny": false,
+    "outDir": "../build"
+  },
+  "exclude": [
+    "../node_modules",
+    "../typings"
+  ]
 }

@@ -1,7 +1,7 @@
 import {Component, Input, Output, OnChanges, EventEmitter, ElementRef, AfterViewInit, AfterViewChecked, OnInit} from '@angular/core';
 import {Path} from 'backlive/config';
 
-import {BaseComponent, FilterMenuComponent, Filter, FilterOption} from 'backlive/component/shared';
+import {BaseComponent, FilterOption} from 'backlive/component/shared';
 
 import {DatePickerDirective, InputFormatDirective, TooltipDirective} from 'backlive/directive';
 import {Common} from 'backlive/utility';
@@ -10,8 +10,7 @@ import {PlatformUI} from 'backlive/utility/ui';
 @Component({
     selector: 'ui-table',
     templateUrl: Path.ComponentView('shared/table'),
-    styleUrls: [Path.ComponentStyle('shared/table')],
-    directives: [DatePickerDirective, InputFormatDirective, FilterMenuComponent, TooltipDirective]
+    styleUrls: [Path.ComponentStyle('shared/table')]
 })
 export class TableComponent implements AfterViewChecked, OnChanges {
     @Input() tableRows: TableRow[];

@@ -6,15 +6,17 @@ export class TableBuilder {
 		var rows: TableRow[] = [];
         var footerRow: TableFooterColumn[] = [];
         var fieldIndex = {};
+        var fieldNames = [];
         var nextFieldIndex = 0;
 		var modelIndex = 0;
         
-        dataRows.forEach((dataRow) => {
+        dataRows.forEach(dataRow => {
             var row: TableRow = { columns: [], model: model[modelIndex], footerColumns: [] };
             
             for(var field in dataRow) {
-                if(typeof(fieldIndex[field]) == 'undefined') {
+                if(typeof(fieldIndex[field]) === 'undefined') {
                     fieldIndex[field] = nextFieldIndex++;
+                    fieldNames.push(field);
                 }
                 
                 var column;
@@ -24,7 +26,7 @@ export class TableBuilder {
                     column = dataRow[field];
                 }
                 else {
-                    column = { name: field, value: dataRow[field] != null ? dataRow[field] : ''};
+                    column = { name: field, value: dataRow[field] != null ? dataRow[field] : '' };
                 }
                 
                 if(options) {
@@ -53,11 +55,20 @@ export class TableBuilder {
             rows.push(row);
             modelIndex++;
         });
-        
+
+        rows.forEach(row => {
+            for (var i = 0; i < nextFieldIndex; i++) {
+                if (!row.columns[i]) {
+                    var column: any = { name: fieldNames[i], value: '' };
+                    row.columns[i] = column;
+                }
+            }
+        });
+  
         if(rows[0] && dataFooterRows.length > 0) {
             rows[0].footerColumns = TableBuilder.getFooterColumns(dataFooterRows, options);
         }
-        
+
 		return rows;
 	};
     

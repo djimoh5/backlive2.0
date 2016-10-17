@@ -3,11 +3,11 @@ declare var md5:any;
 declare var $: any;
 
 export class Cache {
-	static set (key: string, data: any, expirationInSeconds: number, subKey: string = '_') {
-		var encryptedKey = md5(key);
+	static set (key: string, data: any, expirationInSeconds: number, keyCategory: string = null, subKey: string = '_') {
+        var encryptedKey = this.getEncryptedKey(key, keyCategory);
         var currentData = $.jStorage.get(encryptedKey);
         
-        if(!currentData || $.type(currentData) == 'string') {
+        if(!currentData) {
             currentData = {};
         }
         
@@ -15,17 +15,27 @@ export class Cache {
         $.jStorage.set(encryptedKey, currentData, { TTL: expirationInSeconds * 1000 });
 	}
 	
-	static get (key: string, subKey: string = '_') {
-		var data = $.jStorage.get(md5(key));
+    static get(key: string, keyCategory: string = null, subKey: string = '_') {
+        var data = $.jStorage.get(this.getEncryptedKey(key, keyCategory));
         return data ? data[md5(subKey)] : null;
 	}
 	
-	static remove (key: string) {
-		$.jStorage.deleteKey(md5(key));
+    static remove(key: string, keyCategory: string = null) {
+        $.jStorage.deleteKey(this.getEncryptedKey(key, keyCategory));
 	}
 	
-	static flush () {
-		$.jStorage.flush();
+    static flush(keyCategory: string = null) {
+        if (keyCategory) {
+            var keys = $.jStorage.index();
+            keys.forEach(key => {
+                if (key.substring(0, keyCategory.length) === keyCategory) {
+                    $.jStorage.deleteKey(key);
+                }
+            });
+        }
+        else {
+            $.jStorage.flush();
+        }
 	}
 	
 	static size () {
@@ -34,5 +44,9 @@ export class Cache {
 	
 	static free () {
 		return $.jStorage.storageAvailable();
-	}
+    }
+
+    private static getEncryptedKey(key: string, keyCategory: string) {
+        return keyCategory ? `${keyCategory}${md5(key)}` : md5(key);
+    }
 }

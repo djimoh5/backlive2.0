@@ -5,26 +5,37 @@ import {Config} from 'backlive/config';
 import {PlatformUI} from './platform-ui';
 
 export class DomUI implements PlatformUI {
-    reload(path: string = null) {
-        window.location.href = Config.SITE_URL + (path ? ('/' + path) : '');
+    reload(path: string = null, event?: MouseEvent) {
+        if (!event || !(event.shiftKey || event.ctrlKey)) {
+            window.location.href = Config.SITE_URL + (path ? (path.substring(0, 1) === '/' ? path : `/${path}`) : '');
+        }
+        else {
+            this.open(path);
+        }
+    }
+
+    open(path: string = null) {
+        window.open(Config.SITE_URL + (path ? (path.substring(0, 1) === '/' ? path : `/${path}`) : ''));
     }
     
-    redirect(path: string = '') {
-        window.location.href = '/' + path;
+    redirect(path: string = '', event?: MouseEvent) {
+        if (!event || !(event.shiftKey || event.ctrlKey)) {
+            window.location.href = '/' + path;
+        }
+        else {
+            window.open('/' + path);
+        }
     }
     
     query(selector: any): any {
         return $(selector);
     }
     
-    collapseHeader(isCollapsed: boolean) {
-        if(isCollapsed) {
-            $('#mainContainer').addClass('collapsed');
+    hideHeader(isHidden: boolean) {
+        if (isHidden) {
             $('header-nav').addClass('hide');
-            
         }
         else {
-            $('#mainContainer').removeClass('collapsed');
             $('header-nav').removeClass('hide');
         }
     }
@@ -65,10 +76,24 @@ export class DomUI implements PlatformUI {
     
     scrollToTop(animationTime?:number) {
         if(animationTime) {
-            $("html,body").animate({ scrollTop: 0}, animationTime)
+            $('html,body').animate({ scrollTop: 0 }, animationTime);
         }
         else {
-            $('html,body').scrollTop(0)
+            $('html,body').scrollTop(0);
         }
+    }
+
+    scrollToItem(id: string) {
+        let el = document.getElementById(id);
+
+        if (el != null) {
+            var top = el.getBoundingClientRect().top;
+            $('html,body').scrollTop(top - 150);   
+        }
+    }
+
+    registerGlobalMethod(name: string, fn: any) {
+        // used for iframe interaction (ie FDFs)
+        window[name] = fn;
     }
 }

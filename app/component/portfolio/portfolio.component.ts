@@ -9,8 +9,7 @@ import {AppEvent} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-portfolio',
-    templateUrl: Path.ComponentView('portfolio'),
-    directives: []
+    templateUrl: Path.ComponentView('portfolio')
 })
 export class PortfolioComponent extends PageComponent {
     userService: UserService;

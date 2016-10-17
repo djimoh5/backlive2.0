@@ -23,8 +23,7 @@ import {PlatformUI} from 'backlive/utility/ui';
             <div class="panel-body">
                 <ng-content select="[body]"></ng-content>
             </div>
-        </div>`,
-    directives: []
+        </div>`
 })
 export class AccordionComponent extends BaseComponent implements AfterViewInit {
     @Input() expand: boolean;
@@ -89,8 +88,7 @@ export class AccordionComponent extends BaseComponent implements AfterViewInit {
     template: `
         <div class="panel-group" [id]="panelGroupId" role="tablist" aria-multiselectable="true">
             <ng-content></ng-content>
-        </div>`,
-    directives: []
+        </div>`
 })
 export class AccordionGroupComponent extends BaseComponent implements AfterContentInit {
     @Input() expand: boolean;

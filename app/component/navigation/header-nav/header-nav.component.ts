@@ -9,8 +9,7 @@ import {AppEvent, User} from 'backlive/service/model';
 
 @Component({
     selector: 'header-nav',
-    templateUrl: Path.ComponentView('navigation/header-nav'),
-    directives: []
+    templateUrl: Path.ComponentView('navigation/header-nav')
 })
 export class HeaderNavComponent extends BaseComponent {
     routerService: RouterService;

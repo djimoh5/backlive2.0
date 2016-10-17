@@ -3,6 +3,9 @@ import {Http, Headers, Response, RequestOptionsArgs, RequestMethod} from '@angul
 import {Observable} from 'rxjs/Observable';
 import {Cache, Common} from 'backlive/utility';
 
+import {AnalyticsService} from './analytics.service';
+import {AnalyticsEventCategory, AnalyticsTiming} from './model/analytics.model';
+
 @Injectable()
 export class ApiService {
     private TOKEN_CACHE_KEY: string = 'API_TOKEN';
@@ -11,7 +14,8 @@ export class ApiService {
     private token: string;
     
     get baseUrl(): string { return '/api/' };
-    get AuthorizationHeader(): { [key: string] : string }  { return this.getAuthorizatioHeader() };
+    get AuthorizationHeader(): { [key: string]: string }  { return this.getAuthorizatioHeader() };
+    get ApiCacheCategory(): string { return 'api' };
     
     constructor(http: Http) {
         this.http = http;
@@ -21,11 +25,11 @@ export class ApiService {
         this.token = token;
         
         if(token == null) {
-            Cache.remove(this.TOKEN_CACHE_KEY);
+            Cache.remove(this.TOKEN_CACHE_KEY, this.ApiCacheCategory);
         }
         else {
-            Cache.flush();
-            Cache.set(this.TOKEN_CACHE_KEY, this.token, 86400 * 30); //30 day token
+            Cache.flush(this.ApiCacheCategory);
+            Cache.set(this.TOKEN_CACHE_KEY, this.token, 86400 * 30, this.ApiCacheCategory); //30 day token
         }
     }
     
@@ -103,7 +107,7 @@ export class ApiService {
         }
         
         if(!this.token) {
-            this.token = Cache.get(this.TOKEN_CACHE_KEY);
+            this.token = Cache.get(this.TOKEN_CACHE_KEY, this.ApiCacheCategory);
         }
         
         if(this.token) {
@@ -114,6 +118,9 @@ export class ApiService {
     }
     
     private execute(request: ApiRequest): Observable<Response> {
+        if (!request.options.body) {
+            request.options.body = '';
+        }
         var observable: Observable<Response> = request.execute();
         observable['request'] = request;
         return observable;
@@ -141,5 +148,13 @@ class ApiRequest {
     complete() {
         var duration = new Date().getTime() - this.startTime;
         Common.log('API ' + this.options.method, this.url, this.options.body ? this.options.body : '', '- duration', duration, 'ms');
+
+        var timing: AnalyticsTiming = { category: AnalyticsEventCategory.api, variable: this.url, value: duration };
+
+        if (this.options.body) {
+            timing.label = this.options.body;
+        }
+
+        AnalyticsService.trackTiming(timing);
     }
 }

@@ -4,7 +4,7 @@ import {ApiService} from './api.service';
 import {UserService} from './user.service';
 import {AppEvent} from './model/app-event.model';
 
-import {RouteInfo, RouterService} from './router.service';
+import {RouteInfo, RouterService, RouteParamsCallback} from './router.service';
 
 import {Config} from 'backlive/config';
 import {Common, Cache} from 'backlive/utility';
@@ -16,30 +16,66 @@ export class PopupAlert {
 }
 
 @Injectable()
-export class AppService extends BaseService {
-    userService: UserService; //set by app component
-    routerService: RouterService;
-    platformUI: PlatformUI;
+export class AppService {
+    userService: UserService; //set by UserService to prevent circular reference
     
     Events: { [key: string]: { [key: string]: Function[] } };
+    private componentLoaded: boolean; //denotes when at least one component has loaded after routing
+    applicationState: ApplicationState;
+
+    protected get ServiceComponentId() { return 'service' };
     
-    constructor(apiService: ApiService, routerService: RouterService, platformUI: PlatformUI) {
-        super(apiService, null, null);
-        this.routerService = routerService;
-        this.platformUI = platformUI;
-        
+    constructor(public routerService: RouterService, private platformUI: PlatformUI) {
         this.Events = {};
+
+        this.routerService.subscribeToNavigationStart(() => {
+            this.componentLoaded = false;
+            this.notify(AppEvent.RouterLoading, true);
+        });
+
+        this.routerService.subscribeToUrl(() => {
+            this.notify(AppEvent.RouterLoading, false);
+        });
+    }
+
+    setComponentLoaded() {
+        if (!this.componentLoaded) {
+            this.componentLoaded = true;
+            this.notify(AppEvent.RouterLoading, false);
+        }
     }
     
     navigate(route: RouteInfo, params: {} = null, event: MouseEvent = null, queryParams: {} = {}) {
-        route.params = params ? params : {};
-        //route.params[Config.AccountRouteKey] = this.userService.user.accountNumber.toLowerCase();
-
-        this.routerService.navigate(route, event, queryParams);
+        params = this.setAccountIdParam(params);
+        this.routerService.navigate(route, params, event, queryParams);
         this.platformUI.scrollToTop();
     }
 
-    subscribeToParams(componentId: number, callback: Function) {
+    open(route: RouteInfo, params: {} = null, queryParams: {} = {}) {
+        params = this.setAccountIdParam(params);
+        this.routerService.open(route, params);
+    }
+
+    navigateExternal(route: RouteInfo, params: {} = null, event: MouseEvent = null) {
+        this.platformUI.reload(this.routerService.getLinkUrl(route, params, true), event);
+    }
+
+    openExternal(route: RouteInfo, params: {} = null) {
+        this.platformUI.open(this.routerService.getLinkUrl(route, params, true));
+    }
+
+    getLinkUrl(route: RouteInfo, params: {} = null, relativeToBase: boolean = false) {
+        params = this.setAccountIdParam(params);
+        return this.routerService.getLinkUrl(route, params, relativeToBase);
+    }
+
+    private setAccountIdParam(params: {} = null) {
+        params = params ? params : {};
+        params[Config.AccountRouteKey] = this.userService.user.accountNumber.toLowerCase();
+        return params;
+    }
+
+    subscribeToParams(componentId: number, callback: RouteParamsCallback) {
         this.routerService.subscribeToParams(componentId, callback);
     }
 
@@ -114,4 +150,9 @@ export class AppService extends BaseService {
             delete this.Events[eventName];
         }
     }
+}
+
+export interface ApplicationState {
+    case: Case;
+    applicant: Applicant;
 }

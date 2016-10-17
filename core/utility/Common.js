@@ -127,7 +127,7 @@ var Common = {
         else 
             sortDir = 1;
         
-        sort = sortArr.sort(function(a, b) {
+        var sort = sortArr.sort(function(a, b) {
             return (a.value - b.value) * sortDir;
         });
         

@@ -1,8 +1,23 @@
+/// <reference path="../../typings/index.d.ts" />
+
 import {Config} from '../config/config';
 
 declare var md5:any;
 declare var formatDate:any;
 declare var $: any;
+declare var _: any;
+
+if(typeof($) === 'undefined') {
+    
+}
+
+if(typeof(_) !== 'undefined') {
+    var _ = require('underscore');
+}
+
+if(typeof(md5) === 'undefined') {
+    var md5 = require('../../js/md5.min.js');
+}
 
 class DateFormat {
     static sqlDate = 'yyyy-MM-dd';
@@ -71,19 +86,19 @@ export class Common {
 	}
 
 	static inArray(item: any, arr: any[]) {
-		return $.inArray(item, arr) >= 0;
+		return arr.indexOf(item) > -1
 	}
 
 	static isString(data: any) {
-		return $.type(data) == 'string';
+		return _.isString(data);
 	}
 
 	static isArray(data: any) {
-		return $.type(data) == 'array';
+		return _.isArray(data);
 	}
 
 	static isObject(data: any) {
-		return $.type(data) == 'object';
+		return _.isObject(data);
     }
 
     static clone(target: {}, source: {}, deep: boolean = true) {

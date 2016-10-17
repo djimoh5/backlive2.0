@@ -1,9 +1,9 @@
 import {BaseModel} from './base.model';
 
 export class Indicator {
-    _id: string;
-    vars: (Indicator | Param)[] = [];
-    ops: Operator[];
+    _id: string = '';
+    vars: (Indicator | IndicatorParam)[] = [];
+    ops: Operator[] = [];
     
     allowNeg: number = 1;
     aggrType: string = 'val';
@@ -66,5 +66,6 @@ export enum IndicatorParamType {
     Constant = -1
 }
 
+export declare type IndicatorParam = [IndicatorParamType, string] | [IndicatorParamType, string, number /* Function enum */];
 
-export declare type Param = [number, string];
+export const DENORM_PARAM_TYPES: IndicatorParamType[] = [IndicatorParamType.IncomeStatement, IndicatorParamType.BalanceSheet, IndicatorParamType.CashFlowStatement, IndicatorParamType.Statistic];	

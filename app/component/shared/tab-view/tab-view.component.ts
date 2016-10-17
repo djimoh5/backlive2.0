@@ -55,8 +55,7 @@ export class TabContentComponent {
  
 @Component({
     selector: 'tab-view',
-    template: `<ng-content></ng-content>`,
-    directives: [TabComponent, TabContentComponent]
+    template: `<ng-content></ng-content>`
 })
 export class TabViewComponent extends BaseComponent implements AfterContentInit {
     @ContentChildren (TabComponent) tabList: QueryList<TabComponent>;

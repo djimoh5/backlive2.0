@@ -3,17 +3,26 @@ import {Indicator} from './indicator.model';
 import {Common} from 'backlive/utility';
 
 export interface Strategy {
-    _id: string;
+    _id?: string;
+    uid: string;
     name: string;
     date: number;
     type: StrategyType;
-    live: boolean;
-    indicators: { long: Indicator[], short: Indicator[] };
-    exposure: { long: Indicator[], short: Indicator[] };
+    live: number;  
+    
+    data: StrategyParams;
+    
+    //client-side
+    results?: Performance;
+}
+
+export interface StrategyParams {
+    indicators: any;//{ long: Indicator[], short: Indicator[] };
+    exposure: any;//{ long: Indicator[], short: Indicator[] };
     exclusions: Indicator[];
     
-    universeType: number;
-    universeTkrs: string[];
+    universeType: string;
+    universeTkrs: { incl:number, tkrs: string[] };
     
     //portfolio settings
     startYr: number,
@@ -24,18 +33,17 @@ export interface Strategy {
     numStocks: number;
     weight: number;
     rebalance: number;
-    sectNeutral: boolean;
+    sectNeutral: number;
     leverage: number;
     shortLeverage: number;
     stopLoss: number;
     posStopLoss: number;
     friction: number;
-    frictionType: number;
+    frictionType: string;
     benchmark: string;
     exclSectors: string[];
-    
-    //client-side
-    results: Performance;
+    adr: string;
+    date: number; //for screens only
 }
 
 export class Performance {

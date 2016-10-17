@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
 
 import {ApiService} from './api.service';
 import {AppService} from './app.service';
@@ -36,7 +37,7 @@ export class BaseService {
                 dataCacheKey = JSON.stringify(query);
             }
             
-            var cacheData = Cache.get(cacheKey, dataCacheKey);
+            var cacheData = Cache.get(cacheKey, this.apiService.ApiCacheCategory, dataCacheKey);
             
             if(cacheData) {
                 //Common.log('CACHE GET: ', cacheKey, cacheData);
@@ -85,8 +86,11 @@ export class BaseService {
     }
     
     private processResults(resolve: Function, observable: Observable<Response>, loadingShown: boolean = false) {
-        observable.subscribe(
-            (results: Response) => this.completeRequest(observable, () => resolve(results.json()), loadingShown),
+        var subscription: Subscription = observable.subscribe(
+            (results: Response) => this.completeRequest(observable, () => {
+                subscription.unsubscribe();
+                resolve(results.json());
+            }, loadingShown),
             (err: any) => this.completeRequest(observable, () => this.processError(err), loadingShown)
         );
     }
@@ -106,7 +110,7 @@ export class BaseService {
             Common.log(err);
             var res = err.json();
             
-            if(this.apiService.getToken() && res.message && res.message.indexOf('Authorization has been denied') >= 0) {
+            if((this.apiService.getToken() && res.message && res.message.indexOf('Authorization has been denied') >= 0) || Common.isDefined(res.isTrusted)) {
                 this.apiService.setToken(null);
                 this.appService.notify(AppEvent.ReloadApp);
             }
@@ -126,12 +130,12 @@ export class BaseService {
     }
     
     protected cacheResults(cacheKey: string, result: any, cacheExpiration: number, subKey: string) {
-        Cache.set(cacheKey, result, cacheExpiration, subKey);
+        Cache.set(cacheKey, result, cacheExpiration, this.apiService.ApiCacheCategory, subKey);
     }
     
     protected removeCache(endpoint: string) {
         var cacheKey = this.getCacheKey(endpoint);
-        Cache.remove(cacheKey);
+        Cache.remove(cacheKey, this.apiService.ApiCacheCategory);
         //Common.log('CACHE Flushed: ', cacheKey, data);
     }
     private getCacheKey(endpoint: string) {

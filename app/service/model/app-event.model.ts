@@ -8,6 +8,7 @@ export class AppEvent {
 	static SlidingNavVisible: string = 'Event.SlidingNavVisible';
 	static SlidingNavItems: string = 'Event.SlidingNavItems';
 	static PageLoading: string = 'Event.PageLoading';
+    static RouterLoading: string = 'Event.RouterLoading';
 	static OpenModal: string = 'Event.OpenModal';
     static CloseModal: string = 'Event.CloseModal';
     static MessageBar: string = 'Event.MessageBar';

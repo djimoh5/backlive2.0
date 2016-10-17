@@ -1,14 +1,10 @@
 ﻿import {Component} from '@angular/core';
 import {Path} from 'backlive/config';
+
 import {PageComponent, SearchBarComponent} from 'backlive/component/shared';
-import {FormatDatePipe} from 'backlive/pipe';
-import {JIsotopeDirective, DatePickerDirective} from 'backlive/directive';
+import {RadioButtonOption} from 'backlive/component/shared/ui';
 
 import {AppService, UserService, StrategyService} from 'backlive/service';
-
-import {StrategyComponent} from 'backlive/component/backtest';
-import {TickerComponent} from 'backlive/component/portfolio';
-import {RadioButtonComponent, RadioButtonOption} from 'backlive/component/shared/ui';
 
 import {Common} from 'backlive/utility';
 
@@ -17,9 +13,7 @@ import {AppEvent, Ticker, Strategy, Performance} from 'backlive/service/model';
 @Component({
     selector: 'app-dashboard',
     templateUrl: Path.ComponentView('dashboard'),
-    styleUrls: [Path.ComponentStyle('dashboard')],
-    directives: [StrategyComponent, TickerComponent, JIsotopeDirective, DatePickerDirective],
-    pipes: [FormatDatePipe]
+    styleUrls: [Path.ComponentStyle('dashboard')]
 })
 export class DashboardComponent extends PageComponent {
     strategyService: StrategyService;
@@ -84,6 +78,7 @@ export class DashboardComponent extends PageComponent {
             }
         });
         
+        console.log(JSON.stringify(this.liveStrategies[0]));
         console.log(this.liveStrategies, this.strategies);
         this.onDateChange(this.currentDateOption);
     }

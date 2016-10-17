@@ -8,8 +8,7 @@ import {AppEvent} from 'backlive/service/model';
 
 @Component({
     selector: 'search-bar',
-    templateUrl: Path.ComponentView('shared/search-bar'),
-    directives: []
+    templateUrl: Path.ComponentView('shared/search-bar')
 })
 export class SearchBarComponent extends BaseComponent  {
     @Input() placeholder: string;

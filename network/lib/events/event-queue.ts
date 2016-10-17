@@ -4,10 +4,11 @@ import {Common} from '../../../app/utility/common';
 import {Observable} from 'rxjs/Observable';
 import {Observer} from 'rxjs/Observer';
 import {Subscription} from 'rxjs/Subscription';
+import {Subject} from 'rxjs/Subject';
     
 export class EventQueue {
     protected events: { [key: string]: Observable<BaseEvent> } = {};
-    protected activators: { [key: string]: Observer<BaseEvent> } = {};
+    protected activators: { [key: string]: Subject<BaseEvent> } = {};
     protected subscribers: { [key: string]: { [key: string]: Subscription[] } } = {};
     
     constructor() {
@@ -20,7 +21,11 @@ export class EventQueue {
         
         if (!this.events[eventName]) {
             this.events[eventName] = observable = Observable.create(observer => {
-                this.activators[eventName] = observer;
+                if(!this.activators[eventName]) {
+                    this.activators[eventName] = new Subject<BaseEvent>();
+                }
+                
+                this.activators[eventName].subscribe(observer);
             });
             
             this.subscribers[eventName] = {};
@@ -64,7 +69,7 @@ export class EventQueue {
         
         if (this.activators[eventName]) {
             setTimeout(() => {
-                Common.log('EVENT: ' + eventName + ' fired');// with data', event.data);
+                //Common.log('EVENT: ' + eventName + ' fired');// with data', event.data);
                 
                 if(eventName === 'Event.Data') {
                     console.log(this.subscribers[eventName])    

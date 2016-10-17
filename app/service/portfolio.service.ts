@@ -4,7 +4,7 @@ import {ApiService} from './api.service';
 import {AppService} from './app.service';
 
 @Injectable()
-export class StrategyService extends BaseService {
+export class PortfolioService extends BaseService {
     constructor(apiService: ApiService, appService: AppService) {
         super(apiService, appService, 'portfolio');
     }

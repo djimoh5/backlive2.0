@@ -8,7 +8,7 @@ import {Common} from 'backlive/utility';
     pure: true
 })
 export class SqlDatePipe implements PipeTransform  {
-    private datePipe: DatePipe = new DatePipe();
+    private datePipe: DatePipe = new DatePipe('en-US');
 
     transform(value: any, pattern?: string) : string {
         var date = Common.parseDate(value);

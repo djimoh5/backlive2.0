@@ -1,4 +1,4 @@
-import {Component, ElementRef, Type, ComponentRef, DynamicComponentLoader, ViewChild, ViewContainerRef} from '@angular/core';
+import {Component, ElementRef, Type, ComponentRef, ComponentFactoryResolver, ViewChild, ViewContainerRef} from '@angular/core';
 import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
 import {TooltipDirective} from 'backlive/directive';
@@ -10,13 +10,10 @@ import {AppEvent} from 'backlive/service/model';
 @Component({
     selector: 'sliding-nav',
     templateUrl: Path.ComponentView('navigation/sliding-nav'),
-    styleUrls: [Path.ComponentStyle('navigation/sliding-nav')],
-    directives: [TooltipDirective]
+    styleUrls: [Path.ComponentStyle('navigation/sliding-nav')]
 })
 export class SlidingNavComponent extends BaseComponent {
     items: NavItem[];
-    componentLoader: DynamicComponentLoader;
-    elementRef: ElementRef;
     
     @ViewChild('component', {read: ViewContainerRef}) componentRef: ViewContainerRef;
     
@@ -24,10 +21,8 @@ export class SlidingNavComponent extends BaseComponent {
     isActive: boolean = false;
     isVisible: boolean = false;
     
-    constructor(appService:AppService, componentLoader: DynamicComponentLoader, elementRef: ElementRef) {
+    constructor(appService:AppService, private componentResolver: ComponentFactoryResolver, private elementRef: ElementRef) {
         super(appService);
-        this.componentLoader = componentLoader;
-        this.elementRef = elementRef;
         this.items = [];
         
         this.subscribeEvent(AppEvent.SlidingNavItems, (items: NavItem[]) => this.updateItems(items));
@@ -77,9 +72,7 @@ export class SlidingNavComponent extends BaseComponent {
             this.isActive = isActive;
             
             if(isActive) {
-                this.componentLoader.loadNextToLocation(navItem.component, this.componentRef).then(componentRef => {
-                    this.activeComponent = componentRef;
-                });
+                this.activeComponent = this.componentRef.createComponent(this.componentResolver.resolveComponentFactory(navItem.component));
             }
         }
         else {

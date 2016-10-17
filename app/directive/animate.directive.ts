@@ -1,5 +1,4 @@
-import {Directive, ElementRef, Input, OnChanges, HostBinding} from '@angular/core';
-//import {CssAnimationBuilder, CssAnimationOptions, Animation, BrowserDetails} from 'angular2/animate';
+import {Directive, ElementRef, Input, OnChanges, HostBinding, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {Common} from 'backlive/utility';
 import {PlatformUI} from 'backlive/utility/ui';
 
@@ -8,12 +7,14 @@ import {PlatformUI} from 'backlive/utility/ui';
 })
 export class AnimateDirective implements OnChanges {
     @Input('animate') animationType: string;
+    @Output('animateChange') animationTypeChange: EventEmitter<string> = new EventEmitter<string>();
+
     @Input() duration: number;
     @Input() infinite: boolean;
+    @Input() options: any = {};
     
     elementRef: ElementRef; 
     platformUI: PlatformUI;
-    //animationBuilder: CssAnimationBuilder;
     animationMap: AnimationMap = {};
     
     hideElement: boolean;
@@ -21,11 +22,12 @@ export class AnimateDirective implements OnChanges {
     constructor(elementRef: ElementRef, platformUI: PlatformUI) {
         this.elementRef = elementRef;
         this.platformUI = platformUI;
-        //this.animationBuilder = new CssAnimationBuilder(new BrowserDetails());
         
         //build animation type mapping
         this.animationMap[AnimationType.FadeIn] = () => this.fadeIn();
         this.animationMap[AnimationType.FadeOut] = () => this.fadeOut();
+        this.animationMap[AnimationType.FadeIn3D] = () => this.fadeIn3D();
+        this.animationMap[AnimationType.FadeOut3D] = () => this.fadeOut3D();
         this.animationMap[AnimationType.SlideDown] = () => this.slideDown();
         this.animationMap[AnimationType.SlideUp] = () => this.slideUp();
         this.animationMap[AnimationType.SlideInLeft] = () => this.slideInLeft();
@@ -36,11 +38,11 @@ export class AnimateDirective implements OnChanges {
         this.animationMap[AnimationType.BoingIn] = () => this.boingIn();
     }
     
-    @HostBinding('class.hide') get hide() {
+    @HostBinding('class.vn-animate-hidden') get hide() {
         return this.hideElement;
     }
     
-    ngOnChanges() {
+    ngOnChanges(simpleChanges: SimpleChanges) {
         if(this.animationType == AnimationType.Hide) {
             this.hideElement = true;
         }
@@ -50,72 +52,56 @@ export class AnimateDirective implements OnChanges {
             }
             
             this.animationMap[this.animationType]();
-            
-            /*this.animationBuilder.setDuration(this.duration ? this.duration : 500);
-            
-            var callback: Function = this.animationMap[this.animationType]();
-            var animation = this.animationBuilder.start(this.elementRef.nativeElement);
-            
-            if(callback) {
-                animation.onComplete(callback);
-            }*/
         }
     }
     
     fadeIn() {
-        //this.hideElement = false;
-        
         var $elem = this.platformUI.query(this.elementRef.nativeElement);
         $elem.css('opacity', 0);
-        $elem.removeClass('hide');
+        $elem.removeClass('hide').removeClass('vn-animate-hidden');
         $elem.animate({ 'opacity': 1 }, this.duration);
-        
-        //this.platformUI.query(this.elementRef.nativeElement).fadeIn(this.duration);
-        
-        /*this.animationBuilder.setFromStyles({ opacity: 0 });
-        this.animationBuilder.setToStyles({ opacity: 100 });*/
     }
     
     fadeOut() {
-        this.platformUI.query(this.elementRef.nativeElement).fadeOut();
-        
-        /*this.animationBuilder.setFromStyles({ opacity: 100 });
-        this.animationBuilder.setToStyles({ opacity: 0 });*/
+        var $elem = this.platformUI.query(this.elementRef.nativeElement);
+        $elem.animate({ 'opacity': 0 }, this.duration);
+    }
+
+    fadeIn3D() {
+        var elem = this.platformUI.query(this.elementRef.nativeElement).addClass('vn-animate-rotate3d').removeClass('hide');
+        setTimeout(() => {
+            this.platformUI.query(this.elementRef.nativeElement).removeClass('vn-animate-hide');
+        });
+    }
+
+    fadeOut3D() {
+        var elem = this.platformUI.query(this.elementRef.nativeElement).addClass('vn-animate-hide');
+        setTimeout(() => { elem.addClass('hide').addClass('vn-animate-rotate3d'); }, 700);
     }
     
     slideDown() {
         this.platformUI.query(this.elementRef.nativeElement).removeClass('hide').removeClass('hidden');
         this.platformUI.query(this.elementRef.nativeElement).slideDown();
-        
-        //need to get real height first
-        /*var position = this.platformUI.query(this.elementRef.nativeElement).css('position');
-        this.platformUI.query(this.elementRef.nativeElement).css({ position: 'absolute', visibility: 'hidden', height: 'auto' });
-        var height = this.platformUI.query(this.elementRef.nativeElement).height();
-        
-        this.animationBuilder.setFromStyles({ position: position, visibility: 'visible', overflow: 'hidden', height: 0 });
-        this.animationBuilder.setToStyles({ height: height + 'px' });
-        
-        return () => {
-            this.platformUI.query(this.elementRef.nativeElement).css({ height: 'auto' })
-        }*/
     }
     
     slideUp() {
         this.platformUI.query(this.elementRef.nativeElement).slideUp();
-        
-        /*var height = this.platformUI.query(this.elementRef.nativeElement).height();
-        this.animationBuilder.setFromStyles({ overflow: 'hidden', height: height + 'px' });
-        this.animationBuilder.setToStyles({ height: 0 });*/
     }
     
     slideInLeft() {
-        this.platformUI.query(this.elementRef.nativeElement).css({ position: 'relative', left: 2000 }, this.duration);
-        this.platformUI.query(this.elementRef.nativeElement).animate({ position: 'relative', left: 0 }, this.duration);
+        var startOffset = this.options.startOffset ? this.options.startOffset : 2000;
+        this.platformUI.query(this.elementRef.nativeElement).css({ position: 'relative', left: startOffset }, this.duration);
+        this.platformUI.query(this.elementRef.nativeElement).animate({ position: 'relative', left: 0 }, this.duration, () => {
+            this.animationTypeChange.emit(null);
+        });
     }
     
     slideInRight() {
-        this.platformUI.query(this.elementRef.nativeElement).css({ position: 'relative', left: -2000 }, this.duration);
-        this.platformUI.query(this.elementRef.nativeElement).animate({ position: 'relative', left: 0 }, this.duration);
+        var startOffset = this.options.startOffset ? (Math.abs(this.options.startOffset) * -1) : -2000;
+        this.platformUI.query(this.elementRef.nativeElement).css({ position: 'relative', left: startOffset }, this.duration);
+        this.platformUI.query(this.elementRef.nativeElement).animate({ position: 'relative', left: 0 }, this.duration, () => {
+            this.animationTypeChange.emit(null);
+        });
     }
     
     rotateOut() {
@@ -145,6 +131,8 @@ export class AnimateDirective implements OnChanges {
 export class AnimationType {
     static FadeIn = 'fadeIn';
     static FadeOut = 'fadeOut';
+    static FadeIn3D = 'fadeIn3D';
+    static FadeOut3D = 'fadeOut3D';
     static SlideDown = 'slideDown';
     static SlideUp = 'slideUp';
     static SlideInLeft= 'slideInLeft';

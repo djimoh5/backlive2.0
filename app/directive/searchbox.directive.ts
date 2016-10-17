@@ -6,7 +6,7 @@ import {PlatformUI} from 'backlive/utility/ui'
 })
 export class SearchBoxDirective implements OnInit {
     @Input('searchbox') throttle; //in milleseconds
-    @Output() search: EventEmitter<string> = new EventEmitter();
+    @Output() search: EventEmitter<string> = new EventEmitter<string>();
     elementRef: ElementRef;
     platformUI: PlatformUI;
     
@@ -30,7 +30,7 @@ export class SearchBoxDirective implements OnInit {
     onKeyup(event: Event) {
         this.searchKey = this.elementRef.nativeElement.value;
         
-        if(this.typingInterval == null) {
+        if (this.typingInterval == null && this.previousKey !== this.searchKey) {
             this.previousKey = this.searchKey;
             this.typingInterval = setInterval(() => this.onStopTyping(), this.throttle);
         }

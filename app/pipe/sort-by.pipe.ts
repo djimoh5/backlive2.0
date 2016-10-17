@@ -6,11 +6,11 @@ import {Pipe, PipeTransform} from '@angular/core';
 })
 export class SortByPipe implements PipeTransform  {
     transform(value: any, sortBy: string) : any[] {
-        var sortDesc = 1;
+        var sortAscFlag = 1;
 
         if(sortBy) {
             if(sortBy.substring(0, 1) == '-') {
-                sortDesc = -1;
+                sortAscFlag = -1;
                 sortBy = sortBy.substring(1);
             }
             
@@ -18,14 +18,14 @@ export class SortByPipe implements PipeTransform  {
                 var valA = this.valueFromKeyString(a, sortBy),
                     valB = this.valueFromKeyString(b, sortBy);
                 
-                if(valA == null) {
-                    return -1 * sortDesc;
+                if(valB == null) {
+                    return -1;
                 }
-                else if(valB == null) {
-                    return 1 * sortDesc;
+                else if(valA == null) {
+                    return 1;
                 }
                 else {
-                    return (valA <= valB ? -1 : 1) * sortDesc;
+                    return (valA <= valB ? -1 : 1) * sortAscFlag;
                 }
             });
         }
