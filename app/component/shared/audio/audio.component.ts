@@ -7,9 +7,8 @@ import {BaseComponent} from 'backlive/component/shared';
 import {AppEvent} from 'backlive/service/model';
 
 @Component({
-    selector: 'vn-audio',
-    templateUrl: Path.ComponentView('shared/audio'),
-    styleUrls: [Path.ComponentStyle('shared/audio')]
+    selector: 'backlive-audio',
+    templateUrl: Path.ComponentView('shared/audio')
 })
 export class AudioComponent extends BaseComponent implements OnInit, AfterViewInit {
     @Input() showControls: boolean;

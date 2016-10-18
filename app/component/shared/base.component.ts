@@ -13,11 +13,9 @@ export class BaseComponent implements OnDestroy  {
     constructor (appService: AppService) {
         this.appService = appService;
         this.componentId = ++BaseComponent.nextComponentId;
-        
-        console.log(this.constructor.toString().match(/\w+/g)[1]);
     }
     
-    subscribeEvent (eventName: string, callback: Function) {
+    subscribeEvent(eventName: string, callback: Function) {
         this.appService.subscribe(eventName, this.componentId, callback);
     }
 

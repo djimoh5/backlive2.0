@@ -11,7 +11,7 @@ import {Common} from 'backlive/utility';
 import {AppEvent, Ticker, Strategy, Performance} from 'backlive/service/model';
 
 @Component({
-    selector: 'app-dashboard',
+    selector: 'backlive-dashboard',
     templateUrl: Path.ComponentView('dashboard'),
     styleUrls: [Path.ComponentStyle('dashboard')]
 })

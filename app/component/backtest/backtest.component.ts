@@ -8,7 +8,7 @@ import {Route} from 'backlive/routes';
 import {AppEvent} from 'backlive/service/model';
 
 @Component({
-    selector: 'app-backtest',
+    selector: 'backlive-backtest',
     templateUrl: Path.ComponentView('backtest')
 })
 export class BacktestComponent extends PageComponent {

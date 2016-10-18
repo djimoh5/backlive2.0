@@ -71,7 +71,7 @@ export class AppService {
 
     private setAccountIdParam(params: {} = null) {
         params = params ? params : {};
-        params[Config.AccountRouteKey] = this.userService.user.accountNumber.toLowerCase();
+        params[Config.AccountRouteKey] = this.userService.user.username;
         return params;
     }
 

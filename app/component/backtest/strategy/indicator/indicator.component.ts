@@ -8,7 +8,7 @@ import {AppService, UserService} from 'backlive/service';
 import {AppEvent, Indicator} from 'backlive/service/model';
 
 @Component({
-    selector: 'app-strategy',
+    selector: 'backlive-indicator',
     templateUrl: Path.ComponentView('backtest/strategy')
 })
 export class IndicatorComponent extends BaseComponent {

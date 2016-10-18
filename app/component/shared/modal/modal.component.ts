@@ -10,7 +10,7 @@ import {AppService} from 'backlive/service';
 import {AppEvent} from 'backlive/service/model';
 
 @Component({
-    selector: 'backlive-modal',
+    selector: 'ui-modal',
     templateUrl: Path.ComponentView('shared/modal'),
     styleUrls: [Path.ComponentStyle('shared/modal')]
 })

@@ -2,21 +2,23 @@
 
 import {Config} from '../config/config';
 
-declare var md5:any;
-declare var formatDate:any;
+declare var md5: any;
+declare var formatDate: any;
 declare var $: any;
 declare var _: any;
 
-if(typeof($) === 'undefined') {
-    
-}
+if(typeof(require) !== 'undefined') {
+    if(typeof($) === 'undefined') {
+        
+    }
 
-if(typeof(_) !== 'undefined') {
-    var _ = require('underscore');
-}
+    if(typeof(_) !== 'undefined') {
+        _ = require('underscore');
+    }
 
-if(typeof(md5) === 'undefined') {
-    var md5 = require('../../js/md5.min.js');
+    if(typeof(md5) === 'undefined') {
+        md5 = require('../../js/md5.min.js');
+    }
 }
 
 class DateFormat {

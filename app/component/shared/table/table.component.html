@@ -7,16 +7,12 @@
             <tr>
                 <th *ngFor="let tableColumn of tableRows[0].columns; let j = index" [class.hidden]="isColumnHidden(j)" >
                     <span class="sorter">{{tableColumn.name}}</span>
-                    <dropdown-menu class="data-filter" (click)="filterClick($event, tableColumn.name)" *ngIf="tableColumn.filterable" title="" size="small" [class.active-data-filter]="isActiveFilter(tableColumn.name)" [class.empty-data-filter]="!isPopulatedFilter(tableColumn.name)" [activeFilter]="false" [autoClose]="false" icon="filter">
-                        <filter-menu [filters]="filters" [selectedName]="selectedTableColumnName" [isDataFilter]="true" (onChange)="filterData($event)"></filter-menu>
-                    </dropdown-menu>
                 </th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let tableRow of tableRows; let i = index" [class.hidden]="tableRow.hidden" [class.active]="isActive(tableRow)">
                 <td *ngFor="let tableColumn of tableRow.columns; let j = index" class="{{tableColumn.class}}" [class.hidden]="isColumnHidden(j)" [class.clickable]="tableColumn.clickable" (click)="cellClicked(tableRow, tableColumn, i, j, $event)">
-                    <profile-photo size="small" *ngIf="tableColumn.type == TableColumnType.ProfilePhoto" [profile]="tableColumn.value"></profile-photo>
                     <ui-icon *ngIf="tableColumn.type == TableColumnType.Icon" [type]="tableColumn.value.icon" [tooltip]="tableColumn.value.tooltip"></ui-icon>
                     <span [innerHtml]="getText(tableColumn)" *ngIf="isTextColumn(tableColumn.type)" [tooltip]="tableColumn.value.tooltip"></span>
                     <ui-button *ngIf="tableColumn.type == TableColumnType.Button" [type]="tableColumn.value.type">{{tableColumn.value.text}}</ui-button>
@@ -41,7 +37,6 @@
                         <div class="cell-header col-xs-4">{{tableColumn.name}}</div>
                         <div class="cell-text col-xs-8">
                             <span [innerHtml]="getText(tableColumn)" *ngIf="isTextColumn(tableColumn.type)"></span>
-                            <profile-photo size="small" *ngIf="tableColumn.type == TableColumnType.ProfilePhoto" [profile]="tableColumn.value"></profile-photo>
                             <ui-icon *ngIf="tableColumn.type == TableColumnType.Icon" [type]="tableColumn.value.icon"></ui-icon>
                             <ui-button *ngIf="tableColumn.type == TableColumnType.Button" [type]="tableColumn.value.type">{{tableColumn.value.text}}</ui-button>
                             <check-box *ngIf="tableColumn.type == TableColumnType.Checkbox" [(checked)]="tableColumn.value"></check-box>

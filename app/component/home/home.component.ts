@@ -5,7 +5,7 @@ import {AppService, UserService} from 'backlive/service';
 import {AppEvent} from 'backlive/service/model';
 
 @Component({
-    selector: 'vn-home',
+    selector: 'backlive-home',
     template: ``
 })
 export class HomeComponent {

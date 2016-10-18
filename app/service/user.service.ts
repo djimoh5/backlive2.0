@@ -10,6 +10,7 @@ export class UserService extends BaseService {
     
     constructor(apiService: ApiService, appService: AppService) {
         super(apiService, appService, 'user');
+        this.appService.userService = this;
     }
     
     getUser(){

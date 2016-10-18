@@ -9,8 +9,7 @@ import {AppEvent} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-research',
-    templateUrl: Path.Component('research/research.component.html'),
-    directives: []
+    templateUrl: Path.ComponentView('research')
 })
 export class ResearchComponent extends PageComponent {
     userService: UserService;

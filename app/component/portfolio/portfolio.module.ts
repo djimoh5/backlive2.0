@@ -1,15 +1,15 @@
 import { NgModule }       from '@angular/core';
 import { SharedModule } from 'backlive/module/shared';
+import { PortfolioSharedModule } from './shared/shared.module';
 
 import { PortfolioComponent } from './portfolio.component';
-import { TickerComponent } from './ticker/ticker.component';
 
 import { portfolioRouting } from './portfolio.routing';
 
 @NgModule({
     declarations: [
-        PortfolioComponent, TickerComponent
+        PortfolioComponent
     ],
-    imports: [SharedModule, portfolioRouting]
+    imports: [SharedModule, PortfolioSharedModule, portfolioRouting]
 })
 export class PortfolioModule {}

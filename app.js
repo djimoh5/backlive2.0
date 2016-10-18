@@ -34,14 +34,15 @@ app.use('/app', lessMiddleware('app', {
         importPaths: function(paths, req) { return '/'; } 
     }
 }));
-
-app.use('/home', express.static('home'));
 app.use('/css', lessMiddleware('css'));
-app.use('/view', express.static('view'));
-app.use('/js', express.static('js'));
+
 app.use('/app', express.static('app'));
 app.use('/app-design', express.static('app-design'));
 app.use('/node_modules', express.static('node_modules'));
+
+app.use('/home', express.static('home'));
+app.use('/view', express.static('view'));
+app.use('/js', express.static('js'));
 app.use('/css', express.static('css'));
 app.use('/images', express.static('images'));
 

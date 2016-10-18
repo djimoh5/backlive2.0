@@ -12,7 +12,6 @@ export class AppExceptionHandler extends ErrorHandler {
     handleError(error: any) {
         try {
             var exceptionStr = error;
-            console.error(exceptionStr);
 
             if (typeof (ga) !== 'undefined') {
                 ga('send', {

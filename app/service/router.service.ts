@@ -256,7 +256,7 @@ export class RouterService {
     }
 
     private updatePageTitle(pageTitle: string) {
-        this.titleService.setTitle(pageTitle ? ('BackLiver | ' + pageTitle) : 'BackLive');
+        this.titleService.setTitle(pageTitle ? ('BackLive | ' + pageTitle) : 'BackLive');
     }
 
     getLinkUrl(route: RouteInfo, params: {} = null, relativeToBase: boolean = false) {

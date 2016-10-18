@@ -5,7 +5,7 @@ import {BaseComponent} from 'backlive/component/shared';
 import {AppService} from 'backlive/service';
 
 @Component({
-    selector: 'vn-split-view',
+    selector: 'split-view',
     templateUrl: Path.ComponentView('shared/split-view'),
     styleUrls: [Path.ComponentStyle('shared/split-view')]
 })
