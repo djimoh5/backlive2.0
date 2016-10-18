@@ -1,6 +1,6 @@
 import {BaseModel} from './base.model';
 
-export class Indicator {
+export class Indicator extends BaseModel {
     _id: string = '';
     vars: (Indicator | IndicatorParam)[] = [];
     ops: Operator[] = [];
@@ -29,6 +29,7 @@ export class Indicator {
     //client-side only
     readonly: boolean = true;
     compareOn: boolean = false;
+    position: { x: number, y: number } = { x: 0, y: 0 };
 }
 
 export class SportsIndicator extends Indicator {

@@ -9,9 +9,10 @@ import {AppEvent, Indicator} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-indicator',
-    templateUrl: Path.ComponentView('backtest/strategy')
+    templateUrl: Path.ComponentView('backtest/indicator'),
+    styleUrls: [Path.ComponentStyle('backtest/indicator')]
 })
-export class IndicatorComponent extends BaseComponent {
+export class IndicatorComponent extends BaseComponent implements OnInit {
     compare: number = 2;
     level: number = 0;
     

@@ -8,7 +8,8 @@ import {AppEvent, Ticker, Price} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-ticker',
-    templateUrl: Path.ComponentView('portfolio/ticker')
+    templateUrl: Path.ComponentView('portfolio/ticker'),
+    styleUrls: [Path.ComponentStyle('portfolio/ticker')]
 })
 export class TickerComponent extends BaseComponent implements OnInit {
     @Input() ticker: string;

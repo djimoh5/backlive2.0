@@ -2,7 +2,7 @@
 
 search-bar {
     float:right;
-    padding:10px 15px;
+    padding: 12px 15px 0 15px;
     .form-group {
         position:relative;
         input {
@@ -28,7 +28,11 @@ ui-icon.hover span {
     }
     cursor: pointer;
 }
-
+.btn {
+    &:focus, &:hover, &:active {
+        outline: none !important;
+    }
+}
 .btn-runscreen {
     background: transparent url(../images/btn-runscreen-sm.png) 0 0 no-repeat;
 }

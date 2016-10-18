@@ -2,10 +2,10 @@ import {BaseModel} from './base.model';
 import {Indicator} from './indicator.model';
 import {Common} from 'backlive/utility';
 
-export interface Strategy {
-    _id?: string;
+export class Strategy extends BaseModel {
+    _id: string;
     uid: string;
-    name: string;
+    name: string = '';
     date: number;
     type: StrategyType;
     live: number;  
@@ -13,7 +13,7 @@ export interface Strategy {
     data: StrategyParams;
     
     //client-side
-    results?: Performance;
+    results: Performance;
 }
 
 export interface StrategyParams {

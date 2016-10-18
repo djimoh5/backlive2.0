@@ -1,20 +1,29 @@
-import {Component} from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
 
 import {AppService, UserService} from 'backlive/service';
 
-import {AppEvent, Indicator} from 'backlive/service/model';
+import {AppEvent, Indicator, Strategy} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-strategy',
-    templateUrl: Path.ComponentView('backtest/strategy')
+    templateUrl: Path.ComponentView('backtest/strategy'),
+    styleUrls: [Path.ComponentStyle('backtest/strategy')]
 })
-export class StrategyComponent extends BaseComponent {
+export class StrategyComponent extends BaseComponent implements OnInit {
+    @Input() strategy: Strategy;
+    @Output() strategyChange: EventEmitter<Strategy> = new EventEmitter<Strategy>();
+    
     indicators: Indicator[];
     
     constructor(appService: AppService) {
         super(appService);
+    }
+    
+    ngOnInit() {
+        this.strategy = new Strategy();
+        this.strategyChange.emit(this.strategy);
     }
     
     onReadOnlyChange(readonly: boolean, collection: Indicator[]) {

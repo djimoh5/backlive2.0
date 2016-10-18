@@ -2,15 +2,20 @@
 @import "css/themes/colors.less";
 
 .sidebar {
-	z-index:97;
+	z-index:998;
+    color: @text-primary;
+	width:40px;
+	height:100%;
+	position:fixed;
+	top: 50px;   
 	.icons {
 		float:left;
 		a {
-			cursor:pointer;
-			margin:5px 0 10px 0;
-			display:block;
-			padding:9px;
-			font-size:1.4em;
+			cursor: pointer;
+			margin: 12px 0;
+			display: block;
+			padding: 9px;
+			font-size: 1.7em;
 			ui-icon {
                 cursor: pointer;
 				color:lighten(#c5dbec, 10%);
@@ -25,23 +30,20 @@
 	}
 	.component {
 		float:right;
-		width:0;
-		visibility: hidden;
-		opacity: 0;
+        width:0;
+        visibility: hidden;
+        opacity: 0;
+        .transition(~"width .5s linear, visibility .5s linear, opacity .8s ease");
 	}
-
-	.transition(width .25s ease-out);
-	background:darken(@brand-primary, 15%);
-	color:#c5dbec;
-	width:40px;
-	height:100%;
-	position:fixed;
-	top: 50px;       
-	&.active {
-		width:300px;
-		.component {
-			visibility: visible;
-			opacity: 1;
-		}
-	}
+	.transition(~"width .25s ease-out, background-color .25s ease-out");
+	/*background:darken(@brand-primary, 15%);
+    background: rgba(0,0,0, 0.4);*/
+    &.active {
+        width:300px;
+        background: rgba(0,0,0, 0.8);
+        .component {
+            visibility: visible;
+            opacity: 1;
+        }
+    }
 }

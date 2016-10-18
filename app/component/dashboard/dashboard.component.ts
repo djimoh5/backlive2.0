@@ -16,8 +16,6 @@ import {AppEvent, Ticker, Strategy, Performance} from 'backlive/service/model';
     styleUrls: [Path.ComponentStyle('dashboard')]
 })
 export class DashboardComponent extends PageComponent {
-    strategyService: StrategyService;
-    
     liveStrategies: Strategy[];
     strategies: Strategy[];
     stratsById: {[key: string]: Strategy};
@@ -29,11 +27,10 @@ export class DashboardComponent extends PageComponent {
     customStartDate: number;
     customEndDate: number;
     
-    constructor(appService: AppService, strategyService: StrategyService) {
+    constructor(appService: AppService, private strategyService: StrategyService) {
         super(appService);
         
-        this.strategyService = strategyService;
-        this.strategyService.getBacktests().then((strategies: Strategy[]) => this.loadStrategies(strategies));
+        strategyService.getBacktests().then((strategies: Strategy[]) => this.loadStrategies(strategies));
         
         var items = [
             { icon: "search", component: SearchBarComponent },

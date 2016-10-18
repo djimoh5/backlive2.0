@@ -48,10 +48,10 @@ var uiComponents = [
 ];
 
 /* directives */
-import { AnimateDirective, DatePickerDirective, AutoCompleterDirective, FileUploaderDirective, TooltipDirective, ReadMoreDirective, SearchBoxDirective,
+import { AnimateDirective, JIsotopeDirective, DatePickerDirective, AutoCompleterDirective, FileUploaderDirective, TooltipDirective, ReadMoreDirective, SearchBoxDirective,
     InputFormatDirective, FocusDirective} from 'backlive/directive';
 
-var directives = [AnimateDirective, DatePickerDirective, AutoCompleterDirective, FileUploaderDirective, TooltipDirective, ReadMoreDirective, SearchBoxDirective,
+var directives = [AnimateDirective, JIsotopeDirective, DatePickerDirective, AutoCompleterDirective, FileUploaderDirective, TooltipDirective, ReadMoreDirective, SearchBoxDirective,
         InputFormatDirective, FocusDirective];
 
 /* pipes */
@@ -61,6 +61,7 @@ var pipes = [FormatDatePipe, SortByPipe];
 @NgModule({
     declarations: [...pipes, ...directives, ...uiComponents, ...sharedComponents],
     imports: importedModules,
-    exports: [...importedModules, ...pipes, ...directives, ...uiComponents, ...sharedComponents]
+    exports: [...importedModules, ...pipes, ...directives, ...uiComponents, ...sharedComponents],
+    entryComponents: [SearchBarComponent]
 })
 export class SharedModule {}

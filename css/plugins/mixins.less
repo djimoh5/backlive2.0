@@ -63,19 +63,21 @@
   }
 }
 
-.ie7-restore-right-whitespace() {
-  *margin-right: .3em;
-}
-
 // Sizing shortcuts
 // -------------------------
 .size(@height, @width) {
   width: @width;
   height: @height;
 }
-.square(@size) {
-  .size(@size, @size);
-}
+
+.background-transparent {
+    color: @white;
+    background-color: rgba(0,0,0, 0.4);
+    &.active, &:hover {
+        background-color: rgba(0,0,0, 0.75);
+    }
+    .transition(background-color .5s ease-out);
+};
 
 // Placeholder text
 // -------------------------

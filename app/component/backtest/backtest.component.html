@@ -1,3 +1,13 @@
 <div [animate]="pageAnimation">
-	<h1>Backtest</h1>
+    <div class="center-strategy">
+        <backlive-strategy [(strategy)]="strategy"></backlive-strategy>
+        <ui-button type="submit" width="100%" class="add-indicator" *ngIf="strategy?.name" (click)="addIndicator()">
+            Add an Indicator
+        </ui-button>
+    </div>
+    
+    <backlive-indicator *ngFor="let indicator of indicators" [indicator]="indicator" 
+        [style.margin-left.px]="indicator.position.x" 
+        [style.margin-top.px]="indicator.position.y">
+    </backlive-indicator>
 </div>
