@@ -1,4 +1,4 @@
-import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
+import {Component, Input, Output, OnInit, EventEmitter, ElementRef} from '@angular/core';
 import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
 
@@ -23,13 +23,17 @@ export class IndicatorComponent extends BaseComponent implements OnInit {
     @Output() readOnlyChange: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() groupIndicator: EventEmitter<boolean> = new EventEmitter<boolean>();
       
-    constructor(appService: AppService) {
+    constructor(appService: AppService, private elementRef: ElementRef) {
         super(appService);
     }
     
     ngOnInit() {
     }
 
+    getElement() {
+        return this.elementRef.nativeElement;
+    }
+    
     toggleReadOnly() {
         this.indicator.readonly = !this.indicator.readonly;
         this.toggleChildren(<Indicator[]> this.indicator.vars, this.indicator.readonly);

@@ -21,13 +21,12 @@ nav {
 }
 .navbar-default {
     background: none;
-    .background-transparent;
-    /*background: #12455a;
-    border-bottom:1px solid #000;
-    .box-shadow(0 2px 1px #555);
-    #gradient > .vertical (#0c3e53, #0c3241);*/
+    /*.background-transparent;*/
+    &.active, &:hover {
+        background-color: rgba(0,0,0, 0.5);
+    }
+    .transition(background-color .5s ease-out);
     .navbar-header .navbar-toggle {
-        /*border-color:darken(#12455a, 10%);*/
         &:hover, &:active, &:focus {
             .btn-primary;
         }

@@ -1,13 +1,15 @@
 <div [animate]="pageAnimation">
+    <svg>
+        <path *ngFor="let indicator of indicators" [attr.d]="getLine(indicator)" stroke="#12455a" stroke-width="2" />
+    </svg>
+    <backlive-indicator *ngFor="let indicator of indicators" [indicator]="indicator"
+        [style.margin-left]="indicator.position.x + '%'" 
+        [style.margin-top.px]="indicator.position.y">
+    </backlive-indicator>
     <div class="center-strategy">
-        <backlive-strategy [(strategy)]="strategy"></backlive-strategy>
+        <backlive-strategy #strategyComponent [(strategy)]="strategy"></backlive-strategy>
         <ui-button type="submit" width="100%" class="add-indicator" *ngIf="strategy?.name" (click)="addIndicator()">
             Add an Indicator
         </ui-button>
     </div>
-    
-    <backlive-indicator *ngFor="let indicator of indicators" [indicator]="indicator" 
-        [style.margin-left.px]="indicator.position.x" 
-        [style.margin-top.px]="indicator.position.y">
-    </backlive-indicator>
 </div>

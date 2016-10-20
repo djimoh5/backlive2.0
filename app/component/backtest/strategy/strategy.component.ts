@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 import {Path} from 'backlive/config';
 import {BaseComponent} from 'backlive/component/shared';
 
@@ -17,13 +17,17 @@ export class StrategyComponent extends BaseComponent implements OnInit {
     
     indicators: Indicator[];
     
-    constructor(appService: AppService) {
+    constructor(appService: AppService, private elementRef: ElementRef) {
         super(appService);
     }
     
     ngOnInit() {
         this.strategy = new Strategy();
         this.strategyChange.emit(this.strategy);
+    }
+    
+    getElement() {
+        return this.elementRef.nativeElement;
     }
     
     onReadOnlyChange(readonly: boolean, collection: Indicator[]) {

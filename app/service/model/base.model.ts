@@ -3,4 +3,5 @@ export class BaseModel {
     isFiltered: boolean = false;
     hidden: boolean = false;
     error: string = null;
+    interval: any;
 }
