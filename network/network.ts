@@ -1,5 +1,4 @@
 /// <reference path="../typings/index.d.ts" />
-var md5 = require('../js/md5.min.js');
 
 import {BaseNode} from './node/base-node';
 import {AppEventQueue} from './lib/events/app-event-queue';

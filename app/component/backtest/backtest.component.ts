@@ -60,10 +60,10 @@ export class BacktestComponent extends PageComponent implements OnInit {
         
             clearInterval(indicator.interval);
             indicator.interval = setInterval(() => {
-                angle++;
+                angle += .2;
                 indicator.position.x = radiusPercent * Math.cos(angle / 180 * Math.PI);
                 indicator.position.y = radius * Math.sin(angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30;
-            }, 100);
+            }, 10);
         });
     }
     
@@ -80,13 +80,14 @@ export class BacktestComponent extends PageComponent implements OnInit {
            { x: centerX, y: centerY - 30 }
         ];
         
-        console.log(lineData);
+       //console.log(lineData);
         
-        var lineFunction = d3.line()
-                             .x(function(d) { return d.x; })
-                             .y(function(d) { return d.y; });
-       
-       console.log(lineFunction(lineData));
-       return lineFunction(lineData);
+        var line = d3.line()
+                        .x(function(d) { return d.x; })
+                        .y(function(d) { return d.y; })
+                        .curve(d3.curveBundle.beta(1));
+
+       //console.log(lineFunction(lineData));
+       return line(lineData);
     }
 }

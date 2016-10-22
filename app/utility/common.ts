@@ -12,7 +12,7 @@ if(typeof(require) !== 'undefined') {
         
     }
 
-    if(typeof(_) !== 'undefined') {
+    if(typeof(_) === 'undefined') {
         _ = require('underscore');
     }
 

@@ -70,11 +70,6 @@ export class EventQueue {
         if (this.activators[eventName]) {
             setTimeout(() => {
                 //Common.log('EVENT: ' + eventName + ' fired');// with data', event.data);
-                
-                if(eventName === 'Event.Data') {
-                    console.log(this.subscribers[eventName])    
-                }
-                
                 this.activators[eventName].next(event);
             });
         }

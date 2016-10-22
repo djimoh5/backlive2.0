@@ -52,3 +52,6 @@ var server = app.listen(8080, function () {
     var port = server.address().port;
     console.log('BackLive listening at http://%s:%s', host, port);
 });
+
+// init network
+require('child_process').fork('network/main.ts');
