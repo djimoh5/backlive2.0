@@ -1,11 +1,15 @@
-var io = require('socket.io');
-
+var io;
 function init(server) {
-    io = io.listen(server);
+    io = require('socket.io')(server);
     
     //initialize sockets
-    io.set('log level', 1);
-    io.sockets.on('connection', function(socket) {
+    io.on('connection', function(socket) {
+        console.log('connected socket');
+        socket.on('Event.ExecuteStrategy', function(res) {
+            console.log(res);
+            socket.emit('Event.StrategyUpdateEvent', 'hi, this is the server!');
+        });
+
         socket.on('realtimeprice', function(tkr) {
             request(socket, 'realtimeprice', 'yahoo/realtimeprice/' + tkr);
         });
@@ -41,7 +45,7 @@ function initBroadcasts() {
 }
 
 function request(socket, socketEvent, path, data) {
-    controller.init(('api/' + path).split('/'), data ? { data:JSON.stringify(data) } : {}, null, null, socket, socketEvent);
+    //controller.init(('api/' + path).split('/'), data ? { data:JSON.stringify(data) } : {}, null, null, socket, socketEvent);
 }
 
 function getSocket(id) {

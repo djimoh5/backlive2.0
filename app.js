@@ -48,8 +48,8 @@ var server = app.listen(8080, function () {
 });
 
 //init socket handler
-//var sockethandler = require('./core/sockethandler');
-//sockethandler.init(server);
+var sockethandler = require('./core/sockethandler');
+sockethandler.init(server);
 
 // init network
-require('child_process').fork('network/main.ts');
+//require('child_process').fork('network/main.ts');

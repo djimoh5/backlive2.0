@@ -4,7 +4,8 @@ import {BaseComponent} from 'backlive/component/shared';
 
 import {AppService, UserService} from 'backlive/service';
 
-import {Indicator, Strategy} from 'backlive/service/model';
+import { Indicator, Strategy } from 'backlive/service/model';
+import { ExecuteStrategyEvent, StrategyUpdateEvent } from 'backlive/event';
 
 @Component({
     selector: 'backlive-strategy',
@@ -19,6 +20,8 @@ export class StrategyComponent extends BaseComponent implements OnInit {
     
     constructor(appService: AppService, private elementRef: ElementRef) {
         super(appService);
+        this.subscribeEvent(StrategyUpdateEvent, msg => console.log(msg));
+        this.appService.notify(new ExecuteStrategyEvent(new Strategy()));
     }
     
     ngOnInit() {

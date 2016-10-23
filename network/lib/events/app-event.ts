@@ -3,20 +3,25 @@ import {DataCache, DataResult} from '../../node/data-handler/data-handler';
 import {Ticker} from '../../../app/service/model/ticker.model';
 import {IndicatorParam} from '../../../app/service/model/indicator.model';
 
-export function AppEvent(name: string) {
+export function AppEvent(name: string, isServer: boolean = false) {
     return function (target: typeof BaseEvent) {
         target.eventName = name;
+        target.isServer = isServer;
     }
 }
 
 export class BaseEvent {
     static eventName: string;
+    static isServer: boolean;
+
     eventName: string;
+    isServer: boolean;
     data: any;
     
     constructor(data: any) {
         this.data = data;
         this.eventName = (<typeof BaseEvent> this.constructor).eventName;
+        this.isServer = (<typeof BaseEvent> this.constructor).isServer;
     }
 }
 

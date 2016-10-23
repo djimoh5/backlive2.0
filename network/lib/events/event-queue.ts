@@ -5,11 +5,18 @@ import {Observable} from 'rxjs/Observable';
 import {Observer} from 'rxjs/Observer';
 import {Subscription} from 'rxjs/Subscription';
 import {Subject} from 'rxjs/Subject';
+
+declare var io;
+
+interface Socket {}
     
 export class EventQueue {
     protected events: { [key: string]: Observable<BaseEvent> } = {};
     protected activators: { [key: string]: Subject<BaseEvent> } = {};
     protected subscribers: { [key: string]: { [key: string]: Subscription[] } } = {};
+
+    protected sockets: { [key: string]: Socket };
+    protected socket = io();
     
     constructor() {
     }
@@ -33,6 +40,15 @@ export class EventQueue {
             });
             
             this.subscribers[eventName] = {};
+
+            if(eventType.isServer) {
+                console.log(`registering server event ${eventName}`);
+                this.socket = this.socket || io();
+                this.socket.on(eventName, (data) => {
+                    console.log(`received server event ${eventName}`);
+                    this.notify(new eventType(data));
+                });
+            }
         }
         else {
             observable = this.events[eventName];
@@ -70,15 +86,21 @@ export class EventQueue {
 
     notify(event: BaseEvent) {
         var eventName = event.eventName;
+        var sent: boolean;
         console.log(event);
         
         if (this.activators[eventName]) {
+            sent = true;
             setTimeout(() => {
                 //Common.log('EVENT: ' + eventName + ' fired');// with data', event.data);
                 this.activators[eventName].next(event);
             });
         }
-        else {
+        
+        if(event.isServer) {
+            this.socket.emit(eventName, event);
+        }
+        else if(!sent) {
             Common.log('EVENT: ' + eventName + ' has no subscribers');
         }
     }

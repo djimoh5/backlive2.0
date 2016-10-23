@@ -1,8 +1,6 @@
 import {Directive, ElementRef, EventEmitter, Input, Output, OnChanges, SimpleChanges} from '@angular/core';
 import {ApiService} from 'backlive/service';
 
-console.log(ApiService);
-
 import {Common} from 'backlive/utility';
 import {PlatformUI} from 'backlive/utility/ui';
 
