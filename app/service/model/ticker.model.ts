@@ -14,3 +14,10 @@ export interface Price {
     adjClose: number;
     volume: number;
 }
+
+export interface LastPrice {
+    ticker: string,
+    price: number;
+    change: number;
+    percentChange: number;
+}

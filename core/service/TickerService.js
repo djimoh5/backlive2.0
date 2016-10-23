@@ -89,10 +89,11 @@ function TickerService(session) {
                     var chng = parseFloat(line[2].trim());
                     var perChng = parseFloat(line[3].trim().replace(/[()]/g, ''));
                     
-                    tkrPrices[tkr] = { ticker: tkr, price:price, chng: chng, perChng: perChng  };
+                    tkrPrices[tkr] = { ticker: tkr, price: price, change: chng, percentChange: perChng  };
                 }
             }
             
+            console.log(tkrPrices);
             self.done(tkrPrices);
         });
         

@@ -1,15 +1,23 @@
-import {Component} from '@angular/core';
-import {Path} from 'backlive/config';
-import {BaseComponent} from 'backlive/component/shared';
+import { Component, OnInit, SimpleChanges } from '@angular/core';
+import { Path } from 'backlive/config';
+import { BaseComponent } from 'backlive/component/shared';
 
-import {AppService} from 'backlive/service';
+import { AppService } from 'backlive/service';
+
+import { TickerLastPriceEvent } from 'backlive/event';
 
 @Component({
     selector: 'footer-nav',
     templateUrl: Path.ComponentView('navigation/footer-nav')
 })
-export class FooterNavComponent extends BaseComponent {
-    constructor (appService:AppService) {
+export class FooterNavComponent extends BaseComponent implements OnInit {
+    constructor (appService: AppService) {
         super(appService);
+    }
+
+    ngOnInit() {
+        this.subscribeEvent(TickerLastPriceEvent, (event: TickerLastPriceEvent) => {
+            console.log(event);
+        });
     }
 }

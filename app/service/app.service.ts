@@ -12,17 +12,25 @@ import { PlatformUI } from 'backlive/utility/ui';
 import { EventQueue, BaseEvent } from 'backlive/network/event';
 import { RouterLoadingEvent } from 'backlive/event';
 
+declare var io;
+
 @Injectable()
 export class AppService {
     userService: UserService; //set by UserService to prevent circular reference
     
     private eventQueue: EventQueue;
-    private componentLoaded: boolean; //denotes when at least one component has loaded after routing
+    private socket: Socket;
 
+    private componentLoaded: boolean; //denotes when at least one component has loaded after routing
     protected get ServiceComponentId() { return 'service' };
     
     constructor(public routerService: RouterService, private platformUI: PlatformUI) {
         this.eventQueue = new EventQueue();
+        this.socket = io();
+
+        this.socket.on(Config.SocketEventQueue, (event: BaseEvent) => {
+            this.notify(event);
+        });
 
         this.routerService.subscribeToNavigationStart(() => {
             this.componentLoaded = false;
@@ -77,9 +85,18 @@ export class AppService {
     
     notify(event: BaseEvent) {
         this.eventQueue.notify(event);
+
+        if(event.isServer) {
+            this.socket.emit(Config.SocketEventQueue, event);
+        }
     }
     
     unsubscribe(componentId: number, eventType?: typeof BaseEvent) {
         this.eventQueue.unsubscribe(componentId, eventType);
     }
+}
+
+export interface Socket {
+    on: (eventName: string, callback: (data: BaseEvent) => void) => void;
+    emit: (eventName: string, data: any) => void;
 }

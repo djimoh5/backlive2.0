@@ -19,6 +19,7 @@ export class Path {
 export class Config {
     static Development: boolean = WEB_CONFIG.Development;
     static AccountRouteKey: string = 'loginAccountId';
+	static SocketEventQueue: string = 'socketEventQueue';
 
     static SITE_URL: string = '';
     static BASE_URL: string = WEB_CONFIG.BaseUrl;

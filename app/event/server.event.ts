@@ -1,5 +1,5 @@
 import { AppEvent, BaseEvent } from 'backlive/network/event';
-import { Strategy } from 'backlive/service/model';
+import { Strategy, LastPrice } from 'backlive/service/model';
 
 @AppEvent('Event.ExecuteStrategy', true)
 export class ExecuteStrategyEvent extends BaseEvent {
@@ -9,4 +9,9 @@ export class ExecuteStrategyEvent extends BaseEvent {
 @AppEvent('Event.StrategyUpdate', true)
 export class StrategyUpdateEvent extends BaseEvent {
     constructor(data: number) { super(data); }
+}
+
+@AppEvent('Event.TickerLastPrice', true)
+export class TickerLastPriceEvent extends BaseEvent {
+    constructor(data: { [key: string] : LastPrice }) { super(data); }
 }
