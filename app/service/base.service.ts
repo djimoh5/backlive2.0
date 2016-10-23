@@ -7,7 +7,8 @@ import {ApiService} from './api.service';
 import {AppService} from './app.service';
 import {Config} from 'backlive/config';
 import {Cache, Common} from 'backlive/utility';
-import {AppEvent} from './model/app-event.model';
+
+import { PageLoadingEvent, ReloadAppEvent, OpenModalEvent, MessageBarEvent } from 'backlive/event';
 
 @Injectable()
 export class BaseService {
@@ -58,7 +59,7 @@ export class BaseService {
 
     protected post(endpoint: string, data: Object, suppressPageLoadingEvent: boolean=false) {
         if (!suppressPageLoadingEvent) {
-            this.appService.notify(AppEvent.PageLoading, true);
+            this.appService.notify(new PageLoadingEvent(true));
         }
         
         return this.createPromise(this.apiService.post(this.endpoint(endpoint), data), !suppressPageLoadingEvent);
@@ -66,14 +67,14 @@ export class BaseService {
     
     protected put(endpoint: string, id: string, data: Object, suppressPageLoadingEvent: boolean=false) {
         if (!suppressPageLoadingEvent) {
-            this.appService.notify(AppEvent.PageLoading, true);
+            this.appService.notify(new PageLoadingEvent(true));
         }
         
         return this.createPromise(this.apiService.put(this.endpoint(endpoint), id, data), !suppressPageLoadingEvent);
     }
     
     protected delete(endpoint: string) {
-        this.appService.notify(AppEvent.PageLoading, true);
+        this.appService.notify(new PageLoadingEvent(true));
         return this.createPromise(this.apiService.delete(this.endpoint(endpoint)), true);
     }
     
@@ -99,7 +100,7 @@ export class BaseService {
         observable['request'].complete();
         
         if (loadingShown) {
-            this.appService.notify(AppEvent.PageLoading, false);
+            this.appService.notify(new PageLoadingEvent(false));
         }
         
         requestOp();
@@ -112,14 +113,14 @@ export class BaseService {
             
             if((this.apiService.getToken() && res.message && res.message.indexOf('Authorization has been denied') >= 0) || Common.isDefined(res.isTrusted)) {
                 this.apiService.setToken(null);
-                this.appService.notify(AppEvent.ReloadApp);
+                this.appService.notify(new ReloadAppEvent());
             }
             else {
                 if (Config.SHOW_ERRORS) {
-                    this.appService.notify(AppEvent.OpenModal, { title: "API Request Error", body: JSON.stringify(res) });
+                    this.appService.notify(new OpenModalEvent({ title: "API Request Error", body: JSON.stringify(res) }));
                 }
                 else {
-                    this.appService.notify(AppEvent.MessageBar, 'an unexpected error occurred');
+                    this.appService.notify(new MessageBarEvent('an unexpected error occurred'));
                 }
             }
         }

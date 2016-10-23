@@ -1,7 +1,7 @@
 import {DataEvent, DataSubscriptionEvent, DataFilterEvent} from '../../lib/events/app-event';
 import {BaseDataHandler, IDataHandler, DataCache, DataResult, DateDataResult, ParamValues} from './data-handler';
 
-import {RFIELD_MAP} from './field-map';
+import {RFIELD_MAP, TABLE_MAP} from './field-map';
 import {IndicatorParamType, DENORM_PARAM_TYPES} from '../../../app/service/model/indicator.model';
 
 import {Common} from '../../../app/utility/common';
@@ -14,7 +14,6 @@ export class DataLoaderDataHandler extends BaseDataHandler {
     startDate: number;
     endDate: number;
     
-    tables: string[] = [ "", "is", "bs", "cf", "snt", "mos", "tech", "macro", "shrt_intr", "is_gr", "fs", "fi" ];
     nonTickerTypes: IndicatorParamType[] = [IndicatorParamType.Macro];
     
     cache: DataCache;
@@ -118,7 +117,7 @@ export class DataLoaderDataHandler extends BaseDataHandler {
             dateArr = <number[]> date;
         }
 
-		Database.mongo.collection(this.tables[type], (error, collection) => {
+		Database.mongo.collection(TABLE_MAP[type], (error, collection) => {
 			if(error) {
 				this.callDB(date, fields, type, callback, ticker);
 			}
@@ -197,7 +196,7 @@ export class DataLoaderDataHandler extends BaseDataHandler {
                 var map: string = RFIELD_MAP[type] ? RFIELD_MAP[type][field] : null;
 
                 if(Common.inArray(type, DENORM_PARAM_TYPES)) {
-                    map = this.tables[type] + '_' + (map ? map : field);
+                    map = TABLE_MAP[type] + '_' + (map ? map : field);
                     type = IndicatorParamType.FinancialStatement;
                 }
                 

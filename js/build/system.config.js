@@ -15,7 +15,7 @@ if (typeof System != 'undefined') {
         packages: {
             'dist': {defaultExtension: WEB_CONFIG.ComponentExtension },
             'app': { defaultExtension: WEB_CONFIG.ComponentExtension },
-            'app-marketing': { defaultExtension: WEB_CONFIG.ComponentExtension },
+            'network': { defaultExtension: WEB_CONFIG.ComponentExtension },
             'node_modules/backlive': { defaultExtension: 'ts' },
             'node_modules/backlive-dist': { defaultExtension: 'ts' },
             'rxjs': { defaultExtension: 'js' }

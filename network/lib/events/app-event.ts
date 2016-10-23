@@ -3,7 +3,7 @@ import {DataCache, DataResult} from '../../node/data-handler/data-handler';
 import {Ticker} from '../../../app/service/model/ticker.model';
 import {IndicatorParam} from '../../../app/service/model/indicator.model';
 
-function AppEvent(name: string) {
+export function AppEvent(name: string) {
     return function (target: typeof BaseEvent) {
         target.eventName = name;
     }

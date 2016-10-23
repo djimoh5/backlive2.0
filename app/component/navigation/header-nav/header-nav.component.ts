@@ -5,7 +5,7 @@ import {BaseComponent} from 'backlive/component/shared';
 import {AppService, UserService, RouterService, RouteInfo} from 'backlive/service';
 
 import {Route} from 'backlive/routes';
-import {AppEvent, User} from 'backlive/service/model';
+import {User} from 'backlive/service/model';
 
 @Component({
     selector: 'header-nav',

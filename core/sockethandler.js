@@ -1,5 +1,4 @@
 var io = require('socket.io');
-var controller = require('./controller');
 
 function init(server) {
     io = io.listen(server);

@@ -2,12 +2,9 @@ import {Operator, Indicator, IndicatorParam, IndicatorParamType, DENORM_PARAM_TY
 import {Common} from '../../../app//utility/common';
 
 import {DataCache} from '../../node/data-handler/data-handler';
-import {RFIELD_MAP} from '../../node/data-handler/field-map';
-
-const NO_VALUE = -99999;
+import {RFIELD_MAP, TABLE_MAP, NO_VALUE} from '../../node/data-handler/field-map';
 
 export class Calculator {
-    tables: string[] = [ "", "is", "bs", "cf", "snt", "mos", "tech", "macro", "shrt_intr", "is_gr", "fs", "fi" ];
     values: { [key: string]: any } = {};
     
     constructor() {
@@ -50,7 +47,7 @@ export class Calculator {
                     var map = RFIELD_MAP[type] ? RFIELD_MAP[type][field] : null;
 
                     if(Common.inArray(type, DENORM_PARAM_TYPES)) {
-                        map = this.tables[type] + '_' + (map ? map : field);
+                        map = TABLE_MAP[type] + '_' + (map ? map : field);
                         type = IndicatorParamType.FinancialStatement;
                     }
                     

@@ -5,7 +5,6 @@ import {PageComponent} from 'backlive/component/shared';
 import {AppService, UserService} from 'backlive/service';
 
 import {Route} from 'backlive/routes';
-import {AppEvent} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-portfolio',

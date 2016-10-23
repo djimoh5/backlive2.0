@@ -6,16 +6,9 @@ ENV = 'dev';
 BASE_DIR = __dirname;
 require('./core/config');
 
-require(DIR_LIB + 'calculation');
-//spawner = require('child_process');
-//require('./scripts/scraper.js');
-
 db.open(function () {
     require(DIR_LIB + 'Session');
     console.log('database connected');
-	/*u.getDates(function(results, weeks) { 
-		BACKTEST_DATE = results[results.length - 1];
-	}, -1);*/
 });
 
 //init routes
@@ -37,6 +30,7 @@ app.use('/app', lessMiddleware('app', {
 app.use('/css', lessMiddleware('css'));
 
 app.use('/app', express.static('app'));
+app.use('/network', express.static('network'));
 app.use('/app-design', express.static('app-design'));
 app.use('/node_modules', express.static('node_modules'));
 
@@ -52,6 +46,10 @@ var server = app.listen(8080, function () {
     var port = server.address().port;
     console.log('BackLive listening at http://%s:%s', host, port);
 });
+
+//init socket handler
+//var sockethandler = require('./core/sockethandler');
+//sockethandler.init(server);
 
 // init network
 require('child_process').fork('network/main.ts');

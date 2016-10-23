@@ -4,7 +4,7 @@ import {BaseComponent} from 'backlive/component/shared';
 
 import {AppService, TickerService} from 'backlive/service';
 
-import {AppEvent, Ticker, Price} from 'backlive/service/model';
+import {Ticker, Price} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-ticker',

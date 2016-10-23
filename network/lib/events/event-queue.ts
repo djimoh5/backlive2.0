@@ -15,6 +15,10 @@ export class EventQueue {
     }
     
     subscribe(eventType: typeof BaseEvent, subscriberId: number | string, callback: Function, filter?: {}) {
+        if(!eventType.eventName) {
+            throw('The event does not have a name. Please remember to annotate your event with @AppEvent.');    
+        }
+        
         console.log(eventType.eventName, 'subscribed to by ' + subscriberId);
         var eventName = eventType.eventName;
         var observable: Observable<BaseEvent>;
@@ -43,9 +47,9 @@ export class EventQueue {
         }));
     }
     
-    unsubscribe(subscriberId: any, eventName?: string) {
-        if(eventName && this.subscribers[eventName] && this.subscribers[eventName][subscriberId]) {
-            this.unsubscribeObservable(subscriberId, eventName);
+    unsubscribe(subscriberId: any, eventType?: typeof BaseEvent) {
+        if(eventType && this.subscribers[eventType.name] && this.subscribers[eventType.name][subscriberId]) {
+            this.unsubscribeObservable(subscriberId, eventType.name);
         }
         else {
             for(var name in this.subscribers) {
@@ -66,6 +70,7 @@ export class EventQueue {
 
     notify(event: BaseEvent) {
         var eventName = event.eventName;
+        console.log(event);
         
         if (this.activators[eventName]) {
             setTimeout(() => {

@@ -8,7 +8,6 @@ import {AppService} from './app.service';
 import {RouterService} from './router.service';
 import {AnalyticsDimension, AnalyticsEvent, AnalyticsTiming, AnalyticsEventCategory, AnalyticsEventAction, AnalyticsTimingVar} from './model/analytics.model';
 
-import {AppEvent}  from './model/app-event.model';
 import {User} from './model/user.model';
 
 import {PlatformUI} from 'backlive/utility/ui';

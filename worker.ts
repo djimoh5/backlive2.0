@@ -24,10 +24,8 @@ System.config({
     typescriptOptions: { emitDecoratorMetadata: true },
     packages: {
         'app': {defaultExtension: defaultExt},
-        'app-marketing': {defaultExtension: defaultExt}
     },
     paths: {
-        'backlive/marketing/*': 'app-marketing/config/imports/*',
         'backlive/design/*': 'app-design/config/imports/*',
         'backlive/*': 'app/config/imports/*'
     },

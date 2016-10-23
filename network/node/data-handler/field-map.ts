@@ -1,3 +1,7 @@
+export const TABLE_MAP: string[] = [ "", "is", "bs", "cf", "snt", "mos", "tech", "macro", "shrt_intr", "is_gr", "fs", "fi" ];
+
+export const NO_VALUE = -99999;
+
 export const FIELD_MAP = {
     1: { 
     'sales':'sales', 

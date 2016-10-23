@@ -1,17 +1,18 @@
-﻿import {Component, ViewEncapsulation, ElementRef, Attribute} from '@angular/core';
+﻿import { Component, ElementRef } from '@angular/core';
 
-import {Path} from 'backlive/config';
-import {Route} from 'backlive/routes';
-
-/* services */
-import {AppService, PopupAlert, RouterService, ApiService, UserService} from 'backlive/service';
+import { Path } from 'backlive/config';
+import { Route } from 'backlive/routes';
 
 /* components */
-import {BaseComponent, ModalComponent} from 'backlive/component/shared';
-import {HeaderNavComponent, SlidingNavComponent, FooterNavComponent} from 'backlive/component/navigation';
+import { BaseComponent, ModalComponent } from 'backlive/component/shared';
+import { HeaderNavComponent, SlidingNavComponent, FooterNavComponent } from 'backlive/component/navigation';
+
+/* services */
+import { AppService, RouterService, ApiService, UserService } from 'backlive/service';
 
 /* models */
-import {AppEvent, User} from 'backlive/service/model';
+import { User } from 'backlive/service/model';
+import { SlidingNavVisibleEvent, PageLoadingEvent, RouterLoadingEvent } from 'backlive/event';
 
 @Component({
     selector: 'backlive-app',
@@ -28,13 +29,14 @@ export class AppComponent extends BaseComponent {
         super(appService);
         this.appService = appService;
         this.userService = userService;
-        this.routerService = routerService;
         
         userService.getUser().then(user => this.init(user));
         
-        this.subscribeEvent(AppEvent.SlidingNavVisible, (visible: boolean) => this.isSlidingNavVisible = visible);
-        this.subscribeEvent(AppEvent.PageLoading, (loading: boolean) => this.isPageLoading = loading);
-        this.subscribeEvent(AppEvent.RouterLoading, (loading: boolean) => this.isRouterLoading = loading);
+        this.subscribeEvent(SlidingNavVisibleEvent, (event: SlidingNavVisibleEvent) => {
+             this.isSlidingNavVisible = event.data;
+        });
+        this.subscribeEvent(PageLoadingEvent, (event: PageLoadingEvent) => { this.isPageLoading = event.data });
+        this.subscribeEvent(RouterLoadingEvent, (event: RouterLoadingEvent) => { this.isRouterLoading = event.data });
     }
     
     init(user: User) {

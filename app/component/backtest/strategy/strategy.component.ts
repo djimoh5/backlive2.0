@@ -4,7 +4,7 @@ import {BaseComponent} from 'backlive/component/shared';
 
 import {AppService, UserService} from 'backlive/service';
 
-import {AppEvent, Indicator, Strategy} from 'backlive/service/model';
+import {Indicator, Strategy} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-strategy',

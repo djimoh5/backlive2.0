@@ -87,7 +87,6 @@ function BaseController(services) {
 	}
     
     this.getRoutePath = function(key) {
-        //console.log('/' + (key == 'index' ? '' : key.toLowerCase()))
         return '/' + (key == 'index' ? '' : key.toLowerCase());
     }
 }

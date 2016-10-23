@@ -6,7 +6,6 @@ import {BaseComponent} from 'backlive/component/shared';
 import {SearchBoxDirective} from 'backlive/directive';
 
 import {AppService} from 'backlive/service';
-import {AppEvent} from 'backlive/service/model';
 
 @Component({
     selector: 'filter-menu',

@@ -1,5 +1,6 @@
-import {Component, OnDestroy} from '@angular/core';
-import {AppService} from 'backlive/service';
+import { Component, OnDestroy } from '@angular/core';
+import { AppService, RouteParamsCallback } from 'backlive/service';
+import { BaseEvent } from 'backlive/network/event';
 
 @Component({ template: `` })
 export class BaseComponent implements OnDestroy  {
@@ -12,14 +13,19 @@ export class BaseComponent implements OnDestroy  {
     
     constructor (appService: AppService) {
         this.appService = appService;
+
+        if (this.appService) {
+            this.appService.setComponentLoaded();
+        }
+
         this.componentId = ++BaseComponent.nextComponentId;
     }
     
-    subscribeEvent(eventName: string, callback: Function) {
-        this.appService.subscribe(eventName, this.componentId, callback);
+    subscribeEvent(eventType: typeof BaseEvent, callback: Function) {
+        this.appService.subscribe(eventType, this.componentId, callback);
     }
 
-    subscribeParams(callback: Function) {
+    subscribeParams(callback: RouteParamsCallback) {
         this.appService.subscribeToParams(this.componentId, callback);
     }
     

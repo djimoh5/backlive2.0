@@ -1,14 +1,15 @@
-﻿import {Component} from '@angular/core';
-import {Path} from 'backlive/config';
+﻿import { Component } from '@angular/core';
+import { Path } from 'backlive/config';
 
-import {PageComponent, SearchBarComponent} from 'backlive/component/shared';
-import {RadioButtonOption} from 'backlive/component/shared/ui';
+import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
+import { RadioButtonOption } from 'backlive/component/shared/ui';
 
-import {AppService, UserService, StrategyService} from 'backlive/service';
+import { AppService, UserService, StrategyService } from 'backlive/service';
 
-import {Common} from 'backlive/utility';
+import { Common } from 'backlive/utility';
 
-import {AppEvent, Ticker, Strategy, Performance} from 'backlive/service/model';
+import { Ticker, Strategy, Performance } from 'backlive/service/model';
+import { SlidingNavItemsEvent } from 'backlive/event';
 
 @Component({
     selector: 'backlive-dashboard',
@@ -39,7 +40,7 @@ export class DashboardComponent extends PageComponent {
             { icon: "settings", component: null }
         ];
         
-        appService.notify(AppEvent.SlidingNavItems, items);
+        appService.notify(new SlidingNavItemsEvent(items));
         
         this.dateOptions = [
           { title: '1d', value: 1 },

@@ -1,21 +1,21 @@
-import {Component, Type, ComponentRef, ComponentFactoryResolver, EventEmitter, ViewChild, ViewContainerRef} from '@angular/core';
-import {Path} from 'backlive/config';
-import {Common} from 'backlive/utility';
-import {PlatformUI} from 'backlive/utility/ui';
+import { Component, Type, ComponentRef, ComponentFactoryResolver, EventEmitter, ViewChild, ViewContainerRef } from '@angular/core';
+import { Path } from 'backlive/config';
+import { Common } from 'backlive/utility';
+import { PlatformUI } from 'backlive/utility/ui';
 
-import {BaseComponent} from '../base.component';
+import { BaseComponent } from '../base.component';
 
-import {AppService} from 'backlive/service';
+import { AppService } from 'backlive/service';
 
-import {AppEvent} from 'backlive/service/model';
+import { OpenModalEvent, CloseModalEvent } from 'backlive/event';
 
 @Component({
-    selector: 'ui-modal',
+    selector: 'backlive-modal',
     templateUrl: Path.ComponentView('shared/modal'),
     styleUrls: [Path.ComponentStyle('shared/modal')]
 })
 export class ModalComponent extends BaseComponent {
-    id: string = 'vnModal';
+    id: string = 'backliveModal';
     options: ModalOptions;
     componentResolver: ComponentFactoryResolver;
     platformUI: PlatformUI
@@ -32,8 +32,8 @@ export class ModalComponent extends BaseComponent {
 
         this.options = { title: "BackLive" };
 
-        this.subscribeEvent(AppEvent.OpenModal, (options: ModalOptions) => this.open(options));
-        this.subscribeEvent(AppEvent.CloseModal, () => this.close());
+        this.subscribeEvent(OpenModalEvent, (event: OpenModalEvent) => this.open(event.data));
+        this.subscribeEvent(CloseModalEvent, () => this.close());
     }
 
     open (options: ModalOptions) {

@@ -4,7 +4,6 @@ import {Path} from 'backlive/config';
 import {PlatformUI} from 'backlive/utility/ui';
 import {AppService} from 'backlive/service';
 import {BaseComponent} from 'backlive/component/shared';
-import {AppEvent} from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-audio',
@@ -27,24 +26,24 @@ export class AudioComponent extends BaseComponent implements OnInit, AfterViewIn
     }
 
     ngOnInit() {
-        this.subscribeEvent(AppEvent.Audio.Play, (src: string) => {
+        /*this.subscribeEvent(AudioPlayEvent, (src: string) => {
             this.audio.src = this.src;
             this.audio.play();
         });
 
-        this.subscribeEvent(AppEvent.Audio.Pause, () => {
+        this.subscribeEvent(AudioPauseEvent, () => {
             this.audio.pause();
         });
 
-        this.subscribeEvent(AppEvent.Audio.Volume, (volume: number) => {
+        this.subscribeEvent(AudioVolumeEvent, (volume: number) => {
             this.audio.volume = volume;
         });
 
-        this.subscribeEvent(AppEvent.Audio.Volume, (show: boolean) => {
+        this.subscribeEvent(AudioVolumeEvent, (show: boolean) => {
             this.audio.controls = show;
         });
 
-        this.subscribeEvent(AppEvent.Audio.Loop, (loop: boolean) => {
+        this.subscribeEvent(AudioLoopEvent, (loop: boolean) => {
             if (this.loop) {
                 this.audio.removeEventListener(AudioEvent.onEnded, this.loopCallback);
             }
@@ -56,7 +55,7 @@ export class AudioComponent extends BaseComponent implements OnInit, AfterViewIn
             } else{
                 this.audio.removeEventListener(AudioEvent.onEnded, this.loopCallback);
             }
-        });
+        });*/
     }
 
     ngAfterViewInit() {
@@ -78,10 +77,10 @@ export class AudioComponent extends BaseComponent implements OnInit, AfterViewIn
     }
 
     played() {
-        this.appService.notify(AppEvent.Audio.Played, {
+        /*this.appService.notify(AudioPlayedEvent, {
             loop: this.loop,
             src: this.src,
-        });
+        });*/
     }
 }
 

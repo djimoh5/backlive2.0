@@ -1,10 +1,10 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {Path} from 'backlive/config';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Path } from 'backlive/config';
 
-import {BaseComponent} from 'backlive/component/shared';
+import { BaseComponent } from 'backlive/component/shared';
 
-import {AppService} from 'backlive/service';
-import {AppEvent} from 'backlive/service/model';
+import { AppService } from 'backlive/service';
+import { SearchKeyUpEvent } from 'backlive/event';
 
 @Component({
     selector: 'search-bar',
@@ -37,7 +37,7 @@ export class SearchBarComponent extends BaseComponent  {
             this.typingInterval = null;
             
             if(this.searchKey.length > 1 || this.searchKey.length == 0) {
-                this.appService.notify(AppEvent.SearchKeyUp, this.searchKey);
+                this.appService.notify(new SearchKeyUpEvent(this.searchKey));
             }
         }
         else {

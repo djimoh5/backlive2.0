@@ -1,12 +1,13 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {Path} from 'backlive/config';
-import {PageComponent, SearchBarComponent} from 'backlive/component/shared';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Path } from 'backlive/config';
+import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
 import { StrategyComponent } from './strategy/strategy.component';
 
-import {AppService, UserService} from 'backlive/service';
+import { AppService, UserService } from 'backlive/service';
 
-import {Route} from 'backlive/routes';
-import {AppEvent, Strategy, Indicator} from 'backlive/service/model';
+import { Route } from 'backlive/routes';
+import { Strategy, Indicator } from 'backlive/service/model';
+import { SlidingNavItemsEvent } from 'backlive/event';
 
 import {PlatformUI} from 'backlive/utility/ui';
 
@@ -35,7 +36,7 @@ export class BacktestComponent extends PageComponent implements OnInit {
             { icon: "settings", component: null }
         ];
         
-        appService.notify(AppEvent.SlidingNavItems, items);
+        appService.notify(new SlidingNavItemsEvent(items));
     }
     
     ngOnInit() {
@@ -87,7 +88,6 @@ export class BacktestComponent extends PageComponent implements OnInit {
                         .y(function(d) { return d.y; })
                         .curve(d3.curveBundle.beta(1));
 
-       //console.log(lineFunction(lineData));
        return line(lineData);
     }
 }

@@ -1,15 +1,14 @@
-import {EventQueue} from './event-queue';
-import {BaseEvent} from './app-event';
+import { EventQueue } from './event-queue';
+import { BaseEvent } from './app-event';
 
-export class AppEventQueue extends EventQueue {
-    private static eventQueue: AppEventQueue;
+export class AppEventQueue {
+    private static eventQueue: EventQueue;
     
     constructor() {
-        super();
     }
     
     static global() {
-        AppEventQueue.eventQueue = new AppEventQueue();
+        AppEventQueue.eventQueue = new EventQueue();
     }
     
     static subscribe(eventType: typeof BaseEvent, subscriberId: string, callback: Function) {

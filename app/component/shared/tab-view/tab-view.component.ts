@@ -3,7 +3,6 @@ import {Component, ElementRef, Input, Output, OnChanges, EventEmitter, HostBindi
 import {BaseComponent} from '../base.component';
 
 import {AppService} from 'backlive/service';
-import {AppEvent} from 'backlive/service/model';
 
 @Component({
     selector: 'tab-link',

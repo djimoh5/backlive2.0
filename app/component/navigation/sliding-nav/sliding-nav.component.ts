@@ -1,11 +1,11 @@
-import {Component, ElementRef, Type, ComponentRef, ComponentFactoryResolver, ViewChild, ViewContainerRef} from '@angular/core';
-import {Path} from 'backlive/config';
-import {BaseComponent} from 'backlive/component/shared';
-import {TooltipDirective} from 'backlive/directive';
+import { Component, ElementRef, Type, ComponentRef, ComponentFactoryResolver, ViewChild, ViewContainerRef } from '@angular/core';
+import { Path } from 'backlive/config';
+import { BaseComponent } from 'backlive/component/shared';
+import { TooltipDirective } from 'backlive/directive';
 
-import {AppService} from 'backlive/service';
+import { AppService } from 'backlive/service';
 
-import {AppEvent} from 'backlive/service/model';
+import { SlidingNavVisibleEvent, SlidingNavItemsEvent } from 'backlive/event';
 
 @Component({
     selector: 'sliding-nav',
@@ -13,7 +13,7 @@ import {AppEvent} from 'backlive/service/model';
     styleUrls: [Path.ComponentStyle('navigation/sliding-nav')]
 })
 export class SlidingNavComponent extends BaseComponent {
-    items: NavItem[];
+    items: SlidingNavItem[];
     
     @ViewChild('component', {read: ViewContainerRef}) componentRef: ViewContainerRef;
     
@@ -25,13 +25,13 @@ export class SlidingNavComponent extends BaseComponent {
         super(appService);
         this.items = [];
         
-        this.subscribeEvent(AppEvent.SlidingNavItems, (items: NavItem[]) => this.updateItems(items));
+        this.subscribeEvent(SlidingNavItemsEvent, (event: SlidingNavItemsEvent) => this.updateItems(event.data));
     }
     
-    updateItems(items: NavItem[]) {
+    updateItems(items: SlidingNavItem[]) {
         //this.items = items
         this.isActive = false;
-        this.appService.notify(AppEvent.SlidingNavVisible, true);
+        this.appService.notify(new SlidingNavVisibleEvent(true));
         
         //angular bug exists where classes from previous items do not get removed, so instead update each item one by one
         //TODO: remove if this bug gets fixed in later versions
@@ -55,7 +55,7 @@ export class SlidingNavComponent extends BaseComponent {
         }
     }
     
-    showSideBar(navItem: NavItem) {
+    showSideBar(navItem: SlidingNavItem) {
         var isActive = !navItem.isActive;
 
         this.items.forEach(item => {
@@ -86,10 +86,10 @@ export class SlidingNavComponent extends BaseComponent {
     }
 }
 
-interface NavItem {
+export interface SlidingNavItem {
     icon: string;
-    isActive: boolean;
-    component: any; //either component or onClick should be set, component takes precendence
-    onClick: Function;
-    tooltip: string;
+    isActive?: boolean;
+    component?: any; //either component or onClick should be set, component takes precendence
+    onClick?: Function;
+    tooltip?: string;
 }

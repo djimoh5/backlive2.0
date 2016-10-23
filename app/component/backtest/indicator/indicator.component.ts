@@ -1,11 +1,11 @@
-import {Component, Input, Output, OnInit, EventEmitter, ElementRef} from '@angular/core';
-import {Path} from 'backlive/config';
-import {BaseComponent} from 'backlive/component/shared';
+import { Component, Input, Output, OnInit, EventEmitter, ElementRef } from '@angular/core';
+import { Path } from 'backlive/config';
+import { BaseComponent } from 'backlive/component/shared';
 
-import {Common} from 'backlive/utility';
+import { Common } from 'backlive/utility';
 
-import {AppService, UserService} from 'backlive/service';
-import {AppEvent, Indicator} from 'backlive/service/model';
+import { AppService, UserService } from 'backlive/service';
+import { Indicator } from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-indicator',

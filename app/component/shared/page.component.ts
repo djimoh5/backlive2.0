@@ -1,10 +1,10 @@
-import {Component} from '@angular/core';
-import {BaseComponent} from './base.component';
+import { Component } from '@angular/core';
+import { BaseComponent } from './base.component';
 
-import {AnimationType} from 'backlive/directive';
+import { AnimationType } from 'backlive/directive';
 
-import {AppService} from 'backlive/service';
-import {AppEvent} from 'backlive/service/model';
+import { AppService } from 'backlive/service';
+import { SlidingNavVisibleEvent, PageLoadingEvent } from 'backlive/event';
 
 @Component({ template: `` })
 export class PageComponent extends BaseComponent {
@@ -15,7 +15,7 @@ export class PageComponent extends BaseComponent {
     constructor (appService: AppService, autoAnimateIn: boolean = true, defaultAnimation: string = AnimationType.FadeIn) {
         super(appService)
 
-        this.service().notify(AppEvent.SlidingNavVisible, false);
+        this.service().notify(new SlidingNavVisibleEvent(false));
         
         this.defaultAnimation = defaultAnimation;
         
@@ -24,20 +24,20 @@ export class PageComponent extends BaseComponent {
         }
         else {
             this.pageAnimation = AnimationType.Hide;
-            this.service().notify(AppEvent.PageLoading, true);
+            this.service().notify(new PageLoadingEvent(true));
             this.loading = true;
         }   
     }
 
     hidePage() {
         this.pageAnimation = AnimationType.Hide;
-        this.service().notify(AppEvent.PageLoading, true);
+        this.service().notify(new PageLoadingEvent(true));
     }
 
     showPage() {
         this.pageAnimation = this.defaultAnimation;
         if(this.loading) {
-            this.service().notify(AppEvent.PageLoading, false);
+            this.service().notify(new PageLoadingEvent(false));
         }
     }
     
