@@ -13,7 +13,7 @@ function init(server) {
 
         socket.on(socketEventQueue, function(event) {
             console.log(event);
-            emit(socket, { eventName: 'Event.StrategyUpdate', data: 'hi, my name is server!' });
+            emit(socket, 'Event.StrategyUpdate', 'hi, my name is server!');
             console.log('sent message');
         });
 

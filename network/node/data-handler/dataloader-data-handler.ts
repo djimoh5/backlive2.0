@@ -1,4 +1,4 @@
-import {DataEvent, DataSubscriptionEvent, DataFilterEvent} from '../../lib/events/app-event';
+import {DataEvent, DataSubscriptionEvent, DataFilterEvent} from '../../event/app-event';
 import {BaseDataHandler, IDataHandler, DataCache, DataResult, DateDataResult, ParamValues} from './data-handler';
 
 import {RFIELD_MAP, TABLE_MAP} from './field-map';

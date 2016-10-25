@@ -1,5 +1,5 @@
-import {BaseEvent} from '../lib/events/app-event';
-import {AppEventQueue} from '../lib/events/app-event-queue';
+import {BaseEvent} from '../event/app-event';
+import {AppEventQueue} from '../event/app-event-queue';
 
 import {Common} from '../../app//utility/common';
 

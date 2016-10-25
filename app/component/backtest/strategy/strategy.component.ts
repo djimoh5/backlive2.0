@@ -20,7 +20,7 @@ export class StrategyComponent extends BaseComponent implements OnInit {
     
     constructor(appService: AppService, private elementRef: ElementRef) {
         super(appService);
-        this.subscribeEvent(StrategyUpdateEvent, msg => console.log(msg));
+        this.subscribeEvent(StrategyUpdateEvent, event => console.log(event.data));
         this.appService.notify(new ExecuteStrategyEvent(new Strategy()));
     }
     

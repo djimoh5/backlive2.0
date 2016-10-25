@@ -32,7 +32,7 @@ export class ModalComponent extends BaseComponent {
 
         this.options = { title: "BackLive" };
 
-        this.subscribeEvent(OpenModalEvent, (event: OpenModalEvent) => this.open(event.data));
+        this.subscribeEvent(OpenModalEvent, event => this.open(event.data));
         this.subscribeEvent(CloseModalEvent, () => this.close());
     }
 

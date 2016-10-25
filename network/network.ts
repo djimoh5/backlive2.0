@@ -1,7 +1,7 @@
 /// <reference path="../typings/index.d.ts" />
 
 import {BaseNode} from './node/base-node';
-import {AppEventQueue} from './lib/events/app-event-queue';
+import {AppEventQueue} from './event/app-event-queue';
 import {Database} from './lib/data-access/database';
 
 import {IDataHandler} from './node/data-handler/data-handler';

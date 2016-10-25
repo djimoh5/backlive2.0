@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { AppService, RouteParamsCallback } from 'backlive/service';
-import { BaseEvent } from 'backlive/network/event';
+import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from 'backlive/network/event';
 
 @Component({ template: `` })
 export class BaseComponent implements OnDestroy  {
@@ -21,7 +21,7 @@ export class BaseComponent implements OnDestroy  {
         this.componentId = ++BaseComponent.nextComponentId;
     }
     
-    subscribeEvent(eventType: typeof BaseEvent, callback: Function) {
+    subscribeEvent<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, callback: BaseEventCallback<T>) {
         this.appService.subscribe(eventType, this.componentId, callback);
     }
 

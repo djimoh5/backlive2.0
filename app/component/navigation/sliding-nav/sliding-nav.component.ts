@@ -25,7 +25,7 @@ export class SlidingNavComponent extends BaseComponent {
         super(appService);
         this.items = [];
         
-        this.subscribeEvent(SlidingNavItemsEvent, (event: SlidingNavItemsEvent) => this.updateItems(event.data));
+        this.subscribeEvent(SlidingNavItemsEvent, event => this.updateItems(event.data));
     }
     
     updateItems(items: SlidingNavItem[]) {

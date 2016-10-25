@@ -16,8 +16,12 @@ export class FooterNavComponent extends BaseComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.subscribeEvent(TickerLastPriceEvent, (event: TickerLastPriceEvent) => {
+        this.subscribeEvent(TickerLastPriceEvent, event => {
             console.log(event);
+            
+            for(var key in event.data) {
+                event.data[key].percentChange;
+            }
         });
     }
 }

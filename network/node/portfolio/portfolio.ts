@@ -1,6 +1,6 @@
 import {BaseNode} from '../base-node'
 
-import {SignalEvent} from '../../lib/events/app-event';
+import {SignalEvent} from '../../event/app-event';
 
 import {Strategy as StrategyModel} from '../../../app/service/model/strategy.model';
 

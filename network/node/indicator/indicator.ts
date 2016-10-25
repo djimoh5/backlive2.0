@@ -1,5 +1,5 @@
 import {BaseNode} from '../base-node'
-import {DataEvent, DataSubscriptionEvent, IndicatorUpdateEvent} from '../../lib/events/app-event';
+import {DataEvent, DataSubscriptionEvent, IndicatorUpdateEvent} from '../../event/app-event';
 
 import {Indicator as IndicatorModel, IndicatorParam} from '../../../app/service/model/indicator.model';
 import {Common} from '../../../app//utility/common';

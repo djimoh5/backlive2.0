@@ -32,11 +32,11 @@ export class AppComponent extends BaseComponent {
         
         userService.getUser().then(user => this.init(user));
         
-        this.subscribeEvent(SlidingNavVisibleEvent, (event: SlidingNavVisibleEvent) => {
+        this.subscribeEvent(SlidingNavVisibleEvent, event => {
              this.isSlidingNavVisible = event.data;
         });
-        this.subscribeEvent(PageLoadingEvent, (event: PageLoadingEvent) => { this.isPageLoading = event.data });
-        this.subscribeEvent(RouterLoadingEvent, (event: RouterLoadingEvent) => { this.isRouterLoading = event.data });
+        this.subscribeEvent(PageLoadingEvent, event => { this.isPageLoading = event.data });
+        this.subscribeEvent(RouterLoadingEvent, event => { this.isRouterLoading = event.data });
     }
     
     init(user: User) {

@@ -1,5 +1,5 @@
 import {BaseNode} from '../base-node'
-import {DataFilterEvent, IndicatorUpdateEvent} from '../../lib/events/app-event';
+import {DataFilterEvent, IndicatorUpdateEvent} from '../../event/app-event';
 
 import {Strategy as StrategyModel} from '../../../app/service/model/strategy.model';
 import {Operator, Indicator as IndicatorModel, IndicatorParam} from '../../../app/service/model/indicator.model';

@@ -9,7 +9,7 @@ import { Config } from 'backlive/config';
 import { Common, Cache } from 'backlive/utility';
 import { PlatformUI } from 'backlive/utility/ui';
 
-import { EventQueue, BaseEvent } from 'backlive/network/event';
+import { EventQueue, BaseEvent, TypeOfBaseEvent, BaseEventCallback } from 'backlive/network/event';
 import { RouterLoadingEvent } from 'backlive/event';
 
 declare var io;
@@ -28,7 +28,7 @@ export class AppService {
         this.eventQueue = new EventQueue();
         this.socket = io();
 
-        this.socket.on(Config.SocketEventQueue, (event: BaseEvent) => {
+        this.socket.on(Config.SocketEventQueue, (event: BaseEvent<any>) => {
             this.notify(event);
         });
 
@@ -79,11 +79,11 @@ export class AppService {
         this.routerService.unsubsribeToParams(componentId);
     }
     
-    subscribe(eventType: typeof BaseEvent, componentId: number, callback: Function) {
+    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, componentId: number, callback: BaseEventCallback<T>) {
         this.eventQueue.subscribe(eventType, componentId, callback);
     }
     
-    notify(event: BaseEvent) {
+    notify(event: BaseEvent<any>) {
         this.eventQueue.notify(event);
 
         if(event.isServer) {
@@ -97,6 +97,6 @@ export class AppService {
 }
 
 export interface Socket {
-    on: (eventName: string, callback: (data: BaseEvent) => void) => void;
+    on: (eventName: string, callback: (data: BaseEvent<any>) => void) => void;
     emit: (eventName: string, data: any) => void;
 }

@@ -1,5 +1,5 @@
-import {BaseEvent} from './app-event';
-import {Common} from '../../../app/utility/common';
+import {BaseEvent, TypeOfBaseEvent, BaseEventCallback} from './app-event';
+import {Common} from '../../app/utility/common';
 
 import {Observable} from 'rxjs/Observable';
 import {Observer} from 'rxjs/Observer';
@@ -9,26 +9,26 @@ import {Subject} from 'rxjs/Subject';
 declare var io;
  
 export class EventQueue {
-    protected events: { [key: string]: Observable<BaseEvent> } = {};
-    protected activators: { [key: string]: Subject<BaseEvent> } = {};
+    protected events: { [key: string]: Observable<BaseEvent<any>> } = {};
+    protected activators: { [key: string]: Subject<BaseEvent<any>> } = {};
     protected subscribers: { [key: string]: { [key: string]: Subscription[] } } = {};
 
     constructor() {
     }
     
-    subscribe(eventType: typeof BaseEvent, subscriberId: number | string, callback: Function, filter?: {}) {
+    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, subscriberId: number | string, callback: BaseEventCallback<any>, filter?: {}) {
         if(!eventType.eventName) {
             throw('The event does not have a name. Please remember to annotate your event with @AppEvent.');    
         }
         
         console.log(eventType.eventName, 'subscribed to by ' + subscriberId);
         var eventName = eventType.eventName;
-        var observable: Observable<BaseEvent>;
+        var observable: Observable<BaseEvent<any>>;
         
         if (!this.events[eventName]) {
             this.events[eventName] = observable = Observable.create(observer => {
                 if(!this.activators[eventName]) {
-                    this.activators[eventName] = new Subject<BaseEvent>();
+                    this.activators[eventName] = new Subject<BaseEvent<any>>();
                 }
                 
                 this.activators[eventName].subscribe(observer);
@@ -44,7 +44,7 @@ export class EventQueue {
             this.subscribers[eventName][subscriberId] = [];
         }
         
-        this.subscribers[eventName][subscriberId].push(observable.subscribe((event: BaseEvent) => {
+        this.subscribers[eventName][subscriberId].push(observable.subscribe((event: BaseEvent<any>) => {
             callback(event);
         }));
     }
@@ -70,7 +70,7 @@ export class EventQueue {
         delete this.subscribers[eventName][subscriberId];
     }
 
-    notify(event: BaseEvent) {
+    notify(event: BaseEvent<any>) {
         var eventName = event.eventName;
 
         if (this.activators[eventName]) {
