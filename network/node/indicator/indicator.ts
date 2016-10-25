@@ -1,5 +1,5 @@
 import {BaseNode} from '../base-node'
-import {DataEvent, DataSubscriptionEvent, IndicatorUpdateEvent} from '../../event/app-event';
+import {DataEvent, DataSubscriptionEvent, IndicatorUpdateEvent} from '../../event/app.event';
 
 import {Indicator as IndicatorModel, IndicatorParam} from '../../../app/service/model/indicator.model';
 import {Common} from '../../../app//utility/common';
@@ -15,7 +15,7 @@ export class Indicator extends BaseNode {
         super();
         this.calculator = new Calculator();
         
-        this.subscribe(DataEvent, (event: DataEvent) => this.processData(event));
+        this.subscribe(DataEvent, event => this.processData(event));
         this.notify(new DataSubscriptionEvent({ params: this.calculator.getIndicatorParams([model]) }));
     }
     

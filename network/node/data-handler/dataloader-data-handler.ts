@@ -1,4 +1,4 @@
-import {DataEvent, DataSubscriptionEvent, DataFilterEvent} from '../../event/app-event';
+import {DataEvent, DataSubscriptionEvent, DataFilterEvent} from '../../event/app.event';
 import {BaseDataHandler, IDataHandler, DataCache, DataResult, DateDataResult, ParamValues} from './data-handler';
 
 import {RFIELD_MAP, TABLE_MAP} from './field-map';
@@ -22,12 +22,12 @@ export class DataLoaderDataHandler extends BaseDataHandler {
     constructor() {
         super();
         
-        this.subscribe(DataSubscriptionEvent, (event: DataSubscriptionEvent) => {
+        this.subscribe(DataSubscriptionEvent, event => {
             //console.log('updating data subscriptions', event.data.params);
             this.setFields(event.data.params);
         });
         
-        this.subscribe(DataFilterEvent, (event: DataFilterEvent) => {
+        this.subscribe(DataFilterEvent, event => {
             //console.log('updating data filters', event.data.startDate, event.data.endDate);
             this.ticker = event.data.entities;
             this.startDate = event.data.startDate;

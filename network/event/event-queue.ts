@@ -1,4 +1,4 @@
-import {BaseEvent, TypeOfBaseEvent, BaseEventCallback} from './app-event';
+import {BaseEvent, TypeOfBaseEvent, BaseEventCallback} from './base.event';
 import {Common} from '../../app/utility/common';
 
 import {Observable} from 'rxjs/Observable';

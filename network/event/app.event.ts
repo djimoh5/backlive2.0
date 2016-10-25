@@ -1,35 +1,8 @@
-import {DataCache, DataResult} from '../node/data-handler/data-handler';
+import { AppEvent, BaseEvent } from './base.event';
 
+import {DataCache, DataResult} from '../node/data-handler/data-handler';
 import {Ticker} from '../../app/service/model/ticker.model';
 import {IndicatorParam} from '../../app/service/model/indicator.model';
-
-export function AppEvent(name: string, isServer: boolean = false) {
-    return function (target: typeof BaseEvent) {
-        target.eventName = name;
-        target.isServer = isServer;
-    }
-}
-
-export class BaseEvent<T> {
-    static eventName: string;
-    static isServer: boolean;
-
-    eventName: string;
-    isServer: boolean;
-    data: T;
-    
-    constructor(data: T) {
-        this.data = data;
-        this.eventName = (<typeof BaseEvent> this.constructor).eventName;
-        this.isServer = (<typeof BaseEvent> this.constructor).isServer;
-    }
-}
-
-export declare type TypeOfBaseEvent<T> = { new(data: any): T; } & typeof BaseEvent;
-
-export interface BaseEventCallback<T extends BaseEvent<any>> {
-    (event: T);
-}
 
 @AppEvent('Event.Data')
 export class DataEvent extends BaseEvent<{ cache: DataCache, allCacheKeys?: string[] | number[] }> {}

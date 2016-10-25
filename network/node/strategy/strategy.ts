@@ -1,5 +1,5 @@
 import {BaseNode} from '../base-node'
-import {DataFilterEvent, IndicatorUpdateEvent} from '../../event/app-event';
+import {DataFilterEvent, IndicatorUpdateEvent} from '../../event/app.event';
 
 import {Strategy as StrategyModel} from '../../../app/service/model/strategy.model';
 import {Operator, Indicator as IndicatorModel, IndicatorParam} from '../../../app/service/model/indicator.model';
@@ -25,7 +25,7 @@ export class Strategy extends BaseNode {
         
         this.calculator = new Calculator();
         
-        this.subscribe(IndicatorUpdateEvent, (event: IndicatorUpdateEvent) => this.processIndicator(event));
+        this.subscribe(IndicatorUpdateEvent, event => this.processIndicator(event));
         this.notify(new DataFilterEvent({ startDate: data.startYr, endDate: data.endYr, 
             entities: (data.universeTkrs.incl === 1 && data.universeTkrs.tkrs && data.universeTkrs.tkrs.length > 0) ? data.universeTkrs.tkrs : null }));
     }

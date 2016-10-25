@@ -51,4 +51,4 @@ var sockethandler = require('./core/sockethandler');
 sockethandler.init(server);
 
 // init network
-//require('child_process').fork('network/main.ts');
+require('child_process').fork('network/main.ts');

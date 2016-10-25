@@ -1,7 +1,7 @@
-import {BaseEvent} from '../event/app-event';
-import {AppEventQueue} from '../event/app-event-queue';
+import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from '../event/base.event';
+import { AppEventQueue } from '../event/app-event-queue';
 
-import {Common} from '../../app//utility/common';
+import { Common } from '../../app//utility/common';
 
 export class BaseNode {
     objectId: string;
@@ -9,11 +9,11 @@ export class BaseNode {
         this.objectId = Common.uniqueId();
     }
     
-    subscribe(eventType: typeof BaseEvent, callback: Function) {
+    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, callback: BaseEventCallback<T>) {
         AppEventQueue.subscribe(eventType, this.objectId, callback);
     }
     
-    notify(event: BaseEvent) {
+    notify(event: BaseEvent<any>) {
         AppEventQueue.notify(event);
     }
 }
