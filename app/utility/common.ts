@@ -74,15 +74,6 @@ export class Common {
 		return !isNaN(parseFloat(n)) && isFinite(n);
 	}
 
-	static formattedStringToNumber (n: any): Number {
-        if (n) {
-            n = n.replace('$', '');
-            n = n.replace(',', '');
-            return parseFloat(n);
-        }
-        return null;
-	}
-
 	static isDefined (o: any) {
 		return typeof(o) != 'undefined';
 	}
@@ -118,13 +109,6 @@ export class Common {
         }
 
         return str.substring(0, 1).toUpperCase() + str.substring(1);
-    }
-
-    static toTitleCase(str: string) {
-        if (str) {
-            str = str.toLowerCase();
-            return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
-        }
     }
 
     static camelCaseToWords(str: string) {
@@ -215,6 +199,19 @@ export class Common {
             }
         return null;
     }
+
+    static round(num: number, places: number) {
+		if(places && places > 0) {
+			num = parseFloat(Math.round(num * Math.pow(10, places)) / Math.pow(10, places) + '');
+			
+			if(!isNaN(num))
+				return num;
+			else
+				return 0;
+		}
+		else
+			return Math.round(num);
+	}
     
 	static uniqueId() {
 		return md5(new Date().getTime() + Math.round(Math.random() * 1000000) + Math.round(Math.random() * 1000000) + "");

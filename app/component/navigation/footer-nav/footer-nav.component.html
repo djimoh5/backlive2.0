@@ -1,6 +1,6 @@
 <div class="container">
 	<div class="inner-container">
-        <div class="market-news research_container">
+        <div *ngIf="showNews" class="market-news research_container">
             <div class="add-quick-news search_container input-append hide">
                 <h5 style="margin-top:0px">
                     Locate the URL of your favorite financial website RSS feed, and give it a short name which will appear in the footer menu.<br/>
@@ -58,7 +58,14 @@
             </ul>
         </div>
         
-        <div id="stockTicker" class="hide"></div>
+        <div *ngIf="showStockTicker" class="clearfix">
+            <div class="stock-ticker" *ngFor="let price of lastPrices;">
+                <span>{{price.ticker}}</span>&nbsp;&nbsp;{{price.price}}&nbsp;&nbsp;
+                <span [class.color-red]="price.change < 0" [class.color-green]="price.change > 0">
+                    {{price.change}}&nbsp;&nbsp;{{price.percentChange}}%
+                </span>
+            </div>
+        </div>
         
         <button class="btn-toggle-ticker btn btn-primary" aria-label="toggle footer navigation">
             <span class="glyphicon glyphicon-signal" aria-hidden="true"></span>

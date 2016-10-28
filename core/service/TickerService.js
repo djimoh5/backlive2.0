@@ -72,7 +72,7 @@ function TickerService(session) {
     this.getLastPrice = function(ticker) {
         //http://download.finance.yahoo.com/d/quotes.csv?s=^DJI&f=sl1c1p2l1bac8
         if(!ticker) {
-            ticker = '^IXIC+^DJX+^GSPC'; //,^TNX for 10 year
+            ticker = '^GSPC+^DJX+^IXIC'; //,^TNX for 10 year
         }
          
         whttp.get('download.finance.yahoo.com', '/d/quotes.csv?s=' + ticker + '&f=sl1c1p2bac8', function(data) {
