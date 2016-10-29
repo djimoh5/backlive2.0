@@ -92,7 +92,25 @@ function BaseController(services) {
 }
 
 BaseController.prototype = {
-
 }
 
 module.exports = BaseController;
+
+Function.prototype.inherits = function (parentClassOrObject) {
+    if (parentClassOrObject.constructor == Function) {
+        //Normal Inheritance 
+        var tmp = function () { };
+        tmp.prototype = parentClassOrObject.prototype; //clone parent's prototype
+
+        this.prototype = new tmp(); //new parentClassOrObject; if we used parent here instead of using clone, it would call constructor which we want to do in actual class to pass parameters
+        this.prototype.constructor = this;
+        this.prototype.parent = tmp.prototype; //parentClassOrObject.prototype;
+    }
+    else {
+        //Pure Virtual Inheritance 
+        this.prototype = parentClassOrObject;
+        this.prototype.constructor = this;
+        this.prototype.parent = parentClassOrObject;
+    }
+    return this;
+};

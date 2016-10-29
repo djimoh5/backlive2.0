@@ -51,13 +51,13 @@ export class ServerSocket {
         }, 60000);
     }
 
-    emitTickerLastPrice(socket: SocketIO.Socket, ticker?: string) {
+    emitTickerLastPrice(socket: SocketIO.Socket | SocketIO.Namespace, ticker?: string) {
         this.tickerService.getLastPrice().done((price) => {
             this.emit(socket, 'Event.TickerLastPrice', price);
         }); 
     }
 
-    emit(socket: SocketIO.Socket, eventName: string, data: any) {
+    emit(socket: SocketIO.Socket | SocketIO.Namespace, eventName: string, data: any) {
         socket.emit(this.socketEventQueue, { eventName: eventName, data: data });
     }
 
