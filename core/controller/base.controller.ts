@@ -1,49 +1,86 @@
 var DIR_ROOT = './../.';
-var express = require('express');
-var bodyParser = require('body-parser');
 var url = require('url');
 
-function BaseController(services) {
-	var self = this,
-		router = express.Router();
-	
-    function queryParser(req, res, next) {
+import * as express from 'express';
+import * as bodyParser from 'body-parser';
+import { Session } from '../lib/session';
+
+export function Get(path: string = null) {
+    return function (target: BaseController, propertyKey: string, descriptor: PropertyDescriptor) {
+		if(!target.get) { target.get = {} };
+		target.get[path ? path : propertyKey] = target[propertyKey];
+    };
+}
+
+export function Post(path: string = null) {
+    return function (target: BaseController, propertyKey: string, descriptor: PropertyDescriptor) {
+		if(!target.post) { target.post = {} };
+		target.post[path ? path : propertyKey] = target[propertyKey];
+    };
+}
+
+export function Delete(path: string = null) {
+    return function (target: BaseController, propertyKey: string, descriptor: PropertyDescriptor) {
+		if(!target.delete) { target.delete = {} };
+		target.delete[path ? path : propertyKey] = target[propertyKey];
+    };
+}
+
+export class BaseController{
+    private services: { [key: string]: any };
+    private router: express.Router = express.Router();
+    get: { [key:string]: any };
+    post: { [key:string]: any };
+    delete: { [key:string]: any };
+
+    constructor(services: { [key: string]: any } = null) {
+        this.services = services;
+        this.router = express.Router();
+
+        this.router.use(bodyParser.json());
+        this.router.use(bodyParser.urlencoded());
+        this.router.use(this.queryParser);
+        this.router.use(this.initSession);
+        this.router.use(this.injectServices);
+    }
+
+    private queryParser(req, res, next) {
         req.query = url.parse(req.url, true).query;
         next();
     }
     
-	function initSession(req, res, next) {
+	private initSession(req, res, next) {
 		req.session = new Session(req, res);
 		next();
 	}
 	
-	function injectServices(req, res, next) { 
-		if(services) {
+	private injectServices(req, res, next) { 
+		if(this.services) {
             //console.log('injected', services);
 			res.services = {};
-			for(var serviceIdentifier in services) {
-				res.services[serviceIdentifier] = new services[serviceIdentifier](req.session);
+			for(var serviceIdentifier in this.services) {
+				res.services[serviceIdentifier] = new this.services[serviceIdentifier](req.session);
 			}
 		}
 		
-        logRequest(req);
+        this.logRequest(req);
 		next();
 	}
     
-    function logRequest(req) {
+    private logRequest(req) {
         if(req.originalUrl.indexOf('/api/') >= 0) {
             console.log(req.originalUrl);
-            if(hasKeys(req.query)) {
+            if(this.hasKeys(req.query)) {
                 console.log('Query', req.query);
             }
-            if(hasKeys(req.body)) {
+            if(this.hasKeys(req.body)) {
                 console.log('Body', req.body);
             }
             console.log('-------------------------------------');
         }
     }
     
-    function hasKeys(obj) {
+    private hasKeys(obj) {
         for(var key in obj) {
             if(obj.hasOwnProperty(key)) {
                 return true;
@@ -51,48 +88,35 @@ function BaseController(services) {
             
         }
     }
-	
-	router.use(bodyParser.json());
-	router.use(bodyParser.urlencoded());
-    router.use(queryParser);
-	router.use(initSession);
-	router.use(injectServices);
-    
-	this.post = {};
-    this.delete = {};
-	
-	this.getRouter = function () {
+
+	getRouter() {
+        var self = this;
+        
 		for(var key in self) {
-			if(self.hasOwnProperty(key) && key != 'getRoutePath' && key != 'getRouter') {
-                if(key == 'post') {
-                    for(key in self.post) {
-                        router.post(self.getRoutePath(key), self.post[key]);
-                        console.log('- registering post route', key);
-                    }
+			if(key == 'post' && self.post) {
+                for(key in self.post) {
+                    this.router.post(self.getRoutePath(key), self.post[key]);
+                    console.log('- registering post route', key);
                 }
-				else if(key == 'delete') {
-                    for(key in self.delete) {
-                        router.delete(self.getRoutePath(key), self.delete[key]);
-                        console.log('- registering delete route', key);
-                    }
+            }
+            else if(key == 'delete' && self.delete) {
+                for(key in self.delete) {
+                    this.router.delete(self.getRoutePath(key), self.delete[key]);
+                    console.log('- registering delete route', key);
                 }
-				else {
-					router.get(self.getRoutePath(key), self[key]);
+            }
+            else if(key == 'get' && self.get) {
+                for(key in self.get) {
+                    this.router.delete(self.getRoutePath(key), self.get[key]);
                     console.log('- registering get route', key);
-				}
-			}
+                }
+            }
 		}
 		
-		return router;
+		return this.router;
 	}
     
-    this.getRoutePath = function(key) {
+    private getRoutePath(key) {
         return '/' + (key == 'index' ? '' : key.toLowerCase());
     }
 }
-
-BaseController.prototype = {
-
-}
-
-module.exports = BaseController;

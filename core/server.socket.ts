@@ -1,11 +1,16 @@
 import * as io from 'socket.io';
+import { BaseEvent } from '../network/event/base.event';
+import { TickerLastPriceEvent } from '../app/event/server.event';
+import { ChildProcess } from 'child_process';
 
 var TickerService = require("./service/TickerService.js");
 
 export class ServerSocket {
     socketEventQueue: string = 'socketEventQueue';
-    io: SocketIO.Server;
-    tickerService: any;
+    private io: SocketIO.Server;
+    private tickerService: any;
+
+    processes: ChildProcess[] = [];
 
     constructor(server) {
         this.io = io(server);
@@ -15,10 +20,10 @@ export class ServerSocket {
         this.io.on('connection', (socket) => {
             console.log('connected socket');
 
-            socket.on(this.socketEventQueue, (event) => {
-                console.log(event);
-                this.emit(socket, 'Event.StrategyUpdate', 'hi, my name is server!');
-                console.log('sent message');
+            socket.on(this.socketEventQueue, (event: BaseEvent<any>) => {
+                console.log('socket - from web:', event);
+                //this.emit(socket, 'Event.StrategyUpdate', 'hi, my name is server!');
+                this.notify(event);
             });
 
             /*socket.on('autocomplete', function(txt) {
@@ -35,7 +40,7 @@ export class ServerSocket {
         this.initBroadcasts();
     }
 
-    initBroadcasts() {
+    private initBroadcasts() {
         setInterval(() => {
             //send S&P, Dow, Nasdaq market price
             var date = new Date();
@@ -51,17 +56,39 @@ export class ServerSocket {
         }, 60000);
     }
 
-    emitTickerLastPrice(socket: SocketIO.Socket | SocketIO.Namespace, ticker?: string) {
+    private emitTickerLastPrice(socket: SocketIO.Socket | SocketIO.Namespace, ticker?: string) {
         this.tickerService.getLastPrice().done((price) => {
-            this.emit(socket, 'Event.TickerLastPrice', price);
+            this.emit(socket, new TickerLastPriceEvent(price));
         }); 
     }
 
-    emit(socket: SocketIO.Socket | SocketIO.Namespace, eventName: string, data: any) {
-        socket.emit(this.socketEventQueue, { eventName: eventName, data: data });
+    emit(socket: SocketIO.Socket | SocketIO.Namespace, event: BaseEvent<any>) {
+        socket.emit(this.socketEventQueue, event);
     }
 
     getSocket(id: string) {
         return this.io.sockets.sockets[id];
+    }
+
+    registerProcess(childProcess: ChildProcess) {
+        childProcess.on('message', (event: BaseEvent<any>) => {
+            console.log('socket - from child process:', event);
+            this.emit(this.io.sockets, event);
+        });
+        
+        var index = this.processes.length;
+        childProcess.on('close', (code, signal) => {
+            console.log('child process terminated');
+            this.processes.splice(index, 1);
+        });
+
+        this.processes.push(childProcess);
+        console.log(`process ${this.processes.length} registered`);
+    }
+
+    private notify(event: BaseEvent<any>) {
+        this.processes.forEach(process => {
+            process.send(event);
+        });
     }
 }

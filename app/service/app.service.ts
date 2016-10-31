@@ -4,6 +4,7 @@ import { ApiService } from './api.service';
 import { UserService } from './user.service';
 
 import { RouteInfo, RouterService, RouteParamsCallback } from './router.service';
+import { ClientSocket } from './client.socket';
 
 import { Config } from 'backlive/config';
 import { Common, Cache } from 'backlive/utility';
@@ -12,23 +13,20 @@ import { PlatformUI } from 'backlive/utility/ui';
 import { EventQueue, BaseEvent, TypeOfBaseEvent, BaseEventCallback } from 'backlive/network/event';
 import { RouterLoadingEvent } from 'backlive/event';
 
-declare var io;
-
 @Injectable()
 export class AppService {
     userService: UserService; //set by UserService to prevent circular reference
     
     private eventQueue: EventQueue;
-    private socket: Socket;
 
     private componentLoaded: boolean; //denotes when at least one component has loaded after routing
     protected get ServiceComponentId() { return 'service' };
     
-    constructor(public routerService: RouterService, private platformUI: PlatformUI) {
+    constructor(public routerService: RouterService, public clientSocket: ClientSocket, private platformUI: PlatformUI) {
         this.eventQueue = new EventQueue();
-        this.socket = io();
 
-        this.socket.on(Config.SocketEventQueue, (event: BaseEvent<any>) => {
+        this.clientSocket.on(Config.SocketEventQueue, (event: BaseEvent<any>) => {
+            console.log('web - from socket', event);
             this.notify(event);
         });
 
@@ -87,16 +85,11 @@ export class AppService {
         this.eventQueue.notify(event);
 
         if(event.isServer) {
-            this.socket.emit(Config.SocketEventQueue, event);
+            this.clientSocket.emit(Config.SocketEventQueue, event);
         }
     }
     
     unsubscribe(componentId: number, eventType?: typeof BaseEvent) {
         this.eventQueue.unsubscribe(componentId, eventType);
     }
-}
-
-export interface Socket {
-    on: (eventName: string, callback: (data: BaseEvent<any>) => void) => void;
-    emit: (eventName: string, data: any) => void;
 }

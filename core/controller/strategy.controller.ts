@@ -1,63 +1,71 @@
-var BaseController = require("./BaseController.js");
+import { BaseController, Get, Post, Delete } from './base.controller';
 var StrategyService = require("../service/StrategyService.js");
 
-function StrategyController() {
-	BaseController.call(this, { strategyService: StrategyService });
+export class StrategyController extends BaseController {
+	constructor() {
+		super({ strategyService: StrategyService });
+	}
 	
-	this.index = function(req, res) {
+	@Get()
+	index(req, res) {
         res.services.strategyService.getBacktests().done(function(strategies) {
 			res.send(strategies);
 		});
 	}
     
-    this.post[':backtestId'] = function(req, res) {
+	@Post(':backtestId')
+    saveBacktest(req, res) {
         res.services.strategyService.saveBacktest(req.params.backtestId, req.body.name).done(function(strategy) {
 			res.send(strategy);
 		});
 	}
     
-    this.post.index = function(req, res) {
+	@Post()
+    getReturns(req, res) {
         res.services.strategyService.getReturns(req.body.strategyIds, req.body.startDate, req.body.endDate).done(function(strategy) {
 			res.send(strategy);
 		});
 	}
     
-    this.delete[':backtestId'] = function(req, res) {
+	@Delete(':backtestId')
+    removeBacktest(req, res) {
         res.services.strategyService.removeBacktest(req.params.backtestId).done(function(data) {
 			res.send(data);
 		});
 	}
     
-    this.post[':backtestId/share'] = function(req, res) {
+	@Post(':backtestId/share')
+    shareBacktest(req, res) {
         res.services.strategyService.shareBacktest(req.params.backtestId, req.body.username, req.body.isPublic).done(function(data) {
 			res.send(data);
 		});
 	}
     
-    this[':backtestId/automate'] = function(req, res) {
+	@Post(':backtestId/automate')
+    getAutomatedStrategy(req, res) {
         res.services.strategyService.getAutomatedStrategy(req.params.backtestId).done(function(data) {
 			res.send(data);
 		});
 	}
     
-    this.post[':backtestId/automate'] = function(req, res) {
+	@Post(':backtestId/automate')
+    automateStrategy(req, res) {
         res.services.strategyService.automateStrategy(req.params.backtestId, req.body.startCapital).done(function(data) {
 			res.send(data);
 		});
 	}
     
-    this.delete[':backtestId/automate'] = function(req, res) {
+	@Delete(':backtestId/automate')
+    stopAutomation(req, res) {
         res.services.strategyService.stopAutomation(req.params.backtestId).done(function(res) {
 			res.send(res);
 		});
 	}
     
-    this.delete[':backtestId/executed'] = function(req, res) {
-        res.services.strategyService.stopAutomation(req.params.backtestId, req.body.date).done(function(res) {
+	@Delete(':backtestId/executed')
+    markStrategyAsExecuted(req, res) {
+        res.services.strategyService.markStrategyAsExecuted(req.params.backtestId, req.body.date).done(function(res) {
 			res.send(res);
 		});
 	}
 }
-
-StrategyController.inherits(BaseController);
-module.exports = StrategyController;

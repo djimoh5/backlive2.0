@@ -1,12 +1,12 @@
 import * as express from 'express';
 import { routes } from './routes';
-import { ServerSocket } from './server.socket';
 
 var lessMiddleware = require('less-middleware');
 
 export class Server {
-    app: express.Application;
-
+    private app: express.Application;
+    private server: any;
+    
     constructor() {
         this.app = express();
 
@@ -44,11 +44,11 @@ export class Server {
             console.log('BackLive listening at http://%s:%s', host, port);
         });
 
-        //init socket handler
-        var serverSocket =  new ServerSocket(server);
+        this.server = server;
+    }
 
-        // init network
-        //require('child_process').fork('./network/main.ts');
+    getServer() {
+        return this.server;
     }
 
     public static bootstrap(): Server {
