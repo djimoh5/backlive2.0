@@ -4,36 +4,37 @@ var url = require('url');
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Session } from '../lib/session';
+import { BaseService } from '../service/base.service';
 
-export function Get(path: string = null) {
+export function Get(path) {
     return function (target: BaseController, propertyKey: string, descriptor: PropertyDescriptor) {
 		if(!target.get) { target.get = {} };
-		target.get[path ? path : propertyKey] = target[propertyKey];
+		target.get[path] = target[propertyKey];
     };
 }
 
-export function Post(path: string = null) {
+export function Post(path) {
     return function (target: BaseController, propertyKey: string, descriptor: PropertyDescriptor) {
 		if(!target.post) { target.post = {} };
-		target.post[path ? path : propertyKey] = target[propertyKey];
+		target.post[path] = target[propertyKey];
     };
 }
 
-export function Delete(path: string = null) {
+export function Delete(path) {
     return function (target: BaseController, propertyKey: string, descriptor: PropertyDescriptor) {
 		if(!target.delete) { target.delete = {} };
-		target.delete[path ? path : propertyKey] = target[propertyKey];
+		target.delete[path] = target[propertyKey];
     };
 }
 
 export class BaseController{
-    private services: { [key: string]: any };
+    private services: { [key: string]: typeof BaseService };
     private router: express.Router = express.Router();
     get: { [key:string]: any };
     post: { [key:string]: any };
     delete: { [key:string]: any };
 
-    constructor(services: { [key: string]: any } = null) {
+    constructor(services: { [key: string]: typeof BaseService } = null) {
         this.services = services;
         this.router = express.Router();
 

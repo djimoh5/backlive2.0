@@ -19,7 +19,7 @@ export class StrategyService extends BaseService {
     }
     
     getReturns(strategyIds: string[], startDate: number, endDate: number) {
-        return this.post('', { strategyIds: strategyIds, startDate: startDate, endDate: endDate });
+        return this.post('returns', { strategyIds: strategyIds, startDate: startDate, endDate: endDate });
     }
     
     saveBacktest(backtestId: string, name: string) {

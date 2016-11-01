@@ -1,39 +1,43 @@
-var BaseController = require("./BaseController.js");
-var NewsService = require("../service/NewsService.js");
+import { BaseController, Get, Post, Delete } from './base.controller';
+import { NewsService } from '../service/news.service';
 
-function NewsController() {
-	BaseController.call(this, { newsService: NewsService });
-	
-	this.custom = function(req, res) {
+export class NewsController extends BaseController {
+	constructor() {
+		super({ newsService: NewsService });
+	}
+
+	@Get('custom')
+	custom(req, res) {
         res.services.newsService.customFeed(req.query.rss).done(function(data) {
 			res.send(data);
 		});
 	}
     
-    this.market = function(req, res) {
+    @Get('market')
+	market(req, res) {
         res.services.newsService.getMarketNews().done(function(data) {
 			res.send(data);
 		});
 	}
     
-    this.cnbc = function(req, res) {
+	@Get('cnbc')
+    cnbc(req, res) {
         res.services.newsService.getCNBCNews().done(function(data) {
 			res.send(data);
 		});
 	}
     
-    this.bloombergRadio = function(req, res) {
+    @Get('bloombergRadio')
+	bloombergRadio(req, res) {
         res.services.newsService.getBloombergRadio().done(function(data) {
 			res.send(data);
 		});
 	}
     
-    this.economist = function(req, res) {
+    @Get('economist')
+	economist(req, res) {
         res.services.newsService.getEconomist().done(function(data) {
 			res.send(data);
 		});
 	}
 }
-
-NewsController.inherits(BaseController);
-module.exports = NewsController;

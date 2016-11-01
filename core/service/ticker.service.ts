@@ -1,23 +1,28 @@
-var BaseService = require("./BaseService.js");
+import { BaseService } from './base.service';
+
+import { Database } from '../lib/database';
+import { Session } from '../lib/session';
+import { Common } from '../../app//utility/common';
+
 var Scraper = require("../lib/Scraper.js");
-var Common = require("../utility/Common.js");
 var whttp = require("../lib/whttp.js");
 
-function TickerService(session) {
-	BaseService.call(this, session);
-    
-    var self = this,
-        user = session.user;
-        
-    this.getPrices = function(ticker, years) {
+export class TickerService extends BaseService {
+    protected get pricingDatabase(): any { return Database.mongoPricing };
+
+    constructor(session: Session) {
+        super(session);
+    }
+
+    getPrices(ticker, years) {
         var today = new Date(),
-            query = { ticker: ticker };
+            query: any = { ticker: ticker };
         
         if(years) {
-            query.date = { $gt:(today.format(1) - (years * 10000)) };
+            query.date = { $gt:(Common.dbDate(today) - (years * 10000)) };
         }
         console.log(query);
-    	db.mongo.collection('market').find(query, {date:1, close:1, adjClose:1, open: 1, high:1, low:1, volume:1, time:1}).sort({date:1}).toArray(function(err, results) {
+    	this.database.collection('market').find(query, {date:1, close:1, adjClose:1, open: 1, high:1, low:1, volume:1, time:1}).sort({date:1}).toArray((err, results) => {
             if(results.length > 0) {
                 var date = results[results.length - 1].date;
                 var time = results[results.length - 1].time;
@@ -26,12 +31,12 @@ function TickerService(session) {
                     results = [];
             }
             
-            if(results.length == 0 || ((time + 3600000) < today.getTime() && date < today.format(1))) {
+            if(results.length == 0 || ((time + 3600000) < today.getTime() && date < Common.dbDate(today))) {
                 if(query.ticker == 'SP500')
                     query.ticker = '^GSPC'
                         
                 //scrape the data
-                Scraper.loadPricing(query.ticker, null, function(results) {
+                Scraper.loadPricing(query.ticker, null, (results) => {
                     finish(results);
                 });
             }
@@ -40,42 +45,43 @@ function TickerService(session) {
                 finish(results);
             }
             
-            function finish(results) {
+            var self = this;
+            var finish = (results) => {
                 if(years) {
                     var days = years * 252;
                     var len = results.length;
                     
                     if(len > days)
-                        self.done(results.splice(len - days));
+                        this.done(results.splice(len - days));
                     else
-                        self.done(results);
+                        this.done(results);
                 }
                 else
-                    self.done(results);
+                    this.done(results);
             }
         });
         
-        return self.promise;
+        return this.promise;
 	}
     
-    this.getPrice = function(ticker, date) {
-        db.mongoPricing.collection(ticker.substring(0, 1).toUpperCase()).findOne({ ticker: ticker, date: parseInt(date) }, { adjClose:1 }, function(err, result) {
+    getPrice(ticker, date) {
+        this.pricingDatabase.collection(ticker.substring(0, 1).toUpperCase()).findOne({ ticker: ticker, date: parseInt(date) }, { adjClose:1 }, (err, result) => {
             if(result)
-                self.done({ success:1, price:result.adjClose });
+                this.done({ success:1, price:result.adjClose });
             else
-                self.done({ success:0 });
+                this.done({ success:0 });
         });
         
-        return self.promise;
+        return this.promise;
     }
     
-    this.getLastPrice = function(ticker) {
+    getLastPrice(ticker) {
         //http://download.finance.yahoo.com/d/quotes.csv?s=^DJI&f=sl1c1p2l1bac8
         if(!ticker) {
             ticker = '^GSPC+^DJX+^IXIC'; //,^TNX for 10 year
         }
          
-        whttp.get('download.finance.yahoo.com', '/d/quotes.csv?s=' + ticker + '&f=sl1c1p2bac8', function(data) {
+        whttp.get('download.finance.yahoo.com', '/d/quotes.csv?s=' + ticker + '&f=sl1c1p2bac8', (data) => {
             data = data.replace(/"/g, " ").split('\n');
             var tkrPrices = {};
 
@@ -94,12 +100,9 @@ function TickerService(session) {
             }
             
             console.log(tkrPrices);
-            self.done(tkrPrices);
+            this.done(tkrPrices);
         });
         
-        return self.promise;
+        return this.promise;
     }
 }
-
-TickerService.inherits(BaseService);
-module.exports = TickerService;

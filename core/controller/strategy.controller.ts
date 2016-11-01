@@ -1,28 +1,28 @@
 import { BaseController, Get, Post, Delete } from './base.controller';
-var StrategyService = require("../service/StrategyService.js");
+import { StrategyService } from '../service/strategy.service';
 
 export class StrategyController extends BaseController {
 	constructor() {
 		super({ strategyService: StrategyService });
 	}
 	
-	@Get()
-	index(req, res) {
+	@Get('')
+	backtests(req, res) {
         res.services.strategyService.getBacktests().done(function(strategies) {
 			res.send(strategies);
 		});
 	}
     
-	@Post(':backtestId')
-    saveBacktest(req, res) {
-        res.services.strategyService.saveBacktest(req.params.backtestId, req.body.name).done(function(strategy) {
+	@Post('returns')
+    getReturns(req, res) {
+        res.services.strategyService.getReturns(req.body.strategyIds, req.body.startDate, req.body.endDate).done(function(strategy) {
 			res.send(strategy);
 		});
 	}
-    
-	@Post()
-    getReturns(req, res) {
-        res.services.strategyService.getReturns(req.body.strategyIds, req.body.startDate, req.body.endDate).done(function(strategy) {
+
+	@Post(':backtestId')
+    saveBacktest(req, res) {
+        res.services.strategyService.saveBacktest(req.params.backtestId, req.body.name).done(function(strategy) {
 			res.send(strategy);
 		});
 	}
@@ -41,7 +41,7 @@ export class StrategyController extends BaseController {
 		});
 	}
     
-	@Post(':backtestId/automate')
+	@Get(':backtestId/automate')
     getAutomatedStrategy(req, res) {
         res.services.strategyService.getAutomatedStrategy(req.params.backtestId).done(function(data) {
 			res.send(data);

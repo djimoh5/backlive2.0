@@ -1,13 +1,13 @@
 import { BaseController, Get, Post, Delete } from './base.controller';
-var IndicatorService = require("../service/IndicatorService.js");
+import { IndicatorService } from '../service/indicator.service';
 
 export class IndicatorController extends BaseController {
 	constructor() {
 		super({ indicatorService: IndicatorService });
 	}
 
-	@Post()
-	index(req, res) {
+	@Post('')
+	save(req, res) {
 		res.services.indicatorService.saveIndicator(res.body.indicator).done(function(res) {
 			res.send(res);
 		});

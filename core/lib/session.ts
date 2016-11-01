@@ -271,7 +271,7 @@ export class Session {
     }
 }
 
-interface User {
+export interface User {
     uid: string;
     token?: string;
     sessId? : string;

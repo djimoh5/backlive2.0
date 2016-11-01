@@ -1,34 +1,41 @@
-var BaseController = require("./BaseController.js");
-var PortfolioService = require("../service/PortfolioService.js");
+import { BaseController, Get, Post, Delete } from './base.controller';
+import { PortfolioService } from '../service/portfolio.service';
 
-function PortfolioController() {
-	BaseController.call(this, { portfolioService: PortfolioService });
-	
-	this.index = function(req, res) {
+export class PortfolioController extends BaseController {
+	constructor() {
+		super({ portfolioService: PortfolioService });
+	}
+
+	@Get('')
+	getPortfolios(req, res) {
         res.services.portfolioService.getPortfolio().done(function(portfolio) {
 			res.send(portfolio);
 		});
 	}
     
-    this.post.trade = function(req, res) {
+	@Post('trade')
+    trade(req, res) {
         res.services.portfolioService.addTrade(req.body.trade).done(function(data) {
 			res.send(data);
 		});
 	}
 
-    this.post.trades = function(req, res) {
+	@Post('trades')
+    trades(req, res) {
         res.services.portfolioService.batchAddTrades(req.body.trades).done(function(data) {
 			res.send(data);
 		});
 	}
     
-    this.delete['trade/:tradeId'] = function(req, res) {
+	@Delete('trade/:tradeId')
+    removeTrade(req, res) {
         res.services.portfolioService.removeTrade(req.param.tradeId).done(function(data) {
 			res.send(data);
 		});
 	}
 
-    this.clear = function(req, res) {
+	@Post('clear')
+    clear(req, res) {
         res.services.portfolioService.clearPortfolio().done(function(data) {
 			res.send(data);
 		});

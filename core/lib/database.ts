@@ -5,7 +5,7 @@ export class Database {
     private static IP: string = '23.23.204.60';
     //private static IP: string = 'localhost';
 
-    static mongo: any = null;
+    static mongo: { collection: Function } = null;
     static mongoPricing: any = null;
 
     static ObjectID = require('mongodb').ObjectID;

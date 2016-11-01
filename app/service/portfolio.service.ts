@@ -26,6 +26,6 @@ export class PortfolioService extends BaseService {
     }
     
     clearPortfolio() {
-        return this.get('clear');
+        return this.post('clear', null);
     }
 }

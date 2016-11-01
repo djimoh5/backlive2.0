@@ -160,7 +160,7 @@ export class Common {
         return formatDate(date, format, options)
     }
     
-    static dbDate(date: Date) {
+    static dbDate(date: Date): number {
         return parseInt(date.getFullYear() + Common.padDatePart(date.getMonth() + 1) + Common.padDatePart(date.getDate()));
     }
     
