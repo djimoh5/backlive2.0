@@ -21,7 +21,7 @@ export class TickerService extends BaseService {
         if(years) {
             query.date = { $gt:(Common.dbDate(today) - (years * 10000)) };
         }
-        console.log(query);
+        
     	this.database.collection('market').find(query, {date:1, close:1, adjClose:1, open: 1, high:1, low:1, volume:1, time:1}).sort({date:1}).toArray((err, results) => {
             if(results.length > 0) {
                 var date = results[results.length - 1].date;
@@ -37,32 +37,33 @@ export class TickerService extends BaseService {
                         
                 //scrape the data
                 Scraper.loadPricing(query.ticker, null, (results) => {
-                    finish(results);
+                    this.finish(results, years);
                 });
             }
             else {
                 years = null; //doesn't need to be spliced since we already selected the correct timeframe
-                finish(results);
+                this.finish(results, years);
             }
             
             var self = this;
-            var finish = (results) => {
-                if(years) {
-                    var days = years * 252;
-                    var len = results.length;
-                    
-                    if(len > days)
-                        this.done(results.splice(len - days));
-                    else
-                        this.done(results);
-                }
-                else
-                    this.done(results);
-            }
         });
         
         return this.promise;
 	}
+
+    private finish(results, years) {
+        if(years) {
+            var days = years * 252;
+            var len = results.length;
+            
+            if(len > days)
+                this.done(results.splice(len - days));
+            else
+                this.done(results);
+        }
+        else
+            this.done(results);
+    }
     
     getPrice(ticker, date) {
         this.pricingDatabase.collection(ticker.substring(0, 1).toUpperCase()).findOne({ ticker: ticker, date: parseInt(date) }, { adjClose:1 }, (err, result) => {
@@ -99,7 +100,6 @@ export class TickerService extends BaseService {
                 }
             }
             
-            console.log(tkrPrices);
             this.done(tkrPrices);
         });
         

@@ -13,7 +13,7 @@ export class BaseService {
 
     constructor(session: Session) {
         this.session = session;
-        this.user = session.user;
+        this.user = session.user
         this.deferred = Q.defer();
         this.promise = this.deferred.promise;
     }

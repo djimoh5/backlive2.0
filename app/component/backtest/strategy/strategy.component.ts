@@ -6,6 +6,7 @@ import {AppService, UserService} from 'backlive/service';
 
 import { Indicator, Strategy } from 'backlive/service/model';
 import { ExecuteStrategyEvent, StrategyUpdateEvent } from 'backlive/event';
+import { IndicatorUpdateEvent } from '../../../../network/event/app.event';
 
 @Component({
     selector: 'backlive-strategy',
@@ -22,6 +23,8 @@ export class StrategyComponent extends BaseComponent implements OnInit {
         super(appService);
         this.subscribeEvent(StrategyUpdateEvent, event => console.log(event.data));
         this.appService.notify(new ExecuteStrategyEvent(new Strategy()));
+
+        this.subscribeEvent(IndicatorUpdateEvent, event => console.log(event.data));
     }
     
     ngOnInit() {

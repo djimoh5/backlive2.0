@@ -1,6 +1,6 @@
 export class Config {
     /*** directories ***/
-    static BASE_DIR = __dirname;
+    static BASE_DIR = __dirname + '/..';
     static DIR_CORE = './core/';
     static DIR_LIB = Config.DIR_CORE + 'lib/';
     static DIR_UTILITY = Config.DIR_CORE + 'utility/';

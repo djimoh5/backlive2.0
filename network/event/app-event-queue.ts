@@ -9,7 +9,7 @@ export class AppEventQueue {
 
         process.on('message', (event: BaseEvent<any>) => {
             console.log('network - from parent process', event);
-            AppEventQueue.notify(event);
+            AppEventQueue.notify(event, true);
         });
     }
     
@@ -17,11 +17,11 @@ export class AppEventQueue {
         AppEventQueue.eventQueue.subscribe(eventType, subscriberId, callback);
     }
     
-    static notify(event: BaseEvent<any>) {
+    static notify(event: BaseEvent<any>, fromClient: boolean = false) {
         AppEventQueue.eventQueue.notify(event);
 
-        //if(event.isServer) {
+        if(!fromClient/* && event.isServer*/) {
             process.send(event);
-        //}
+        }
     }
 }

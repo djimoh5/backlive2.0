@@ -7,12 +7,12 @@ export class UserService extends BaseService {
     }
 
    register(params) {
-    	this.session.register(params.username, params.password, params.email, this.done);
+    	this.session.register(params.username, params.password, params.email, (data) => this.done(data));
         return this.promise;
 	}
     
     login(params) {
-        this.session.login(params.username, params.password, this.done);
+        this.session.login(params.username, params.password, (data) => this.done(data));
         return this.promise;
 	}
     
@@ -24,12 +24,12 @@ export class UserService extends BaseService {
     }
     
     password(params) {
-        this.session.changePassword(params[0].opword, params[0].npword, this.done);
+        this.session.changePassword(params[0].opword, params[0].npword, (data) => this.done(data));
         return this.promise;
     }
     
     forgotpassword(params) {
-        this.session.forgotPassword(params.username, this.done);
+        this.session.forgotPassword(params.username, (data) => this.done(data));
         return this.promise;
     }
 }

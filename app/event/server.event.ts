@@ -1,5 +1,6 @@
-import { AppEvent, BaseEvent } from 'backlive/network/event';
-import { Strategy, LastPrice } from 'backlive/service/model';
+import { AppEvent, BaseEvent } from '../../network/event/base.event';
+import { Strategy } from '../service/model/strategy.model';
+import { LastPrice } from '../service/model/ticker.model';
 
 @AppEvent('Event.ExecuteStrategy', true)
 export class ExecuteStrategyEvent extends BaseEvent<Strategy> {}

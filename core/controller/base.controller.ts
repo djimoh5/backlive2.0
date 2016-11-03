@@ -40,9 +40,9 @@ export class BaseController{
 
         this.router.use(bodyParser.json());
         this.router.use(bodyParser.urlencoded());
-        this.router.use(this.queryParser);
-        this.router.use(this.initSession);
-        this.router.use(this.injectServices);
+        this.router.use((req, res, next) => { this.queryParser(req, res, next) });
+        this.router.use((req, res, next) => { this.initSession(req, res, next) });
+        this.router.use((req, res, next) => { this.injectServices(req, res, next) });
     }
 
     private queryParser(req, res, next) {
@@ -57,7 +57,6 @@ export class BaseController{
 	
 	private injectServices(req, res, next) { 
 		if(this.services) {
-            //console.log('injected', services);
 			res.services = {};
 			for(var serviceIdentifier in this.services) {
 				res.services[serviceIdentifier] = new this.services[serviceIdentifier](req.session);
@@ -108,12 +107,12 @@ export class BaseController{
             }
             else if(key == 'get' && self.get) {
                 for(key in self.get) {
-                    this.router.delete(self.getRoutePath(key), self.get[key]);
+                    this.router.get(self.getRoutePath(key), self.get[key]);
                     console.log('- registering get route', key);
                 }
             }
 		}
-		
+
 		return this.router;
 	}
     

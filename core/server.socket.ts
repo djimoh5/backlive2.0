@@ -3,10 +3,11 @@ import { BaseEvent } from '../network/event/base.event';
 import { TickerLastPriceEvent } from '../app/event/server.event';
 import { ChildProcess } from 'child_process';
 
-var TickerService = require("./service/TickerService.js");
+import { TickerService } from './service/ticker.service';
 
 export class ServerSocket {
-    socketEventQueue: string = 'socketEventQueue';
+    clientEventQueueId: string = 'clientEventQueue';
+    serverEventQueueId: string = 'serverEventQueue';
     private io: SocketIO.Server;
     private tickerService: any;
 
@@ -14,13 +15,14 @@ export class ServerSocket {
 
     constructor(server) {
         this.io = io(server);
-        this.tickerService = new TickerService({});
+        var mockSession: any = {};
+        this.tickerService = new TickerService(mockSession);
         
         //initialize sockets
         this.io.on('connection', (socket) => {
             console.log('connected socket');
 
-            socket.on(this.socketEventQueue, (event: BaseEvent<any>) => {
+            socket.on(this.clientEventQueueId, (event: BaseEvent<any>) => {
                 console.log('socket - from web:', event);
                 //this.emit(socket, 'Event.StrategyUpdate', 'hi, my name is server!');
                 this.notify(event);
@@ -63,7 +65,7 @@ export class ServerSocket {
     }
 
     emit(socket: SocketIO.Socket | SocketIO.Namespace, event: BaseEvent<any>) {
-        socket.emit(this.socketEventQueue, event);
+        socket.emit(this.serverEventQueueId, event);
     }
 
     getSocket(id: string) {

@@ -25,9 +25,9 @@ export class AppService {
     constructor(public routerService: RouterService, public clientSocket: ClientSocket, private platformUI: PlatformUI) {
         this.eventQueue = new EventQueue();
 
-        this.clientSocket.on(Config.SocketEventQueue, (event: BaseEvent<any>) => {
+        this.clientSocket.on(Config.ServerEventQueueId, (event: BaseEvent<any>) => {
             console.log('web - from socket', event);
-            this.notify(event);
+            this.notify(event, true);
         });
 
         this.routerService.subscribeToNavigationStart(() => {
@@ -81,11 +81,11 @@ export class AppService {
         this.eventQueue.subscribe(eventType, componentId, callback);
     }
     
-    notify(event: BaseEvent<any>) {
+    notify(event: BaseEvent<any>, fromServer: boolean = false) {
         this.eventQueue.notify(event);
 
-        if(event.isServer) {
-            this.clientSocket.emit(Config.SocketEventQueue, event);
+        if(!fromServer && event.isServer) {
+            this.clientSocket.emit(Config.ClientEventQueueId, event);
         }
     }
     
