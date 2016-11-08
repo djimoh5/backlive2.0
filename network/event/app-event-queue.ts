@@ -1,4 +1,4 @@
-import { EventQueue } from './event-queue';
+import { EventQueue, QueueOperators } from './event-queue';
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from './base.event';
 
 export class AppEventQueue {
@@ -13,8 +13,8 @@ export class AppEventQueue {
         });
     }
     
-    static subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, subscriberId: string, callback: BaseEventCallback<T>) {
-        AppEventQueue.eventQueue.subscribe(eventType, subscriberId, callback);
+    static subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, subscriberId: string, callback: BaseEventCallback<T>, operators?: QueueOperators) {
+        return AppEventQueue.eventQueue.subscribe(eventType, subscriberId, callback);
     }
     
     static notify(event: BaseEvent<any>, fromClient: boolean = false) {

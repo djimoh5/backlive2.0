@@ -1,37 +1,37 @@
 /// <reference path="../typings/index.d.ts" />
 
-import { BaseNode } from './node/base-node';
+import { BaseNode } from './node/base.node';
 import { AppEventQueue } from './event/app-event-queue';
 import { Database } from './lib/data-access/database';
 
-import { IDataHandler } from './node/data-handler/data-handler';
-import { DataLoaderDataHandler } from './node/data-handler/dataloader-data-handler';
+import { IDataNode } from './node/data/data.node';
+import { DataLoaderNode } from './node/data/dataloader.node';
 
-import { Strategy } from './node/strategy/strategy';
+import { StrategyNode } from './node/strategy/strategy.node';
 import { Strategy as StrategyModel } from '../app/service/model/strategy.model';
 
-import { Portfolio } from './node/portfolio/portfolio';
+import { PortfolioNode } from './node/portfolio/portfolio.node';
 
-import { IExecutionHandler } from './node/execution-handler/execution-handler';
-import { BacktestExecutionHandler } from './node/execution-handler/backtest-execution-handler';
+import { IExecutionNode } from './node/execution/execution.node';
+import { BacktestExecutionNode } from './node/execution/backtest-execution.node';
 
 export class Network {
-    dataHandler: IDataHandler;
-    portfolios: Portfolio[] = [];
-    strategies: Strategy[] = [];
-    executionHandler: IExecutionHandler;
+    dataNode: IDataNode;
+    portfolios: PortfolioNode[] = [];
+    strategies: StrategyNode[] = [];
+    executionNode: IExecutionNode;
     
     constructor(model: StrategyModel | any) {
         AppEventQueue.global();
         
         Database.open(() => {
             console.log('Database opened');
-            this.dataHandler = new DataLoaderDataHandler();
-            this.strategies.push(new Strategy(model));
-            this.portfolios.push(new Portfolio(model._id));
-            this.executionHandler = new BacktestExecutionHandler();
+            this.dataNode = new DataLoaderNode();
+            this.strategies.push(new StrategyNode(model));
+            this.portfolios.push(new PortfolioNode(model._id));
+            this.executionNode = new BacktestExecutionNode();
             
-            this.dataHandler.init();
+            this.dataNode.init();
         });
     }
 }

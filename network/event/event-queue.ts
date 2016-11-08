@@ -1,13 +1,12 @@
-import {BaseEvent, TypeOfBaseEvent, BaseEventCallback} from './base.event';
-import {Common} from '../../app/utility/common';
+import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from './base.event';
 
-import {Observable} from 'rxjs/Observable';
-import {Observer} from 'rxjs/Observer';
-import {Subscription} from 'rxjs/Subscription';
-import {Subject} from 'rxjs/Subject';
+import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
+import { Subscription } from 'rxjs/Subscription';
+import { Subject } from 'rxjs/Subject';
+//import 'rxjs/Rx';
+import 'rxjs/add/operator/filter';
 
-declare var io;
- 
 export class EventQueue {
     protected events: { [key: string]: Observable<BaseEvent<any>> } = {};
     protected activators: { [key: string]: Subject<BaseEvent<any>> } = {};
@@ -16,17 +15,17 @@ export class EventQueue {
     constructor() {
     }
     
-    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, subscriberId: number | string, callback: BaseEventCallback<any>, filter?: {}) {
+    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, subscriberId: number | string, callback: BaseEventCallback<any>, operators?: QueueOperators) : Observable<BaseEvent<any>> {
         if(!eventType.eventName) {
             throw('The event does not have a name. Please remember to annotate your event with @AppEvent.');    
         }
         
-        console.log(eventType.eventName, 'subscribed to by ' + subscriberId);
+        //console.log(eventType.eventName, 'subscribed to by ' + subscriberId);
         var eventName = eventType.eventName;
         var observable: Observable<BaseEvent<any>>;
         
         if (!this.events[eventName]) {
-            this.events[eventName] = observable = Observable.create(observer => {
+            this.events[eventName] = observable = Observable.create((observer: Observer<BaseEvent<any>>) => {
                 if(!this.activators[eventName]) {
                     this.activators[eventName] = new Subject<BaseEvent<any>>();
                 }
@@ -43,10 +42,18 @@ export class EventQueue {
         if (!this.subscribers[eventName][subscriberId]) {
             this.subscribers[eventName][subscriberId] = [];
         }
+
+        if(operators) {
+            for(var key in operators) {
+                observable[key](operators[key]);
+            }
+        }
         
         this.subscribers[eventName][subscriberId].push(observable.subscribe((event: BaseEvent<any>) => {
             callback(event);
         }));
+
+        return observable;
     }
     
     unsubscribe(subscriberId: any, eventType?: typeof BaseEvent) {
@@ -75,12 +82,12 @@ export class EventQueue {
 
         if (this.activators[eventName]) {
             setTimeout(() => {
-                //Common.log('EVENT: ' + eventName + ' fired');// with data', event.data);
+                //console.log('EVENT: ' + eventName + ' fired');// with data', event.data);
                 this.activators[eventName].next(event);
             });
         }
         else if(!event.isServer) {
-            Common.log('EVENT: ' + eventName + ' has no subscribers');
+            console.log('EVENT: ' + eventName + ' has no subscribers');
         }
     }
     
@@ -100,4 +107,8 @@ export class EventQueue {
             }
         }
     }
+}
+
+export class QueueOperators {
+    filter: (value: BaseEvent<any>, index: number) => boolean;
 }
