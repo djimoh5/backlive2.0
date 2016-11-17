@@ -34,7 +34,7 @@ export class BaseController{
     post: { [key:string]: any };
     delete: { [key:string]: any };
 
-    constructor(services: { [key: string]: typeof BaseService } = null) {
+    constructor(services?: { [key: string]: typeof BaseService }) {
         this.services = services;
         this.router = express.Router();
 

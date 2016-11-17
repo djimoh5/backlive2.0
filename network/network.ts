@@ -8,7 +8,7 @@ import { IDataNode } from './node/data/data.node';
 import { DataLoaderNode } from './node/data/dataloader.node';
 
 import { StrategyNode } from './node/strategy/strategy.node';
-import { Strategy as StrategyModel } from '../app/service/model/strategy.model';
+import { Strategy as StrategyModel } from '../core/service/model/strategy.model';
 
 import { PortfolioNode } from './node/portfolio/portfolio.node';
 

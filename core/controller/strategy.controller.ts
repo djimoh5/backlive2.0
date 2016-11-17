@@ -5,8 +5,15 @@ export class StrategyController extends BaseController {
 	constructor() {
 		super({ strategyService: StrategyService });
 	}
-	
+
 	@Get('')
+	stategies(req, res) {
+        res.services.strategyService.getStrategies().done(function(strategies) {
+			res.send(strategies);
+		});
+	}
+	
+	@Get('backtests')
 	backtests(req, res) {
         res.services.strategyService.getBacktests().done(function(strategies) {
 			res.send(strategies);

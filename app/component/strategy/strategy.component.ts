@@ -1,17 +1,17 @@
-import {Component, OnInit, Input, Output, EventEmitter, ElementRef} from '@angular/core';
-import {Path} from 'backlive/config';
-import {BaseComponent} from 'backlive/component/shared';
+import { Component, OnInit, Input, Output, EventEmitter, ElementRef } from '@angular/core';
+import { Path } from 'backlive/config';
+import { BaseComponent } from 'backlive/component/shared';
 
-import {AppService, UserService} from 'backlive/service';
+import { AppService, UserService } from 'backlive/service';
 
 import { Indicator, Strategy } from 'backlive/service/model';
-import { ExecuteStrategyEvent, StrategyUpdateEvent } from 'backlive/event';
-import { IndicatorEvent } from '../../../../network/event/app.event';
+import { ExecuteStrategyEvent, UpdateStrategyEvent } from './strategy.event';
+import { IndicatorEvent } from 'backlive/network/event';
 
 @Component({
     selector: 'backlive-strategy',
-    templateUrl: Path.ComponentView('backtest/strategy'),
-    styleUrls: [Path.ComponentStyle('backtest/strategy')]
+    templateUrl: Path.ComponentView('strategy'),
+    styleUrls: [Path.ComponentStyle('strategy')]
 })
 export class StrategyComponent extends BaseComponent implements OnInit {
     @Input() strategy: Strategy;
@@ -21,20 +21,24 @@ export class StrategyComponent extends BaseComponent implements OnInit {
     
     constructor(appService: AppService, private elementRef: ElementRef) {
         super(appService);
-        this.subscribeEvent(StrategyUpdateEvent, event => console.log(event.data));
-        this.appService.notify(new ExecuteStrategyEvent(new Strategy()));
     }
     
     ngOnInit() {
-        this.strategy = new Strategy();
+        if(!this.strategy) {
+            this.strategy = new Strategy('');
+        }
+    }
+
+    updateStrategy() {
         this.strategyChange.emit(this.strategy);
+        this.appService.notify(new UpdateStrategyEvent(this.strategy));
     }
     
     getElement() {
         return this.elementRef.nativeElement;
     }
     
-    onReadOnlyChange(readonly: boolean, collection: Indicator[]) {
+    /*onReadOnlyChange(readonly: boolean, collection: Indicator[]) {
         if(!readonly) {
             this.setAllReadonly(collection);
         }
@@ -111,5 +115,5 @@ export class StrategyComponent extends BaseComponent implements OnInit {
     
     removeIndicator(index: number, collection: Indicator[]) {
         collection.splice(index, 1);
-    }
+    }*/
 }

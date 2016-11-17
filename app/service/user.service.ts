@@ -1,8 +1,9 @@
-﻿import {Injectable} from '@angular/core';
-import {BaseService} from './base.service';
-import {ApiService} from './api.service';
-import {AppService} from './app.service';
-import {User} from './model/user.model';
+﻿import { Injectable } from '@angular/core';
+import { BaseService } from './base.service';
+import { ApiService } from './api.service';
+import { AppService } from './app.service';
+import { User } from 'backlive/service/model';
+
 @Injectable()
 export class UserService extends BaseService {
     user: User;

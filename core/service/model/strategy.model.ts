@@ -2,8 +2,9 @@ import {BaseModel} from './base.model';
 import {Indicator} from './indicator.model';
 import {Common} from 'backlive/utility';
 
-export class Strategy extends BaseModel {
+export class Strategy {
     _id: string;
+    id: string;
     uid: string;
     name: string = '';
     date: number;
@@ -11,6 +12,11 @@ export class Strategy extends BaseModel {
     live: number;  
     
     data: StrategyParams;
+
+    constructor(name: string) {
+        this.id = Common.uniqueId();
+        this.name = name;
+    }
     
     //client-side
     results: Performance;

@@ -9,8 +9,8 @@ import { Indicator } from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-indicator',
-    templateUrl: Path.ComponentView('backtest/indicator'),
-    styleUrls: [Path.ComponentStyle('backtest/indicator')]
+    templateUrl: Path.ComponentView('indicator'),
+    styleUrls: [Path.ComponentStyle('indicator')]
 })
 export class IndicatorComponent extends BaseComponent implements OnInit {
     compare: number = 2;
@@ -32,23 +32,6 @@ export class IndicatorComponent extends BaseComponent implements OnInit {
 
     getElement() {
         return this.elementRef.nativeElement;
-    }
-    
-    toggleReadOnly() {
-        this.indicator.readonly = !this.indicator.readonly;
-        this.toggleChildren(<Indicator[]> this.indicator.vars, this.indicator.readonly);
-        this.readOnlyChange.emit(this.indicator.readonly);
-    }
-    
-    toggleChildren(vars: Indicator[], toggleVal: boolean) {
-        for(var i = vars.length - 1; i >= 0; i--) {
-            vars[i].readonly = toggleVal;
-            this.toggleChildren(<Indicator[]> vars[i].vars, toggleVal);
-        }
-    }
-    
-    onGroupIndicator() {
-        this.groupIndicator.emit(true);
     }
     
     onRemove() {

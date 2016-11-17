@@ -1,7 +1,7 @@
 import { BaseNode } from '../base.node'
 import { DataEvent, DataSubscriptionEvent, IndicatorEvent } from '../../event/app.event';
 
-import { Indicator as IndicatorModel, IndicatorParam } from '../../../app/service/model/indicator.model';
+import { Indicator as IndicatorModel, IndicatorParam } from '../../../core/service/model/indicator.model';
 import { Common } from '../../../app//utility/common';
 
 import { DataCache } from '../../node/data/data.node';

@@ -1,4 +1,5 @@
 import { BaseService } from './base.service';
+import { StrategyRepository } from '../repository/strategy.repository';
 
 import { Session, User } from '../lib/session';
 import { Common } from '../../app//utility/common';
@@ -6,21 +7,19 @@ import { Common } from '../../app//utility/common';
 var spawner = require('child_process');
 
 export class StrategyService extends BaseService {
+    strategyRepository: StrategyRepository;
+
     constructor(session: Session) {
-        super(session);
+        super(session, { strategyRepository: StrategyRepository });
+    }
+
+    getStrategies() {
+        return this.strategyRepository.getByUserId(this.user.uid);
     }
 
     getBacktests() {
         var query = { name:{ $ne:null }, uid: this.user.uid };
         this.database.collection('log_bt').find(query).sort({"_id":1}).toArray((err, results) => {
-            this.done(results);
-        });
-        
-        return this.promise;
-    }
-    
-    getStrategies() {
-        this.database.collection('user_stgy').find({ uid: this.user.uid, active: 1}).sort({"_id":1}).toArray((err, results) => {
             this.done(results);
         });
         
@@ -67,20 +66,20 @@ export class StrategyService extends BaseService {
         var collection = this.database.collection('log_bt');
         
         collection.findOne({ _id:oid, uid: this.user.uid }, (err, doc) => {
-            if(err) { this.done({ "success":0 }); return; }
+            if(err) { this.error(err); return; }
             
             if(doc) {
                 doc.name = name;
 
                 collection.update({ _id:oid, uid: this.user.uid }, doc, (err) => {
                     if(err)
-                        this.done({ "success":0 });
+                        this.error(err);
                     else
-                        this.done({ "success":1 });
+                        this.success();
                 });
             }
             else
-                this.done({ "success":0 });
+                this.error(null);
         });
         
         return this.promise;
@@ -97,7 +96,7 @@ export class StrategyService extends BaseService {
                         collection.remove({ id:oid }, () => {
                             this.database.collection("log_bt_tr", (error, collection) => {
                                 collection.remove({ id:oid }, () => {
-                                    this.done({ "success":1 });
+                                    this.success();
                                 });
                             });
                         });
@@ -105,7 +104,7 @@ export class StrategyService extends BaseService {
                 });
             }
             else
-                this.done({ "success":0, "msg":(doc.live ? "Live strategies cannot be removed. Please first stop automation." : "") });
+                this.error(doc.live ? "Live strategies cannot be removed. Please first stop automation." : "");
         });
         
         return this.promise;
@@ -124,7 +123,7 @@ export class StrategyService extends BaseService {
                     doc.pub = isPublic;
                     collection.update({ _id:oid, uid: this.user.uid }, doc, (err) => {
                         if(err)
-                            this.done({ success:0, msg:"an unexpected error occurred" });
+                            this.error("an unexpected error occurred");
                         else
                             this.done({ success:1, msg:'your backtests have been made public to all users' });
                     });

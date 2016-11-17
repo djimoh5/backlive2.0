@@ -2,7 +2,7 @@ import { DataEvent, DataSubscriptionEvent, DataFilterEvent } from '../../event/a
 import { BaseDataNode, IDataNode, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
 
 import { RFIELD_MAP, TABLE_MAP } from './field-map';
-import { IndicatorParamType, DENORM_PARAM_TYPES } from '../../../app/service/model/indicator.model';
+import { IndicatorParamType, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
 
 import { Common } from '../../../app/utility/common';
 

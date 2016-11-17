@@ -5,8 +5,8 @@ export class Database {
     private static IP: string = '23.23.204.60';
     //private static IP: string = 'localhost';
 
-    static mongo: { collection: Function } = null;
-    static mongoPricing: any = null;
+    static mongo: Mongo = null;
+    static mongoPricing: Mongo = null;
 
     static ObjectID = require('mongodb').ObjectID;
 
@@ -28,4 +28,23 @@ export class Database {
             }
         });
     }
+}
+
+export interface Mongo {
+    collection: (name: string, callback?: (err, collection: Collection) => void) => Collection;
+}
+
+export interface Collection {
+    find(query?: { [key: string]: any });
+    find(query?: { [key: string]: any }, fields?: { [key: string]: any });
+    findOne(query: { [key: string]: any }, callback: (err, doc) => void);
+    findOne(query: { [key: string]: any }, fields: { [key: string]: any }, callback: (err, doc) => void);
+    insert(data: any, callback?: (err) => void);
+    insert(data: any, { safe: boolean }, callback?: (err) => void);
+    update(query: { [key: string]: any }, data: { $set: any } | any, callback?: (err) => void);
+    update(query: { [key: string]: any }, data: { $set: any } | any, options: { upsert?: boolean, multi?: boolean }, callback?: (err) => void);
+}
+
+export interface QueryResults {
+    (err: any, results: any);
 }

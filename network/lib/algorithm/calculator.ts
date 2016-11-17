@@ -1,4 +1,4 @@
-import { Operator, Indicator, IndicatorParam, IndicatorParamType, DENORM_PARAM_TYPES } from '../../../app/service/model/indicator.model';
+import { Operator, Indicator, IndicatorParam, IndicatorParamType, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
 import { Common } from '../../../app//utility/common';
 
 import { DataCache } from '../../node/data/data.node';

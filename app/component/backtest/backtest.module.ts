@@ -2,8 +2,8 @@ import { NgModule }       from '@angular/core';
 import { SharedModule } from 'backlive/module/shared';
 
 import { BacktestComponent } from './backtest.component';
-import { StrategyComponent } from './strategy/strategy.component';
-import { IndicatorComponent } from './indicator/indicator.component';
+import { StrategyComponent } from '../strategy/strategy.component';
+import { IndicatorComponent } from '../indicator/indicator.component';
 
 import { backtestRouting } from './backtest.routing';
 

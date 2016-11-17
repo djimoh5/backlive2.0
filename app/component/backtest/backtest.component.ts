@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Path } from 'backlive/config';
 import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
-import { StrategyComponent } from './strategy/strategy.component';
+import { StrategyComponent } from '../strategy/strategy.component';
 
-import { AppService, UserService } from 'backlive/service';
+import { AppService, UserService, StrategyService } from 'backlive/service';
 
 import { Route } from 'backlive/routes';
 import { Strategy, Indicator } from 'backlive/service/model';
@@ -19,6 +19,7 @@ declare var d3;
     styleUrls: [Path.ComponentStyle('backtest')]
 })
 export class BacktestComponent extends PageComponent implements OnInit {
+    life: { numLoops: number };
     errMessage: string;
     strategy: Strategy;
     indicators: Indicator[] = [];
@@ -26,7 +27,7 @@ export class BacktestComponent extends PageComponent implements OnInit {
     
     @ViewChild('strategyComponent') strategyComponent: StrategyComponent;
     
-    constructor(appService: AppService, private userService: UserService, private platformUI: PlatformUI) {
+    constructor(appService: AppService, private userService: UserService, private strategyService: StrategyService, private platformUI: PlatformUI) {
         super(appService);
         
         var items = [
@@ -37,35 +38,40 @@ export class BacktestComponent extends PageComponent implements OnInit {
         ];
         
         appService.notify(new SlidingNavItemsEvent(items));
+
+        this.life = { numLoops: 0 };
     }
     
     ngOnInit() {
-        
+        this.strategyService.getStrategies().then(strategies => {
+            console.log(strategies);
+            var radius = 250, radiusPercent = 40, angleOffset = 10, startAngle = 180;
+
+            var eventLoop = setInterval(() => {
+                var numInds = this.indicators.length;
+
+                if(numInds > 0) {
+                    this.indicators.forEach((indicator, index) => {
+                        if(index === 0) {
+                            indicator.position.angle = startAngle + (.2 * this.life.numLoops);
+                        }
+                        else {
+                            indicator.position.angle = this.indicators[index - 1].position.angle - angleOffset;
+                        }
+
+                        indicator.position.x = radiusPercent * Math.cos(indicator.position.angle / 180 * Math.PI);
+                        indicator.position.y = radius * Math.sin(indicator.position.angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30; //extra 30 for amount strategy pod is off center;
+                    });
+
+                    this.life.numLoops++;
+                }
+            }, 100);
+        });
     }
     
     addIndicator() {
         var indicator = new Indicator();
         this.indicators.push(indicator);
-        this.positionIndicators();
-    }
-    
-    positionIndicators() {
-        var lastIndex = this.indicators.length - 1;
-        var radius = 250, radiusPercent = 40, angleOffset = 10, 
-            startAngle = 180 - (lastIndex * angleOffset / 2);
-        
-        this.indicators.forEach((indicator, index) => {
-            var angle = ((lastIndex - index) * angleOffset) + startAngle;
-            indicator.position.x = radiusPercent * Math.cos(angle / 180 * Math.PI);
-            indicator.position.y = radius * Math.sin(angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30; //extra 30 for amount strategy pod is off center;
-        
-            clearInterval(indicator.interval);
-            indicator.interval = setInterval(() => {
-                angle += .2;
-                indicator.position.x = radiusPercent * Math.cos(angle / 180 * Math.PI);
-                indicator.position.y = radius * Math.sin(angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30;
-            }, 10);
-        });
     }
     
     getLine(indicator: Indicator) {
@@ -81,13 +87,11 @@ export class BacktestComponent extends PageComponent implements OnInit {
            { x: centerX, y: centerY - 30 }
         ];
         
-       //console.log(lineData);
-        
         var line = d3.line()
                         .x(function(d) { return d.x; })
                         .y(function(d) { return d.y; })
                         .curve(d3.curveBundle.beta(1));
 
-       return line(lineData);
+        return line(lineData);
     }
 }

@@ -14,10 +14,21 @@ export class BaseNode {
     }
     
     subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, callback: BaseEventCallback<T>, operators?: QueueOperators) {
-        return AppEventQueue.subscribe(eventType, this.nodeId, callback);
+        var operators: QueueOperators;
+
+        if(this.inputs[eventType.name]) {
+            operators = {
+                filter: (event, index) => {
+                    return typeof this.inputs[eventType.name][event.senderId] !== 'undefined';
+                }
+            }
+        }
+
+        return AppEventQueue.subscribe(eventType, this.nodeId, callback, operators);
     }
     
     notify(event: BaseEvent<any>) {
+        event.senderId = this.nodeId;
         AppEventQueue.notify(event);
     }
 }

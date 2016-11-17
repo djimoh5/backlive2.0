@@ -12,6 +12,7 @@ export class BaseEvent<T> {
     eventName: string;
     isServer: boolean;
     data: T;
+    senderId: string;
     
     constructor(data: T) {
         this.data = data;

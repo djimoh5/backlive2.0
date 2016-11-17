@@ -1,9 +1,8 @@
-import {Injectable} from '@angular/core';
-import {BaseService} from './base.service';
-import {ApiService} from './api.service';
-import {AppService} from './app.service';
-import {User} from './model/user.model';
-import {Strategy} from './model/strategy.model';
+import { Injectable } from '@angular/core';
+import { BaseService } from './base.service';
+import { ApiService } from './api.service';
+import { AppService } from './app.service';
+import { User, Strategy } from 'backlive/service/model';
 
 @Injectable()
 export class StrategyService extends BaseService {
@@ -14,7 +13,11 @@ export class StrategyService extends BaseService {
         super(apiService, appService, 'strategy');
     }
 
-    getBacktests() {
+    getBacktests() : Promise<Strategy[]> {
+        return this.get('backtests', null, true);
+    }
+
+    getStrategies() : Promise<Strategy[]>  {
         return this.get('', null, true);
     }
     

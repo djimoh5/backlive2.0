@@ -1,8 +1,8 @@
 import { AppEvent, BaseEvent } from './base.event';
 
 import { DataCache, DataResult } from '../node/data/data.node';
-import { Ticker } from '../../app/service/model/ticker.model';
-import { IndicatorParam } from '../../app/service/model/indicator.model';
+import { Ticker } from '../../core/service/model/ticker.model';
+import { IndicatorParam } from '../../core/service/model/indicator.model';
 
 @AppEvent('Event.Data')
 export class DataEvent extends BaseEvent<{ cache: DataCache, allCacheKeys?: string[] | number[] }> { }
