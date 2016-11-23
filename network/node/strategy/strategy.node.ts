@@ -44,8 +44,11 @@ export class StrategyNode extends BaseNode {
         console.log(event)
     }
 
-    getModel() {
-        return this.model;
+    setModel(model: StrategyModel) {
+        this.model = model;
     }
 
+    getModel() {
+        return this.model;
+    } 
 }

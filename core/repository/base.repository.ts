@@ -38,7 +38,7 @@ class Context {
 
         find.toArray((err, results) => this.deferCallback(deferred, err, results));
 
-        return deferred.promise();
+        return deferred.promise;
     }
 
     findOne(query: { [key: string]: any }, fields?: { [key: string]: 1 }) : Promise<any> {
@@ -51,7 +51,7 @@ class Context {
             this.collection.findOne(query, (err, doc) => this.deferCallback(deferred, err, doc));
         }
 
-        return deferred.promise();
+        return deferred.promise;
     }
 
     insert(data: any, safe: boolean = false) : Promise<any> {
@@ -62,8 +62,8 @@ class Context {
 
     update(query: { [key: string]: any }, data: any) : Promise<any> {
         var deferred = Q.defer();
-        this.collection.update(query, { $set: data }, (err) => this.deferCallback(deferred, err));
-        return deferred.promise();
+        this.collection.update(query, { $set: data }, (err) => this.deferCallback(deferred, err, data));
+        return deferred.promise;
     }
 
     private deferCallback(deferred, err, results?) {
@@ -71,7 +71,7 @@ class Context {
             deferred.reject(err); 
         }
         else { 
-            deferred.resolve(); 
+            deferred.resolve(results);
         }
     }
 }

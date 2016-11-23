@@ -6,10 +6,17 @@ export class StrategyController extends BaseController {
 		super({ strategyService: StrategyService });
 	}
 
-	@Get('')
+	@Get('list')
 	stategies(req, res) {
-        res.services.strategyService.getStrategies().done(function(strategies) {
+        res.services.strategyService.getStrategies().then(function(strategies) {
 			res.send(strategies);
+		});
+	}
+
+	@Post('')
+	updateStrategy(req, res) {
+        res.services.strategyService.updateStrategy(req.body).then(function(strategy) {
+			res.send(strategy);
 		});
 	}
 	

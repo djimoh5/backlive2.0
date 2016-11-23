@@ -3,8 +3,8 @@ import { BaseService } from './base.service';
 import { Database } from '../lib/database';
 import { Session } from '../lib/session';
 import { Common } from '../../app//utility/common';
+import { Scraper } from '../lib/scraper';
 
-var Scraper = require("../lib/Scraper.js");
 var whttp = require("../lib/whttp.js");
 
 export class TickerService extends BaseService {

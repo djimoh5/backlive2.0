@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Path } from 'backlive/config';
 import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
 import { StrategyComponent } from '../strategy/strategy.component';
@@ -18,8 +18,10 @@ declare var d3;
     templateUrl: Path.ComponentView('backtest'),
     styleUrls: [Path.ComponentStyle('backtest')]
 })
-export class BacktestComponent extends PageComponent implements OnInit {
+export class BacktestComponent extends PageComponent implements OnInit, OnDestroy {
+    eventLoop: any;
     life: { numLoops: number };
+    
     errMessage: string;
     strategy: Strategy;
     indicators: Indicator[] = [];
@@ -44,29 +46,37 @@ export class BacktestComponent extends PageComponent implements OnInit {
     
     ngOnInit() {
         this.strategyService.getStrategies().then(strategies => {
-            console.log(strategies);
-            var radius = 250, radiusPercent = 40, angleOffset = 10, startAngle = 180;
+            console.log('strategies', strategies);
+            if(strategies.length > 0) {
+                this.strategy = strategies[0];
+            }
 
-            var eventLoop = setInterval(() => {
-                var numInds = this.indicators.length;
-
-                if(numInds > 0) {
-                    this.indicators.forEach((indicator, index) => {
-                        if(index === 0) {
-                            indicator.position.angle = startAngle + (.2 * this.life.numLoops);
-                        }
-                        else {
-                            indicator.position.angle = this.indicators[index - 1].position.angle - angleOffset;
-                        }
-
-                        indicator.position.x = radiusPercent * Math.cos(indicator.position.angle / 180 * Math.PI);
-                        indicator.position.y = radius * Math.sin(indicator.position.angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30; //extra 30 for amount strategy pod is off center;
-                    });
-
-                    this.life.numLoops++;
-                }
-            }, 100);
+            this.startEventLoop();
         });
+    }
+
+    startEventLoop() {
+        var radius = 250, radiusPercent = 40, angleOffset = 10, startAngle = 180;
+
+        this.eventLoop = setInterval(() => {
+            var numInds = this.indicators.length;
+
+            if(numInds > 0) {
+                this.indicators.forEach((indicator, index) => {
+                    if(index === 0) {
+                        indicator.position.angle = startAngle + (.2 * this.life.numLoops);
+                    }
+                    else {
+                        indicator.position.angle = this.indicators[index - 1].position.angle - angleOffset;
+                    }
+
+                    indicator.position.x = radiusPercent * Math.cos(indicator.position.angle / 180 * Math.PI);
+                    indicator.position.y = radius * Math.sin(indicator.position.angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30; //extra 30 for amount strategy pod is off center;
+                });
+
+                this.life.numLoops++;
+            }
+        }, 200);
     }
     
     addIndicator() {
@@ -93,5 +103,10 @@ export class BacktestComponent extends PageComponent implements OnInit {
                         .curve(d3.curveBundle.beta(1));
 
         return line(lineData);
+    }
+
+    ngOnDestroy() {
+        super.ngOnDestroy();
+        clearInterval(this.eventLoop);
     }
 }

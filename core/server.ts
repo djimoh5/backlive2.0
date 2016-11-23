@@ -1,5 +1,6 @@
 import * as express from 'express';
 import { routes } from './routes';
+import { Session } from './lib/session';
 
 var lessMiddleware = require('less-middleware');
 
@@ -19,6 +20,8 @@ export class Server {
             var host = server.address().address;
             var port = server.address().port;
             console.log('BackLive listening at http://%s:%s', host, port);
+
+            Session.load();
         });
 
         this.server = server;
@@ -44,6 +47,7 @@ export class Server {
         this.app.use('/dist', express.static('dist'));
         this.app.use('/app', express.static('app'));
         this.app.use('/network', express.static('network'));
+        this.app.use('/core/service/model', express.static('core/service/model'));
         this.app.use('/app-design', express.static('app-design'));
         this.app.use('/node_modules', express.static('node_modules'));
 

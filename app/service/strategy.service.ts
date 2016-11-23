@@ -13,14 +13,18 @@ export class StrategyService extends BaseService {
         super(apiService, appService, 'strategy');
     }
 
+    getStrategies() : Promise<Strategy[]>  {
+        return this.get('list', null, true);
+    }
+
+    updateStrategy(strategy: Strategy) : Promise<Strategy>  {
+        return this.post('', strategy);
+    }
+
     getBacktests() : Promise<Strategy[]> {
         return this.get('backtests', null, true);
     }
 
-    getStrategies() : Promise<Strategy[]>  {
-        return this.get('', null, true);
-    }
-    
     getReturns(strategyIds: string[], startDate: number, endDate: number) {
         return this.post('returns', { strategyIds: strategyIds, startDate: startDate, endDate: endDate });
     }

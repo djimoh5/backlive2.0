@@ -1,9 +1,12 @@
-var jsdom;// = require("jsdom");
 var Common = require("../utility/Common.js");
 var whttp = require("./whttp.js");
 
-var Scraper = {
-	loadPricing: function(tkr, siDates, callback) {
+import { Database } from './database';
+
+declare var sprintf: any;
+
+export class Scraper {
+	static loadPricing(tkr, siDates, callback) {
         var path = "/table.csv?s=%s&%s&%s&g=d&ignore=.csv";
     	var date = new Date();
 		var end = sprintf("d=%s&e=%s&f=%s", Common.padMonth(date.getMonth()), Common.padMonth(date.getDate()), date.getFullYear());
@@ -18,7 +21,7 @@ var Scraper = {
             if(tkr == '^GSPC')
                 tkr = 'SP500';
 
-            var collection = db.mongo.collection('market');
+            var collection = Database.mongo.collection('market');
             collection.remove({ ticker:tkr }, function() {
                 //start at line 1, 0 contains column headings
                 for(var i = 1, cnt = data.length; i < cnt; i++) {
@@ -46,64 +49,5 @@ var Scraper = {
 			
 			console.log('scraping tkr prices: ' + tkr);
 		});
-	},
-    
-    loadShortInterest: function(tkr, index) {
-    	whttp.get('www.nasdaq.com', '/symbol/' + tkr + '/short-interest', function(html) {
-            console.log(html);
-			jsdom.env({ html:html, scripts: ['http://code.jquery.com/jquery-1.7.1.min.js'] }, function (err, window) {
-				try {
-					var $ = window.jQuery;
-					var rowNum = 0;
-					
-					$('#ShortInterest1_ShortInterestGrid').find('tr').each(function() {
-						var fields = ['date','short_intr','volume','days_cover'];
-						var cellNum = 0;
-						var data = {};
-				  
-						if(rowNum > 0) {
-							$(this).find('td').each(function() {
-								data[fields[cellNum]] = $(this).html();
-								cellNum++;
-							});
-							
-							var date = data.date.split('/');
-							data.date = parseInt(date[2] + Common.padMonth(date[0]) + Common.padMonth(date[1]));
-							
-							//set date to next available si date
-							var index = 0;
-							while(dates[index] && data.date > dates[index]) {
-								index++;
-							}
-							
-							if(date[index]) {
-								data.date = dates[index];					
-								data.short_intr = parseInt(data.short_intr.replace(/,/g,''));
-								data.volume = parseInt(data.volume.replace(/,/g,''));
-								data.days_cover = parseFloat(data.days_cover.replace(/,/g,''));
-								
-								//console.log(data);
-								db.mongo.collection('shrt_intr', function(error, collection) {
-									collection.insert(data);
-								});
-							}
-						}
-				  	
-						rowNum++;
-					});
-			  
-					console.log("SI loaded for " + tkr + " - " + index);
-					//window.close();
-					window.__stopAllTimers();
-				}
-				catch(ex) {
-					console.log(ex);
-					//window.close();
-					window.__stopAllTimers();
-				}
-			});
-		});
 	}
 }
-
-module.exports = Scraper;

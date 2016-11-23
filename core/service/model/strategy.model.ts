@@ -1,10 +1,9 @@
-import {BaseModel} from './base.model';
-import {Indicator} from './indicator.model';
-import {Common} from 'backlive/utility';
+import { BaseModel } from './base.model';
+import { Indicator } from './indicator.model';
+import { Common } from 'backlive/utility';
 
 export class Strategy {
     _id: string;
-    id: string;
     uid: string;
     name: string = '';
     date: number;
@@ -14,7 +13,6 @@ export class Strategy {
     data: StrategyParams;
 
     constructor(name: string) {
-        this.id = Common.uniqueId();
         this.name = name;
     }
     

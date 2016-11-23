@@ -35,14 +35,16 @@ export interface Mongo {
 }
 
 export interface Collection {
-    find(query?: { [key: string]: any });
-    find(query?: { [key: string]: any }, fields?: { [key: string]: any });
+    find(query?: { [key: string]: any }, callback?: (err, results) => void);
+    find(query?: { [key: string]: any }, fields?: { [key: string]: any }, callback?: (err, results) => void);
+    find(query?: { [key: string]: any }, fields?: { [key: string]: any }, hint?: { hint: { [key: string]: number } }, callback?: (err, results) => void);
     findOne(query: { [key: string]: any }, callback: (err, doc) => void);
     findOne(query: { [key: string]: any }, fields: { [key: string]: any }, callback: (err, doc) => void);
     insert(data: any, callback?: (err) => void);
     insert(data: any, { safe: boolean }, callback?: (err) => void);
     update(query: { [key: string]: any }, data: { $set: any } | any, callback?: (err) => void);
     update(query: { [key: string]: any }, data: { $set: any } | any, options: { upsert?: boolean, multi?: boolean }, callback?: (err) => void);
+    remove(query: { [key: string]: any }, callback?: (err) => void);
 }
 
 export interface QueryResults {

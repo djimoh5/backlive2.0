@@ -4,14 +4,14 @@ import { Strategy } from '../service/model/strategy.model';
 
 export class StrategyRepository extends BaseRepository {
     constructor() {
-        super('user_strgy');
+        super('strategy');
     }
 
     getByUserId(userId: string) : Promise<Strategy[]> {
         return this.context.find({ uid: userId }, null, { sort: { "_id": 1 } });
     }
 
-    save(strategy: Strategy) {
+    add(strategy: Strategy) {
         return this.context.insert(strategy, true);
     }
 

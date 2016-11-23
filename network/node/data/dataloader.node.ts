@@ -6,7 +6,7 @@ import { IndicatorParamType, DENORM_PARAM_TYPES } from '../../../core/service/mo
 
 import { Common } from '../../../app/utility/common';
 
-import { Database } from '../../lib/data-access/database';
+import { Database } from '../../../core/lib/database';
 
 export class DataLoaderNode extends BaseDataNode {
     fields: Fields = {};

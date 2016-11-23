@@ -2,13 +2,17 @@
 
 import { BaseNode } from './node/base.node';
 import { AppEventQueue } from './event/app-event-queue';
-import { Database } from './lib/data-access/database';
+import { Database } from '../core/lib/database';
 
 import { IDataNode } from './node/data/data.node';
 import { DataLoaderNode } from './node/data/dataloader.node';
 
+import { IndicatorNode } from './node/indicator/indicator.node';
+import { UpdateIndicatorEvent } from '../app/component/indicator/indicator.event';
+
 import { StrategyNode } from './node/strategy/strategy.node';
-import { Strategy as StrategyModel } from '../core/service/model/strategy.model';
+import { Strategy } from '../core/service/model/strategy.model';
+import { UpdateStrategyEvent, ExecuteStrategyEvent } from '../app/component/strategy/strategy.event';
 
 import { PortfolioNode } from './node/portfolio/portfolio.node';
 
@@ -17,21 +21,52 @@ import { BacktestExecutionNode } from './node/execution/backtest-execution.node'
 
 export class Network {
     dataNode: IDataNode;
-    portfolios: PortfolioNode[] = [];
-    strategies: StrategyNode[] = [];
+    portfolios:  NodeMap<PortfolioNode> = {};
+    strategies: NodeMap<StrategyNode> = {};
+    indicators: NodeMap<IndicatorNode> = {};
     executionNode: IExecutionNode;
     
-    constructor(model: StrategyModel | any) {
+    constructor(model: Strategy | any) {
         AppEventQueue.global();
-        
+        AppEventQueue.subscribe(UpdateStrategyEvent, 'network', event => this.updateStrategy(event));
+        AppEventQueue.subscribe(ExecuteStrategyEvent, 'network', event => this.executeStrategy(event));
+        AppEventQueue.subscribe(UpdateIndicatorEvent, 'network', event => this.updateIndicator(event));
+
         Database.open(() => {
             console.log('Database opened');
-            this.dataNode = new DataLoaderNode();
-            this.strategies.push(new StrategyNode(model));
-            this.portfolios.push(new PortfolioNode(model._id));
+            //this.portfolios.push(new PortfolioNode(model._id));
             this.executionNode = new BacktestExecutionNode();
-            
-            this.dataNode.init();
+            this.dataNode = new DataLoaderNode();
         });
     }
+
+    updateStrategy(event: UpdateStrategyEvent) {
+        if(!this.strategies[event.data._id]) {
+            this.strategies[event.data._id] = new StrategyNode(event.data);
+        }
+        else {
+            this.strategies[event.data._id].setModel(event.data);
+        }
+
+        console.log(this.strategies);
+    }
+
+    executeStrategy(event: ExecuteStrategyEvent) {
+        this.dataNode.init();
+    }
+
+    updateIndicator(event: UpdateIndicatorEvent) {
+        if(!this.indicators[event.data._id]) {
+            this.indicators[event.data._id] = new IndicatorNode(event.data);
+        }
+        else {
+            this.indicators[event.data._id].setModel(event.data);
+        }
+
+        console.log(this.indicators);
+    }
+}
+
+interface NodeMap<T> {
+    [key: string]: T;
 }

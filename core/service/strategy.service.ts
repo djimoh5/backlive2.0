@@ -4,6 +4,8 @@ import { StrategyRepository } from '../repository/strategy.repository';
 import { Session, User } from '../lib/session';
 import { Common } from '../../app//utility/common';
 
+import { Strategy } from './model/strategy.model';
+
 var spawner = require('child_process');
 
 export class StrategyService extends BaseService {
@@ -15,6 +17,15 @@ export class StrategyService extends BaseService {
 
     getStrategies() {
         return this.strategyRepository.getByUserId(this.user.uid);
+    }
+
+    updateStrategy(strategy: Strategy) {
+        if(strategy._id) {
+            return this.strategyRepository.update(strategy);
+        }
+        else {
+            return this.strategyRepository.add(strategy);
+        }
     }
 
     getBacktests() {

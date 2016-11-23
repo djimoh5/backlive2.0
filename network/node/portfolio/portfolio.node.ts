@@ -13,4 +13,12 @@ export class PortfolioNode extends BaseNode {
     processTrade(trade: StrategyEvent) {
         console.log(trade);
     }
+
+    setModel(model: IndicatorModel) {
+        this.model = model;
+    }
+
+    getModel() {
+        return this.model;
+    }
 }

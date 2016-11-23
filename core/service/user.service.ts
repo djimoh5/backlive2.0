@@ -6,7 +6,7 @@ export class UserService extends BaseService {
         super(session);
     }
 
-   register(params) {
+    register(params) {
     	this.session.register(params.username, params.password, params.email, (data) => this.done(data));
         return this.promise;
 	}

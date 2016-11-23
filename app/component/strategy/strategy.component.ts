@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, ElementRef } from '@ang
 import { Path } from 'backlive/config';
 import { BaseComponent } from 'backlive/component/shared';
 
-import { AppService, UserService } from 'backlive/service';
+import { AppService, UserService, StrategyService } from 'backlive/service';
 
 import { Indicator, Strategy } from 'backlive/service/model';
 import { ExecuteStrategyEvent, UpdateStrategyEvent } from './strategy.event';
@@ -19,7 +19,7 @@ export class StrategyComponent extends BaseComponent implements OnInit {
     
     indicators: Indicator[];
     
-    constructor(appService: AppService, private elementRef: ElementRef) {
+    constructor(appService: AppService, private strategyService: StrategyService,  private elementRef: ElementRef) {
         super(appService);
     }
     
@@ -30,8 +30,13 @@ export class StrategyComponent extends BaseComponent implements OnInit {
     }
 
     updateStrategy() {
-        this.strategyChange.emit(this.strategy);
-        this.appService.notify(new UpdateStrategyEvent(this.strategy));
+        this.strategyService.updateStrategy(this.strategy).then(strategy => {
+            if(strategy._id) {
+                this.strategy = strategy;
+                this.strategyChange.emit(this.strategy);
+                this.appService.notify(new UpdateStrategyEvent(this.strategy));
+            }
+        });
     }
     
     getElement() {

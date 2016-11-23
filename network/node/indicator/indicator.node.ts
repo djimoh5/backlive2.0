@@ -27,6 +27,10 @@ export class IndicatorNode extends BaseNode {
         this.notify(new IndicatorEvent(vals));
     }
 
+    setModel(model: IndicatorModel) {
+        this.model = model;
+    }
+
     getModel() {
         return this.model;
     }

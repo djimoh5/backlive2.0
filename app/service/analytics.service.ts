@@ -3,14 +3,14 @@ declare var __insp: any;
 declare var ga: any;
 declare var SnapEngage: any, SnapABugChat: any, SnapABug: any;
 
-import {Injectable} from '@angular/core';
-import {AppService} from './app.service';
-import {RouterService} from './router.service';
-import {AnalyticsDimension, AnalyticsEvent, AnalyticsTiming, AnalyticsEventCategory, AnalyticsEventAction, AnalyticsTimingVar} from './model/analytics.model';
+import { Injectable } from '@angular/core';
+import { AppService } from './app.service';
+import { RouterService } from './router.service';
+import { AnalyticsDimension, AnalyticsEvent, AnalyticsTiming, AnalyticsEventCategory, AnalyticsEventAction, AnalyticsTimingVar } from './model/analytics.model';
 
-import {User} from './model/user.model';
+import { User } from 'backlive/service/model';
 
-import {PlatformUI} from 'backlive/utility/ui';
+import { PlatformUI } from 'backlive/utility/ui';
 
 declare var System: any;
 declare var WEB_CONFIG: any;

@@ -5,14 +5,14 @@ import { AppEvent, BaseEvent } from '../../../network/event/base.event';
 import { Strategy } from '../../../core/service/model/strategy.model';
 import { LastPrice } from '../../../core/service/model/ticker.model';
 
-@AppEvent('Event.ExecuteStrategy', true)
-export class ExecuteStrategyEvent extends BaseEvent<Strategy> {}
-
-@AppEvent('Event.UpdateStrategy', true)
+@AppEvent('Event.Strategy.Update', true)
 export class UpdateStrategyEvent extends BaseEvent<Strategy> {}
 
-@AppEvent('Event.UserStrategies', true)
-export class UserStrategiesEvent extends BaseEvent<Strategy[]> {}
+@AppEvent('Event.Strategy.Execute', true)
+export class ExecuteStrategyEvent extends BaseEvent<Strategy> {}
+
+@AppEvent('Event.Strategy.Remove', true)
+export class RemoveStrategyEvent extends BaseEvent<string> {}
 
 interface ResponseEvent {
     res: () => void;
