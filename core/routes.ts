@@ -7,7 +7,6 @@ import { UserController } from './controller/user.controller';
 
 export var routes: RouteInfo[] = [
     //Pages
-	{ path: '/', controller: HomeController },
     { path: '/strategy', controller: HomeController },
     { path: '/dashboard', controller: HomeController },
     { path: '/portfolio', controller: HomeController },
@@ -19,7 +18,10 @@ export var routes: RouteInfo[] = [
     { path: '/api/indicator', controller: IndicatorController },
     //{ path: '/api/news', controller: require('./controller/NewsController') },
     //{ path: '/api/portfolio', controller: require('./controller/PortfolioController') },
-    { path: '/api/strategy', controller: StrategyController }
+    { path: '/api/strategy', controller: StrategyController },
+
+    //must be last to prevent dup router middleware calls
+    { path: '/', controller: HomeController },
 ];
 
 export interface RouteInfo {

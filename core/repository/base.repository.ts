@@ -56,21 +56,33 @@ class Context {
 
     insert(data: any, safe: boolean = false) : Promise<any> {
         var deferred = Q.defer();
-        this.collection.insert(data, { safe: safe }, (err) => this.deferCallback(deferred, err));
-        return deferred.promise();
+        this.collection.insert(data, { safe: safe }, (err) => this.deferCallback(deferred, err, data));
+        return deferred.promise;
     }
 
     update(query: { [key: string]: any }, data: any) : Promise<any> {
         var deferred = Q.defer();
-        this.collection.update(query, { $set: data }, (err) => this.deferCallback(deferred, err, data));
+        var id = data._id;
+        delete data._id;
+
+        this.collection.update(query, { $set: data }, (err) => {
+            if(id) {
+                data._id = id;
+            }
+
+            this.deferCallback(deferred, err, data);
+        });
+
         return deferred.promise;
     }
 
     private deferCallback(deferred, err, results?) {
         if(err) { 
+            console.log('err', err);
             deferred.reject(err); 
         }
-        else { 
+        else {
+            console.log('results', results);
             deferred.resolve(results);
         }
     }

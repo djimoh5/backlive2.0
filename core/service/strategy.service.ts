@@ -20,6 +20,8 @@ export class StrategyService extends BaseService {
     }
 
     updateStrategy(strategy: Strategy) {
+        strategy.uid = this.session.user.uid;
+
         if(strategy._id) {
             return this.strategyRepository.update(strategy);
         }
@@ -153,7 +155,7 @@ export class StrategyService extends BaseService {
                             if(result) {
                                 var bt = result;
                                 bt.ref_id = bt._id;
-                                bt.ref_u = this.user.name;
+                                bt.ref_u = this.user.username;
                                 bt.uid = uid;
                                 bt.date = (new Date()).getTime();
                                 

@@ -27,12 +27,14 @@ export function Delete(path) {
     };
 }
 
-export class BaseController{
+export class BaseController {
     private services: { [key: string]: typeof BaseService };
     private router: express.Router = express.Router();
     get: { [key:string]: any };
     post: { [key:string]: any };
     delete: { [key:string]: any };
+
+    static intialized: boolean;
 
     constructor(services?: { [key: string]: typeof BaseService }) {
         this.services = services;
@@ -55,7 +57,7 @@ export class BaseController{
 		next();
 	}
 	
-	private injectServices(req, res, next) { 
+	private injectServices(req, res, next) {
 		if(this.services) {
 			res.services = {};
 			for(var serviceIdentifier in this.services) {

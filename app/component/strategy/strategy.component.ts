@@ -30,13 +30,15 @@ export class StrategyComponent extends BaseComponent implements OnInit {
     }
 
     updateStrategy() {
-        this.strategyService.updateStrategy(this.strategy).then(strategy => {
-            if(strategy._id) {
-                this.strategy = strategy;
-                this.strategyChange.emit(this.strategy);
-                this.appService.notify(new UpdateStrategyEvent(this.strategy));
-            }
-        });
+        if(this.strategy.name) {
+            this.strategyService.updateStrategy(this.strategy).then(strategy => {
+                if(strategy._id) {
+                    this.strategy = strategy;
+                    this.strategyChange.emit(this.strategy);
+                    this.appService.notify(new UpdateStrategyEvent(this.strategy));
+                }
+            });
+        }
     }
     
     getElement() {

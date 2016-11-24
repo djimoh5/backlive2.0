@@ -14,7 +14,7 @@ export class StrategyService extends BaseService {
     }
 
     getStrategies() : Promise<Strategy[]>  {
-        return this.get('list', null, true);
+        return this.get('list', null);
     }
 
     updateStrategy(strategy: Strategy) : Promise<Strategy>  {

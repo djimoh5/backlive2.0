@@ -2,6 +2,8 @@ var Cookies = require('cookies');
 import { Config } from '../config';
 import { Database as db } from './database';
 import { Common } from '../../app/utility/common';
+import { User } from '../service/model/user.model';
+export { User } from '../service/model/user.model';
 
 export class Session {
     pwSalt: string = 'bL1$3';
@@ -25,12 +27,12 @@ export class Session {
         if(!this.user) {
             this.user = { error:'no session id', uid: null };
         }
-        else if(!this.user.name) {
+        else if(!this.user.username) {
             var oid = new db.ObjectID(this.user.uid);
             
             db.mongo.collection('user', (error, collection) => {
                 collection.findOne({ _id:oid }, (err, result) => {
-                    this.user.name = result.u;
+                    this.user.username = result.u;
                     this.user.email = result.e;
                     this.user.btuid = result.btuid;
                     this.user.btpid = result.btpid;
@@ -66,7 +68,7 @@ export class Session {
                         var sessId = md5(uuid.v1());
                         var uid = results[0]._id.toString();
                         
-                        Session.users[sessId] = { uid:uid, token:sessId, sessId: sessId, name:results[0].u, email:results[0].e, btuid:results[0].btuid, btpid:results[0].btpid, created:results[0].created };
+                        Session.users[sessId] = { uid:uid, token:sessId, sessId: sessId, username:results[0].u, email:results[0].e, btuid:results[0].btuid, btpid:results[0].btpid, created:results[0].created };
                         this.user = Session.users[sessId];
                         
                         //whether user has seen tour or not
@@ -269,20 +271,4 @@ export class Session {
     process(id: string) {
         return Session.processes[id];
     }
-}
-
-export interface User {
-    uid: string;
-    token?: string;
-    sessId? : string;
-    name?: string;
-    email?: string;
-    //braintree payments fields
-    btuid?: string;
-    btpid?: string;
-    btsid?: string;
-    btpt?: string;
-    
-    created?: number;
-    error?: string;
 }

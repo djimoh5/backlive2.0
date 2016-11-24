@@ -11,9 +11,9 @@ export class Server {
     constructor() {
         this.app = express();
 
-        this.initRoutes();
-        this.initLess();
-        this.initStatic();        
+        this.initStatic();
+        this.initLess(); 
+        this.initRoutes();   
 
         // init server
         var server = this.app.listen(8080, function () {
