@@ -4,8 +4,8 @@ import { BaseComponent } from 'backlive/component/shared';
 
 import { AppService, UserService, StrategyService } from 'backlive/service';
 
-import { Indicator, Strategy } from 'backlive/service/model';
-import { ExecuteStrategyEvent, UpdateStrategyEvent } from './strategy.event';
+import { Indicator, Strategy, Node } from 'backlive/service/model';
+import { ExecuteStrategyEvent, StrategyChangeEvent } from './strategy.event';
 import { IndicatorEvent } from 'backlive/network/event';
 
 @Component({
@@ -16,8 +16,7 @@ import { IndicatorEvent } from 'backlive/network/event';
 export class StrategyComponent extends BaseComponent implements OnInit {
     @Input() strategy: Strategy;
     @Output() strategyChange: EventEmitter<Strategy> = new EventEmitter<Strategy>();
-    
-    indicators: Indicator[];
+    @Output() inputChange: EventEmitter<Node> = new EventEmitter<Node>();
     
     constructor(appService: AppService, private strategyService: StrategyService,  private elementRef: ElementRef) {
         super(appService);
@@ -31,14 +30,24 @@ export class StrategyComponent extends BaseComponent implements OnInit {
 
     updateStrategy() {
         if(this.strategy.name) {
-            this.strategyService.updateStrategy(this.strategy).then(strategy => {
+            this.strategyService.update(this.strategy).then(strategy => {
                 if(strategy._id) {
                     this.strategy = strategy;
                     this.strategyChange.emit(this.strategy);
-                    this.appService.notify(new UpdateStrategyEvent(this.strategy));
+                    this.appService.notify(new StrategyChangeEvent(this.strategy));
                 }
             });
         }
+    }
+
+    addIndicator() {
+        var indicator = new Indicator();
+        
+        if(!this.strategy.inputs) {
+            this.strategy.inputs = [];
+        }
+
+        this.inputChange.emit(indicator);
     }
     
     getElement() {

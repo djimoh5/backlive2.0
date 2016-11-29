@@ -1,22 +1,11 @@
 import { BaseController, Get, Post, Delete } from './base.controller';
+import { NodeController } from './node.controller';
 import { IndicatorService } from '../service/indicator.service';
 
-export class IndicatorController extends BaseController {
+import { Indicator } from '../service/model/indicator.model';
+
+export class IndicatorController extends NodeController<Indicator> {
 	constructor() {
-		super({ indicatorService: IndicatorService });
-	}
-
-	@Post('')
-	save(req, res) {
-		res.services.indicatorService.saveIndicator(res.body.indicator).done(function(res) {
-			res.send(res);
-		});
-	}
-
-	@Delete(':indicatorId')
-	removeIndicator(req, res) {
-		res.services.indicatorService.removeIndicator(req.params.indicatorId).done(function(res) {
-			res.send(res);
-		});
+		super(IndicatorService);
 	}
 }

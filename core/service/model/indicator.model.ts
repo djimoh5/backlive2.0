@@ -1,7 +1,6 @@
-import { BaseModel } from './base.model';
+import { Node, NodeType } from './node.model';
 
-export class Indicator {
-    _id: string = '';
+export class Indicator extends Node {
     vars: (Indicator | IndicatorParam)[] = [];
     ops: Operator[] = [];
     
@@ -28,6 +27,10 @@ export class Indicator {
     
     //client-side only
     position: { x: number, y: number, angle: number } = { x: 0, y: 0, angle: 0 };
+
+    constructor() {
+        super(NodeType.Indicator);
+    }
 }
 
 export class SportsIndicator extends Indicator {

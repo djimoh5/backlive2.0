@@ -45,14 +45,34 @@ export class BacktestComponent extends PageComponent implements OnInit, OnDestro
     }
     
     ngOnInit() {
-        this.strategyService.getStrategies().then(strategies => {
+        this.strategyService.list().then(strategies => {
             console.log('strategies', strategies);
             if(strategies.length > 0) {
-                this.strategy = strategies[0];
+                this.loadStrategy(strategies[0]);
             }
 
             this.startEventLoop();
         });
+    }
+
+    loadStrategy(strategy: Strategy) {
+        this.strategy = strategy;
+        this.strategyService.getInputs(strategy._id).then(nodes => {
+            this.indicators = <Indicator[]> nodes;
+        });
+    }
+
+    onStrategyInputChange(indicator: Indicator) {
+        var indicator = new Indicator();
+        this.indicators.push(indicator);
+    }
+
+    onIndicatorChange(indicator: Indicator, index: number) {
+        if(!this.indicators[index]._id) {
+            this.indicators[index] = indicator;
+            this.strategy.inputs.push(indicator._id);
+            this.strategyService.update(this.strategy);
+        }
     }
 
     startEventLoop() {
@@ -77,11 +97,6 @@ export class BacktestComponent extends PageComponent implements OnInit, OnDestro
                 this.life.numLoops++;
             }
         }, 200);
-    }
-    
-    addIndicator() {
-        var indicator = new Indicator();
-        this.indicators.push(indicator);
     }
     
     getLine(indicator: Indicator) {

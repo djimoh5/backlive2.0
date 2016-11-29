@@ -1,4 +1,4 @@
-import { BaseService } from './base.service';
+import { NodeService } from './node.service';
 import { StrategyRepository } from '../repository/strategy.repository';
 
 import { Session, User } from '../lib/session';
@@ -8,26 +8,12 @@ import { Strategy } from './model/strategy.model';
 
 var spawner = require('child_process');
 
-export class StrategyService extends BaseService {
+export class StrategyService extends NodeService<Strategy> {
     strategyRepository: StrategyRepository;
 
     constructor(session: Session) {
-        super(session, { strategyRepository: StrategyRepository });
-    }
-
-    getStrategies() {
-        return this.strategyRepository.getByUserId(this.user.uid);
-    }
-
-    updateStrategy(strategy: Strategy) {
-        strategy.uid = this.session.user.uid;
-
-        if(strategy._id) {
-            return this.strategyRepository.update(strategy);
-        }
-        else {
-            return this.strategyRepository.add(strategy);
-        }
+        super(session, StrategyRepository);
+        this.strategyRepository = this.nodeRepository;
     }
 
     getBacktests() {

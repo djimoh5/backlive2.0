@@ -19,7 +19,7 @@ export class StrategyNode extends BaseNode {
     constructor(private model: StrategyModel) {
         super();
         var data = model.data;
-        this.allIndicators = data.indicators.long.concat(data.indicators.short, data.exposure.long, data.exclusions);
+        /*this.allIndicators = data.indicators.long.concat(data.indicators.short, data.exposure.long, data.exclusions);
 
         this.allIndicators.forEach(indModel => {
             new IndicatorNode(indModel);
@@ -33,7 +33,7 @@ export class StrategyNode extends BaseNode {
         this.notify(new DataFilterEvent({
             startDate: data.startYr, endDate: data.endYr,
             entities: (data.universeTkrs.incl === 1 && data.universeTkrs.tkrs && data.universeTkrs.tkrs.length > 0) ? data.universeTkrs.tkrs : null
-        }));
+        }));*/
     }
 
     processIndicator(event: IndicatorEvent) {

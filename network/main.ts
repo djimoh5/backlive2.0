@@ -2,7 +2,9 @@ require('./globals.js');
 
 import { Network } from './network'
 
-new Network({
+new Network();
+
+/*new Network({
     "_id":"53ff94906e8224b43df4de6a",
     "name":"Core 2010 - 2014",
     "date":1409258640400,
@@ -48,4 +50,4 @@ new Network({
         "date":20140822,
         "exclSectors":[]
     }
-});
+});*/

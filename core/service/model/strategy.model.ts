@@ -1,11 +1,8 @@
-import { BaseModel } from './base.model';
+import { Node, NodeType } from './node.model';
 import { Indicator } from './indicator.model';
 import { Common } from 'backlive/utility';
 
-export class Strategy {
-    _id: string;
-    uid: string;
-    name: string = '';
+export class Strategy extends Node {
     date: number;
     type: StrategyType;
     live: number;  
@@ -13,6 +10,7 @@ export class Strategy {
     data: StrategyParams;
 
     constructor(name: string) {
+        super(NodeType.Strategy);
         this.name = name;
     }
     

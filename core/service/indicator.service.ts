@@ -1,13 +1,20 @@
 import { BaseService } from './base.service';
+import { IndicatorRepository } from '../repository/indicator.repository';
 
+import { NodeService } from './node.service';
 import { Session } from '../lib/session';
 
-export class IndicatorService extends BaseService {
+import { Indicator } from './model/indicator.model';
+
+export class IndicatorService  extends NodeService<Indicator> {
+    indicatorRepository: IndicatorRepository;
+
     constructor(session: Session) {
-        super(session);
+        super(session, IndicatorRepository);
+        this.indicatorRepository = this.nodeRepository;
     }
 
-    getIndicators() {
+    /*getIndicators() {
 		var collection = this.database.collection('user_ind');
         
         collection.find({ uid: this.user.uid }).toArray((err, results) => {
@@ -55,5 +62,5 @@ export class IndicatorService extends BaseService {
     getIndicatorsForTickern(tkr) {
 		
         return this.promise;
-    }
+    }*/
 }

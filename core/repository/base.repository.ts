@@ -19,11 +19,15 @@ export class BaseRepository {
     }
 }
 
-class Context {
-    private collection: Collection;
+export class Context {
+    protected collection: Collection;
 
     constructor(collection: Collection) {
         this.collection = collection;
+    }
+
+    getCollection() {
+        return this.collection;
     }
 
     find(query: { [key: string]: any }, fields?: { [key: string]: 1 }, operations?: Operations) : Promise<any[]> {
@@ -76,13 +80,17 @@ class Context {
         return deferred.promise;
     }
 
+    remove(query: { [key: string]: any }) : Promise<any> {
+        var deferred = Q.defer();
+        this.collection.remove(query, (err) => this.deferCallback(deferred, err));
+        return deferred.promise;
+    }
+
     private deferCallback(deferred, err, results?) {
         if(err) { 
-            console.log('err', err);
             deferred.reject(err); 
         }
         else {
-            console.log('results', results);
             deferred.resolve(results);
         }
     }

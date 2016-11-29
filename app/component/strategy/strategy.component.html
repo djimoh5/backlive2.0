@@ -1,6 +1,9 @@
 <div class="node">
     <input type="text" class="form-control" [(ngModel)]="strategy.name" (blur)="updateStrategy()" placeholder="enter strategy name" />
 </div>
+<ui-button type="submit" width="100%" class="add-indicator" *ngIf="strategy?.name" (click)="addIndicator()">
+    Add an Indicator
+</ui-button>
 <div class="editor">
     
 </div>

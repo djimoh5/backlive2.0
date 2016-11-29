@@ -8,11 +8,11 @@ import { IDataNode } from './node/data/data.node';
 import { DataLoaderNode } from './node/data/dataloader.node';
 
 import { IndicatorNode } from './node/indicator/indicator.node';
-import { UpdateIndicatorEvent } from '../app/component/indicator/indicator.event';
+import { IndicatorChangeEvent } from '../app/component/indicator/indicator.event';
 
 import { StrategyNode } from './node/strategy/strategy.node';
 import { Strategy } from '../core/service/model/strategy.model';
-import { UpdateStrategyEvent, ExecuteStrategyEvent } from '../app/component/strategy/strategy.event';
+import { StrategyChangeEvent, ExecuteStrategyEvent } from '../app/component/strategy/strategy.event';
 
 import { PortfolioNode } from './node/portfolio/portfolio.node';
 
@@ -26,11 +26,11 @@ export class Network {
     indicators: NodeMap<IndicatorNode> = {};
     executionNode: IExecutionNode;
     
-    constructor(model: Strategy | any) {
+    constructor() {
         AppEventQueue.global();
-        AppEventQueue.subscribe(UpdateStrategyEvent, 'network', event => this.updateStrategy(event));
+        AppEventQueue.subscribe(StrategyChangeEvent, 'network', event => this.updateStrategy(event));
         AppEventQueue.subscribe(ExecuteStrategyEvent, 'network', event => this.executeStrategy(event));
-        AppEventQueue.subscribe(UpdateIndicatorEvent, 'network', event => this.updateIndicator(event));
+        AppEventQueue.subscribe(IndicatorChangeEvent, 'network', event => this.updateIndicator(event));
 
         Database.open(() => {
             console.log('Database opened');
@@ -40,7 +40,7 @@ export class Network {
         });
     }
 
-    updateStrategy(event: UpdateStrategyEvent) {
+    updateStrategy(event: StrategyChangeEvent) {
         if(!this.strategies[event.data._id]) {
             this.strategies[event.data._id] = new StrategyNode(event.data);
         }
@@ -55,7 +55,7 @@ export class Network {
         this.dataNode.init();
     }
 
-    updateIndicator(event: UpdateIndicatorEvent) {
+    updateIndicator(event: IndicatorChangeEvent) {
         if(!this.indicators[event.data._id]) {
             this.indicators[event.data._id] = new IndicatorNode(event.data);
         }

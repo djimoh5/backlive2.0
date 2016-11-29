@@ -7,10 +7,10 @@ import { IndicatorParam } from '../../core/service/model/indicator.model';
 @AppEvent('Event.Data')
 export class DataEvent extends BaseEvent<{ cache: DataCache, allCacheKeys?: string[] | number[] }> { }
 
-@AppEvent('Event.DataSubscription')
+@AppEvent('Event.Data.Subscription')
 export class DataSubscriptionEvent extends BaseEvent<{ params: IndicatorParam[] }> { }
 
-@AppEvent('Event.DataFilter')
+@AppEvent('Event.Data.Filter')
 export class DataFilterEvent extends BaseEvent<{ startDate: number, endDate: number, entities?: string[] }> { }
 
 @AppEvent('Event.Indicator')
@@ -22,5 +22,5 @@ export class StrategyEvent extends BaseEvent<Ticker[]> { }
 @AppEvent('Event.Order')
 export class OrderEvent extends BaseEvent<{}> { }
 
-@AppEvent('Event.OrderFill')
+@AppEvent('Event.Order.Fill')
 export class OrderFillEvent extends BaseEvent<{}> { }

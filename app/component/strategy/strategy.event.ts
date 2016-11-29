@@ -5,8 +5,8 @@ import { AppEvent, BaseEvent } from '../../../network/event/base.event';
 import { Strategy } from '../../../core/service/model/strategy.model';
 import { LastPrice } from '../../../core/service/model/ticker.model';
 
-@AppEvent('Event.Strategy.Update', true)
-export class UpdateStrategyEvent extends BaseEvent<Strategy> {}
+@AppEvent('Event.Strategy.Change', true)
+export class StrategyChangeEvent extends BaseEvent<Strategy> {}
 
 @AppEvent('Event.Strategy.Execute', true)
 export class ExecuteStrategyEvent extends BaseEvent<Strategy> {}
