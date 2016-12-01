@@ -13,7 +13,3 @@ export class ExecuteStrategyEvent extends BaseEvent<Strategy> {}
 
 @AppEvent('Event.Strategy.Remove', true)
 export class RemoveStrategyEvent extends BaseEvent<string> {}
-
-interface ResponseEvent {
-    res: () => void;
-}

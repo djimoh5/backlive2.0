@@ -10,7 +10,7 @@ import { Config } from 'backlive/config';
 import { Common, Cache } from 'backlive/utility';
 import { PlatformUI } from 'backlive/utility/ui';
 
-import { EventQueue, BaseEvent, TypeOfBaseEvent, BaseEventCallback } from 'backlive/network/event';
+import { EventQueue, BaseEvent, TypeOfBaseEvent, BaseEventCallback, QueueOperators } from 'backlive/network/event';
 import { RouterLoadingEvent } from 'backlive/event';
 
 @Injectable()
@@ -77,8 +77,8 @@ export class AppService {
         this.routerService.unsubsribeToParams(componentId);
     }
     
-    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, componentId: number, callback: BaseEventCallback<T>) {
-        this.eventQueue.subscribe(eventType, componentId, callback);
+    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, componentId: number, callback: BaseEventCallback<T>, operators?: QueueOperators) {
+        this.eventQueue.subscribe(eventType, componentId, callback, operators);
     }
     
     notify(event: BaseEvent<any>, fromServer: boolean = false) {

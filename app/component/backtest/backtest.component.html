@@ -2,11 +2,11 @@
     <svg>
         <path *ngFor="let indicator of indicators" [attr.d]="getLine(indicator)" stroke="#12455a" stroke-width="2" />
     </svg>
-    <backlive-indicator *ngFor="let indicator of indicators; let i = index" [indicator]="indicator" (indicatorChange)="onIndicatorChange($event, i)"
+    <backlive-indicator *ngFor="let indicator of indicators; let i = index" [indicator]="indicator" (nodeChange)="onNodeChange($event, i)"
         [style.margin-left]="indicator.position.x + '%'" 
         [style.margin-top.px]="indicator.position.y">
     </backlive-indicator>
     <div class="center-strategy">
-        <backlive-strategy #strategyComponent [(strategy)]="strategy" (inputChange)="onStrategyInputChange($event)"></backlive-strategy>
+        <backlive-strategy #strategyComponent [strategy]="strategy" (nodeChange)="onNodeChange($event)" (addInput)="onAddInput(strategy, $event)"></backlive-strategy>
     </div>
 </div>

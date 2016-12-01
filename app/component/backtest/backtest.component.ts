@@ -6,10 +6,10 @@ import { StrategyComponent } from '../strategy/strategy.component';
 import { AppService, UserService, StrategyService } from 'backlive/service';
 
 import { Route } from 'backlive/routes';
-import { Strategy, Indicator } from 'backlive/service/model';
-import { SlidingNavItemsEvent } from 'backlive/event';
+import { Strategy, Indicator, Node, NodeType } from 'backlive/service/model';
+import { SlidingNavItemsEvent, NodeChangeEvent } from 'backlive/event';
 
-import {PlatformUI} from 'backlive/utility/ui';
+import { PlatformUI } from 'backlive/utility/ui';
 
 declare var d3;
 
@@ -26,6 +26,8 @@ export class BacktestComponent extends PageComponent implements OnInit, OnDestro
     strategy: Strategy;
     indicators: Indicator[] = [];
     indicatorSize = { width: 36, height: 32 };
+
+    tmpInputMap: { [key: string]: { node: Node, input: Node } } = {};
     
     @ViewChild('strategyComponent') strategyComponent: StrategyComponent;
     
@@ -46,9 +48,12 @@ export class BacktestComponent extends PageComponent implements OnInit, OnDestro
     
     ngOnInit() {
         this.strategyService.list().then(strategies => {
-            console.log('strategies', strategies);
+            //console.log('strategies', strategies);
             if(strategies.length > 0) {
                 this.loadStrategy(strategies[0]);
+            }
+            else {
+                this.strategy = new Strategy('');
             }
 
             this.startEventLoop();
@@ -62,16 +67,27 @@ export class BacktestComponent extends PageComponent implements OnInit, OnDestro
         });
     }
 
-    onStrategyInputChange(indicator: Indicator) {
-        var indicator = new Indicator();
-        this.indicators.push(indicator);
+    onAddInput(node: Node, inputNode: Node) {
+        if(!node.inputs) {
+            node.inputs = [];
+        }
+
+        switch(inputNode.ntype) {
+            case NodeType.Indicator:
+                this.indicators.push(<Indicator>inputNode);
+                break;
+        }
+
+        this.tmpInputMap[node._id] = { node: node, input: inputNode };
     }
 
-    onIndicatorChange(indicator: Indicator, index: number) {
-        if(!this.indicators[index]._id) {
-            this.indicators[index] = indicator;
-            this.strategy.inputs.push(indicator._id);
-            this.strategyService.update(this.strategy);
+    onNodeChange(node: Node, index: number = null) {
+        for(var key in this.tmpInputMap) {
+            if(this.tmpInputMap[key].input === node) {
+                this.tmpInputMap[key].node.inputs.push(node._id);
+                this.appService.notify(new NodeChangeEvent(this.tmpInputMap[key].node));
+                delete this.tmpInputMap[key];
+            }
         }
     }
 

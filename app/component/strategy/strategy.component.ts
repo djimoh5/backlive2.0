@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ElementRef } from '@angular/core';
 import { Path } from 'backlive/config';
-import { BaseComponent } from 'backlive/component/shared';
+import { NodeComponent } from 'backlive/component/shared';
 
 import { AppService, UserService, StrategyService } from 'backlive/service';
 
@@ -11,29 +11,27 @@ import { IndicatorEvent } from 'backlive/network/event';
 @Component({
     selector: 'backlive-strategy',
     templateUrl: Path.ComponentView('strategy'),
-    styleUrls: [Path.ComponentStyle('strategy')]
+    styleUrls: [Path.ComponentStyle('strategy')],
+    outputs: ['nodeChange', 'addInput', 'remove'] //inherited, workaround until angular fix
 })
-export class StrategyComponent extends BaseComponent implements OnInit {
+export class StrategyComponent extends NodeComponent<Strategy> implements OnInit {
     @Input() strategy: Strategy;
-    @Output() strategyChange: EventEmitter<Strategy> = new EventEmitter<Strategy>();
-    @Output() inputChange: EventEmitter<Node> = new EventEmitter<Node>();
     
     constructor(appService: AppService, private strategyService: StrategyService,  private elementRef: ElementRef) {
-        super(appService);
+        super(appService, strategyService);
     }
     
     ngOnInit() {
-        if(!this.strategy) {
-            this.strategy = new Strategy('');
-        }
+        this.subscribeNodeEvents(this.strategy);
     }
 
-    updateStrategy() {
+    update() {
+        console.log('updating strategy');
         if(this.strategy.name) {
             this.strategyService.update(this.strategy).then(strategy => {
                 if(strategy._id) {
-                    this.strategy = strategy;
-                    this.strategyChange.emit(this.strategy);
+                    this.strategy._id = strategy._id;
+                    this.nodeChange.emit(this.strategy);
                     this.appService.notify(new StrategyChangeEvent(this.strategy));
                 }
             });
@@ -41,13 +39,7 @@ export class StrategyComponent extends BaseComponent implements OnInit {
     }
 
     addIndicator() {
-        var indicator = new Indicator();
-        
-        if(!this.strategy.inputs) {
-            this.strategy.inputs = [];
-        }
-
-        this.inputChange.emit(indicator);
+        this.addInput.emit(new Indicator());
     }
     
     getElement() {

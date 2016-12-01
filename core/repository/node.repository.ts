@@ -71,6 +71,9 @@ class NodeContext<T extends Node> extends Context {
         if(typeof(data.ntype) === 'undefined') {
             throw("all nodes must have a node type set (ntype)");
         }
+        else if(data.ntype !== this.ntype) {
+            throw("node of type " + data.ntype + " cannot be inserted into repo of type " + this.ntype);
+        }
 
         return this.nodeContext.insert(data, safe);
     }

@@ -5,7 +5,7 @@ import { AppService } from './app.service';
 import { User, Strategy, Node } from 'backlive/service/model';
 
 @Injectable()
-export class NodeService<T> extends BaseService {
+export class NodeService<T extends Node> extends BaseService {
     constructor(apiService: ApiService, appService: AppService, endpoint: string) {
         super(apiService, appService, endpoint);
     }
