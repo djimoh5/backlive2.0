@@ -27,7 +27,6 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
     protected subscribeNodeEvents(node: Node) {
         this.node = node;
         this.subscribeEvent(NodeChangeEvent, event => {
-            console.log('updating:', event, this.node);
             this.update();
         }, { filter: (event: BaseEvent<Node>, index) => { return event.data._id === this.node._id } });
     }

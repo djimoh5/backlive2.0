@@ -45,7 +45,7 @@ export class EventQueue {
 
         if(operators) {
             for(var key in operators) {
-                observable[key](operators[key]);
+                observable = observable[key](operators[key]);
             }
         }
         
