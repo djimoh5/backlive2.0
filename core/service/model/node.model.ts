@@ -8,6 +8,9 @@ export class Node {
     created: number;
     modified; number;
     
+    //client-side only
+    position: { x: number, y: number };
+    
     constructor(type: NodeType) {
         this.ntype = type;
     }

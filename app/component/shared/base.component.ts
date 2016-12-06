@@ -21,7 +21,7 @@ export class BaseComponent implements OnDestroy  {
         this.componentId = ++BaseComponent.nextComponentId;
     }
     
-    subscribeEvent<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, callback: BaseEventCallback<T>, operators?: QueueOperators) {
+    subscribeEvent<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, callback: BaseEventCallback<T>, operators?: QueueOperators<T>) {
         this.appService.subscribe(eventType, this.componentId, callback, operators);
     }
 

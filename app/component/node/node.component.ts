@@ -16,7 +16,9 @@ import { BaseEvent } from 'backlive/network/event';
 export abstract class NodeComponent<T extends Node> extends BaseComponent {
     @Output() nodeChange: EventEmitter<Node> = new EventEmitter<Node>();
     @Output() addInput: EventEmitter<Node> = new EventEmitter<Node>();
-    @Output() remove: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() remove: EventEmitter<Node> = new EventEmitter<Node>();
+
+    static outputs = ['nodeChange', 'addInput', 'remove'];
 
     private node: Node;
     
@@ -28,7 +30,7 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
         this.node = node;
         this.subscribeEvent(NodeChangeEvent, event => {
             this.update();
-        }, { filter: (event: BaseEvent<Node>, index) => { return event.data._id === this.node._id } });
+        }, { filter: (event, index) => { return event.data._id === this.node._id } });
     }
 
     abstract update()

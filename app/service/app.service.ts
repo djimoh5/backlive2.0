@@ -77,7 +77,7 @@ export class AppService {
         this.routerService.unsubsribeToParams(componentId);
     }
     
-    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, componentId: number, callback: BaseEventCallback<T>, operators?: QueueOperators) {
+    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, componentId: number, callback: BaseEventCallback<T>, operators?: QueueOperators<T>) {
         this.eventQueue.subscribe(eventType, componentId, callback, operators);
     }
     

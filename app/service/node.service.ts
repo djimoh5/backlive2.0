@@ -18,7 +18,7 @@ export class NodeService<T extends Node> extends BaseService {
         return this.post('', node);
     }
 
-    remove(nodeId: string) {
+    remove(nodeId: string) : Promise<boolean> {
         return this.delete(nodeId);
     }
 

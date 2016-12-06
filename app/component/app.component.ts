@@ -40,6 +40,6 @@ export class AppComponent extends BaseComponent {
     }
     
     init(user: User) {
-        console.log(user);
+        
     }
 }

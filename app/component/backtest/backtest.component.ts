@@ -23,14 +23,13 @@ export class BacktestComponent extends PageComponent implements OnInit, OnDestro
     life: { numLoops: number };
     
     errMessage: string;
+    nodes: Node[] = [];
     strategy: Strategy;
-    indicators: Indicator[] = [];
     indicatorSize = { width: 36, height: 32 };
 
+    NodeType = NodeType;
     tmpInputMap: { [key: string]: { node: Node, input: Node } } = {};
-    
-    @ViewChild('strategyComponent') strategyComponent: StrategyComponent;
-    
+
     constructor(appService: AppService, private userService: UserService, private strategyService: StrategyService, private platformUI: PlatformUI) {
         super(appService);
         
@@ -62,8 +61,16 @@ export class BacktestComponent extends PageComponent implements OnInit, OnDestro
 
     loadStrategy(strategy: Strategy) {
         this.strategy = strategy;
+        this.nodes.push(this.strategy);
+
         this.strategyService.getInputs(strategy._id).then(nodes => {
-            this.indicators = <Indicator[]> nodes;
+            strategy.inputs = [];
+            nodes.forEach(node => {
+                strategy.inputs.push(node._id); //in case there are any deleted nodes still in inputs
+                this.nodes.push(node);
+            });
+
+            this.positionNodes();
         });
     }
 
@@ -72,13 +79,10 @@ export class BacktestComponent extends PageComponent implements OnInit, OnDestro
             node.inputs = [];
         }
 
-        switch(inputNode.ntype) {
-            case NodeType.Indicator:
-                this.indicators.push(<Indicator>inputNode);
-                break;
-        }
-
+        this.nodes.push(inputNode);
         this.tmpInputMap[node._id] = { node: node, input: inputNode };
+
+        this.positionNodes();
     }
 
     onNodeChange(node: Node, index: number = null) {
@@ -91,32 +95,56 @@ export class BacktestComponent extends PageComponent implements OnInit, OnDestro
         }
     }
 
-    startEventLoop() {
-        var radius = 250, radiusPercent = 40, angleOffset = 10, startAngle = 180;
+    onRemoveNode(node: Node, index: number = null) {
+        this.nodes.splice(index, 1);
+        this.nodes.forEach(n => {
+            if(n.inputs) {
+                var index = n.inputs.indexOf(node._id);
+                if(index >= 0) {
+                    n.inputs.splice(index, 1);
+                    this.appService.notify(new NodeChangeEvent(n));
+                }
+            }
+        });
 
+        this.positionNodes();
+    }
+
+    startEventLoop() {
         this.eventLoop = setInterval(() => {
-            var numInds = this.indicators.length;
+            var numInds = this.nodes.length - 1;
 
             if(numInds > 0) {
-                this.indicators.forEach((indicator, index) => {
-                    if(index === 0) {
-                        indicator.position.angle = startAngle + (.2 * this.life.numLoops);
-                    }
-                    else {
-                        indicator.position.angle = this.indicators[index - 1].position.angle - angleOffset;
-                    }
-
-                    indicator.position.x = radiusPercent * Math.cos(indicator.position.angle / 180 * Math.PI);
-                    indicator.position.y = radius * Math.sin(indicator.position.angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30; //extra 30 for amount strategy pod is off center;
-                });
-
-                this.life.numLoops++;
+                //this.positionNodes(true);
+                //this.life.numLoops++;
             }
         }, 200);
     }
+
+    positionNodes(animating: boolean = false) {
+        var radius = 250, radiusPercent = 40, angleOffset = 10, startAngle = 180;
+        var prevAngle: number;
+
+        if(!animating) { //-2 because strategy is also a node
+            startAngle += (this.nodes.length - 2) * (angleOffset / 2); //only needed when not animating
+        }
+
+        var firstNode = true;
+        this.nodes.forEach(node => {
+            if(node.ntype === NodeType.Indicator) {
+                var angle = firstNode ? (startAngle + (.2 * this.life.numLoops)) : (prevAngle - angleOffset);
+                prevAngle = angle;
+                firstNode = false;
+
+                node.position = {
+                    x: radiusPercent * Math.cos(angle / 180 * Math.PI),
+                    y: radius * Math.sin(angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30 //extra 30 for amount strategy pod is off center;
+                };
+            }
+        });
+    }
     
     getLine(indicator: Indicator) {
-        var $strat = this.platformUI.query(this.strategyComponent.getElement());
         var centerX = this.platformUI.query(window).width() / 2;
         var centerY = this.platformUI.query(window).height() / 2;
         

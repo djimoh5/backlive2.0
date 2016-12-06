@@ -29,7 +29,7 @@ export abstract class NodeRepository<T extends Node> extends BaseRepository {
         return this.context.update({ _id: this.dbObjectId(data._id), uid: data.uid }, data);
     }
     
-    remove(userId: string, nodeId: string) {
+    remove(userId: string, nodeId: string) : Promise<boolean> {
         return this.context.remove({ _id: this.dbObjectId(nodeId), uid: userId });
     }
 
@@ -62,12 +62,12 @@ class NodeContext<T extends Node> extends Context {
         this.ntype = ntype;
     }
 
-    find(query: { [key: string]: any }, fields?: { [key: string]: 1 }, operations?: Operations) : Promise<any[]> {
+    find(query: { [key: string]: any }, fields?: { [key: string]: 1 }, operations?: Operations) : Promise<T[]> {
         query['ntype'] = this.ntype;
         return this.nodeContext.find(query, fields, operations);
     }
 
-    insert(data: T, safe: boolean = false) : Promise<Node> {
+    insert(data: T, safe: boolean = false) : Promise<T> {
         if(typeof(data.ntype) === 'undefined') {
             throw("all nodes must have a node type set (ntype)");
         }
@@ -75,15 +75,17 @@ class NodeContext<T extends Node> extends Context {
             throw("node of type " + data.ntype + " cannot be inserted into repo of type " + this.ntype);
         }
 
+        delete data.position;
         return this.nodeContext.insert(data, safe);
     }
 
-    update(query: { [key: string]: any }, data: any) : Promise<any> {
+    update(query: { [key: string]: any }, data: any) : Promise<T> {
         query['ntype'] = this.ntype;
+        delete data.position;
         return this.nodeContext.update(query, data);
     }
 
-    remove(query: { [key: string]: any }) : Promise<any> {
+    remove(query: { [key: string]: any }) : Promise<boolean> {
         query['ntype'] = this.ntype;
         return this.nodeContext.remove(query);
         //return Q.all([super.remove(query), this.nodeContext.remove(query)]);

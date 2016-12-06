@@ -12,7 +12,7 @@ import { IndicatorEvent } from 'backlive/network/event';
     selector: 'backlive-strategy',
     templateUrl: Path.ComponentView('strategy'),
     styleUrls: [Path.ComponentStyle('strategy')],
-    outputs: ['nodeChange', 'addInput', 'remove'] //inherited, workaround until angular fix
+    outputs: NodeComponent.outputs //inherited, workaround until angular fix
 })
 export class StrategyComponent extends NodeComponent<Strategy> implements OnInit {
     @Input() strategy: Strategy;

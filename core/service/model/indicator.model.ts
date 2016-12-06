@@ -24,9 +24,6 @@ export class Indicator extends Node {
     exit: number = null;
     threshOp: number = 1;
     thresh: number = 1;
-    
-    //client-side only
-    position: { x: number, y: number, angle: number } = { x: 0, y: 0, angle: 0 };
 
     constructor() {
         super(NodeType.Indicator);

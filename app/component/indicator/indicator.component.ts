@@ -7,13 +7,13 @@ import { Common } from 'backlive/utility';
 import { AppService, UserService, IndicatorService } from 'backlive/service';
 import { Indicator, Node } from 'backlive/service/model';
 
-import { IndicatorChangeEvent } from './indicator.event';
+import { IndicatorChangeEvent, RemoveIndicatorEvent } from './indicator.event';
 
 @Component({
     selector: 'backlive-indicator',
     templateUrl: Path.ComponentView('indicator'),
     styleUrls: [Path.ComponentStyle('indicator')],
-    outputs: ['nodeChange', 'addInput', 'remove'] //inherited, workaround until angular fix
+    outputs: NodeComponent.outputs //inherited, workaround until angular fix
 })
 export class IndicatorComponent extends NodeComponent<Indicator> implements OnInit {
     @Input() indicator: Indicator;
@@ -46,6 +46,11 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
     }
     
     onRemove() {
-        this.remove.emit(true);
+        this.indicatorService.remove(this.indicator._id).then(success => {
+            if(success) {
+                this.remove.emit(this.indicator);
+                this.appService.notify(new RemoveIndicatorEvent(this.indicator._id));
+            }
+        });
     }
 }

@@ -24,8 +24,8 @@ export abstract class NodeController<T extends Node> extends BaseController {
 
     @Delete(':id')
     remove(req, res) {
-        res.services.nodeService.remove(req.params.id).then(function () {
-            res.send();
+        res.services.nodeService.remove(req.params.id).then(function (result) {
+            res.send(result);
         });
     }
 

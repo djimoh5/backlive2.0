@@ -18,15 +18,13 @@ import {AppService} from 'backlive/service';
                             <span class="text" [innerHtml]="option.title"></span>
                         </span>
                     </div>
-               </div>`
+               </div>`,
+    inputs: ButtonComponent.inputs
 })
 export class RadioButtonComponent extends ButtonComponent {
     @Input() options: RadioButtonOption[];
     @Input() toggle: boolean = true;
     @Input() split: boolean = false;
-    @Input() type: string;
-    @Input() size: string;
-    @Input() width: string;
     
     @Input() value: any;
     @Output() valueChange: EventEmitter<boolean> = new EventEmitter();

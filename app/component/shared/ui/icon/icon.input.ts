@@ -29,6 +29,7 @@ export class Type {
     static fontColor: string = 'glyphicon-text-color';
     static touch: string = 'glyphicon-hand-up';
     static view: string = 'glyphicon-eye-open';
+    static question: string = 'glyphicon-question-sign';
     
     static signal: string = 'glyphicon-signal';
 }

@@ -82,7 +82,7 @@ export class Context {
 
     remove(query: { [key: string]: any }) : Promise<any> {
         var deferred = Q.defer();
-        this.collection.remove(query, (err) => this.deferCallback(deferred, err));
+        this.collection.remove(query, (err) => this.deferCallback(deferred, err, true));
         return deferred.promise;
     }
 

@@ -14,14 +14,10 @@ import {PlatformUI} from 'backlive/utility/ui';
                     <div class="dropdown-menu" [style.width]="menuWidth" [ngStyle]="shiftMenu" [ngClass]="shiftDirection">
                         <ng-content></ng-content>
                     </div>
-               </div>`
+               </div>`,
+    inputs: ButtonComponent.inputs
 })
 export class DropdownMenuComponent extends ButtonComponent implements AfterViewInit {
-    @Input() title: string;
-    @Input() type: string;
-    @Input() size: string;
-    @Input() width: string;
-    @Input() disabled: boolean;
     @Input() activeFilter: boolean;
     @Input() icon: string;
     @Input() autoClose: boolean = true;

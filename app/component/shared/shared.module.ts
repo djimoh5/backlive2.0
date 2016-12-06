@@ -10,7 +10,6 @@ var importedModules: any[] = [CommonModule, FormsModule, ReactiveFormsModule];
 import { BaseComponent } from './base.component';
 import { PageComponent } from './page.component';
 import { ModalComponent } from './modal/modal.component';
-import { NodeComponent } from '../node/node.component';
 import { SearchBarComponent } from './search-bar/search-bar.component';
 import { AccordionComponent, AccordionGroupComponent } from './accordion/accordion.component';
 import { TabComponent, TabContentComponent, TabViewComponent } from './tab-view/tab-view.component';
@@ -19,7 +18,7 @@ import { TableComponent } from './table/table.component';
 import { SplitViewComponent } from './split-view/split-view.component';
 import { AudioComponent } from './audio/audio.component';
 
-var sharedComponents = [BaseComponent, PageComponent, NodeComponent, ModalComponent, SearchBarComponent, AccordionComponent, AccordionGroupComponent,
+var sharedComponents = [BaseComponent, PageComponent, ModalComponent, SearchBarComponent, AccordionComponent, AccordionGroupComponent,
     TabComponent, TabContentComponent, TabViewComponent, FilterMenuComponent, TableComponent, SplitViewComponent, AudioComponent]
 
 /* UI components */
@@ -31,8 +30,9 @@ import { SearchBoxComponent } from './ui/search-box.component';
 import { SelectOptionComponent, SelectCategoryComponent, SelectComponent } from './ui/select.component';
 
 //Buttons
-import { RadioButtonComponent } from './ui/button/radio-button.component';
 import { ButtonComponent } from './ui/button/button.component';
+import { ToggleButtonComponent } from './ui/button/toggle-button.component';
+import { RadioButtonComponent } from './ui/button/radio-button.component';
 import { DropdownButtonComponent } from './ui/button/dropdown-button.component';
 import { DropdownMenuComponent } from './ui/button/dropdown-menu.component';
 import { FileButtonComponent } from './ui/button/file-button.component';
@@ -44,7 +44,7 @@ import { IconComponent } from './ui/icon/icon.component';
 var uiComponents = [
     AlertComponent, ProgressBarComponent, AjaxLoaderComponent, SearchBoxComponent,
     SelectComponent, SelectOptionComponent, SelectCategoryComponent,
-    RadioButtonComponent, ButtonComponent, DropdownButtonComponent, DropdownMenuComponent, FileButtonComponent,
+    RadioButtonComponent, ButtonComponent, ToggleButtonComponent, DropdownButtonComponent, DropdownMenuComponent, FileButtonComponent,
     CheckboxComponent, IconComponent
 ];
 

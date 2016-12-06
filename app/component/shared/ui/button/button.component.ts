@@ -23,6 +23,8 @@ export class ButtonComponent implements OnChanges {
     
     btnClass: string;
     appService: AppService;
+
+    static inputs = ['title', 'type', 'size', 'width', 'disabled'];
     
     constructor (appService: AppService) {
         this.appService = appService;

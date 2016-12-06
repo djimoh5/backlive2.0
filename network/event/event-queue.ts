@@ -15,19 +15,19 @@ export class EventQueue {
     constructor() {
     }
     
-    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, subscriberId: number | string, callback: BaseEventCallback<any>, operators?: QueueOperators) : Observable<BaseEvent<any>> {
+    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, subscriberId: number | string, callback: BaseEventCallback<T>, operators?: QueueOperators<T>) : Observable<T> {
         if(!eventType.eventName) {
             throw('The event does not have a name. Please remember to annotate your event with @AppEvent.');    
         }
         
         //console.log(eventType.eventName, 'subscribed to by ' + subscriberId);
         var eventName = eventType.eventName;
-        var observable: Observable<BaseEvent<any>>;
+        var observable: Observable<T>;
         
         if (!this.events[eventName]) {
-            this.events[eventName] = observable = Observable.create((observer: Observer<BaseEvent<any>>) => {
+            this.events[eventName] = observable = Observable.create((observer: Observer<T>) => {
                 if(!this.activators[eventName]) {
-                    this.activators[eventName] = new Subject<BaseEvent<any>>();
+                    this.activators[eventName] = new Subject<T>();
                 }
                 
                 this.activators[eventName].subscribe(observer);
@@ -49,7 +49,7 @@ export class EventQueue {
             }
         }
         
-        this.subscribers[eventName][subscriberId].push(observable.subscribe((event: BaseEvent<any>) => {
+        this.subscribers[eventName][subscriberId].push(observable.subscribe(event => {
             callback(event);
         }));
 
@@ -57,8 +57,8 @@ export class EventQueue {
     }
     
     unsubscribe(subscriberId: any, eventType?: typeof BaseEvent) {
-        if(eventType && this.subscribers[eventType.name] && this.subscribers[eventType.name][subscriberId]) {
-            this.unsubscribeObservable(subscriberId, eventType.name);
+        if(eventType && this.subscribers[eventType.eventName] && this.subscribers[eventType.eventName][subscriberId]) {
+            this.unsubscribeObservable(subscriberId, eventType.eventName);
         }
         else {
             for(var name in this.subscribers) {
@@ -109,6 +109,6 @@ export class EventQueue {
     }
 }
 
-export class QueueOperators {
-    filter: (value: BaseEvent<any>, index: number) => boolean;
+export class QueueOperators<T extends BaseEvent<any>> {
+    filter: (value: T, index: number) => boolean;
 }

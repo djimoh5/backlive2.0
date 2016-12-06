@@ -11,8 +11,8 @@ export class Server {
     constructor() {
         this.app = express();
 
+        this.initLess();
         this.initStatic();
-        this.initLess(); 
         this.initRoutes();   
 
         // init server

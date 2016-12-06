@@ -1,12 +1,28 @@
 <div [animate]="pageAnimation" *ngIf="eventLoop">
     <svg>
-        <path *ngFor="let indicator of indicators" [attr.d]="getLine(indicator)" stroke="#12455a" stroke-width="2" />
+        <template ngFor let-node [ngForOf]="nodes" let-i="index">
+            <path *ngIf="node.ntype === NodeType.Indicator" [attr.d]="getLine(node)" stroke="#12455a" stroke-width="2" />
+        </template>
     </svg>
-    <backlive-indicator *ngFor="let indicator of indicators; let i = index" [indicator]="indicator" (nodeChange)="onNodeChange($event, i)"
-        [style.margin-left]="indicator.position.x + '%'" 
-        [style.margin-top.px]="indicator.position.y">
-    </backlive-indicator>
-    <div class="center-strategy">
-        <backlive-strategy #strategyComponent [strategy]="strategy" (nodeChange)="onNodeChange($event)" (addInput)="onAddInput(strategy, $event)"></backlive-strategy>
-    </div>
+    <template ngFor let-node [ngForOf]="nodes" let-i="index">
+        <div [ngSwitch]="node.ntype">
+            <!-- indicators -->
+            <backlive-indicator *ngSwitchCase="NodeType.Indicator"
+                [indicator]="node" 
+                (nodeChange)="onNodeChange($event, i)"
+                (remove)="onRemoveNode($event, i)"
+                [style.margin-left]="node.position.x + '%'" 
+                [style.margin-top.px]="node.position.y">
+            </backlive-indicator>
+            <!-- strategies -->
+            <div *ngSwitchCase="NodeType.Strategy" class="center-strategy">
+                <backlive-strategy
+                    [strategy]="node"
+                    (nodeChange)="onNodeChange($event, i)" 
+                    (addInput)="onAddInput(node, $event)">
+                </backlive-strategy>
+            </div>
+            <!-- portfolios -->
+        </div>
+    </template>
 </div>
