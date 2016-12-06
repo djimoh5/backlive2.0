@@ -1,12 +1,14 @@
 import { Component, Input, Output, OnInit, EventEmitter, ElementRef } from '@angular/core';
 import { Path } from 'backlive/config';
 import { NodeComponent } from 'backlive/component/shared';
+import { IndicatorEditorComponent } from './editor/editor.component';
 
 import { Common } from 'backlive/utility';
 
 import { AppService, UserService, IndicatorService } from 'backlive/service';
 import { Indicator, Node } from 'backlive/service/model';
 
+import { OpenFooterModalEvent } from 'backlive/event';
 import { IndicatorChangeEvent, RemoveIndicatorEvent } from './indicator.event';
 
 @Component({
@@ -17,6 +19,7 @@ import { IndicatorChangeEvent, RemoveIndicatorEvent } from './indicator.event';
 })
 export class IndicatorComponent extends NodeComponent<Indicator> implements OnInit {
     @Input() indicator: Indicator;
+    isEditing: boolean;
       
     constructor(appService: AppService, private indicatorService: IndicatorService, private elementRef: ElementRef) {
         super(appService, indicatorService);
@@ -43,6 +46,17 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
 
     getElement() {
         return this.elementRef.nativeElement;
+    }
+
+    onEdit() {
+        //this.isEditing = true;
+        this.appService.notify(new OpenFooterModalEvent({ 
+            title: 'Edit Indicator',
+            body: IndicatorEditorComponent,
+            model: {
+                indicator: this.indicator
+            }
+        }));
     }
     
     onRemove() {

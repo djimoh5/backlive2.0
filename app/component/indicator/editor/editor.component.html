@@ -43,13 +43,13 @@
                             <option value="1">opponent</option>
                         </select>
                     </template>
-                </div.
+                </div>
             </div>
             <div class="pull-right">
-                <toggle-button [(value)]="indicator.allowNeg" ngIf="indicator.env != 'sports'">exclude neg. values</toggle-button>
+                <toggle-button [(value)]="indicator.allowNeg" *ngIf="indicator.env != 'sports'">exclude neg. values</toggle-button>
             </div>
         </div>
-        <div class="autocomplete close-on-click" data-excl="{{indicator.exclIndTypes}}"></div>
+        <backlive-indicator-data-menu [excludedTypes]="indicator.exclIndTypes"></backlive-indicator-data-menu>
     </div>
     <div class="indicator-settings clearfix">
         <div *ngIf="indicator.env !== 'sports'" class="setting">

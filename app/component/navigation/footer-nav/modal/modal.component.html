@@ -1,0 +1,19 @@
+<div id="footerModal" class="modal-container" [class.open]="isOpen">
+  	<div class="header clearfix" *ngIf="isOpen">
+		<button type="button" class="close" (click)="close()"><span aria-hidden="true">&times;</span></button>
+		<ui-icon type="{{options.icon}}" *ngIf="options.icon"></ui-icon>
+		<h3 class="modal-title">{{options.title}}</h3>
+	</div>
+	<div class="body">
+		<div *ngIf="isString(options.body)" (click)="onBodyClick($event)" [innerHtml]="options.body" [class.center]="options.centerText"></div>
+		<div #modalbody></div>
+	</div>
+	<div class="footer" [class.hidden]="!options.footer">
+		<div *ngIf="isString(options.footer)" [innerHtml]="options.footer"></div>
+		<div #modalfooter></div>
+	</div>
+	<div class="footer" *ngIf="options.onSubmit">
+		<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+		<button type="button" class="btn btn-primary" (click)="submit()">Submit</button>
+	</div>
+</div>

@@ -29,5 +29,11 @@ export class OpenModalEvent extends BaseEvent<ModalOptions> {}
 @AppEvent('Event.CloseModal')
 export class CloseModalEvent extends BaseEvent<null> {}
 
+@AppEvent('Event.OpenFooterModal')
+export class OpenFooterModalEvent extends BaseEvent<ModalOptions> {}
+
+@AppEvent('Event.CloseFooterModal')
+export class CloseFooterModalEvent extends BaseEvent<null> {}
+
 @AppEvent('Event.MessageBar')
 export class MessageBarEvent extends BaseEvent<string> {}
