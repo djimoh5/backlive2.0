@@ -1,1 +1,8 @@
-<div class="autocomplete"></div>
+<div class="autocomplete">
+    <div *ngFor="let dataField of dataFields">
+        <h3>{{dataField.name}}</h3>
+        <div *ngFor="let field of dataField.fields">
+            <div class="pod">{{field}}</div>
+        </div>
+    </div>
+</div>

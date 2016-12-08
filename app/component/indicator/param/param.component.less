@@ -1,0 +1,47 @@
+@import "css/plugins/mixins.less";
+@import "css/themes/colors.less";
+@import "css/themes/text.less";
+
+.param {
+    position: relative;
+    padding: 3px 5px;
+    border: 1px solid @border-default;
+    display: inline-block;
+    margin: 0px 3px;
+}
+.field {
+    .controls {
+        .opacity(0);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 77px;
+        padding: 8px 0 4px 20px;
+        z-index: 1;
+        border: 1px solid @white;
+        border-left: none;
+        .border-radius(5px);
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
+        .transition(~"left .5s ease-out, opacity .5s ease-out");
+        ui-icon {
+            padding: 0 5px;
+            cursor: pointer;
+            &[type="edit"] {
+                color: @brand-secondary;
+            }
+            &[type="remove"] {
+                color: @brand-danger;
+            }
+            &:hover {
+                .opacity(70);
+            }
+        }
+    }
+    &:hover {
+        .controls {
+            .opacity(100);
+            left: 23px;
+        }
+    }
+}

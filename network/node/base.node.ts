@@ -13,8 +13,8 @@ export class BaseNode {
         this.inputs = {};
     }
     
-    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, callback: BaseEventCallback<T>, operators?: QueueOperators) {
-        var operators: QueueOperators;
+    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, callback: BaseEventCallback<T>, operators?: QueueOperators<T>) {
+        var operators: QueueOperators<T>;
 
         if(this.inputs[eventType.name]) {
             operators = {

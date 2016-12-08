@@ -24,7 +24,7 @@ export class HeaderNavComponent extends BaseComponent {
 
         this.items = [
             { name: "Dashboard", route: Route.Dashboard },
-            { name: "Strategy", route: Route.Backtest },
+            { name: "Strategy", route: Route.Network },
             { name: "Research", route: Route.Research }
         ];
     }

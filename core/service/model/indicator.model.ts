@@ -1,13 +1,20 @@
 import { Node, NodeType } from './node.model';
 
+export declare type IndicatorParam = [IndicatorParamType, string] | [IndicatorParamType, string, IndicatorParamTransform];
+
+export class IndicatorParamGroup {
+    vars: (IndicatorParam | IndicatorParamGroup)[] = [];
+    ops: Operator[] = [];
+}
+
 export class Indicator extends Node {
-    vars: (Indicator | IndicatorParam)[] = [];
+    vars: (IndicatorParam | IndicatorParamGroup)[] = [];
     ops: Operator[] = [];
     
     allowNeg: number = 1;
     aggrType: string = 'val';
-    aggrSpan: number = 5;
-    aggrSpanType: number = 1;
+    aggrSpan: number = 6;
+    aggrSpanType: number = 2;
     valType: number = 1;
     
     exclType: number = -1;
@@ -15,15 +22,15 @@ export class Indicator extends Node {
     excl: number = null;
     rankIndustry: boolean = false;
     sortDesc: number = -1;
-    weight: number = 100;
+    //weight: number = 100;
     
-    exp: number = 100;
-    expSh: number = 100;
+    //exp: number = 100;
+    //expSh: number = 100;
     exitType: number = -1;
     exitOp: number = 1;
     exit: number = null;
-    threshOp: number = 1;
-    thresh: number = 1;
+    //threshOp: number = 1;
+    //thresh: number = 1;
 
     constructor() {
         super(NodeType.Indicator);
@@ -62,9 +69,12 @@ export enum IndicatorParamType {
     FinancialStatement = 10, 
     FinancialIndicators = 11, 
     Funds = 99, 
-    Constant = -1
+    Constant = -1,
+    Indicator = -2
 }
 
-export declare type IndicatorParam = [IndicatorParamType, string] | [IndicatorParamType, string, number /* Function enum */];
+export enum IndicatorParamTransform {
+    AbsoluteValue = 1
+}
 
 export const DENORM_PARAM_TYPES: IndicatorParamType[] = [IndicatorParamType.IncomeStatement, IndicatorParamType.BalanceSheet, IndicatorParamType.CashFlowStatement, IndicatorParamType.Statistic];	

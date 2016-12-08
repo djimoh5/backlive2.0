@@ -1,0 +1,20 @@
+<div [class.param]="!isRoot">
+    <template [ngIf]="param.vars">
+        <template ngFor let-field [ngForOf]="param.vars" let-i="index">
+            <backlive-indicator-param [param]="field"></backlive-indicator-param>
+            <select *ngIf="param.ops.length > index" [(ngModel)]="param.ops[index]">
+                <option value="0">+</option>
+                <option value="1">-</option>
+                <option value="2">&times;</option>
+                <option value="3">/</option>
+            </select>
+        </template>
+    </template>
+    <div *ngIf="!param.vars" class="field">
+        <div class="controls">
+            <span (click)="groupEquation()" tooltip="group fields">( )</span>
+            <span (click)="setAbsoluteValue()" tooltip="absolute value">|x|</span>
+        </div>
+        <div class="name">{{param[1]}}</div>
+    </div>
+</div>

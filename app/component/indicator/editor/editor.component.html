@@ -1,58 +1,70 @@
 <div class="indicator">
-    <div class="equation">
-        <select [(ngModel)]="indicator.exclIndTypes" (change)="clearEquation()" *ngIf="indicator.env === 'sports'" class="pull-left">
+    <div class="row">
+        <div class="col-xs-12">
+            <input [(ngModel)]="indicator.name" type="text" class="form-control" placeholder="name your indicator" />
+        </div>
+        <div class="col-xs-2 hide">
+            <toggle-button class="pull-right" [(value)]="indicator.allowNeg" *ngIf="indicator.env != 'sports'">exclude < 0</toggle-button>
+        </div>
+    </div>
+    <div class="row">
+        <select [(ngModel)]="indicator.exclIndTypes" (change)="clearEquation()" *ngIf="indicator.env === 'sports'" class="form-control">
             <option value="101">team</option>
             <option value="100,102">player</option>
         </select>
-        <div class="add-field-container">
-            <input type="text" class="pull-left form-control" placeholder="type here to filter menu" (keydown)="autocomplete($event)" (click)="autocomplete($event)" />
-            <ui-button size="small" class="pull-left" (click)="groupEquation($event)">( )</ui-button>
-            <ui-button size="small" class="pull-left" (click)="setAbsoluteValue($event)">| |</ui-button>
-            <div class="pull-left aggr">
-                <select [(ngModel)]="indicator.aggrType">
-                    <option value="val">Actual Value</option>
-                    <option value="past">Past Value</option>
-                    <option value="avg">Average</option>
-                    <option value="ravg">Rel to Avg.</option>
-                    <option value="pos"># positive</option>
-                    <option *ngIf="indicator.env === 'sports'" value="pos"># positive</option>
-                    <option *ngIf="indicator.env !== 'sports'" value="cagr">CAGR</option>
-                    <option value="sum">Sum</option>
-                    <option value="chng">% Change</option>
-                    <option *ngIf="indicator.env !== 'sports'" value="geo">Geom. Avg.</option>
-                </select>
-                <div [class.hidden]="indicator.aggrType === 'val'" class="inline">
-                    <span *ngIf="indicator.env != 'sports' || indicator.aggrSpanType == 1">
-                        <span>last</span> <input [(ngModel)]="indicator.aggrSpan" type="text" />
-                    </span>
-                    <template [ngIf]="indicator.env !== 'sports'">
-                        <select [(ngModel)]="indicator.aggrSpanType">
-                            <option value="1">days</option>
-                            <option value="2">months</option>
-                            <option value="3">years</option>
-                        </select>
-                    </template>
-                    <template [ngIf]="indicator.env === 'sports'">
-                        <select [(ngModel)]="indicator.aggrSpanType">
-                            <option value="1">games</option>
-                            <option value="2">season to date</option>
-                        </select>
-                        <span> vs </span>
-                        <select [(ngModel)]="indicator.aggrSpanOpp">
-                            <option value="0">any team</option>
-                            <option value="1">opponent</option>
-                        </select>
-                    </template>
-                </div>
-            </div>
-            <div class="pull-right">
-                <toggle-button [(value)]="indicator.allowNeg" *ngIf="indicator.env != 'sports'">exclude neg. values</toggle-button>
+        <div class="col-xs-12">
+            <input type="text" class="form-control" placeholder="search for data points to create indicator" (keydown)="autocomplete($event)" (click)="autocomplete($event)" />
+            <div class="params-container ">
+                <!-- indicator itself is a type of IndicatorParamGroup -->
+                blah blah blah
+                <backlive-indicator-param [param]="indicator" [isRoot]="true"></backlive-indicator-param>
             </div>
         </div>
-        <backlive-indicator-data-menu [excludedTypes]="indicator.exclIndTypes"></backlive-indicator-data-menu>
     </div>
-    <div class="indicator-settings clearfix">
-        <div *ngIf="indicator.env !== 'sports'" class="setting">
+
+    <backlive-indicator-data-menu [excludedTypes]="indicator.exclIndTypes"></backlive-indicator-data-menu>
+
+    <div class="row">
+        <div class="aggr col-xs-12 col-md-4">
+            Transform Value
+            <ui-icon type="question" tooltip="Choose 'No Transform' to use exact value from above calculation. Or choose to average, sum, % change etc. the value over a specified time period."></ui-icon>
+            <br/>
+            <select [(ngModel)]="indicator.aggrType" class="form-control">
+                <option value="val">No Transform</option>
+                <option value="past">Past Value</option>
+                <option value="avg">Average</option>
+                <option value="ravg">Rel to Avg.</option>
+                <option *ngIf="indicator.env === 'sports'" value="pos"># positive</option>
+                <option *ngIf="indicator.env !== 'sports'" value="cagr">CAGR</option>
+                <option value="sum">Sum</option>
+                <option value="chng">% Change</option>
+                <option *ngIf="indicator.env !== 'sports'" value="geo">Geom. Avg.</option>
+            </select>
+            <div [class.hidden]="indicator.aggrType === 'val'" class="inline">
+                <span *ngIf="indicator.env != 'sports' || indicator.aggrSpanType == 1">
+                    <span class="last">last</span> <input [(ngModel)]="indicator.aggrSpan" type="text" class="form-control aggr-span" />
+                </span>
+                <template [ngIf]="indicator.env !== 'sports'">
+                    <select [(ngModel)]="indicator.aggrSpanType" class="form-control">
+                        <option value="1">days</option>
+                        <option value="2">months</option>
+                        <option value="3">years</option>
+                    </select>
+                </template>
+                <template [ngIf]="indicator.env === 'sports'">
+                    <select [(ngModel)]="indicator.aggrSpanType" class="form-control">
+                        <option value="1">games</option>
+                        <option value="2">season to date</option>
+                    </select>
+                    <span> vs </span>
+                    <select [(ngModel)]="indicator.aggrSpanOpp" class="form-control">
+                        <option value="0">any team</option>
+                        <option value="1">opponent</option>
+                    </select>
+                </template>
+            </div>
+        </div>
+        <div *ngIf="indicator.env !== 'sports'" class="col-xs-6 col-md-4">
             Rank By <ui-icon type="question" tooltip="Rank all stocks together or rank each sector separately"></ui-icon>
             <br/>
             <radio-button [(value)]="indicator.rankIndustry" 
@@ -62,7 +74,7 @@
                 ]">
             </radio-button>
         </div>
-        <div *ngIf="indicator.env === 'sports'" class="setting">
+        <div *ngIf="indicator.env === 'sports'" class="col-xs-6 col-md-4">
             Value Type <ui-icon type="question" tooltip="Should value be for team, their opponent, difference or sum of team and their opponent"></ui-icon>
             <br/>
             <radio-button [(value)]="indicator.valType" 
@@ -74,7 +86,7 @@
                 ]">
             </radio-button>
         </div>
-        <div class="setting">
+        <div class="col-xs-6 col-md-4">
             Sort By <ui-icon type="question" tooltip="When ranking stocks, should the lowest or highest values for this indicator be given the higher score? i.e. for a value strategy with indicator of P/E, you would want to trade 'lowest'."></ui-icon>
             <br/>
             <radio-button [(value)]="indicator.sortDesc" 
@@ -85,19 +97,14 @@
                 ]">
             </radio-button>
         </div>
-        <div class="setting" ng-show="indicator.sortDesc != -1">
-            Weight <ui-icon type="question" tooltip="The importance of this indicator in your strategy. Ideally, the total weight for all indicators added would add up to 100."></ui-icon>
-            <br/>
-            <input [(ngModel)]="indicator.weight" type="text" class="form-control" />
-        </div>
-        <div *ngIf="indicator.env == 'sports'" ng-show="indicator.exclIndTypes == '100,102'" class="setting">
+        <div *ngIf="indicator.env == 'sports'" ng-show="indicator.exclIndTypes == '100,102'" class="col-xs-6 col-md-3">
             Player <ui-icon type="question" tooltip="Should value be for team, their opponent, difference or sum of team and their opponent"></ui-icon>
             <br/>
-            <select [(ngModel)]="indicator.playerSort">
+            <select [(ngModel)]="indicator.playerSort" class="form-control">
                 <option value="1">Best</option>
                 <option value="0">Worst</option>
             </select>
-            <select [(ngModel)]="indicator.playerNum">
+            <select [(ngModel)]="indicator.playerNum" class="form-control">
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -112,7 +119,7 @@
                 ]">
             </radio-button>
         </div>
-        <div class="setting">
+        <div class="col-xs-6 col-md-3 hide">
             <span>Include Only If</span> <ui-icon type="question" tooltip="Filter out stocks whose value for this indicator do not pass this rule. To use this indicator as a pure exclusion only, set the 'Sort By' to N/A."></ui-icon>
             <br/>
             <radio-button [(value)]="indicator.exclType" 
@@ -122,7 +129,7 @@
                     { value: 0, title: 'percent rank' }
                 ]">
             </radio-button>
-            <select [(ngModel)]="indicator.exclOp" [class.hidden]="indicator.exclType == -1">
+            <select [(ngModel)]="indicator.exclOp" [class.hidden]="indicator.exclType == -1" class="form-control">
                 <!-- reversed values since specifying inclusion, but backend logic performs exclusion -->
                 <option value="2">&lt;=</option>
                 <option value="4">&lt;</option>
@@ -131,7 +138,7 @@
             </select>
             <input [(ngModel)]="indicator.excl" [class.hidden]="indicator.exclType == -1" type="text" class="form-control" placeholder="value" />
         </div>
-        <div *ngIf="indicator.env != 'sports'" class="setting">
+        <div *ngIf="indicator.env != 'sports'" class="col-xs-6 col-md-3 hide">
             <span>
                 Close Position If <ui-icon type="question" tooltip="The indicator's value may change during your holding period. Use this setting to dynamically exit position early if the value of the indicator breaches a certain threshold."></ui-icon>
                 <br/>
@@ -143,13 +150,13 @@
                         { value: 1, title: 'value' }
                     ]">
                 </radio-button>
-                <select ng-model="indicator.exitOp" ng-show="indicator.exitType != -1">
+                <select [(ngModel)]="indicator.exitOp" [class.hidden]="indicator.exitType == -1" class="form-control">
                     <option value="1">&lt;</option>
                     <option value="3">&lt;=</option>
                     <option value="2">&gt;</option>
                     <option value="4">&gt;=</option>
                 </select>
-                <input [(ngModel)]="indicator.exit" ng-show="indicator.exitType != -1" type="text" class="form-control" placeholder="value" />
+                <input [(ngModel)]="indicator.exit" [class.hidden]="indicator.exitType == -1" type="text" class="form-control" placeholder="value" />
             </div>
         </div>
     </div>

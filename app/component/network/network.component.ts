@@ -3,7 +3,7 @@ import { Path } from 'backlive/config';
 import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
 import { StrategyComponent } from '../strategy/strategy.component';
 
-import { AppService, UserService, StrategyService } from 'backlive/service';
+import { AppService, UserService, StrategyService, LookupService } from 'backlive/service';
 
 import { Route } from 'backlive/routes';
 import { Strategy, Indicator, Node, NodeType } from 'backlive/service/model';
@@ -14,11 +14,11 @@ import { PlatformUI } from 'backlive/utility/ui';
 declare var d3;
 
 @Component({
-    selector: 'backlive-backtest',
-    templateUrl: Path.ComponentView('backtest'),
-    styleUrls: [Path.ComponentStyle('backtest')]
+    selector: 'backlive-network',
+    templateUrl: Path.ComponentView('network'),
+    styleUrls: [Path.ComponentStyle('network')]
 })
-export class BacktestComponent extends PageComponent implements OnInit, OnDestroy {
+export class NetworkComponent extends PageComponent implements OnInit, OnDestroy {
     eventLoop: any;
     life: { numLoops: number };
     
@@ -30,7 +30,7 @@ export class BacktestComponent extends PageComponent implements OnInit, OnDestro
     NodeType = NodeType;
     tmpInputMap: { [key: string]: { node: Node, input: Node } } = {};
 
-    constructor(appService: AppService, private userService: UserService, private strategyService: StrategyService, private platformUI: PlatformUI) {
+    constructor(appService: AppService, private userService: UserService, private strategyService: StrategyService, private lookupService: LookupService, private platformUI: PlatformUI) {
         super(appService);
         
         var items = [
@@ -43,6 +43,7 @@ export class BacktestComponent extends PageComponent implements OnInit, OnDestro
         appService.notify(new SlidingNavItemsEvent(items));
 
         this.life = { numLoops: 0 };
+        this.lookupService.getDataFields(); //just to cache data
     }
     
     ngOnInit() {

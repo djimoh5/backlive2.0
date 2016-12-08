@@ -1,16 +1,16 @@
 import { NgModule }       from '@angular/core';
 import { SharedModule } from 'backlive/module/shared';
 
-import { BacktestComponent } from './backtest.component';
+import { NetworkComponent } from './network.component';
 import { StrategyComponent } from '../strategy/strategy.component';
 import { IndicatorComponent } from '../indicator/indicator.component';
 
-import { backtestRouting } from './backtest.routing';
+import { networkRouting } from './network.routing';
 
 @NgModule({
     declarations: [
-        BacktestComponent, StrategyComponent, IndicatorComponent
+        NetworkComponent, StrategyComponent, IndicatorComponent
     ],
-    imports: [SharedModule, backtestRouting]
+    imports: [SharedModule, networkRouting]
 })
-export class BacktestModule {}
+export class NetworkModule {}

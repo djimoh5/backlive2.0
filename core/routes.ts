@@ -4,6 +4,7 @@ import { IndicatorController } from './controller/indicator.controller';
 import { StrategyController } from './controller/strategy.controller';
 import { TickerController } from './controller/ticker.controller';
 import { UserController } from './controller/user.controller';
+import { LookupController } from './controller/lookup.controller';
 
 export var routes: RouteInfo[] = [
     //Pages
@@ -19,6 +20,7 @@ export var routes: RouteInfo[] = [
     //{ path: '/api/news', controller: require('./controller/NewsController') },
     //{ path: '/api/portfolio', controller: require('./controller/PortfolioController') },
     { path: '/api/strategy', controller: StrategyController },
+    { path: '/api/lookup', controller: LookupController },
 
     //must be last to prevent dup router middleware calls
     { path: '/', controller: HomeController },

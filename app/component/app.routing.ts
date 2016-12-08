@@ -11,7 +11,7 @@ export const routes: Routes = [
     
     //lazy loaded modules
     { path: 'dashboard', loadChildren: 'app/component/dashboard/dashboard.module#DashboardModule' },
-    { path: 'strategy', loadChildren: 'app/component/backtest/backtest.module#BacktestModule' },
+    { path: 'strategy', loadChildren: 'app/component/network/network.module#NetworkModule' },
     { path: 'portfolio', loadChildren: 'app/component/portfolio/portfolio.module#PortfolioModule'},
     { path: 'research', loadChildren: 'app/component/research/research.module#ResearchModule' },
 

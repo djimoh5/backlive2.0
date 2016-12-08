@@ -11,6 +11,7 @@ import { NewsService } from './news.service';
 import { PortfolioService } from './portfolio.service';
 import { StrategyService } from './strategy.service';
 import { TickerService } from './ticker.service';
+import { LookupService } from './lookup.service';
 
 
 import { ClientSocket } from './client.socket';
@@ -26,6 +27,7 @@ import { ClientSocket } from './client.socket';
         StrategyService,
         TickerService,
         UserService,
+        LookupService,
         ClientSocket
     ]
 })
