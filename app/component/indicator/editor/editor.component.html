@@ -1,8 +1,5 @@
 <div class="indicator">
     <div class="row">
-        <div class="col-xs-12">
-            <input [(ngModel)]="indicator.name" type="text" class="form-control" placeholder="name your indicator" />
-        </div>
         <div class="col-xs-2 hide">
             <toggle-button class="pull-right" [(value)]="indicator.allowNeg" *ngIf="indicator.env != 'sports'">exclude < 0</toggle-button>
         </div>
@@ -13,16 +10,15 @@
             <option value="100,102">player</option>
         </select>
         <div class="col-xs-12">
-            <input type="text" class="form-control" placeholder="search for data points to create indicator" (keydown)="autocomplete($event)" (click)="autocomplete($event)" />
             <div class="params-container ">
                 <!-- indicator itself is a type of IndicatorParamGroup -->
-                blah blah blah
                 <backlive-indicator-param [param]="indicator" [isRoot]="true"></backlive-indicator-param>
             </div>
+            <input searchbox (search)="searchKey=$event" type="text" class="form-control" placeholder="search for data points to create indicator" (focus)="showDataMenu = true" (blur)="showDataMenu = false" />
         </div>
     </div>
 
-    <backlive-indicator-data-menu [excludedTypes]="indicator.exclIndTypes"></backlive-indicator-data-menu>
+    <backlive-indicator-data-menu [searchKey]="searchKey" [excludedTypes]="indicator.exclIndTypes" (select)="onSelectParam($event)"></backlive-indicator-data-menu>
 
     <div class="row">
         <div class="aggr col-xs-12 col-md-4">
@@ -158,6 +154,12 @@
                 </select>
                 <input [(ngModel)]="indicator.exit" [class.hidden]="indicator.exitType == -1" type="text" class="form-control" placeholder="value" />
             </div>
+        </div>
+    </div>
+    <div class="row save-button">
+        <div class="col-xs-12 col-md-offset-4 col-md-4">
+            <input [(ngModel)]="indicator.name" type="text" class="form-control" placeholder="name your indicator" />
+            <ui-button icon="checkmark" type="submit" [full]="true" size="large">Update Indicator</ui-button>
         </div>
     </div>
 </div>

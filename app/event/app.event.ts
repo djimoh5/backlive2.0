@@ -1,6 +1,7 @@
 import { AppEvent, BaseEvent } from 'backlive/network/event';
 import { SlidingNavItem } from 'backlive/component/navigation';
 import { ModalOptions } from '../component/shared/modal/modal.component';
+import { ModalOptions as FooterModalOptions } from '../component/navigation/footer-nav/modal/modal.component';
 
 @AppEvent('Event.PageLoading')
 export class PageLoadingEvent extends BaseEvent<boolean> {}
@@ -30,7 +31,7 @@ export class OpenModalEvent extends BaseEvent<ModalOptions> {}
 export class CloseModalEvent extends BaseEvent<null> {}
 
 @AppEvent('Event.OpenFooterModal')
-export class OpenFooterModalEvent extends BaseEvent<ModalOptions> {}
+export class OpenFooterModalEvent extends BaseEvent<FooterModalOptions> {}
 
 @AppEvent('Event.CloseFooterModal')
 export class CloseFooterModalEvent extends BaseEvent<null> {}

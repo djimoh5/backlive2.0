@@ -1,8 +1,19 @@
-<div class="autocomplete">
-    <div *ngFor="let dataField of dataFields">
-        <h3>{{dataField.name}}</h3>
-        <div *ngFor="let field of dataField.fields">
-            <div class="pod">{{field}}</div>
+<div class="menu">
+    <div class="left-col">
+        <div *ngFor="let dataField of dataFields" class="category" [class.active]="selectedDataType === dataField.type" (click)="selectDataField(dataField)">
+            <h5>{{dataField.name}} ({{dataField.fieldCount}})</h5>
         </div>
+    </div>
+    <div class="right-col">
+        <template ngFor let-dataField [ngForOf]="dataFields">
+            <div class="category" *ngIf="selectedDataType === dataField.type">
+                <template ngFor let-field [ngForOf]="dataField.fields">
+                    <div *ngIf="isVisible(dataField.type, field)" class="field" (click)="selectField(dataField.type, field)">
+                        <span class="title">{{getDisplayName(dataField.type, field)}}</span>
+                        <span class="definition">{{getDictionary(dataField.type, field)}}</span>
+                    </div>
+                </template>
+            </div>
+        </template>
     </div>
 </div>

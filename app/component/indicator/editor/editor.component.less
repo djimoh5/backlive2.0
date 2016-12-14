@@ -4,9 +4,10 @@
 
 .form-control {
     display: inline-block;
-}
-.form-control {
     margin-bottom: 20px;
+    &[searchbox] {
+        margin-bottom: 0;
+    }
 }
 .aggr {
     .form-control {
@@ -20,10 +21,12 @@
     }
 }
 .params-container {
-    top: -22px;
     position: relative;
     padding: 10px;
     border: 1px solid @border-default;
-    border-top: none;
-    .border-bottom-radius(5px);
+    border-bottom: none;
+    .border-top-radius(5px);
+}
+.save-button {
+    padding-top: 40px;
 }

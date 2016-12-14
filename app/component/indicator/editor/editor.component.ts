@@ -5,7 +5,7 @@ import { BaseComponent } from 'backlive/component/shared';
 import { Common } from 'backlive/utility';
 
 import { AppService, IndicatorService } from 'backlive/service';
-import { Indicator, Node } from 'backlive/service/model';
+import { Indicator, Node, IndicatorParam, Operator } from 'backlive/service/model';
 
 import { IndicatorChangeEvent } from '../indicator.event';
 
@@ -16,6 +16,8 @@ import { IndicatorChangeEvent } from '../indicator.event';
 })
 export class IndicatorEditorComponent extends BaseComponent implements OnInit {
     @Input() indicator: Indicator;
+    searchKey: string;
+    showDataMenu: boolean;
       
     constructor(appService: AppService, private indicatorService: IndicatorService) {
         super(appService);
@@ -25,19 +27,11 @@ export class IndicatorEditorComponent extends BaseComponent implements OnInit {
         
     }
 
-    groupEquation() {
+    onSelectParam(param: IndicatorParam) {
+        this.indicator.vars.push(param);
 
-    }
-    
-    setAbsoluteValue() {
-
-    }
-
-    clearEquation() {
-
-    }
-
-    autocomplete() {
-        
+        if(this.indicator.vars.length > 1) {
+            this.indicator.ops.push(Operator.Add);
+        }
     }
 }

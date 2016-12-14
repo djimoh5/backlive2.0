@@ -9,8 +9,8 @@ export class TickerService extends BaseService {
         super(apiService, appService, 'ticker');
     }
     
-    getPrices(tkr: string, years: number = 10){
-        return this.get(tkr + '/prices', { years: years }, true);
+    getPrices(tkr: string, years: number = 10) {
+        return this.get(tkr + '/prices', { years: years }, true, 3600);
     }
     
     getPrice(tkr: string, date?: number) {

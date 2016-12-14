@@ -10,6 +10,7 @@ export class Type {
     static remove: string = 'glyphicon-remove';
     static trash: string = 'glyphicon-trash';
     static cancel: string = 'glyphicon-ban-circle';
+    static checkmark: string = 'glyphicon-ok';
     
     //upload / download
     static upload: string = 'glyphicon-cloud-upload';

@@ -53,7 +53,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                 this.loadStrategy(strategies[0]);
             }
             else {
-                this.strategy = new Strategy('');
+                this.loadStrategy(new Strategy(''));
             }
 
             this.startEventLoop();
@@ -64,15 +64,17 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         this.strategy = strategy;
         this.nodes.push(this.strategy);
 
-        this.strategyService.getInputs(strategy._id).then(nodes => {
-            strategy.inputs = [];
-            nodes.forEach(node => {
-                strategy.inputs.push(node._id); //in case there are any deleted nodes still in inputs
-                this.nodes.push(node);
-            });
+        if(strategy._id) {
+            this.strategyService.getInputs(strategy._id).then(nodes => {
+                strategy.inputs = [];
+                nodes.forEach(node => {
+                    strategy.inputs.push(node._id); //in case there are any deleted nodes still in inputs
+                    this.nodes.push(node);
+                });
 
-            this.positionNodes();
-        });
+                this.positionNodes();
+            });
+        }
     }
 
     onAddInput(node: Node, inputNode: Node) {
@@ -112,14 +114,15 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     }
 
     startEventLoop() {
-        this.eventLoop = setInterval(() => {
+        this.eventLoop = true;
+        /*this.eventLoop = setInterval(() => {
             var numInds = this.nodes.length - 1;
 
             if(numInds > 0) {
                 //this.positionNodes(true);
                 //this.life.numLoops++;
             }
-        }, 200);
+        }, 200);*/
     }
 
     positionNodes(animating: boolean = false) {

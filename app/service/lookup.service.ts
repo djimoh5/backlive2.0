@@ -12,6 +12,6 @@ export class LookupService extends BaseService {
     }
     
     getDataFields() : Promise<DataField[]> {
-        return this.get('data-fields', null, true, { expiration: 86400 });
+        return this.get('data/fields', null, true, { expiration: 86400 });
     }
 }

@@ -1,4 +1,4 @@
-import { Component, Type, ComponentRef, ComponentFactoryResolver, EventEmitter, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, Type, ComponentRef, ComponentFactoryResolver, EventEmitter, ViewChild, ViewContainerRef, NgZone } from '@angular/core';
 import { Path } from 'backlive/config';
 import { Common } from 'backlive/utility';
 import { PlatformUI } from 'backlive/utility/ui';
@@ -15,9 +15,8 @@ import { OpenFooterModalEvent, CloseFooterModalEvent } from 'backlive/event';
     styleUrls: [Path.ComponentStyle('navigation/footer-nav/modal')]
 })
 export class FooterModalComponent extends BaseComponent {
+    id: string = 'footerModal';
     options: ModalOptions;
-    componentResolver: ComponentFactoryResolver;
-    platformUI: PlatformUI;
 
     componentRefs: ComponentRef<any>[] = [];
     
@@ -26,15 +25,22 @@ export class FooterModalComponent extends BaseComponent {
 
     isOpen: boolean;
 
-    constructor(appService: AppService, componentResolver: ComponentFactoryResolver, platformUI: PlatformUI) {
+    constructor(appService: AppService, private componentResolver: ComponentFactoryResolver, private platformUI: PlatformUI, private ngZone: NgZone) {
         super(appService);
-        this.componentResolver = componentResolver;
-        this.platformUI = platformUI;
 
         this.options = { title: "BackLive" };
 
         this.subscribeEvent(OpenFooterModalEvent, event => this.open(event.data));
         this.subscribeEvent(CloseFooterModalEvent, () => this.close());
+
+         this.platformUI.query('#' + this.id).on('hide.bs.modal', () => {
+            this.ngZone.run(() => {
+                console.log('modal close');
+                if(this.options.eventHandlers && this.options.eventHandlers['closeModal']) {
+                    this.options.eventHandlers['closeModal']();
+                }
+            });
+        });
     }
 
     open (options: ModalOptions) {
@@ -48,7 +54,7 @@ export class FooterModalComponent extends BaseComponent {
             componentRef.destroy();
         });
 
-        this.platformUI.query('#footerModal').animate({ height: this.platformUI.query(window).height() - 100 }, 100, () => {
+        this.platformUI.query('#' + this.id).animate({ height: this.platformUI.query(window).height() - 100 }, 100, () => {
             this.isOpen = true;
         });
 
@@ -58,9 +64,7 @@ export class FooterModalComponent extends BaseComponent {
 
         if(options.footer && !this.isString(options.footer)) {
             this.loadComponent(<Type<any>> options.footer, this.modalfooterRef, options.model);
-        }
-
-        
+        }  
     }
 
     close () {
@@ -68,9 +72,13 @@ export class FooterModalComponent extends BaseComponent {
             componentRef.destroy();
         });
 
-        this.platformUI.query('#footerModal').animate({ height: 0 }, 100, () => {
+        this.platformUI.query('#' + this.id).animate({ height: 0 }, 100, () => {
             this.isOpen = false;
         });
+
+        if(this.options.onModalClose) {
+            this.options.onModalClose();
+        }
     }
 
     loadComponent(component: Type<any>, viewContainerRef: ViewContainerRef, model: {}) {
@@ -135,5 +143,6 @@ export interface ModalOptions {
     onSubmit?: Function;
     eventHandlers?: { [key:string]: Function };
     onBodyClick?: Function;
+    onModalClose?: Function;
     size?: string;  // large, full
 }

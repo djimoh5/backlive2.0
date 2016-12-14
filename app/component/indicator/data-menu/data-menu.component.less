@@ -2,6 +2,42 @@
 @import "css/themes/colors.less";
 @import "css/themes/text.less";
 
+.menu {
+    .clearfix;
+    border: 1px solid @border-default;
+    .border-radius(5px);
+    margin-bottom: 15px;
+}
 .pod {
     margin: 3px;
+}
+.left-col {
+    width: 225px;
+    float: left;
+    border: 1px solid @border-default;
+    .category {
+        padding: 7px 12px;
+        border-bottom: 1px solid @border-default;
+        &.active, &:hover {
+            background: @gray-light;
+        }
+    }
+}
+.right-col {
+    float: left;
+    width: ~"calc(100% - 225px)";
+    .field {
+        padding: 7px 12px;
+        border-bottom: 1px solid @border-default;
+        .clearfix;
+        .title {
+            float: left;
+        }
+        .definition {
+            float: right;
+        }
+        &.active, &:hover {
+            background: @gray-lighter;
+        }
+    }
 }

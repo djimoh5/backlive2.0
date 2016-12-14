@@ -1,5 +1,8 @@
 @import "css/plugins/mixins.less";
 
+.form-control {
+    height: 40px;
+}
 search-bar {
     float:right;
     padding: 15px 15px 0 15px;
@@ -27,6 +30,14 @@ ui-icon.hover span {
         .opacity(70);
     }
     cursor: pointer;
+}
+ui-button {
+    .btn-icon-left {
+        margin-right: 10px;
+    }
+    .btn-icon-right {
+        margin-left: 10px;
+    }
 }
 .btn {
     &:focus, &:hover, &:active {

@@ -1,4 +1,4 @@
-<div id="footerModal" class="modal-container" [class.open]="isOpen">
+<div [id]="id" class="modal-container" [class.open]="isOpen">
   	<div class="header clearfix" *ngIf="isOpen">
 		<button type="button" class="close" (click)="close()"><span aria-hidden="true">&times;</span></button>
 		<ui-icon type="{{options.icon}}" *ngIf="options.icon"></ui-icon>

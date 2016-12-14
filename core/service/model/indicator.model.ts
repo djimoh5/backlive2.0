@@ -50,10 +50,10 @@ export class SportsIndicator extends Indicator {
 }
 
 export enum Operator {
-    Add = 0,
-    Subtract = 1,
-    Multiply = 2,
-    Divide = 3
+    Add = 1,
+    Subtract = 2,
+    Multiply = 3,
+    Divide = 4
 }
 
 export enum IndicatorParamType {

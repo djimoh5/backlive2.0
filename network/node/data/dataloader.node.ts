@@ -1,7 +1,7 @@
 import { DataEvent, DataSubscriptionEvent, DataFilterEvent } from '../../event/app.event';
 import { BaseDataNode, IDataNode, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
 
-import { RFIELD_MAP, TABLE_MAP } from './field-map';
+import { DataFieldMap, DataCollectionMap } from './field-map';
 import { IndicatorParamType, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
 
 import { Common } from '../../../app/utility/common';
@@ -117,7 +117,7 @@ export class DataLoaderNode extends BaseDataNode {
             dateArr = <number[]>date;
         }
 
-        Database.mongo.collection(TABLE_MAP[type], (error, collection) => {
+        Database.mongo.collection(DataCollectionMap[type], (error, collection) => {
             if (error) {
                 this.callDB(date, fields, type, callback, ticker);
             }
@@ -193,10 +193,10 @@ export class DataLoaderNode extends BaseDataNode {
             var field = params[i][1];
 
             if (type != IndicatorParamType.Constant) {
-                var map: string = RFIELD_MAP[type] ? RFIELD_MAP[type][field] : null;
+                var map: string = DataFieldMap.toFieldName(type, field);
 
                 if (Common.inArray(type, DENORM_PARAM_TYPES)) {
-                    map = TABLE_MAP[type] + '_' + (map ? map : field);
+                    map = DataCollectionMap[type] + '_' + (map ? map : field);
                     type = IndicatorParamType.FinancialStatement;
                 }
 
@@ -204,12 +204,7 @@ export class DataLoaderNode extends BaseDataNode {
                     this.fields[type] = {};
                 }
 
-                if (map) {
-                    this.fields[type][map] = 1;
-                }
-                else {
-                    this.fields[type][field] = 1;
-                }
+                this.fields[type][map || field] = 1;
             }
         }
     }

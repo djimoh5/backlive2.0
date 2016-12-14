@@ -17,23 +17,18 @@ import { OpenModalEvent, CloseModalEvent } from 'backlive/event';
 export class ModalComponent extends BaseComponent {
     id: string = 'backliveModal';
     options: ModalOptions;
-    componentResolver: ComponentFactoryResolver;
-    platformUI: PlatformUI
 
     componentRefs: ComponentRef<any>[] = [];
     
     @ViewChild('modalbody', {read: ViewContainerRef}) modalbodyRef: ViewContainerRef;
     @ViewChild('modalfooter', {read: ViewContainerRef}) modalfooterRef: ViewContainerRef;
 
-    constructor(appService: AppService, componentResolver: ComponentFactoryResolver, platformUI: PlatformUI) {
+    constructor(appService: AppService, private componentResolver: ComponentFactoryResolver, private platformUI: PlatformUI) {
         super(appService);
-        this.componentResolver = componentResolver;
-        this.platformUI = platformUI;
-
         this.options = { title: "BackLive" };
 
         this.subscribeEvent(OpenModalEvent, event => this.open(event.data));
-        this.subscribeEvent(CloseModalEvent, () => this.close());
+        this.subscribeEvent(CloseModalEvent, () => this.close()); 
     }
 
     open (options: ModalOptions) {

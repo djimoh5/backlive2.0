@@ -6,8 +6,8 @@ export class LookupController extends BaseController {
 		super({ lookupService: LookupService });
 	}
 
-	@Get('data-fields')
-	prices(req, res) {
+	@Get('data/fields')
+	dataFields(req, res) {
 		res.services.lookupService.getDataFields().then(function (dataFields) {
 			res.send(dataFields);
 		});

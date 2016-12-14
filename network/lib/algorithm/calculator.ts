@@ -2,7 +2,7 @@ import { Operator, Indicator, IndicatorParam, IndicatorParamType, DENORM_PARAM_T
 import { Common } from '../../../app//utility/common';
 
 import { DataCache } from '../../node/data/data.node';
-import { RFIELD_MAP, TABLE_MAP, NO_VALUE } from '../../node/data/field-map';
+import { DataFieldMap, DataCollectionMap, NO_VALUE } from '../../node/data/field-map';
 
 export class Calculator {
     values: { [key: string]: any } = {};
@@ -44,10 +44,10 @@ export class Calculator {
                     fields.push(null);
                 }
                 else {
-                    var map = RFIELD_MAP[type] ? RFIELD_MAP[type][field] : null;
+                    var map = DataFieldMap.toFieldName(type, field);
 
                     if (Common.inArray(type, DENORM_PARAM_TYPES)) {
-                        map = TABLE_MAP[type] + '_' + (map ? map : field);
+                        map = DataCollectionMap[type] + '_' + (map ? map : field);
                         type = IndicatorParamType.FinancialStatement;
                     }
 
