@@ -1,7 +1,7 @@
 <template [ngIf]="param.vars">
     <div [class.param]="!isRoot">
         <template ngFor let-field [ngForOf]="param.vars" let-i="index">
-            <backlive-indicator-param [param]="field" (remove)="onRemove(i)"></backlive-indicator-param>
+            <backlive-indicator-param [param]="field" (remove)="onRemove(i)" (group)="onGroup(i, $event)" (fieldClick)="onClick(i)"></backlive-indicator-param>
             <select *ngIf="param.ops.length > i" [(ngModel)]="param.ops[i]">
                 <option value="1">+</option>
                 <option value="2">-</option>
@@ -11,11 +11,11 @@
         </template>
     </div>
 </template>
-<div *ngIf="!param.vars" class="field">
+<div *ngIf="!param.vars" class="field" [class.group]="isGrouping">
     <div class="controls">
         <span class="group-eq" (click)="groupEquation()" tooltip="group fields">( )</span>
         <span class="abs-val" (click)="setAbsoluteValue()" tooltip="absolute value">| |</span>
         <span class="remove" (click)="removeField()" tooltip="remove">&times;</span>
     </div>
-    <div class="name">{{param[1]}}</div>
+    <div class="name" (click)="fieldClicked()">{{param[1]}}</div>
 </div>

@@ -2,6 +2,7 @@
 
 .form-control {
     height: 40px;
+    .border-default;
 }
 search-bar {
     float:right;
@@ -152,4 +153,10 @@ a.btn-runscreen, a.btn-backtest {
 }
 .btn.soft {
     .opacity(60);
+}
+.btn-default {
+    .border-default;
+    &.active, &:hover, &:active {
+        .border-default;
+    }
 }

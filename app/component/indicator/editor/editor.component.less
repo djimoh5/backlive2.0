@@ -2,12 +2,19 @@
 @import "css/themes/colors.less";
 @import "css/themes/text.less";
 
-.form-control {
+.form-control, radio-button {
     display: inline-block;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     &[searchbox] {
         margin-bottom: 0;
+        &.short {
+            margin-left: 10px;
+            width: 150px;
+        }
     }
+}
+ui-icon[type="question"] {
+    color: #555;
 }
 .aggr {
     .form-control {
@@ -20,12 +27,29 @@
         margin: 0 5px;
     }
 }
+.value-container {
+    padding: 10px 10px 0 10px;
+    background: @gray-lighter;
+    .border-default;
+    .border-radius(5px);
+    .border-bottom-radius(0);
+    /*margin-bottom: 10px;*/
+
+    .form-control {
+        height: 34px;
+    }
+}
+
 .params-container {
     position: relative;
     padding: 10px;
-    border: 1px solid @border-default;
-    border-bottom: none;
-    .border-top-radius(5px);
+    margin-bottom: 10px;
+    background: @white;
+    .border-default;
+    .border-radius(5px);
+    backlive-indicator-param {
+        float: left;
+    }
 }
 .save-button {
     padding-top: 40px;
