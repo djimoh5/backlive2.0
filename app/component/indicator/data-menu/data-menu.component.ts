@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnChanges, EventEmitter, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, OnChanges, EventEmitter, ElementRef, SimpleChanges } from '@angular/core';
 import { Path } from 'backlive/config';
 
 import { BaseComponent } from 'backlive/component/shared';
@@ -7,6 +7,8 @@ import { Common } from 'backlive/utility';
 import { AppService, LookupService } from 'backlive/service';
 import { Indicator, DataField, DataFieldMap, IndicatorParamType, IndicatorParam } from 'backlive/service/model';
 
+import { SearchKeyCode } from '../editor/editor.component';
+
 @Component({
     selector: 'backlive-indicator-data-menu',
     templateUrl: Path.ComponentView('indicator/data-menu'),
@@ -14,14 +16,13 @@ import { Indicator, DataField, DataFieldMap, IndicatorParamType, IndicatorParam 
 })
 export class IndicatorDataMenuComponent extends BaseComponent implements OnChanges {
     @Input() searchKey: string;
+    @Input() searchKeyCode: SearchKeyCode;
     @Input() excludedTypes: number;
 
     @Output() select: EventEmitter<IndicatorParam> = new EventEmitter<IndicatorParam>();
 
     dataFields: DataField[] = dataFields;
-    hiddenFields: { [key: number]: { [key: string]: boolean } } = {};
-
-    selectedDataType: IndicatorParamType;
+    selectedDataField: DataField;
       
     constructor(appService: AppService, private lookupService: LookupService) {
         super(appService);
@@ -32,42 +33,122 @@ export class IndicatorDataMenuComponent extends BaseComponent implements OnChang
                     return DataFieldMap.toDisplayName(dataField.type, a).toLowerCase()
                             .localeCompare(DataFieldMap.toDisplayName(dataField.type, b).toLowerCase()); 
                 });
+
+                dataField.fieldObjs = []
+                dataField.fields.forEach(field => {
+                    dataField.fieldObjs.push({ name: field })
+                });
             });
 
-            this.selectedDataType = this.dataFields[0].type;
+            this.selectedDataField = this.dataFields[0];
+            this.activateField();
         });
-        
     }
     
     ngOnChanges(simpleChanges: SimpleChanges) {
+        console.log(simpleChanges);
+        if(simpleChanges['searchKey']) {
+            this.searchFields();
+        }
+        else if(simpleChanges['searchKeyCode']) {
+            this.processKeyCode();
+        }
+    }
+
+    searchFields() {
         if(this.searchKey) {
             var key = this.searchKey.toLowerCase();
-            this.hiddenFields = {};
+            var firstVisibleDataField: DataField;
 
             this.dataFields.forEach(dataField => {
                 dataField.fieldCount = dataField.fields.length;
-                this.hiddenFields[dataField.type] = {};
+                dataField.fieldObjs.forEach(field => {
+                    field.active = false;
 
-                dataField.fields.forEach(field => {
-                    if(DataFieldMap.toDisplayName(dataField.type, field).toLowerCase().indexOf(key) < 0) {
-                        this.hiddenFields[dataField.type][field] = true;
+                    if(DataFieldMap.toDisplayName(dataField.type, field.name).toLowerCase().indexOf(key) < 0) {
+                        field.hidden = true;
                         dataField.fieldCount--;
                     }
+                    else {
+                        field.hidden = false;
+                    }
                 });
+
+                if(!firstVisibleDataField && dataField.fieldCount > 0) {
+                    firstVisibleDataField = dataField;
+                }
+
+                if(dataField.fieldCount === 0 && dataField === this.selectedDataField) {
+                    this.selectedDataField = null;
+                }
             });
+
+            if(!this.selectedDataField && firstVisibleDataField) {
+                this.selectedDataField = firstVisibleDataField;
+            }
         }
         else {
-            this.hiddenFields = {};
-            this.dataFields.forEach(dataField => dataField.fieldCount = dataField.fields.length);
+            this.dataFields.forEach(dataField => {
+                dataField.fieldCount = dataField.fields.length;
+                dataField.fieldObjs.forEach(field => {
+                    field.active = false;
+                    field.hidden = false;
+                });
+            });
+
+            if(!this.selectedDataField) {
+                this.selectedDataField = this.dataFields[0];
+            }
+        }
+
+        this.activateField();
+    }
+
+    activateField() {
+        if(this.selectedDataField) {
+            var field: { name: string, active?: boolean, hidden?: boolean };
+            for(var i = 0; field = this.selectedDataField.fieldObjs[i]; i++) {
+                if(!field.hidden) {
+                    field.active = true;
+                    break;
+                }
+            }
         }
     }
 
-    isVisible(type: IndicatorParamType, field: string) {
-        return !this.hiddenFields[type] || !this.hiddenFields[type][field];
+    processKeyCode() {
+        if(this.searchKeyCode) {
+            var field: { name: string, active?: boolean, hidden?: boolean };
+            var lastIndex = this.selectedDataField.fieldObjs.length - 1;
+
+            for(var i = 0; field = this.selectedDataField.fieldObjs[i]; i++) {
+                if(field.active) {
+                    if(this.searchKeyCode.down && i < lastIndex) {
+                        field.active = false;
+                        this.selectedDataField.fieldObjs[i + 1].active = true;
+                    }
+                    else if(this.searchKeyCode.up && i > 0) {
+                        field.active = false;
+                        this.selectedDataField.fieldObjs[i - 1].active = true;
+                    }
+                    else if(this.searchKeyCode.enter) {
+                        this.selectField(this.selectedDataField.type, field.name);
+                    }
+
+                    break;
+                }
+            }
+        }
     }
 
     selectDataField(dataField: DataField) {
-        this.selectedDataType = dataField.type;
+        this.selectedDataField = dataField;
+
+        this.dataFields.forEach(dataField => {
+            dataField.fieldObjs.forEach(field => field.active = false);
+        });
+
+        this.activateField();
     }
 
     selectField(type: IndicatorParamType, field: string) {

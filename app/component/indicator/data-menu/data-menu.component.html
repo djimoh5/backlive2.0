@@ -1,16 +1,16 @@
 <div class="menu">
     <div class="left-col">
-        <div *ngFor="let dataField of dataFields" class="category" [class.active]="selectedDataType === dataField.type" (click)="selectDataField(dataField)">
+        <div *ngFor="let dataField of dataFields" class="category" [class.active]="selectedDataField === dataField" (click)="selectDataField(dataField)">
             <h5>{{dataField.name}} ({{dataField.fieldCount}})</h5>
         </div>
     </div>
     <div class="right-col">
         <template ngFor let-dataField [ngForOf]="dataFields">
-            <div class="category" *ngIf="selectedDataType === dataField.type">
-                <template ngFor let-field [ngForOf]="dataField.fields">
-                    <div *ngIf="isVisible(dataField.type, field)" class="field" (click)="selectField(dataField.type, field)">
-                        <span class="title">{{getDisplayName(dataField.type, field)}}</span>
-                        <span class="definition">{{getDictionary(dataField.type, field)}}</span>
+            <div class="category" *ngIf="selectedDataField === dataField">
+                <template ngFor let-field [ngForOf]="dataField.fieldObjs">
+                    <div *ngIf="!field.hidden" class="field" [class.active]="field.active" (click)="selectField(dataField.type, field.name)">
+                        <span class="title">{{getDisplayName(dataField.type, field.name)}}</span>
+                        <span class="definition">{{getDictionary(dataField.type, field.name)}}</span>
                     </div>
                 </template>
             </div>

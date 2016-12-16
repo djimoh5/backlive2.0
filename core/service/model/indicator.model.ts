@@ -1,6 +1,6 @@
 import { Node, NodeType } from './node.model';
 
-export declare type IndicatorParam = [IndicatorParamType, string] | [IndicatorParamType, string, IndicatorParamTransform];
+export declare type IndicatorParam = [IndicatorParamType, string | number] | [IndicatorParamType, string | number, IndicatorParamTransform];
 
 export class IndicatorParamGroup {
     vars: (IndicatorParam | IndicatorParamGroup)[] = [];

@@ -2,15 +2,6 @@
 @import "css/themes/colors.less";
 @import "css/themes/text.less";
 
-.param {
-    position: relative;
-    padding: 3px 5px;
-    .border-default;
-    .border-radius(5px);
-    background: @gray-light;
-    display: inline-block;
-    margin: 0px 3px;
-}
 .field {
     display: inline-block;
     padding: 6px 5px;
@@ -69,6 +60,16 @@
         background: @gray-lighter;
         .border-primary;
     }
+}
+.param {
+    position: relative;
+    top: -1px;
+    padding: 1px 2px;
+    border: 1px solid @gray;
+    .border-radius(5px);
+    background: @gray-light;
+    display: inline-block;
+    margin: 0px 3px;
 }
 select {
     height: 34px;

@@ -9,7 +9,7 @@
         <!-- indicator itself is a type of IndicatorParamGroup -->
         <div class="params-container">
             <backlive-indicator-param [param]="indicator" [isRoot]="true"></backlive-indicator-param>
-            <input searchbox (search)="dataSearchKey=$event" [(ngModel)]="searchKey" type="text" class="form-control" [class.short]="hasParams()" [placeholder]="hasParams() ? 'search data points' : 'search for data points to start building your calculation'" />
+            <input #searchBox searchbox [(ngModel)]="searchKey" (search)="dataSearchKey=$event" (keydown)="onSearchKey($event)" type="text" class="form-control" [class.short]="hasParams()" [placeholder]="hasParams() ? 'search data points' : 'select a data points below of search here to start building your calculation'" />
         </div>
 
         <!-- value transforms and sort options -->
@@ -158,7 +158,7 @@
     </div>
 
     <!-- data menu -->
-    <backlive-indicator-data-menu [searchKey]="dataSearchKey" [excludedTypes]="indicator.exclIndTypes" (select)="onSelectParam($event)"></backlive-indicator-data-menu>
+    <backlive-indicator-data-menu [searchKey]="dataSearchKey" [searchKeyCode]="searchKeyCode" [excludedTypes]="indicator.exclIndTypes" (select)="onSelectParam($event)"></backlive-indicator-data-menu>
 
     <!-- save buttons -->
     <div class="row save-button">

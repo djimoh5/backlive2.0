@@ -8,6 +8,7 @@ export interface DataField  {
     fields: string[];
 
     //client-side
+    fieldObjs?: { name: string, active?: boolean, hidden?: boolean }[];
     fieldCount?: number;
 }
 

@@ -35,34 +35,40 @@ export class  IndicatorParamComponent extends BaseComponent implements OnInit {
 
     }
 
+    //current param
     groupEquation() {
-        console.log('group', this.param, this.isGrouping);
         if(this.isGrouping) {
-            this.fieldClicked();
-            return;
+            this.fieldClicked(); //undo start group
         }
-
-        this.isGrouping = true;
-        this.group.emit(true);
+        else {
+            this.isGrouping = true;
+            this.group.emit(true);
+        }
     }
 
+    //parent param
     onGroup(index: number, grouping: boolean) {
-        this.isGrouping = grouping;
-        this.groupStartIndex = grouping ? index : null;
+        if(this.isGrouping && grouping) {
+            this.onClick(index);
+        }
+        else {
+            this.isGrouping = grouping;
+            this.groupStartIndex = grouping ? index : null;
+        }
     }
 
+    //current param
     fieldClicked() {
-        console.log('remove group', this.param, this.isGrouping);
         if(this.isGrouping) {
             this.isGrouping = false;
-            this.groupStartIndex = null;
             this.group.emit(false);
-            return;
         }
-
-        this.fieldClick.emit();
+        else {
+            this.fieldClick.emit();
+        }
     }
 
+    //parent param
     onClick(index: number) {
         if(this.isGrouping) {
             var paramGroup: IndicatorParamGroup = <IndicatorParamGroup> this.param;
@@ -72,23 +78,37 @@ export class  IndicatorParamComponent extends BaseComponent implements OnInit {
             var vars = paramGroup.vars.splice(start, end - start + 1);
             var ops = paramGroup.ops.splice(start, end - start);
             paramGroup.vars.splice(start, 0, { vars: vars, ops: ops });
+
+            this.resetGrouping();
         }
     }
 
+    //current param
     removeField() {
         this.remove.emit();
     }
 
+    //parent param
     onRemove(index: number) {
         var paramGroup: IndicatorParamGroup = <IndicatorParamGroup> this.param;
         paramGroup.vars.splice(index, 1);
 
-        if(index === 0) {
-            index = 1; //set to 1 so op in fron gets removed
+        var opIndex: number = index === 0 ? 0 : (index - 1);
+        if(paramGroup.ops[opIndex]) {
+            paramGroup.ops.splice(opIndex, 1);
         }
-        
-        if(paramGroup.ops[index - 1]) {
-            paramGroup.ops.splice(index - 1, 1);
+
+        if(index === this.groupStartIndex) {
+            this.resetGrouping();
         }
+
+        if(paramGroup.vars.length === 0) {
+            this.remove.emit();
+        }
+    }
+
+    resetGrouping() {
+        this.isGrouping = false;
+        this.groupStartIndex = null;
     }
 }
