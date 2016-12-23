@@ -1,4 +1,3 @@
-import { Config } from 'backlive/config';
 declare var md5:any;
 
 declare var $: any;
@@ -25,11 +24,12 @@ export class Cache {
         $.jStorage.deleteKey(this.getEncryptedKey(key, keyCategory));
 	}
 	
-    static flush(keyCategory: string = null) {
+    static flush(keyCategory: string = null, expirationThreshold: number = null) {
         if (keyCategory) {
             var keys = $.jStorage.index();
             keys.forEach(key => {
-                if (key.substring(0, keyCategory.length) === keyCategory && $.jStorage.getTTL(key) < (Config.CACHE_EXPIRATION * 1000)) {
+                if (key.substring(0, keyCategory.length) === keyCategory && 
+                    (!expirationThreshold || $.jStorage.getTTL(key) < (expirationThreshold * 1000))) {
                     $.jStorage.deleteKey(key);
                 }
             });

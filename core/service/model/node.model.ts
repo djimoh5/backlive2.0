@@ -17,6 +17,12 @@ export class Node {
 }
 
 export enum NodeType {
-    Strategy = 0,
-    Indicator = 1
+    Generic = 1,
+    Indicator = 2,
+    Strategy = 3,
+    Portfolio = 4
+}
+
+export interface Activation {
+    [key: string]: number
 }

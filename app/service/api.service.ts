@@ -1,10 +1,12 @@
-import {Injectable} from '@angular/core';
-import {Http, Headers, Response, RequestOptionsArgs, RequestMethod} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
-import {Cache, Common} from 'backlive/utility';
+import { Injectable } from '@angular/core';
+import { Http, Headers, Response, RequestOptionsArgs, RequestMethod } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
 
-import {AnalyticsService} from './analytics.service';
-import {AnalyticsEventCategory, AnalyticsTiming} from './model/analytics.model';
+import { Config } from 'backlive/config';
+import { Cache, Common } from 'backlive/utility';
+
+import { AnalyticsService } from './analytics.service';
+import { AnalyticsEventCategory, AnalyticsTiming } from './model/analytics.model';
 
 @Injectable()
 export class ApiService {
@@ -21,14 +23,14 @@ export class ApiService {
         this.http = http;
     }
     
-    setToken(token: string) {
+    setToken(token: string, flushAllCache: boolean = false) {
         this.token = token;
         
         if(token == null) {
             Cache.remove(this.TOKEN_CACHE_KEY, this.ApiCacheCategory);
         }
         else {
-            Cache.flush(this.ApiCacheCategory);
+            Cache.flush(this.ApiCacheCategory, flushAllCache ? null : Config.CACHE_EXPIRATION);
             Cache.set(this.TOKEN_CACHE_KEY, this.token, 86400 * 30, this.ApiCacheCategory); //30 day token
         }
     }

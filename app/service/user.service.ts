@@ -31,10 +31,6 @@ export class UserService extends BaseService {
         return this.post('register', registerInfo).then(user => this.handleLoginResponse(user));
     }
     
-    createApplicant(info: Object) {
-        return this.post('applicant', info);
-    }
-    
     private handleLoginResponse(user: User) {
         if(user != null && user.token) {
             this.user = user;
@@ -42,6 +38,7 @@ export class UserService extends BaseService {
         }
         else {
             this.user = null;
+            this.apiService.setToken(null, true);
         }
         
         return user;

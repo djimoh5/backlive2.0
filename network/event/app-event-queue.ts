@@ -20,7 +20,7 @@ export class AppEventQueue {
     static notify(event: BaseEvent<any>, fromClient: boolean = false) {
         AppEventQueue.eventQueue.notify(event);
 
-        if(!fromClient/* && event.isServer*/) {
+        if(!fromClient/* && event.isSocketEvent*/) {
             process.send(event);
         }
     }

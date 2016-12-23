@@ -2,11 +2,11 @@ import { BaseNode } from '../base.node'
 
 import { StrategyEvent } from '../../event/app.event';
 
-import { Strategy as StrategyModel } from '../../../core/service/model/strategy.model';
+import { Portfolio } from '../../../core/service/model/portfolio.model';
 
-export class PortfolioNode extends BaseNode {
-    constructor(private strategyId: string) {
-        super();
+export class PortfolioNode extends BaseNode<Portfolio> {
+    constructor(private model: Portfolio) {
+        super(model);
         this.subscribe(StrategyEvent, event => this.processTrade(event)/*, { id: strategyId }*/);
     }
 
@@ -14,11 +14,5 @@ export class PortfolioNode extends BaseNode {
         console.log(trade);
     }
 
-    setModel(model: IndicatorModel) {
-        this.model = model;
-    }
-
-    getModel() {
-        return this.model;
-    }
+    receive() {}
 }

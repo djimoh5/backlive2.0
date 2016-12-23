@@ -86,7 +86,7 @@ export class EventQueue {
                 this.activators[eventName].next(event);
             });
         }
-        else if(!event.isServer) {
+        else if(!event.isSocketEvent) {
             console.log('EVENT: ' + eventName + ' has no subscribers');
         }
     }

@@ -1,15 +1,15 @@
 //import { AppEvent, BaseEvent } from 'backlive/network/event';
 //import { Strategy, LastPrice } from 'backlive/service/model';
 
-import { AppEvent, BaseEvent } from '../../../network/event/base.event';
+import { SocketEvent, BaseEvent } from '../../../network/event/base.event';
 import { Strategy } from '../../../core/service/model/strategy.model';
 import { LastPrice } from '../../../core/service/model/ticker.model';
 
-@AppEvent('Event.Strategy.Change', true)
+@SocketEvent('Event.Strategy.Change')
 export class StrategyChangeEvent extends BaseEvent<Strategy> {}
 
-@AppEvent('Event.Strategy.Execute', true)
+@SocketEvent('Event.Strategy.Execute')
 export class ExecuteStrategyEvent extends BaseEvent<Strategy> {}
 
-@AppEvent('Event.Strategy.Remove', true)
+@SocketEvent('Event.Strategy.Remove')
 export class RemoveStrategyEvent extends BaseEvent<string> {}

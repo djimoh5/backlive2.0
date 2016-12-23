@@ -1,23 +1,29 @@
-export function AppEvent(name: string, isServer: boolean = false) {
+export function AppEvent(name: string) {
     return function (target: typeof BaseEvent) {
         target.eventName = name;
-        target.isServer = isServer;
+    }
+}
+
+export function SocketEvent(name: string) {
+    return function (target: typeof BaseEvent) {
+        target.eventName = name;
+        target.isSocketEvent = true;
     }
 }
 
 export class BaseEvent<T> {
     static eventName: string;
-    static isServer: boolean;
+    static isSocketEvent: boolean;
 
     eventName: string;
-    isServer: boolean;
+    isSocketEvent: boolean;
     data: T;
     senderId: string;
     
     constructor(data: T) {
         this.data = data;
         this.eventName = (<typeof BaseEvent> this.constructor).eventName;
-        this.isServer = (<typeof BaseEvent> this.constructor).isServer;
+        this.isSocketEvent = (<typeof BaseEvent> this.constructor).isSocketEvent;
     }
 }
 

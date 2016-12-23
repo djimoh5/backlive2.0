@@ -4,6 +4,10 @@ export interface IExecutionNode {
     
 }
 
-export class BaseExecutionNode extends BaseNode implements IExecutionNode {
-    
+export class BaseExecutionNode extends BaseNode<null> implements IExecutionNode {
+    constructor() {
+        super(null);
+    }
+
+    receive() {}
 }

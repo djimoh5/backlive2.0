@@ -2,7 +2,7 @@ import { DataEvent, DataSubscriptionEvent, DataFilterEvent } from '../../event/a
 import { BaseDataNode, IDataNode, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
 
 import { DataFieldMap, DataCollectionMap } from './field-map';
-import { IndicatorParamType, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
+import { IndicatorParam, IndicatorParamType, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
 
 import { Common } from '../../../app/utility/common';
 
@@ -187,13 +187,13 @@ export class DataLoaderNode extends BaseDataNode {
         });
     }
 
-    private setFields(params: [number, string][]) {
+    private setFields(params: IndicatorParam[]) {
         for (var i = 0, cnt = params.length; i < cnt; i++) {
             var type = params[i][0];
             var field = params[i][1];
 
             if (type != IndicatorParamType.Constant) {
-                var map: string = DataFieldMap.toFieldName(type, field);
+                var map: string = DataFieldMap.toFieldName(type, <string>field);
 
                 if (Common.inArray(type, DENORM_PARAM_TYPES)) {
                     map = DataCollectionMap[type] + '_' + (map ? map : field);

@@ -113,7 +113,7 @@ export class BaseService {
             
             if((this.apiService.getToken() && res.message && res.message.indexOf('Authorization has been denied') >= 0) || Common.isDefined(res.isTrusted)) {
                 this.apiService.setToken(null);
-                this.appService.notify(new ReloadAppEvent());
+                this.appService.notify(new ReloadAppEvent(null));
             }
             else {
                 if (Config.SHOW_ERRORS) {

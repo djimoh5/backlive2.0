@@ -84,7 +84,7 @@ export class AppService {
     notify(event: BaseEvent<any>, fromServer: boolean = false) {
         this.eventQueue.notify(event);
 
-        if(!fromServer && event.isServer) {
+        if(!fromServer && event.isSocketEvent) {
             this.clientSocket.emit(Config.ClientEventQueueId, event);
         }
     }

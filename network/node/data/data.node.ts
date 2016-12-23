@@ -9,6 +9,12 @@ export interface IDataNode {
     init();
 }
 
-export class BaseDataNode extends BaseNode implements IDataNode {
+export class BaseDataNode extends BaseNode<null> implements IDataNode {
+    constructor() {
+        super(null);
+    }
+    
     init() { };
+
+    receive() {}
 }
