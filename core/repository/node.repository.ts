@@ -18,6 +18,10 @@ export abstract class NodeRepository<T extends Node> extends BaseRepository {
         return this.context.find({ uid: userId }, null, { sort: { "_id": 1 } });
     }
 
+    getById(nodeId: string) : Promise<T> {
+        return this.context.findOne({ _id: this.dbObjectId(nodeId) });
+    }
+
     add(data: T) : Promise<T> {
         data.created = new Date().getTime();
         data.modified = data.created;

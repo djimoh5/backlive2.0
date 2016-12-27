@@ -4,7 +4,7 @@ import {AppService} from 'backlive/service';
 
 @Component({
     selector: 'radio-button',
-    template: `<div *ngIf="toggle" class="btn-group" data-toggle="buttons" [class.split-button]="split" [style.width]="width">
+    template: `<div *ngIf="toggle" class="btn-group" data-toggle="buttons" [class.collapsible]="collapsible" [class.split-button]="split" [style.width]="width">
                     <label *ngFor="let option of options" [class]="btnClass" [class.active]="option.value == value" (click)="onSelect(option)">
                         <input type="radio"><ui-icon *ngIf="option.icon" [type]="option.icon" [class.btn-icon-left]="option.title"></ui-icon>{{option.title}}
                     </label>
@@ -25,6 +25,7 @@ export class RadioButtonComponent extends ButtonComponent {
     @Input() options: RadioButtonOption[];
     @Input() toggle: boolean = true;
     @Input() split: boolean = false;
+    @Input() collapsible: boolean = false;
     
     @Input() value: any;
     @Output() valueChange: EventEmitter<boolean> = new EventEmitter();

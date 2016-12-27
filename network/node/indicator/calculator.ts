@@ -1,8 +1,8 @@
 import { Operator, Indicator, IndicatorParam, IndicatorParamType, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
 import { Common } from '../../../app//utility/common';
 
-import { DataCache } from '../../node/data/data.node';
-import { DataFieldMap, DataCollectionMap, NO_VALUE } from '../../node/data/field-map';
+import { DataCache } from '../data/data.node';
+import { DataFieldMap, DataCollectionMap, NO_VALUE } from '../data/field-map';
 
 export class Calculator {
     values: { [key: string]: any } = {};

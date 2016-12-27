@@ -4,15 +4,17 @@ import { BaseNode } from './node/base.node';
 import { AppEventQueue } from './event/app-event-queue';
 import { Database } from '../core/lib/database';
 
+import { NodeConfig } from './node/node.config';
+import { Node } from '../core/service/model/node.model';
+import { LoadNodeEvent, NodeChangeEvent } from '../app/component/node/node.event';
+
 import { IDataNode } from './node/data/data.node';
 import { DataLoaderNode } from './node/data/dataloader.node';
 
 import { IndicatorNode } from './node/indicator/indicator.node';
-import { IndicatorChangeEvent } from '../app/component/indicator/indicator.event';
 
 import { StrategyNode } from './node/strategy/strategy.node';
-import { Strategy } from '../core/service/model/strategy.model';
-import { StrategyChangeEvent, ExecuteStrategyEvent } from '../app/component/strategy/strategy.event';
+import { ExecuteStrategyEvent } from '../app/component/strategy/strategy.event';
 
 import { PortfolioNode } from './node/portfolio/portfolio.node';
 
@@ -21,49 +23,62 @@ import { BacktestExecutionNode } from './node/execution/backtest-execution.node'
 
 export class Network {
     dataNode: IDataNode;
-    portfolios:  NodeMap<PortfolioNode> = {};
-    strategies: NodeMap<StrategyNode> = {};
-    indicators: NodeMap<IndicatorNode> = {};
+    nodes:  NodeMap<BaseNode<any>> = {};
     executionNode: IExecutionNode;
+
+    activityState: number = 0;
+    onIdle: () => void;
     
     constructor() {
         AppEventQueue.global();
-        AppEventQueue.subscribe(StrategyChangeEvent, 'network', event => this.updateStrategy(event));
-        AppEventQueue.subscribe(ExecuteStrategyEvent, 'network', event => this.executeStrategy(event));
-        AppEventQueue.subscribe(IndicatorChangeEvent, 'network', event => this.updateIndicator(event));
+        AppEventQueue.subscribe(NodeChangeEvent, 'network', event => this.updateNode(event.data));
+        AppEventQueue.subscribe(LoadNodeEvent, 'network', event => this.loadNode(event.data));
+        AppEventQueue.subscribe(ExecuteStrategyEvent, 'network', event => this.executeStrategy(event.data));
 
         Database.open(() => {
             console.log('Database opened');
-            //this.portfolios.push(new PortfolioNode(model._id));
             this.executionNode = new BacktestExecutionNode();
             this.dataNode = new DataLoaderNode();
         });
     }
 
-    updateStrategy(event: StrategyChangeEvent) {
-        if(!this.strategies[event.data._id]) {
-            this.strategies[event.data._id] = new StrategyNode(event.data);
+    updateNode(node: Node) {
+        this.activity(true);
+        if(!this.nodes[node._id]) {
+            this.nodes[node._id] = new (NodeConfig.node(node.ntype))(node);
+            this.nodes[node._id].onUpdateInputs = (nodes) => this.updateInputNodes(nodes);
         }
         else {
-            this.strategies[event.data._id].setModel(event.data);
+            this.nodes[node._id].setModel(node);
         }
-
-        console.log(this.strategies);
     }
 
-    executeStrategy(event: ExecuteStrategyEvent) {
-        this.dataNode.init();
+    updateInputNodes(nodes: Node[]) {
+        nodes.forEach(node => {
+            this.updateNode(node);
+        });
+
+        this.activity(false);
     }
 
-    updateIndicator(event: IndicatorChangeEvent) {
-        if(!this.indicators[event.data._id]) {
-            this.indicators[event.data._id] = new IndicatorNode(event.data);
-        }
-        else {
-            this.indicators[event.data._id].setModel(event.data);
-        }
+    executeStrategy(node: Node) {
+        this.updateNode(node);
+        this.onIdle = () =>  this.dataNode.init();
+    }
 
-        console.log(this.indicators);
+    loadNode(node: Node) {
+        this.updateNode(node);
+    }
+
+    private activity(active: boolean) {
+        if(active) { this.activityState++; }
+        else { this.activityState--; }
+
+        console.log('activity state:', this.activityState);
+        if(this.activityState === 0 && this.onIdle) {
+            this.onIdle();
+            this.onIdle = null;
+        }
     }
 }
 

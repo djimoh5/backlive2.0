@@ -13,22 +13,21 @@ export class UserController extends BaseController {
 
 	@Post('register')
 	register(req, res) {
-		res.services.userService.register(req.body).done(function(user) {
+		res.services.userService.register(req.body.username, req.body.password, req.body.email).done(function(user) {
 			res.send(user);	
 		});
 	};
 
 	@Post('login')
 	login(req, res) {
-		res.services.userService.login(req.body).done(function(user) {
+		res.services.userService.login(req.body.username, req.body.password).done(function(user) {
 			res.send(user);
 		});
 	};
 
 	@Get('logout')
 	logout(req, res) {
-		res.services.userService.logout().done(function(data) {
-			res.send(data);	
-		});
+		res.services.userService.logout();
+		res.send({ success: 1 });
 	};
 }

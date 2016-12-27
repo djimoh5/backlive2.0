@@ -160,3 +160,25 @@ a.btn-runscreen, a.btn-backtest {
         .border-default;
     }
 }
+
+radio-button {
+    .collapsible {
+        label {
+            .transition(opacity .5s ease-out);
+            .opacity(0);
+            &.active {
+                .opacity(100);
+                /*position: absolute;
+                right: 0px;*/
+            }
+        }
+        &:hover {
+            label {
+                .opacity(100);
+                &.active {
+                    position: static;
+                }
+            }
+        }
+    }
+}

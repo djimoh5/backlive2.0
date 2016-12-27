@@ -2,7 +2,7 @@
     <div class="header clearfix">
         <h3>Live Strategies</h3>
         <div class="date-controls">
-            <radio-button size="small" type="submit" [options]="dateOptions" [(value)]="currentDateOption" (valueChange)="onDateChange($event)"></radio-button>
+            <radio-button size="small" type="submit" [options]="dateOptions" [collapsible]="true" [(value)]="currentDateOption" (valueChange)="onDateChange($event)"></radio-button>
             <span [class.hidden]="currentDateOption !== -1" class="custom">
                 <input [(datepicker)]="customStartDate" (datepickerChange)="onCustomDateChange()" class="form-control" type="text" placeholder="start date" /> 
                 <input [(datepicker)]="customEndDate" (datepickerChange)="onCustomDateChange()" class="form-control" type="text" placeholder="end date" />

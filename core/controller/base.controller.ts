@@ -3,7 +3,7 @@ var url = require('url');
 
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import { Session } from '../lib/session';
+import { ISession, Session } from '../lib/session';
 import { BaseService } from '../service/base.service';
 
 export function Get(path) {
@@ -28,7 +28,7 @@ export function Delete(path) {
 }
 
 export class BaseController {
-    private services: { [key: string]: typeof BaseService };
+    private services: { [key: string]: { new(session: ISession): BaseService; } };
     private router: express.Router = express.Router();
     get: { [key:string]: any };
     post: { [key:string]: any };
@@ -36,7 +36,7 @@ export class BaseController {
 
     static intialized: boolean;
 
-    constructor(services?: { [key: string]: typeof BaseService }) {
+    constructor(services?: { [key: string]: { new(session: ISession): BaseService; } }) {
         this.services = services;
         this.router = express.Router();
 

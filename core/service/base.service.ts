@@ -1,18 +1,18 @@
-import { Session, User } from '../lib/session';
+import { ISession, User } from '../lib/session';
 import { Database } from '../lib/database';
 import { BaseRepository } from '../repository/base.repository';
 
 var Q = require('q');
 
-export class BaseService {
+export abstract class BaseService {
     protected get database(): any { return Database.mongo };
-    protected session: Session;
+    protected session: ISession;
     protected user: User;
     protected promise: Promise<any>;
 
     private deferred: { resolve: Function, promise: Promise<any> };
 
-    constructor(session: Session, repositories?: { [key: string]: typeof BaseRepository }) {
+    constructor(session: ISession, repositories?: { [key: string]: { new(): BaseRepository; } }) {
         this.session = session;
         this.user = session.user
         this.deferred = Q.defer();

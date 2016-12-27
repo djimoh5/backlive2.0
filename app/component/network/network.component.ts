@@ -7,7 +7,7 @@ import { AppService, UserService, StrategyService, LookupService } from 'backliv
 
 import { Route } from 'backlive/routes';
 import { Strategy, Indicator, Node, NodeType } from 'backlive/service/model';
-import { SlidingNavItemsEvent, NodeChangeEvent } from 'backlive/event';
+import { SlidingNavItemsEvent, LoadNodeEvent, NodeChangeEvent } from 'backlive/event';
 
 import { PlatformUI } from 'backlive/utility/ui';
 
@@ -44,6 +44,8 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
 
         this.life = { numLoops: 0 };
         this.lookupService.getDataFields(); //just to cache data
+
+        this.platformUI.onResize('network', size => this.positionNodes()); 
     }
     
     ngOnInit() {
@@ -73,6 +75,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                 });
 
                 this.positionNodes();
+                this.appService.notify(new LoadNodeEvent(strategy));
             });
         }
     }

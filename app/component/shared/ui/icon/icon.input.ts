@@ -31,6 +31,7 @@ export class Type {
     static touch: string = 'glyphicon-hand-up';
     static view: string = 'glyphicon-eye-open';
     static question: string = 'glyphicon-question-sign';
+    static play: string = 'glyphicon-play-circle';
     
     static signal: string = 'glyphicon-signal';
 }

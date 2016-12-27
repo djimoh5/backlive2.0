@@ -1,14 +1,15 @@
 import { BaseService } from './base.service';
 import { NodeRepository } from '../repository/node.repository';
-import { Node } from '../service/model/node.model';
+import { Node, NodeType } from '../service/model/node.model';
 
-import { Session, User } from '../lib/session';
+import { ISession, User } from '../lib/session';
 import { Common } from '../../app//utility/common';
 
-export abstract class NodeService<T extends Node> extends BaseService {
+export class NodeService<T extends Node> extends BaseService {
+    private static idTypeMap: { [key: string]: NodeType } = {};
     nodeRepository: NodeRepository<T>;
 
-    constructor(session: Session, nodeRepository: typeof NodeRepository) {
+    constructor(session: ISession, nodeRepository?: typeof NodeRepository) {
         var repo: any = nodeRepository;
         super(session, { nodeRepository: repo });
     }

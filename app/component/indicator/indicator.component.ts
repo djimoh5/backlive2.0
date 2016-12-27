@@ -9,7 +9,7 @@ import { AppService, UserService, IndicatorService } from 'backlive/service';
 import { Indicator, Node } from 'backlive/service/model';
 
 import { OpenFooterModalEvent } from 'backlive/event';
-import { IndicatorChangeEvent, RemoveIndicatorEvent } from './indicator.event';
+import { NodeChangeEvent, RemoveNodeEvent } from '../node/node.event';
 
 @Component({
     selector: 'backlive-indicator',
@@ -28,6 +28,7 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
     ngOnInit() {
         if(!this.indicator._id) {
             this.update();
+            this.onEdit();
         }
 
         this.subscribeNodeEvents(this.indicator);
@@ -39,7 +40,6 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
             if(indicator._id) {
                 this.indicator._id = indicator._id;
                 this.nodeChange.emit(this.indicator);
-                this.appService.notify(new IndicatorChangeEvent(this.indicator));
             }
         });
     }
@@ -55,14 +55,5 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
                 this.update();
             }
         }));
-    }
-    
-    onRemove() {
-        this.indicatorService.remove(this.indicator._id).then(success => {
-            if(success) {
-                this.remove.emit(this.indicator);
-                this.appService.notify(new RemoveIndicatorEvent(this.indicator._id));
-            }
-        });
     }
 }

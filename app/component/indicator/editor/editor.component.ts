@@ -7,7 +7,6 @@ import { Common } from 'backlive/utility';
 import { AppService, IndicatorService } from 'backlive/service';
 import { Indicator, Node, IndicatorParam, IndicatorParamType, Operator } from 'backlive/service/model';
 
-import { IndicatorChangeEvent } from '../indicator.event';
 import { CloseFooterModalEvent } from 'backlive/event';
 
 @Component({

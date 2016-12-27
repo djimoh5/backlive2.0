@@ -40,13 +40,13 @@ export class DomUI implements PlatformUI {
         }
     }
     
-    onResize(eventNamespace: string, callback: Function) {
+    onResize(eventNamespace: string, callback: (size: { width: number, height: number }) => void) {
         $(window).off('resize.' + eventNamespace);
         $(window).on('resize.' + eventNamespace, () => {
-            callback($(window).width());
+            callback({ width: $(window).width(), height: $(window).height() });
         });
         
-        callback($(window).width());
+        callback({ width: $(window).width(), height: $(window).height() });
     }
     
     onScroll(eventNamespace: string, callback: Function) {

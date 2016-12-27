@@ -5,7 +5,7 @@ export class PlatformUI {
     query(selector: any): any {};
     hideHeader(isCollapsed: boolean) {};
     
-    onResize(eventNamespace: string, callback: Function) {};
+    onResize(eventNamespace: string, callback: (size: { width: number, height: number }) => void) {};
     onScroll(eventNamespace: string, callback: Function) {};
     infiniteScroll(onMoreResults: Function, scrollBuffer: number) {};
     endInfiniteScroll() {};

@@ -27,7 +27,7 @@ export class IndicatorDataMenuComponent extends BaseComponent implements OnChang
     constructor(appService: AppService, private lookupService: LookupService) {
         super(appService);
         this.lookupService.getDataFields().then(dataFields => {
-            //this.dataFields = dataFields;
+            this.dataFields = dataFields;
             this.dataFields.forEach(dataField => {
                 dataField.fields.sort((a: string, b: string) => { 
                     return DataFieldMap.toDisplayName(dataField.type, a).toLowerCase()

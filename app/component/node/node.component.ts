@@ -6,7 +6,7 @@ import { AppService } from 'backlive/service';
 import { NodeService } from '../../service/node.service';
 
 import { Node } from 'backlive/service/model';
-import { NodeChangeEvent } from './node.event';
+import { NodeChangeEvent, RemoveNodeEvent } from './node.event';
 import { BaseEvent } from 'backlive/network/event';
 
 @Component({
@@ -34,4 +34,13 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
     }
 
     abstract update()
+
+    onRemove() {
+        this.nodeService.remove(this.node._id).then(success => {
+            if(success) {
+                this.remove.emit(this.node);
+                this.appService.notify(new RemoveNodeEvent(this.node._id));
+            }
+        });
+    }
 }

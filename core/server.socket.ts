@@ -23,8 +23,7 @@ export class ServerSocket {
             console.log('connected socket');
 
             socket.on(this.clientEventQueueId, (event: BaseEvent<any>) => {
-                console.log('socket - from web:', event);
-                //this.emit(socket, 'Event.StrategyUpdate', 'hi, my name is server!');
+                //console.log('socket - from web:', event);
                 this.notify(event);
             });
 
@@ -74,7 +73,7 @@ export class ServerSocket {
 
     registerProcess(childProcess: ChildProcess) {
         childProcess.on('message', (event: BaseEvent<any>) => {
-            console.log('socket - from child process:', event);
+            //console.log('socket - from child process:', event);
             this.emit(this.io.sockets, event);
         });
         

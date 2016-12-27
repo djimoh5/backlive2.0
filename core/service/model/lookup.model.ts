@@ -22,7 +22,7 @@ export class DataFieldMap {
     }
 
     static toFieldName(type: IndicatorParamType, displayName: string) {
-        return this.rfield[type] && this.rfield[displayName];
+        return this.rfield[type] && this.rfield[type][displayName];
     }
 
     static getDictionary(type: IndicatorParamType, fieldName: string) {

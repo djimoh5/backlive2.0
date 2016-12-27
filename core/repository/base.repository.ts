@@ -2,7 +2,7 @@ import { Database, Mongo, Collection } from '../lib/database';
 
 var Q = require('q');
 
-export class BaseRepository {
+export abstract class BaseRepository {
     protected context: Context;
 
     constructor(collectionName: string = null) {

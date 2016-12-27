@@ -23,7 +23,7 @@ export class DataLoaderNode extends BaseDataNode {
         super();
 
         this.subscribe(DataSubscriptionEvent, event => {
-            //console.log('updating data subscriptions', event.data.params);
+            console.log('updating data subscriptions', event.data.params);
             this.setFields(event.data.params);
         });
 
@@ -73,8 +73,6 @@ export class DataLoaderNode extends BaseDataNode {
         var cnt: number = numFieldTypes;
 
         if (date) {
-            console.log(date);
-
             for (var type in this.fields) {
                 var t = parseInt(type);
                 this.callDB(date, this.fields[type], t, function (vals: DataResult, cacheType: number) {

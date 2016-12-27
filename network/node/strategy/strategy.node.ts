@@ -1,6 +1,7 @@
 import { BaseNode } from '../base.node'
 import { ActivateNodeEvent, DataFilterEvent, IndicatorEvent } from '../../event/app.event';
 
+import { StrategyService } from '../../../core/service/strategy.service';
 import { Strategy } from '../../../core/service/model/strategy.model';
 import { Operator, IndicatorParam } from '../../../core/service/model/indicator.model';
 import { Common } from '../../../app//utility/common';
@@ -13,24 +14,20 @@ import { ExecuteStrategyEvent } from '../../../app/component/strategy/strategy.e
 
 export class StrategyNode extends BaseNode<Strategy> {
     constructor(private model: Strategy) {
-        super(model);
+        super(model, StrategyService);
 
-        model.inputs.forEach(node => {
-
-        });
-        /*this.allIndicators = data.indicators.long.concat(data.indicators.short, data.exposure.long, data.exclusions);
-
-        this.allIndicators.forEach(indModel => {
-            new IndicatorNode(indModel);
-        })
-
-        this.subscribe(IndicatorEvent, event => this.processIndicator(event));
         this.subscribe(ExecuteStrategyEvent, event => this.executeStrategy(event));
+
+        var data: any = {
+            universeTkrs: { incl: 1, tkrs: ['MSFT', 'BAC', 'JPM', 'ESV', 'AAPL', 'IBM'] },
+            startYr: 20150101,
+            endYr: 20170101
+        }
 
         this.notify(new DataFilterEvent({
             startDate: data.startYr, endDate: data.endYr,
             entities: (data.universeTkrs.incl === 1 && data.universeTkrs.tkrs && data.universeTkrs.tkrs.length > 0) ? data.universeTkrs.tkrs : null
-        }));*/
+        }));
     }
 
     receive(event: ActivateNodeEvent) {

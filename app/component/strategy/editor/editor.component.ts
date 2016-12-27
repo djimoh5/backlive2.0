@@ -7,8 +7,6 @@ import { Common } from 'backlive/utility';
 import { AppService, StrategyService } from 'backlive/service';
 import { Strategy, Node } from 'backlive/service/model';
 
-import { StrategyChangeEvent } from '../strategy.event';
-
 @Component({
     selector: 'backlive-strategy-editor',
     templateUrl: Path.ComponentView('strategy/editor'),
