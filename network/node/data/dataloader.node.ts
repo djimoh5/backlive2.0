@@ -23,7 +23,7 @@ export class DataLoaderNode extends BaseDataNode {
         super();
 
         this.subscribe(DataSubscriptionEvent, event => {
-            console.log('updating data subscriptions', event.data.params);
+            //console.log('updating data subscriptions', event.data.params);
             this.setFields(event.data.params);
         });
 

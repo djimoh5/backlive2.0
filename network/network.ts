@@ -49,14 +49,14 @@ export class Network {
             this.nodes[node._id].onUpdateInputs = (nodes) => this.updateInputNodes(nodes);
         }
         else {
-            this.nodes[node._id].setModel(node);
+            this.nodes[node._id].setNode(node);
         }
     }
 
-    updateInputNodes(nodes: Node[]) {
-        nodes.forEach(node => {
-            this.updateNode(node);
-        });
+    updateInputNodes(nodes: { [key: string]: Node }) {
+        for(var key in nodes) {
+            this.updateNode(nodes[key]);
+        }
 
         this.activity(false);
     }

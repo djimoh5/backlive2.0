@@ -1,11 +1,10 @@
 export class Type {
     static submit: string = 'btn-primary';
+    static action: string = 'btn-primary';
+    static secondary: string = 'btn-secondary';
     static commit: string = 'btn-success';
-    
-    static action: string = 'btn-info';
-    static yesno: string = 'btn-yesno';
+
     static remove: string = 'btn-danger';
-    static menu: string = 'btn-default btn-menu';
     static default: string = 'btn-default';
 }
 

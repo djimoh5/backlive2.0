@@ -2,9 +2,12 @@ export class Node {
     _id: string;
     uid: string;
     name: string = '';
+    ntype: NodeType;
+
     inputs: string[];
     weights: number[];
-    ntype: NodeType;
+    activation: Activation;
+    
     created: number;
     modified; number;
     

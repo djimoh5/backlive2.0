@@ -23,6 +23,13 @@
                 </backlive-strategy>
             </div>
             <!-- portfolios -->
+            <div *ngSwitchCase="NodeType.Portfolio" class="portfolio">
+                <backlive-portfolio
+                    [portfolio]="node"
+                    (nodeChange)="onNodeChange($event, i)" 
+                    (addInput)="onAddInput(node, $event)">
+                </backlive-portfolio>
+            </div>
         </div>
     </template>
 </div>

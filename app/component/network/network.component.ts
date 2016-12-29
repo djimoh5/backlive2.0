@@ -3,10 +3,11 @@ import { Path } from 'backlive/config';
 import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
 import { StrategyComponent } from '../strategy/strategy.component';
 
-import { AppService, UserService, StrategyService, LookupService } from 'backlive/service';
+import { AppService, UserService, StrategyService, PortfolioService, LookupService } from 'backlive/service';
+import { NodeService } from '../../service/node.service';
 
 import { Route } from 'backlive/routes';
-import { Strategy, Indicator, Node, NodeType } from 'backlive/service/model';
+import { Strategy, Indicator, Portfolio, Node, NodeType } from 'backlive/service/model';
 import { SlidingNavItemsEvent, LoadNodeEvent, NodeChangeEvent } from 'backlive/event';
 
 import { PlatformUI } from 'backlive/utility/ui';
@@ -30,7 +31,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     NodeType = NodeType;
     tmpInputMap: { [key: string]: { node: Node, input: Node } } = {};
 
-    constructor(appService: AppService, private userService: UserService, private strategyService: StrategyService, private lookupService: LookupService, private platformUI: PlatformUI) {
+    constructor(appService: AppService, private userService: UserService, private strategyService: StrategyService, private portfolioService: PortfolioService, private lookupService: LookupService, private platformUI: PlatformUI) {
         super(appService);
         
         var items = [
@@ -52,30 +53,41 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         this.strategyService.list().then(strategies => {
             //console.log('strategies', strategies);
             if(strategies.length > 0) {
-                this.loadStrategy(strategies[0]);
+                this.loadNode(strategies[0]);
             }
             else {
-                this.loadStrategy(new Strategy(''));
+                this.loadNode(new Strategy(''));
             }
 
             this.startEventLoop();
         });
     }
 
-    loadStrategy(strategy: Strategy) {
-        this.strategy = strategy;
-        this.nodes.push(this.strategy);
+    load
 
-        if(strategy._id) {
-            this.strategyService.getInputs(strategy._id).then(nodes => {
-                strategy.inputs = [];
-                nodes.forEach(node => {
-                    strategy.inputs.push(node._id); //in case there are any deleted nodes still in inputs
-                    this.nodes.push(node);
+    loadNode<T extends Node>(node: Node) {
+        this.nodes.push(node);
+
+        if(node._id) {
+            var service: NodeService<Strategy | Portfolio>;
+
+            switch(node.ntype) {
+                case NodeType.Strategy: service = this.strategyService;
+                    break;
+                case NodeType.Portfolio: service = this.portfolioService;
+                    break;
+
+            }
+
+            service.getInputs(node._id).then(nodes => {
+                node.inputs = []; //in case there are any deleted nodes still in inputs
+                nodes.forEach(n => {
+                    node.inputs.push(n._id);
+                    this.nodes.push(n);
                 });
 
                 this.positionNodes();
-                this.appService.notify(new LoadNodeEvent(strategy));
+                this.appService.notify(new LoadNodeEvent(node));
             });
         }
     }

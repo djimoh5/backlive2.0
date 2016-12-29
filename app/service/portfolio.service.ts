@@ -1,10 +1,12 @@
-import {Injectable} from '@angular/core';
-import {BaseService} from './base.service';
-import {ApiService} from './api.service';
-import {AppService} from './app.service';
+import { Injectable } from '@angular/core';
+import { BaseService } from './base.service';
+import { ApiService } from './api.service';
+import { AppService } from './app.service';
+import { NodeService } from './node.service';
+import { Portfolio } from 'backlive/service/model';
 
 @Injectable()
-export class PortfolioService extends BaseService {
+export class PortfolioService extends NodeService<Portfolio> {
     constructor(apiService: ApiService, appService: AppService) {
         super(apiService, appService, 'portfolio');
     }

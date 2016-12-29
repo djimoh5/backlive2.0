@@ -13,7 +13,7 @@ import { NodeConfig } from './node.config';
 export abstract class BaseNode<T extends Node> {
     protected nodeId: string;
     private node: T;
-    private nodes: T[];
+    private inputNodes: { [key: string]: T } = {};
     private nodeService: NodeService<T>;
 
     private subscribedTypes: { [key: number]: boolean  } = {};
@@ -24,14 +24,14 @@ export abstract class BaseNode<T extends Node> {
         }
 
         if(node && this.nodeService) {
-            this.setModel(node);
+            this.setNode(node);
         }
         else {
             this.nodeId = Common.uniqueId();
         }
     }
 
-    setModel(node: T) {
+    setNode(node: T) {
         this.node = node;
         this.nodeId = node._id;
         this.nodeService.getInputs(node._id).then(nodes => {
@@ -39,13 +39,16 @@ export abstract class BaseNode<T extends Node> {
         });
     }
 
-    getModel(): T {
+    getNode(): T {
         return this.node;
     }
 
     updateInputs(nodes: T[]) {
-        this.nodes = nodes;
+        this.inputNodes = {};
+
         nodes.forEach(n => {
+            this.inputNodes[n._id] = n;
+
             if(!this.subscribedTypes[n.ntype]) {
                 this.subscribe(NodeConfig.activationEvent(n.ntype), 
                     event => {
@@ -58,25 +61,101 @@ export abstract class BaseNode<T extends Node> {
         });
 
         if(this.onUpdateInputs) {
-            this.onUpdateInputs(this.nodes);
+            this.onUpdateInputs(this.inputNodes);
         }
     }
 
-    onUpdateInputs: (nodes: Node[]) => void;
+    onUpdateInputs: (nodes: { [key: string]: T }) => void;
 
     abstract receive(event: ActivateNodeEvent);
 
-    activate(event: ActivateNodeEvent) {
+    activate(event?: ActivateNodeEvent, normalize?: Normalize) {
+        if(!event) {
+            var activation: Activation = {};
+
+            if(!this.node.weights) {
+                this.initializeWeights();
+            }
+
+            for(var i = 0, len = this.node.inputs.length; i < len; i++) {
+                var id = this.node.inputs[i];
+                var inActivation = this.inputNodes[id].activation;
+
+                if(!inActivation) {
+                    return; //must first have an activation of all inputs to activate yourself
+                }
+
+                if(normalize && normalize === Normalize.PercentRank) {
+                    inActivation = this.percentRank(inActivation);
+                }
+
+                for(var k in inActivation) {
+                    if(!activation[k]) {
+                        activation[k] = 0;
+                    }
+
+                    activation[k] += this.node.weights[i] * inActivation[k];
+                }
+            }
+
+            for(var k in activation) {
+                activation[k] = this.sigmoid(activation[k]);
+            }
+
+            event = new ActivateNodeEvent(activation);
+        }
+
+        console.log(event.data);
+        this.node.activation = event.data;
         this.notify(event);
     }
-    
-    subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, callback: BaseEventCallback<T>, operators?: QueueOperators<T>) {
+
+    private initializeWeights() {
+        var len = this.node.inputs.length;
+        var weight = Common.round(1 / len, 4);
+        this.node.weights = [];
+
+        while(len-- > 0) {
+            this.node.weights.push(weight);
+        }
+    }
+
+    protected sigmoid(x: number) {
+        return 1 / (1 + Math.exp(-x));
+    }
+
+    subscribe<TT extends BaseEvent<any>>(eventType: TypeOfBaseEvent<TT>, callback: BaseEventCallback<TT>, operators?: QueueOperators<TT>) {
         return AppEventQueue.subscribe(eventType, this.nodeId, callback, operators);
     }
     
     notify(event: BaseEvent<any>) {
         event.senderId = this.nodeId;
         AppEventQueue.notify(event);
+    }
+
+    private percentRank(vals: { [key: string]: number }) {
+        var arr: string[] = [];
+        var newVals: { [key: string]: number } = {};
+
+        for(var key in vals) {
+            arr.push(key);
+        }
+
+        arr.sort((a: string, b: string) => {
+            if(vals[a] <= vals[b]) {
+                return -1;
+            }
+            else {
+                return 1;
+            }
+        });
+
+        var len = arr.length;
+        arr.forEach((key, index) => {
+            newVals[key] = (len - index) / len
+        });
+
+        return newVals;
     }
 }
 
@@ -88,3 +167,8 @@ export class MockSession implements ISession {
         this.user = user;
     }
 }
+
+export enum Normalize {
+    PercentRank = 1
+}
+

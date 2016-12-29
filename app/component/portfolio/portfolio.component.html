@@ -1,3 +1,17 @@
-<div [animate]="pageAnimation">
-	<h1>Portfolio</h1>
+<div class="node">
+    <input type="text" class="form-control" [(ngModel)]="portfolio.name" (blur)="update()" placeholder="portfolio name" />
+</div>
+<div *ngIf="portfolio?.name" class="controls">
+    <ui-button type="submit" (click)="addStrategy()">
+        <ui-icon type="add"></ui-icon>
+    </ui-button>
+    <ui-button type="secondary">
+        <ui-icon type="settings"></ui-icon>
+    </ui-button>
+    <ui-button type="commit">
+        <ui-icon type="play"></ui-icon>
+    </ui-button>
+</div>
+<div class="editor">
+    
 </div>
