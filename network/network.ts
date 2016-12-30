@@ -31,7 +31,7 @@ export class Network {
     
     constructor() {
         AppEventQueue.global();
-        AppEventQueue.subscribe(NodeChangeEvent, 'network', event => this.updateNode(event.data));
+        AppEventQueue.subscribe(NodeChangeEvent, 'network', event => this.loadNode(event.data));
         AppEventQueue.subscribe(LoadNodeEvent, 'network', event => this.loadNode(event.data));
         AppEventQueue.subscribe(ExecuteStrategyEvent, 'network', event => this.executeStrategy(event.data));
 
@@ -42,7 +42,7 @@ export class Network {
         });
     }
 
-    updateNode(node: Node) {
+    loadNode(node: Node) {
         this.activity(true);
         if(!this.nodes[node._id]) {
             this.nodes[node._id] = new (NodeConfig.node(node.ntype))(node);
@@ -55,19 +55,15 @@ export class Network {
 
     updateInputNodes(nodes: { [key: string]: Node }) {
         for(var key in nodes) {
-            this.updateNode(nodes[key]);
+            this.loadNode(nodes[key]);
         }
 
         this.activity(false);
     }
 
     executeStrategy(node: Node) {
-        this.updateNode(node);
+        this.loadNode(node);
         this.onIdle = () =>  this.dataNode.init();
-    }
-
-    loadNode(node: Node) {
-        this.updateNode(node);
     }
 
     private activity(active: boolean) {

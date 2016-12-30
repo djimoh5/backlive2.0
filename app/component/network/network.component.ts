@@ -3,7 +3,7 @@ import { Path } from 'backlive/config';
 import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
 import { StrategyComponent } from '../strategy/strategy.component';
 
-import { AppService, UserService, StrategyService, PortfolioService, LookupService } from 'backlive/service';
+import { AppService, UserService, IndicatorService, StrategyService, PortfolioService, LookupService } from 'backlive/service';
 import { NodeService } from '../../service/node.service';
 
 import { Route } from 'backlive/routes';
@@ -26,12 +26,12 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     errMessage: string;
     nodes: Node[] = [];
     strategy: Strategy;
-    indicatorSize = { width: 36, height: 32 };
+    indicatorSize = { width: 38, height: 34 };
 
     NodeType = NodeType;
     tmpInputMap: { [key: string]: { node: Node, input: Node } } = {};
 
-    constructor(appService: AppService, private userService: UserService, private strategyService: StrategyService, private portfolioService: PortfolioService, private lookupService: LookupService, private platformUI: PlatformUI) {
+    constructor(appService: AppService, private userService: UserService, private indicatorService: IndicatorService, private strategyService: StrategyService, private portfolioService: PortfolioService, private lookupService: LookupService, private platformUI: PlatformUI) {
         super(appService);
         
         var items = [
@@ -50,45 +50,47 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     }
     
     ngOnInit() {
-        this.strategyService.list().then(strategies => {
-            //console.log('strategies', strategies);
-            if(strategies.length > 0) {
-                this.loadNode(strategies[0]);
+        this.portfolioService.list().then(portfolios => {
+            if(portfolios.length > 0) {
+                this.loadNode(portfolios[0], true);
             }
             else {
-                this.loadNode(new Strategy(''));
+                this.loadNode(new Portfolio());
             }
 
             this.startEventLoop();
         });
     }
 
-    load
-
-    loadNode<T extends Node>(node: Node) {
+    loadNode<T extends Node>(node: Node, isOutput: boolean = false) {
         this.nodes.push(node);
+        this.positionNodes();
 
         if(node._id) {
             var service: NodeService<Strategy | Portfolio>;
 
             switch(node.ntype) {
+                case NodeType.Indicator: service = this.indicatorService;
+                    break;
                 case NodeType.Strategy: service = this.strategyService;
                     break;
                 case NodeType.Portfolio: service = this.portfolioService;
                     break;
-
             }
 
-            service.getInputs(node._id).then(nodes => {
-                node.inputs = []; //in case there are any deleted nodes still in inputs
-                nodes.forEach(n => {
-                    node.inputs.push(n._id);
-                    this.nodes.push(n);
-                });
+            if(node.inputs) {
+                service.getInputs(node._id).then(nodes => {
+                    node.inputs = []; //in case there are any deleted nodes still in inputs
+                    nodes.forEach(n => {
+                        node.inputs.push(n._id);
+                        this.loadNode(n);
+                    });
 
-                this.positionNodes();
-                this.appService.notify(new LoadNodeEvent(node));
-            });
+                    if(isOutput) {
+                        this.appService.notify(new LoadNodeEvent(node));
+                    }
+                });
+            }
         }
     }
 
@@ -144,8 +146,8 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         var radius = 250, radiusPercent = 40, angleOffset = 10, startAngle = 180;
         var prevAngle: number;
 
-        if(!animating) { //-2 because strategy is also a node
-            startAngle += (this.nodes.length - 2) * (angleOffset / 2); //only needed when not animating
+        if(!animating) { //-3 because strategy and portfolio are also nodes
+            startAngle += (this.nodes.length - 3) * (angleOffset / 2); //only needed when not animating
         }
 
         var firstNode = true;

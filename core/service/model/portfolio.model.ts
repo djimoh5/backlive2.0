@@ -1,8 +1,7 @@
 import { Node, NodeType } from './node.model';
 
 export class Portfolio extends Node {
-    constructor(name: string) {
+    constructor() {
         super(NodeType.Portfolio);
-        this.name = name;
     }
 }

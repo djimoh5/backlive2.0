@@ -10,6 +10,8 @@ import { NodeService } from '../../core/service/node.service';
 import { Node, Activation } from '../../core/service/model/node.model';
 import { NodeConfig } from './node.config';
 
+import { Stats } from '../lib/stats';
+
 export abstract class BaseNode<T extends Node> {
     protected nodeId: string;
     private node: T;
@@ -86,7 +88,7 @@ export abstract class BaseNode<T extends Node> {
                 }
 
                 if(normalize && normalize === Normalize.PercentRank) {
-                    inActivation = this.percentRank(inActivation);
+                    inActivation = Stats.percentRank(inActivation);
                 }
 
                 for(var k in inActivation) {
@@ -131,31 +133,6 @@ export abstract class BaseNode<T extends Node> {
     notify(event: BaseEvent<any>) {
         event.senderId = this.nodeId;
         AppEventQueue.notify(event);
-    }
-
-    private percentRank(vals: { [key: string]: number }) {
-        var arr: string[] = [];
-        var newVals: { [key: string]: number } = {};
-
-        for(var key in vals) {
-            arr.push(key);
-        }
-
-        arr.sort((a: string, b: string) => {
-            if(vals[a] <= vals[b]) {
-                return -1;
-            }
-            else {
-                return 1;
-            }
-        });
-
-        var len = arr.length;
-        arr.forEach((key, index) => {
-            newVals[key] = (len - index) / len
-        });
-
-        return newVals;
     }
 }
 

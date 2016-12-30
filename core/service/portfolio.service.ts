@@ -1,12 +1,20 @@
 import { BaseService } from './base.service';
+import { NodeService } from './node.service';
+import { PortfolioRepository } from '../repository/portfolio.repository';
+
 import { Session } from '../lib/session';
 
-export class PortfolioService extends BaseService {
+import { Portfolio } from './model/portfolio.model';
+
+export class PortfolioService extends NodeService<Portfolio> {
+    portfolioRepository: PortfolioRepository;
+
     constructor(session: Session) {
-        super(session);
+        super(session, PortfolioRepository);
+        this.portfolioRepository = this.nodeRepository;
     }
 
-    getPortfolio() {
+    /*getPortfolio() {
         this.database.collection('user_pf').find({ uid: this.user.uid }).sort({ date:1 }).toArray((err, results) => {
             if(err) this.error(null);
             else this.done(results);
@@ -70,5 +78,5 @@ export class PortfolioService extends BaseService {
         });
                 
         return this.promise;
-    }
+    }*/
 }

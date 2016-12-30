@@ -4,14 +4,15 @@ import { NodeComponent } from 'backlive/component/shared';
 import { PageComponent } from 'backlive/component/shared';
 
 import { AppService, UserService, PortfolioService } from 'backlive/service';
-import { Portfolio } from 'backlive/service/model';
+import { Portfolio, Strategy } from 'backlive/service/model';
 
 import { Route } from 'backlive/routes';
 
 @Component({
     selector: 'backlive-portfolio',
     templateUrl: Path.ComponentView('portfolio'),
-    styleUrls: [Path.ComponentStyle('portfolio')]
+    styleUrls: [Path.ComponentStyle('portfolio')],
+    outputs: NodeComponent.outputs //inherited, workaround until angular fix
 })
 export class PortfolioComponent extends NodeComponent<Portfolio> implements OnInit {
     @Input() portfolio: Portfolio;
@@ -21,18 +22,40 @@ export class PortfolioComponent extends NodeComponent<Portfolio> implements OnIn
     }
     
     ngOnInit() {
+        if(!this.portfolio._id) {
+            this.update();
+            this.onEdit();
+        }
+        else if(!this.portfolio.inputs) {
+            this.addStrategy();
+        }
+
         this.subscribeNodeEvents(this.portfolio);
     }
 
     update() {
         console.log('updating portfolio');
-        if(this.portfolio.name) {
-            this.portfolioService.update(this.portfolio).then(portfolio => {
-                if(portfolio._id) {
-                    this.portfolio._id = portfolio._id;
-                    this.nodeChange.emit(this.portfolio);
+        this.portfolioService.update(this.portfolio).then(portfolio => {
+            if(portfolio._id) {
+                if(!this.portfolio._id) { //new portfolio
+                    this.addStrategy();
                 }
-            });
-        }
+
+                this.portfolio._id = portfolio._id;
+                this.nodeChange.emit(this.portfolio);
+            }
+        });
+    }
+
+    addStrategy() {
+        this.addInput.emit(new Strategy(''));
+    }
+
+    onEdit() {
+
+    }
+
+    onRemove() {
+
     }
 }

@@ -1,4 +1,4 @@
-import { BaseNode, Normalize } from '../base.node'
+import { BaseNode } from '../base.node'
 import { ActivateNodeEvent, DataFilterEvent, IndicatorEvent } from '../../event/app.event';
 
 import { StrategyService } from '../../../core/service/strategy.service';
@@ -32,7 +32,7 @@ export class StrategyNode extends BaseNode<Strategy> {
 
     receive(event: ActivateNodeEvent) {
         console.log('Strategy received an indicator update');
-        this.activate(null, Normalize.PercentRank);
+        this.activate();
     }
 
     executeStrategy(event: ExecuteStrategyEvent) {

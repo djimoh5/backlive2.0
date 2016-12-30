@@ -1,12 +1,15 @@
 import { BaseController, Get, Post, Delete } from './base.controller';
+import { NodeController } from './node.controller';
 import { PortfolioService } from '../service/portfolio.service';
 
-export class PortfolioController extends BaseController {
+import { Portfolio } from '../service/model/portfolio.model';
+
+export class PortfolioController extends NodeController<Portfolio> {
 	constructor() {
-		super({ portfolioService: PortfolioService });
+		super(PortfolioService);
 	}
 
-	@Get('')
+	/*@Get('')
 	getPortfolios(req, res) {
         res.services.portfolioService.getPortfolio().done(function(portfolio) {
 			res.send(portfolio);
@@ -39,8 +42,5 @@ export class PortfolioController extends BaseController {
         res.services.portfolioService.clearPortfolio().done(function(data) {
 			res.send(data);
 		});
-	}
+	}*/
 }
-
-PortfolioController.inherits(BaseController);
-module.exports = PortfolioController;
