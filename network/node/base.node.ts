@@ -1,7 +1,7 @@
 import { QueueOperators } from '../event/event-queue'
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from '../event/base.event';
 import { AppEventQueue } from '../event/app-event-queue';
-import { ActivateNodeEvent } from '../event/app.event';
+import { ActivateNodeEvent, BackpropagateEvent } from '../event/app.event';
 
 import { Common } from '../../app//utility/common';
 import { ISession } from '../../core/lib/session';
@@ -15,7 +15,9 @@ import { Stats } from '../lib/stats';
 export abstract class BaseNode<T extends Node> {
     protected nodeId: string;
     private node: T;
-    private inputNodes: { [key: string]: T } = {};
+    private inputNodes: { [key: string]: Node } = {};
+    private outputNodes: { [key: string]: Node } = {};
+    
     private nodeService: NodeService<T>;
 
     private subscribedTypes: { [key: number]: boolean  } = {};
@@ -36,24 +38,40 @@ export abstract class BaseNode<T extends Node> {
     setNode(node: T) {
         this.node = node;
         this.nodeId = node._id;
-        this.nodeService.getInputs(node._id).then(nodes => {
-            this.updateInputs(nodes);
-        });
+        this.unsubscribe(BackpropagateEvent);
+
+        if(node.inputs) {
+            this.nodeService.getInputs(node._id).then(nodes => {
+                this.updateInputs(nodes);
+                if(this.onUpdateInputs) {
+                    this.onUpdateInputs(this.inputNodes);
+                }
+            });
+
+            this.subscribe(BackpropagateEvent, 
+                event => { this.backpropagate(event); }, 
+                { filter: (event, index) => { return this.outputNodes[event.senderId] ? true : false; } }
+            );
+        }
+        else if(this.onUpdateInputs) {
+            this.onUpdateInputs(this.inputNodes);
+        }
     }
 
     getNode(): T {
         return this.node;
     }
 
-    updateInputs(nodes: T[]) {
+    private updateInputs(nodes: Node[]) {
         this.inputNodes = {};
 
         nodes.forEach(n => {
             this.inputNodes[n._id] = n;
-
+            
             if(!this.subscribedTypes[n.ntype]) {
                 this.subscribe(NodeConfig.activationEvent(n.ntype), 
                     event => {
+                        this.inputNodes[event.senderId].activation = event.data;
                         this.receive(event);
                     }, 
                     { filter: (event, index) => { return Common.inArray(event.senderId, this.node.inputs); } }
@@ -61,17 +79,17 @@ export abstract class BaseNode<T extends Node> {
                 this.subscribedTypes[n.ntype] = true;
             }
         });
-
-        if(this.onUpdateInputs) {
-            this.onUpdateInputs(this.inputNodes);
-        }
     }
 
-    onUpdateInputs: (nodes: { [key: string]: T }) => void;
+    updateOutput(node: Node) {
+        this.outputNodes[node._id] = node;
+    }
 
-    abstract receive(event: ActivateNodeEvent);
+    onUpdateInputs: (nodes: { [key: string]: Node }) => void;
 
-    activate(event?: ActivateNodeEvent, normalize?: Normalize) {
+    protected abstract receive(event: ActivateNodeEvent);
+
+    protected activate(event?: ActivateNodeEvent, normalize?: Normalize) {
         if(!event) {
             var activation: Activation = {};
 
@@ -87,8 +105,11 @@ export abstract class BaseNode<T extends Node> {
                     return; //must first have an activation of all inputs to activate yourself
                 }
 
-                if(normalize && normalize === Normalize.PercentRank) {
-                    inActivation = Stats.percentRank(inActivation);
+                if(normalize) {
+                    switch(normalize) {
+                        case Normalize.PercentRank: inActivation = Stats.percentRank(inActivation);
+                            break;
+                    }
                 }
 
                 for(var k in inActivation) {
@@ -112,6 +133,10 @@ export abstract class BaseNode<T extends Node> {
         this.notify(event);
     }
 
+    private backpropagate(event: BackpropagateEvent) {
+
+    }
+
     private initializeWeights() {
         var len = this.node.inputs.length;
         var weight = Common.round(1 / len, 4);
@@ -122,12 +147,16 @@ export abstract class BaseNode<T extends Node> {
         }
     }
 
-    protected sigmoid(x: number) {
+    private sigmoid(x: number) {
         return 1 / (1 + Math.exp(-x));
     }
 
     subscribe<TT extends BaseEvent<any>>(eventType: TypeOfBaseEvent<TT>, callback: BaseEventCallback<TT>, operators?: QueueOperators<TT>) {
         return AppEventQueue.subscribe(eventType, this.nodeId, callback, operators);
+    }
+
+    unsubscribe<TT extends BaseEvent<any>>(eventType: TypeOfBaseEvent<TT>) {
+        return AppEventQueue.unsubscribe(this.nodeId, eventType);
     }
     
     notify(event: BaseEvent<any>) {

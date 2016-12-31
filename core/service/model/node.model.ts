@@ -29,3 +29,8 @@ export enum NodeType {
 export interface Activation {
     [key: string]: number
 }
+
+export interface ActivationError {
+    error: number,
+    weights: { [key: string]: number } //nodeId => weight
+}

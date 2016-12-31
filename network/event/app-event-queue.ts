@@ -16,6 +16,10 @@ export class AppEventQueue {
     static subscribe<T extends BaseEvent<any>>(eventType: TypeOfBaseEvent<T>, subscriberId: string, callback: BaseEventCallback<T>, operators?: QueueOperators<T>) {
         return AppEventQueue.eventQueue.subscribe(eventType, subscriberId, callback);
     }
+
+    static unsubscribe<T extends BaseEvent<any>>(subscriberId: string, eventType: TypeOfBaseEvent<T>) {
+        return AppEventQueue.eventQueue.unsubscribe(subscriberId, eventType);
+    }
     
     static notify(event: BaseEvent<any>, fromClient: boolean = false) {
         AppEventQueue.eventQueue.notify(event);

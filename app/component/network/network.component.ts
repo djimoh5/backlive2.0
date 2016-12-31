@@ -80,11 +80,16 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
 
             if(node.inputs) {
                 service.getInputs(node._id).then(nodes => {
-                    node.inputs = []; //in case there are any deleted nodes still in inputs
-                    nodes.forEach(n => {
-                        node.inputs.push(n._id);
-                        this.loadNode(n);
-                    });
+                    if(nodes.length > 0) {
+                        node.inputs = []; //in case there are any deleted nodes still in inputs
+                        nodes.forEach(n => {
+                            node.inputs.push(n._id);
+                            this.loadNode(n);
+                        });
+                    }
+                    else {
+                        delete node.inputs;
+                    }
 
                     if(isOutput) {
                         this.appService.notify(new LoadNodeEvent(node));

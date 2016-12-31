@@ -24,7 +24,6 @@ export class PortfolioComponent extends NodeComponent<Portfolio> implements OnIn
     ngOnInit() {
         if(!this.portfolio._id) {
             this.update();
-            this.onEdit();
         }
         else if(!this.portfolio.inputs) {
             this.addStrategy();

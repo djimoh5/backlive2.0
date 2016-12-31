@@ -46,16 +46,19 @@ export class Network {
         this.activity(true);
         if(!this.nodes[node._id]) {
             this.nodes[node._id] = new (NodeConfig.node(node.ntype))(node);
-            this.nodes[node._id].onUpdateInputs = (nodes) => this.updateInputNodes(nodes);
+            this.nodes[node._id].onUpdateInputs = (inputNodes) => this.updateInputNodes(node, inputNodes);
         }
         else {
             this.nodes[node._id].setNode(node);
         }
+
+        return this.nodes[node._id];
     }
 
-    updateInputNodes(nodes: { [key: string]: Node }) {
-        for(var key in nodes) {
-            this.loadNode(nodes[key]);
+    updateInputNodes(node: Node, inputNodes: { [key: string]: Node }) {
+        for(var key in inputNodes) {
+            var inputNode: BaseNode<any> = this.loadNode(inputNodes[key]);
+            inputNode.updateOutput(node);
         }
 
         this.activity(false);

@@ -28,14 +28,4 @@ export class NodeConfig {
     static node(ntype: NodeType): { new(node: Node): BaseNode<any>; } {
         return this.nodeConfig[ntype];
     }
-
-    static init() {
-        var key: any;
-        for(key in NodeConfig.activationEventConfig) {
-            NodeConfig.activationEventConfig[key].ntype = key;
-        }
-    }
 }
-
-NodeConfig.init();
-
