@@ -8,10 +8,10 @@ export abstract class NodeRepository<T extends Node> extends BaseRepository {
     protected context: NodeContext<T>;
     protected nodeContext: Context;
     
-    constructor(ntype: NodeType) {
+    constructor(ntype?: NodeType) {
         super('node');
         this.nodeContext = this.context;
-        this.context = new NodeContext(this.nodeContext, ntype);
+        this.context = new NodeContext(this.nodeContext, ntype ? ntype : NodeType.Generic);
     }
 
     getByUserId(userId: string) : Promise<T[]> {

@@ -5,10 +5,16 @@ import { DataCache, DataResult } from '../node/data/data.node';
 import { Ticker } from '../../core/service/model/ticker.model';
 import { IndicatorParam } from '../../core/service/model/indicator.model';
 
+@AppEvent('Event.NetworkDate')
+export class NetworkDateEvent extends BaseEvent<number> {}
+
 /* activation events */
 
 @AppEvent('Event.Node.Activate')
 export class ActivateNodeEvent extends BaseEvent<Activation> {}
+
+@AppEvent('Event.Node.FeedForwardComplete')
+export class FeedForwardCompleteEvent extends BaseEvent<null> {}
 
 @AppEvent('Event.Indicator')
 export class IndicatorEvent extends ActivateNodeEvent { }
@@ -21,7 +27,13 @@ export class StrategyEvent extends ActivateNodeEvent { }
 @AppEvent('Event.Node.Backpropagate')
 export class BackpropagateEvent extends BaseEvent<ActivationError> {}
 
+@AppEvent('Event.Node.BackpropagateComplete')
+export class BackpropagateCompleteEvent extends BaseEvent<null> {}
+
 /* other events */
+
+@AppEvent('Event.TrainingData')
+export class TrainingDataEvent extends BaseEvent<{ input: number[][], output: { [key: string]: number } }> {}
 
 @AppEvent('Event.Data')
 export class DataEvent extends BaseEvent<{ cache: DataCache, allCacheKeys?: string[] | number[] }> {}

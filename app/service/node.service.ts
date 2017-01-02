@@ -6,8 +6,8 @@ import { User, Strategy, Node } from 'backlive/service/model';
 
 @Injectable()
 export class NodeService<T extends Node> extends BaseService {
-    constructor(apiService: ApiService, appService: AppService, endpoint: string) {
-        super(apiService, appService, endpoint);
+    constructor(apiService: ApiService, appService: AppService, endpoint?: string) {
+        super(apiService, appService, endpoint ? endpoint : 'node');
     }
 
     list() : Promise<T[]>  {

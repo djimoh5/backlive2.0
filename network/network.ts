@@ -13,10 +13,7 @@ import { DataLoaderNode } from './node/data/dataloader.node';
 
 import { IndicatorNode } from './node/indicator/indicator.node';
 
-import { StrategyNode } from './node/strategy/strategy.node';
-import { ExecuteStrategyEvent } from '../app/component/strategy/strategy.event';
-
-import { PortfolioNode } from './node/portfolio/portfolio.node';
+import { ExecuteNodeEvent } from '../app/component/node/node.event';
 
 import { IExecutionNode } from './node/execution/execution.node';
 import { BacktestExecutionNode } from './node/execution/backtest-execution.node';
@@ -32,14 +29,18 @@ export class Network {
     constructor() {
         AppEventQueue.global();
         AppEventQueue.subscribe(NodeChangeEvent, 'network', event => this.loadNode(event.data));
-        AppEventQueue.subscribe(LoadNodeEvent, 'network', event => this.loadNode(event.data));
-        AppEventQueue.subscribe(ExecuteStrategyEvent, 'network', event => this.executeStrategy(event.data));
+        AppEventQueue.subscribe(LoadNodeEvent, 'network', event => this.loadOutputNode(event.data));
+        AppEventQueue.subscribe(ExecuteNodeEvent, 'network', event => this.executeNetwork(event.data));
 
         Database.open(() => {
             console.log('Database opened');
             this.executionNode = new BacktestExecutionNode();
             this.dataNode = new DataLoaderNode();
         });
+    }
+
+    loadOutputNode(node: Node) {
+        var n: BaseNode<any> = this.loadNode(node);
     }
 
     loadNode(node: Node) {
@@ -64,9 +65,9 @@ export class Network {
         this.activity(false);
     }
 
-    executeStrategy(node: Node) {
-        this.loadNode(node);
+    executeNetwork(node: Node) {
         this.onIdle = () =>  this.dataNode.init();
+        this.loadOutputNode(node);
     }
 
     private activity(active: boolean) {

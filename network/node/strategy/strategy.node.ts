@@ -31,7 +31,7 @@ export class StrategyNode extends BaseNode<Strategy> {
     }
 
     receive(event: ActivateNodeEvent) {
-        console.log('Strategy received an indicator update');
+        console.log('Strategy received an indicator event');
         this.activate();
     }
 

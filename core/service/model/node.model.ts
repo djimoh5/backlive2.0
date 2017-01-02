@@ -6,10 +6,13 @@ export class Node {
 
     inputs: string[];
     weights: number[];
-    activation: Activation;
     
     created: number;
     modified; number;
+
+    //only set during execution
+    activation?: Activation;
+    activationError?: ActivationError;
     
     //client-side only
     position: { x: number, y: number };
@@ -32,5 +35,5 @@ export interface Activation {
 
 export interface ActivationError {
     error: number,
-    weights: { [key: string]: number } //nodeId => weight
+    weights?: { [key: string]: number } //nodeId => weight
 }

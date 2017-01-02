@@ -94,6 +94,18 @@ export class Common {
 		return _.isObject(data);
     }
 
+    static hasKeys(obj: {}) {
+        if(obj) {
+            for(var key in obj) {
+                if(obj.hasOwnProperty(key)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     static clone(target: {}, source: {}, deep: boolean = true) {
         return $.extend(deep, target, source);
     }

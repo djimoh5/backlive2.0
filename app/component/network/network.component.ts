@@ -31,7 +31,8 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     NodeType = NodeType;
     tmpInputMap: { [key: string]: { node: Node, input: Node } } = {};
 
-    constructor(appService: AppService, private userService: UserService, private indicatorService: IndicatorService, private strategyService: StrategyService, private portfolioService: PortfolioService, private lookupService: LookupService, private platformUI: PlatformUI) {
+    constructor(appService: AppService, private userService: UserService, private lookupService: LookupService, private platformUI: PlatformUI, 
+        private nodeService: NodeService<Node>, private indicatorService: IndicatorService, private strategyService: StrategyService, private portfolioService: PortfolioService) {
         super(appService);
         
         var items = [
@@ -70,6 +71,8 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
             var service: NodeService<Strategy | Portfolio>;
 
             switch(node.ntype) {
+                case NodeType.Generic: service = this.nodeService;
+                    break;
                 case NodeType.Indicator: service = this.indicatorService;
                     break;
                 case NodeType.Strategy: service = this.strategyService;
@@ -89,6 +92,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                     }
                     else {
                         delete node.inputs;
+                        delete node.weights;
                     }
 
                     if(isOutput) {

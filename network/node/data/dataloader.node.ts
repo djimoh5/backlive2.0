@@ -1,4 +1,4 @@
-import { DataEvent, DataSubscriptionEvent, DataFilterEvent } from '../../event/app.event';
+import { DataEvent, DataSubscriptionEvent, DataFilterEvent, NetworkDateEvent, FeedForwardCompleteEvent, BackpropagateCompleteEvent } from '../../event/app.event';
 import { BaseDataNode, IDataNode, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
 
 import { DataFieldMap, DataCollectionMap } from './field-map';
@@ -13,11 +13,15 @@ export class DataLoaderNode extends BaseDataNode {
     ticker: string | string[];
     startDate: number;
     endDate: number;
+    currentDate: number;
 
     nonTickerTypes: IndicatorParamType[] = [IndicatorParamType.Macro];
 
     cache: DataCache;
     allCacheKeys: string[] | number[];
+
+    dates: number[] = [];
+    weeks: number[] = [];
 
     constructor() {
         super();
@@ -33,12 +37,17 @@ export class DataLoaderNode extends BaseDataNode {
             this.startDate = event.data.startDate;
             this.endDate = event.data.endDate;
         });
+
+        this.subscribe(FeedForwardCompleteEvent, event => {
+            this.nextTick();
+        });
+
+        this.subscribe(BackpropagateCompleteEvent, event => {
+            this.execute();
+        });
     }
 
     init() {
-        var dates: number[] = [],
-            weeks: number[] = [];
-
         Database.mongo.collection('file_date', (err, collection) => {
             collection.find().sort({ date: 1 }).toArray((err, results) => {
                 if (err) {
@@ -47,19 +56,30 @@ export class DataLoaderNode extends BaseDataNode {
                 } else {
                     for (var i = 0, cnt = results.length; i < cnt; i++) {
                         if (!results[i].hide) {
-                            dates.push(parseInt(results[i].date.toString()));
-                            weeks.push(results[i].wk);
-                            break;
+                            this.dates.push(parseInt(results[i].date.toString()));
+                            this.weeks.push(results[i].wk);
+
+                            if(this.dates.length > 1) {
+                                break;
+                            }
                         }
                     }
                 }
 
-                this.execute(dates, weeks);
+                this.nextTick();
             });
         });
     }
 
-    private execute(dates: number[], weeks: number[]) {
+    nextTick() {
+        this.currentDate = this.dates.splice(0, 1)[0];
+
+        if(this.currentDate) {
+            this.notify(new NetworkDateEvent(this.currentDate));
+        }
+    }
+
+    private execute() {
         var self = this;
         this.cache = {};
         this.allCacheKeys = [];
@@ -69,7 +89,7 @@ export class DataLoaderNode extends BaseDataNode {
             numFieldTypes++;
         }
 
-        var date: number = dates.splice(0, 1)[0];
+        var date: number = this.currentDate;
         var cnt: number = numFieldTypes;
 
         if (date) {
@@ -95,7 +115,6 @@ export class DataLoaderNode extends BaseDataNode {
 
                     if (--cnt == 0) {
                         self.notify(new DataEvent({ cache: self.cache, allCacheKeys: self.allCacheKeys }));
-                        self.execute(dates, weeks);
                     }
                 }, !this.ticker || Common.inArray(parseInt(type), this.nonTickerTypes) ? null : this.ticker);
             }

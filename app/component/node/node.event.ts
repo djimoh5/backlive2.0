@@ -10,3 +10,6 @@ export class NodeChangeEvent extends BaseEvent<Node> {}
 
 @SocketEvent('Event.Node.Remove')
 export class RemoveNodeEvent extends BaseEvent<string> {}
+
+@SocketEvent('Event.Node.Execute')
+export class ExecuteNodeEvent extends BaseEvent<Node> {}

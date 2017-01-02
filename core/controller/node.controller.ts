@@ -3,9 +3,9 @@ import { NodeService } from '../service/node.service';
 import { Node } from '../service/model/node.model';
 
 export abstract class NodeController<T extends Node> extends BaseController {
-    constructor(nodeService: typeof NodeService) {
+    constructor(nodeService?: typeof NodeService) {
 	    var service: any = nodeService;
-	    super({ nodeService: service });
+	    super({ nodeService: service ? service : NodeService });
     }
 
     @Get('list')

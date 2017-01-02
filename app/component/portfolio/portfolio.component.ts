@@ -1,12 +1,14 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Path } from 'backlive/config';
+import { Common } from 'backlive/utility';
+
 import { NodeComponent } from 'backlive/component/shared';
 import { PageComponent } from 'backlive/component/shared';
 
 import { AppService, UserService, PortfolioService } from 'backlive/service';
 import { Portfolio, Strategy } from 'backlive/service/model';
 
-import { Route } from 'backlive/routes';
+import { ExecuteStrategyEvent, ExecuteNodeEvent } from 'backlive/event';
 
 @Component({
     selector: 'backlive-portfolio',
@@ -30,6 +32,12 @@ export class PortfolioComponent extends NodeComponent<Portfolio> implements OnIn
         }
 
         this.subscribeNodeEvents(this.portfolio);
+        this.subscribeEvent(ExecuteStrategyEvent, 
+            () => {
+                this.appService.notify(new ExecuteNodeEvent(this.portfolio));
+            },
+            { filter: (event, index) => { return Common.inArray(event.senderId, this.portfolio.inputs); } }
+        );
     }
 
     update() {

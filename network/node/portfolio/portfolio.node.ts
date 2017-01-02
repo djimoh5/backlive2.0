@@ -1,18 +1,86 @@
-import { BaseNode } from '../base.node'
+import { BaseNode, MockSession } from '../base.node'
 
-import { StrategyEvent } from '../../event/app.event';
+import { ActivateNodeEvent, DataEvent, DataSubscriptionEvent, NetworkDateEvent, FeedForwardCompleteEvent, BackpropagateEvent, BackpropagateCompleteEvent } from '../../event/app.event';
 
 import { Portfolio } from '../../../core/service/model/portfolio.model';
+import { IndicatorParamType } from '../../../core/service/model/indicator.model';
+import { Activation } from '../../../core/service/model/node.model';
+
+import { PricingService } from '../../../core/service/pricing.service';
+
+import { Stats } from '../../lib/stats';
 
 export class PortfolioNode extends BaseNode<Portfolio> {
+    pricingService: PricingService;
+    prices: { [key: string]: { price: number, mtkcap: number } };
+    lastPrices: { [key: string]: { price: number, mtkcap: number } };
+    currentDate: number;
+    actualActivation: Activation;
+
     constructor(private model: Portfolio) {
         super(model);
-        this.subscribe(StrategyEvent, event => this.processTrade(event)/*, { id: strategyId }*/);
+
+        this.subscribe(NetworkDateEvent, event => this.setPrices(event.data));
     }
 
-    processTrade(trade: StrategyEvent) {
-        console.log(trade);
+    setPrices(date: number) {
+        console.log('portfolio computing actual output for ', date);
+        this.currentDate = date;
+        this.prices = this.lastPrices;
+
+        this.pricingService.getPrices(this.currentDate).then(prices => {
+            //need to adjust for splits!
+            this.prices = {};
+            console.log(prices);
+            prices.forEach(price => {
+                //need to adjust for splits!
+                this.prices[price.ticker] = { price: price.price, mtkcap: price.mtkcap };
+            });
+
+            if(this.lastPrices) {                
+                this.backpropagate();
+            }
+            else {
+                this.notify(new BackpropagateCompleteEvent(null));
+            }
+        });
     }
 
-    receive() {}
+    receive(event: ActivateNodeEvent) {
+        console.log('portfolio received a strategy event');
+        this.activate();
+
+        if(this.node.activation && !this.hasOutputs()) {
+            this.notify(new FeedForwardCompleteEvent(null));
+            console.log('feed forward complete for ', this.currentDate);
+        }
+    }
+
+    backpropagate() {
+        if(this.node.activation && !this.hasOutputs()) {
+            this.actualActivation = {};
+            var error: number = 0;
+            var count: number = 0;
+
+            for(var key in this.node.activation) {
+                if(this.prices[key] && this.lastPrices[key]) {
+                    this.actualActivation[key] = this.lastPrices[key].price / this.prices[key].price;
+                }
+                else {
+                    delete this.node.activation[key];
+                }
+            }
+
+            this.actualActivation = Stats.percentRank(this.actualActivation);
+
+            for(var key in this.node.activation) {
+                error += this.node.activation[key] - this.actualActivation[key];
+                count++;
+            }
+
+            error = error / count;
+            console.log(`backpropagting portfolio error for ${count} tickers`);
+            super.backpropagate(new BackpropagateEvent({ error: error }) )
+        }
+    }
 }

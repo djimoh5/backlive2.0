@@ -1,7 +1,7 @@
 import { QueueOperators } from '../event/event-queue'
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from '../event/base.event';
 import { AppEventQueue } from '../event/app-event-queue';
-import { ActivateNodeEvent, BackpropagateEvent } from '../event/app.event';
+import { ActivateNodeEvent, BackpropagateEvent, TrainingDataEvent } from '../event/app.event';
 
 import { Common } from '../../app//utility/common';
 import { ISession } from '../../core/lib/session';
@@ -14,7 +14,7 @@ import { Stats } from '../lib/stats';
 
 export abstract class BaseNode<T extends Node> {
     protected nodeId: string;
-    private node: T;
+    protected node: T;
     private inputNodes: { [key: string]: Node } = {};
     private outputNodes: { [key: string]: Node } = {};
     
@@ -38,7 +38,6 @@ export abstract class BaseNode<T extends Node> {
     setNode(node: T) {
         this.node = node;
         this.nodeId = node._id;
-        this.unsubscribe(BackpropagateEvent);
 
         if(node.inputs) {
             this.nodeService.getInputs(node._id).then(nodes => {
@@ -46,8 +45,13 @@ export abstract class BaseNode<T extends Node> {
                 if(this.onUpdateInputs) {
                     this.onUpdateInputs(this.inputNodes);
                 }
+
+                if(this.hasOutputs()) {
+                    this.unsubscribe(TrainingDataEvent);
+                }
             });
 
+            this.unsubscribe(BackpropagateEvent);
             this.subscribe(BackpropagateEvent, 
                 event => { this.backpropagate(event); }, 
                 { filter: (event, index) => { return this.outputNodes[event.senderId] ? true : false; } }
@@ -82,14 +86,14 @@ export abstract class BaseNode<T extends Node> {
     }
 
     updateOutput(node: Node) {
-        this.outputNodes[node._id] = node;
+        this.outputNodes[node._id] = Common.clone({}, node);
     }
 
     onUpdateInputs: (nodes: { [key: string]: Node }) => void;
 
     protected abstract receive(event: ActivateNodeEvent);
 
-    protected activate(event?: ActivateNodeEvent, normalize?: Normalize) {
+    protected activate(event?: ActivateNodeEvent) {
         if(!event) {
             var activation: Activation = {};
 
@@ -102,14 +106,8 @@ export abstract class BaseNode<T extends Node> {
                 var inActivation = this.inputNodes[id].activation;
 
                 if(!inActivation) {
+                    this.node.activation = null;
                     return; //must first have an activation of all inputs to activate yourself
-                }
-
-                if(normalize) {
-                    switch(normalize) {
-                        case Normalize.PercentRank: inActivation = Stats.percentRank(inActivation);
-                            break;
-                    }
                 }
 
                 for(var k in inActivation) {
@@ -128,13 +126,66 @@ export abstract class BaseNode<T extends Node> {
             event = new ActivateNodeEvent(activation);
         }
 
-        console.log(event.data);
         this.node.activation = event.data;
         this.notify(event);
+        console.log('node', this.node._id, 'activated', event.data);
+
+        for(var key in this.inputNodes) { //clear out your input activations
+            this.inputNodes[key].activation = null;
+        }
     }
 
-    private backpropagate(event: BackpropagateEvent) {
+    protected backpropagate(event: BackpropagateEvent) {
+        if(this.node.inputs) {
+            var data = event.data;
+            var delta = 0;
 
+            if(data.weights) {
+                this.outputNodes[event.senderId].activationError = data;
+                
+                for(var key in this.outputNodes) {
+                    data = this.outputNodes[key].activationError;
+
+                    if(!data) {
+                        return; //must have backpropagation from all your outputs to backpropagate yourself
+                    }
+
+                    delta += data.error * data.weights[this.node._id];
+                }
+            }
+            else {
+                delta = data.error;
+            }
+            
+            var sigDeriv: number = 0;
+            var activation: number = 0;
+            var count: number = 0;
+
+            for(var key in this.node.activation) {
+                var val = this.node.activation[key];
+                activation += val;
+                sigDeriv +=  val * (1 - val);
+                count++;
+            }
+
+            delta *= sigDeriv / count;
+            activation = activation / count;
+
+            var weights: { [key: string]: number } = {};
+            this.node.weights.forEach((w, index) => {
+                weights[this.node.inputs[index]] = w;
+
+                //update weight
+                //this.node.weights[index] = w - (.2 * delta * activation)//.2 learning rate
+            });
+
+            this.notify(new BackpropagateEvent({ error: delta, weights: weights }));
+            console.log('backpropagating node ', this.node._id, { error: delta, weights: weights });
+
+            for(var key in this.outputNodes) { //clear out your output backpropagate errors
+                this.outputNodes[key].activationError = null;
+            }
+        }
     }
 
     private initializeWeights() {
@@ -147,8 +198,9 @@ export abstract class BaseNode<T extends Node> {
         }
     }
 
-    private sigmoid(x: number) {
-        return 1 / (1 + Math.exp(-x));
+    private sigmoid(x: number, derivative: boolean = false) {
+        var val = 1 / (1 + Math.exp(-x));
+        return derivative ? (val * (1 - val)) : val;
     }
 
     subscribe<TT extends BaseEvent<any>>(eventType: TypeOfBaseEvent<TT>, callback: BaseEventCallback<TT>, operators?: QueueOperators<TT>) {
@@ -162,6 +214,10 @@ export abstract class BaseNode<T extends Node> {
     notify(event: BaseEvent<any>) {
         event.senderId = this.nodeId;
         AppEventQueue.notify(event);
+    }
+
+    hasOutputs() {
+        return Common.hasKeys(this.outputNodes);
     }
 }
 
