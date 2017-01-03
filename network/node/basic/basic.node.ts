@@ -4,7 +4,7 @@ import { ActivateNodeEvent, TrainingDataEvent, BackpropagateEvent } from '../../
 import { NodeService } from '../../../core/service/node.service';
 import { Node } from '../../../core/service/model/node.model';
 
-export class GenericNode extends BaseNode<Node> {
+export class BasicNode extends BaseNode<Node> {
     trainingData: { input: number[][], output: { [key: string]: number } };
 
     constructor(private model: Node) {
@@ -19,7 +19,7 @@ export class GenericNode extends BaseNode<Node> {
     }
 
     receive(event: ActivateNodeEvent) {
-        console.log('Generic node received an event', event);
+        console.log('Basic node received an event', event);
         this.activate();
 
         if(this.node.activation && !this.hasOutputs()) {

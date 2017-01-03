@@ -3,7 +3,7 @@ import { Path } from 'backlive/config';
 import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
 import { StrategyComponent } from '../strategy/strategy.component';
 
-import { AppService, UserService, IndicatorService, StrategyService, PortfolioService, LookupService } from 'backlive/service';
+import { AppService, UserService, BasicNodeService, IndicatorService, StrategyService, PortfolioService, LookupService } from 'backlive/service';
 import { NodeService } from '../../service/node.service';
 
 import { Route } from 'backlive/routes';
@@ -32,7 +32,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     tmpInputMap: { [key: string]: { node: Node, input: Node } } = {};
 
     constructor(appService: AppService, private userService: UserService, private lookupService: LookupService, private platformUI: PlatformUI, 
-        private nodeService: NodeService<Node>, private indicatorService: IndicatorService, private strategyService: StrategyService, private portfolioService: PortfolioService) {
+        private nodeService: BasicNodeService, private indicatorService: IndicatorService, private strategyService: StrategyService, private portfolioService: PortfolioService) {
         super(appService);
         
         var items = [
@@ -71,7 +71,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
             var service: NodeService<Strategy | Portfolio>;
 
             switch(node.ntype) {
-                case NodeType.Generic: service = this.nodeService;
+                case NodeType.Basic: service = this.nodeService;
                     break;
                 case NodeType.Indicator: service = this.indicatorService;
                     break;

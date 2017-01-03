@@ -23,7 +23,7 @@ export class Node {
 }
 
 export enum NodeType {
-    Generic = 1,
+    Basic = 1,
     Indicator = 2,
     Strategy = 3,
     Portfolio = 4

@@ -2,11 +2,12 @@ import { BaseNode, MockSession } from '../base.node'
 
 import { ActivateNodeEvent, DataEvent, DataSubscriptionEvent, NetworkDateEvent, FeedForwardCompleteEvent, BackpropagateEvent, BackpropagateCompleteEvent } from '../../event/app.event';
 
+import { PortfolioService } from '../../../core/service/portfolio.service';
+import { PricingService } from '../../../core/service/pricing.service';
+
 import { Portfolio } from '../../../core/service/model/portfolio.model';
 import { IndicatorParamType } from '../../../core/service/model/indicator.model';
 import { Activation } from '../../../core/service/model/node.model';
-
-import { PricingService } from '../../../core/service/pricing.service';
 
 import { Stats } from '../../lib/stats';
 
@@ -18,7 +19,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     actualActivation: Activation;
 
     constructor(private model: Portfolio) {
-        super(model);
+        super(model, PortfolioService);
 
         this.subscribe(NetworkDateEvent, event => this.setPrices(event.data));
     }

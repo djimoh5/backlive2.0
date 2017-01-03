@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { BaseService } from './base.service';
 import { ApiService } from './api.service';
 import { AppService } from './app.service';
-import { User, Strategy, Node } from 'backlive/service/model';
+
+import { Node } from 'backlive/service/model';
 
 @Injectable()
 export class NodeService<T extends Node> extends BaseService {
-    constructor(apiService: ApiService, appService: AppService, endpoint?: string) {
-        super(apiService, appService, endpoint ? endpoint : 'node');
+    constructor(apiService: ApiService, appService: AppService, endpoint: string) {
+        super(apiService, appService, endpoint);
     }
 
     list() : Promise<T[]>  {

@@ -33,10 +33,8 @@ export class PortfolioComponent extends NodeComponent<Portfolio> implements OnIn
 
         this.subscribeNodeEvents(this.portfolio);
         this.subscribeEvent(ExecuteStrategyEvent, 
-            () => {
-                this.appService.notify(new ExecuteNodeEvent(this.portfolio));
-            },
-            { filter: (event, index) => { return Common.inArray(event.senderId, this.portfolio.inputs); } }
+            () => { this.appService.notify(new ExecuteNodeEvent(this.portfolio)); },
+            { filter: (event, index) => { return Common.inArray(event.data._id, this.portfolio.inputs); } }
         );
     }
 

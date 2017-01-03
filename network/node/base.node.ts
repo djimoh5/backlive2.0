@@ -41,7 +41,7 @@ export abstract class BaseNode<T extends Node> {
 
         if(node.inputs) {
             this.nodeService.getInputs(node._id).then(nodes => {
-                this.updateInputs(nodes);
+                this.updateInputs(nodes); 
                 if(this.onUpdateInputs) {
                     this.onUpdateInputs(this.inputNodes);
                 }
@@ -57,8 +57,12 @@ export abstract class BaseNode<T extends Node> {
                 { filter: (event, index) => { return this.outputNodes[event.senderId] ? true : false; } }
             );
         }
-        else if(this.onUpdateInputs) {
-            this.onUpdateInputs(this.inputNodes);
+        else {
+            setTimeout(() => { //have to run on next turn or onUpdateInputs won't be set yet
+                if(this.onUpdateInputs) {
+                    this.onUpdateInputs(this.inputNodes);
+                }
+            });
         }
     }
 
@@ -86,7 +90,9 @@ export abstract class BaseNode<T extends Node> {
     }
 
     updateOutput(node: Node) {
-        this.outputNodes[node._id] = Common.clone({}, node);
+        var clone = new Node(node.ntype);
+        clone._id = node._id;
+        this.outputNodes[node._id] = clone;
     }
 
     onUpdateInputs: (nodes: { [key: string]: Node }) => void;

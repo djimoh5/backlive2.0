@@ -19,9 +19,6 @@ export class FeedForwardCompleteEvent extends BaseEvent<null> {}
 @AppEvent('Event.Indicator')
 export class IndicatorEvent extends ActivateNodeEvent { }
 
-@AppEvent('Event.Strategy')
-export class StrategyEvent extends ActivateNodeEvent { }
-
 /* back propagation events */
 
 @AppEvent('Event.Node.Backpropagate')
