@@ -10,14 +10,9 @@ import { DataCache } from '../data/data.node';
 
 import { IndicatorNode } from '../indicator/indicator.node';
 
-import { ExecuteStrategyEvent } from '../../../app/component/strategy/strategy.event';
-
 export class StrategyNode extends BaseNode<Strategy> {
     constructor(private model: Strategy) {
         super(model, StrategyService);
-
-        this.subscribe(ExecuteStrategyEvent, event => this.executeStrategy(event));
-
         var data: any = {
             universeTkrs: { incl: 1, tkrs: ['MSFT', 'BAC', 'JPM', 'ESV', 'AAPL', 'IBM'] },
             startYr: 20150101,
@@ -31,11 +26,7 @@ export class StrategyNode extends BaseNode<Strategy> {
     }
 
     receive(event: ActivateNodeEvent) {
-        console.log('Strategy received an indicator event');
+        console.log('Strategy received an event', event.senderId);
         this.activate();
-    }
-
-    executeStrategy(event: ExecuteStrategyEvent) {
-        console.log(event);
     }
 }

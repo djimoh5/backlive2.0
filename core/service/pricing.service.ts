@@ -1,13 +1,13 @@
 import { BaseService } from './base.service';
 import { PricingRepository } from '../repository/pricing.repository';
 
-import { Session } from '../lib/session';
+import { ISession } from '../lib/session';
 import { Common } from '../../app//utility/common';
 
 export class PricingService extends BaseService {
     pricingRepository: PricingRepository;
 
-    constructor(session: Session) {
+    constructor(session: ISession) {
         super(session, { pricingRepository: PricingRepository });
     }
 

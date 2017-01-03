@@ -46,11 +46,11 @@ export class Network {
     loadNode(node: Node) {
         this.activity(true);
         if(!this.nodes[node._id]) {
-            this.nodes[node._id] = new (NodeConfig.node(node.ntype))(node);
+            this.nodes[node._id] = new (NodeConfig.node(node.ntype))(this.cloneNode(node));
             this.nodes[node._id].onUpdateInputs = (inputNodes) => this.updateInputNodes(node, inputNodes);
         }
         else {
-            this.nodes[node._id].setNode(node);
+            this.nodes[node._id].setNode(this.cloneNode(node));
         }
 
         return this.nodes[node._id];
@@ -59,7 +59,7 @@ export class Network {
     updateInputNodes(node: Node, inputNodes: { [key: string]: Node }) {
         for(var key in inputNodes) {
             var inputNode: BaseNode<any> = this.loadNode(inputNodes[key]);
-            inputNode.updateOutput(node);
+            inputNode.updateOutput(this.cloneNode(node));
         }
 
         this.activity(false);
@@ -79,6 +79,15 @@ export class Network {
             this.onIdle();
             this.onIdle = null;
         }
+    }
+
+    private cloneNode(node: Node) {
+        var clone = new Node(node.ntype);
+        for(var key in node) {
+            clone[key] = node[key];
+        }
+
+        return clone;
     }
 }
 

@@ -30,7 +30,7 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
         this.node = node;
         this.subscribeEvent(NodeChangeEvent, event => {
             this.update();
-        }, { filter: (event, index) => { return event.data._id === this.node._id } });
+        }, { filter: (event, index) => { return event.data._id === this.node._id; } });
     }
 
     abstract update()

@@ -5,7 +5,7 @@ import { DataCache, DataResult } from '../node/data/data.node';
 import { Ticker } from '../../core/service/model/ticker.model';
 import { IndicatorParam } from '../../core/service/model/indicator.model';
 
-@AppEvent('Event.NetworkDate')
+@AppEvent('Event.Network.Date')
 export class NetworkDateEvent extends BaseEvent<number> {}
 
 /* activation events */

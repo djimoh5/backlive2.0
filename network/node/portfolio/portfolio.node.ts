@@ -13,29 +13,29 @@ import { Stats } from '../../lib/stats';
 
 export class PortfolioNode extends BaseNode<Portfolio> {
     pricingService: PricingService;
-    prices: { [key: string]: { price: number, mtkcap: number } };
-    lastPrices: { [key: string]: { price: number, mtkcap: number } };
+    prices: { [key: string]: { price: number, mktcap: number } };
+    lastPrices: { [key: string]: { price: number, mktcap: number } };
     currentDate: number;
     actualActivation: Activation;
 
     constructor(private model: Portfolio) {
         super(model, PortfolioService);
 
+        this.pricingService = new PricingService(new MockSession({ uid: model.uid }));
         this.subscribe(NetworkDateEvent, event => this.setPrices(event.data));
     }
 
     setPrices(date: number) {
         console.log('portfolio computing actual output for ', date);
         this.currentDate = date;
-        this.prices = this.lastPrices;
+        this.lastPrices = this.prices;
 
         this.pricingService.getPrices(this.currentDate).then(prices => {
             //need to adjust for splits!
             this.prices = {};
-            console.log(prices);
             prices.forEach(price => {
                 //need to adjust for splits!
-                this.prices[price.ticker] = { price: price.price, mtkcap: price.mtkcap };
+                this.prices[price.ticker] = { price: price.price, mktcap: price.mktcap };
             });
 
             if(this.lastPrices) {                
@@ -53,7 +53,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
 
         if(this.node.activation && !this.hasOutputs()) {
             this.notify(new FeedForwardCompleteEvent(null));
-            console.log('feed forward complete for ', this.currentDate);
+            console.log('feed forward complete for', this.currentDate);
         }
     }
 

@@ -9,7 +9,7 @@ export class PricingRepository extends BaseRepository {
         super('snt');
     }
 
-    getByDate(date: number) : Promise<{ ticker: string, price: number, mtkcap: number }[]> {
-        return this.context.find({ date: date }, { ticker: 1, price: 1, mtkcap: 1 });
+    getByDate(date: number) : Promise<{ ticker: string, price: number, mktcap: number }[]> {
+        return this.context.find({ date: date }, { ticker: 1, price: 1, mktcap: 1 });
     }
 }

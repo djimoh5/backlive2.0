@@ -36,6 +36,7 @@ export abstract class BaseNode<T extends Node> {
     }
 
     setNode(node: T) {
+        node._id = node._id.toString();
         this.node = node;
         this.nodeId = node._id;
 
@@ -90,9 +91,7 @@ export abstract class BaseNode<T extends Node> {
     }
 
     updateOutput(node: Node) {
-        var clone = new Node(node.ntype);
-        clone._id = node._id;
-        this.outputNodes[node._id] = clone;
+        this.outputNodes[node._id] = node;
     }
 
     onUpdateInputs: (nodes: { [key: string]: Node }) => void;
@@ -134,7 +133,7 @@ export abstract class BaseNode<T extends Node> {
 
         this.node.activation = event.data;
         this.notify(event);
-        console.log('node', this.node._id, 'activated', event.data);
+        console.log('node', this.node._id, 'activated', event);
 
         for(var key in this.inputNodes) { //clear out your input activations
             this.inputNodes[key].activation = null;

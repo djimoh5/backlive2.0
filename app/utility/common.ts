@@ -79,7 +79,7 @@ export class Common {
 	}
 
 	static inArray(item: any, arr: any[]) {
-		return arr.indexOf(item) > -1
+		return arr.indexOf(item) > -1;
 	}
 
 	static isString(data: any) {

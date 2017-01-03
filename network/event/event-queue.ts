@@ -57,8 +57,10 @@ export class EventQueue {
     }
     
     unsubscribe(subscriberId: any, eventType?: typeof BaseEvent) {
-        if(eventType && this.subscribers[eventType.eventName] && this.subscribers[eventType.eventName][subscriberId]) {
-            this.unsubscribeObservable(subscriberId, eventType.eventName);
+        if(eventType) {
+            if(this.subscribers[eventType.eventName] && this.subscribers[eventType.eventName][subscriberId]) {
+                this.unsubscribeObservable(subscriberId, eventType.eventName);
+            }
         }
         else {
             for(var name in this.subscribers) {
