@@ -25,11 +25,15 @@ export class BasicNode extends BaseNode<Node> {
         if(this.node.activation && !this.hasOutputs()) {
             var error: number;
             for(var key in this.node.activation) {
-                error = this.node.activation[key] - this.trainingData.output[this.node._id];
+                error = this.cost(this.node.activation[key], this.trainingData.output[this.node._id]);
                 break; //should only be one key for basic node
             }
 
             this.backpropagate(new BackpropagateEvent({ error: error }) )
         }
+    }
+
+    cost(output: number, target: number) {
+        return output - target;
     }
 }

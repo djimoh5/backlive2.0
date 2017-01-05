@@ -3,42 +3,62 @@ import { BaseNode, MockSession } from '../base.node'
 import { ActivateNodeEvent, DataEvent, DataSubscriptionEvent, NetworkDateEvent, FeedForwardCompleteEvent, BackpropagateEvent, BackpropagateCompleteEvent } from '../../event/app.event';
 
 import { PortfolioService } from '../../../core/service/portfolio.service';
-import { PricingService } from '../../../core/service/pricing.service';
+import { TickerService } from '../../../core/service/ticker.service';
 
 import { Portfolio } from '../../../core/service/model/portfolio.model';
 import { IndicatorParamType } from '../../../core/service/model/indicator.model';
 import { Activation } from '../../../core/service/model/node.model';
 
 import { Stats } from '../../lib/stats';
+import { Common } from '../../../app//utility/common';
 
 export class PortfolioNode extends BaseNode<Portfolio> {
-    pricingService: PricingService;
+    tickerService: TickerService;
     prices: { [key: string]: { price: number, mktcap: number } };
-    lastPrices: { [key: string]: { price: number, mktcap: number } };
-    currentDate: number;
+    prevPrices: { [key: string]: { price: number, mktcap: number } };
+    date: number;
+    prevDate: number;
     actualActivation: Activation;
 
     constructor(private model: Portfolio) {
         super(model, PortfolioService);
 
-        this.pricingService = new PricingService(new MockSession({ uid: model.uid }));
+        this.tickerService = new TickerService(new MockSession({ uid: model.uid }));
         this.subscribe(NetworkDateEvent, event => this.setPrices(event.data));
     }
 
     setPrices(date: number) {
         console.log('portfolio computing actual output for ', date);
-        this.currentDate = date;
-        this.lastPrices = this.prices;
+        this.prevPrices = this.prices;
+        this.prices = {};
+        this.prevDate = this.date;
+        this.date = date;
 
-        this.pricingService.getPrices(this.currentDate).then(prices => {
+        this.tickerService.getTickers(this.date).then(tickers => {
             //need to adjust for splits!
-            this.prices = {};
-            prices.forEach(price => {
-                //need to adjust for splits!
-                this.prices[price.ticker] = { price: price.price, mktcap: price.mktcap };
+            var dateObj: Date = Common.parseDate(this.prevDate);
+
+            tickers.forEach(tkr => {
+                if(this.prevPrices) {
+                    //splits
+                    if(tkr.s_d && tkr.s_f && dateObj < tkr.s_d) {
+                        if(this.prevPrices[tkr.t]) {
+                            this.prevPrices[tkr.t].price = this.prevPrices[tkr.t].price / tkr.s_f;
+                        }
+                    }
+
+                    //dividends
+                    if(tkr.dvp && dateObj < tkr.dvx && tkr.dvt == 'Cash') {
+                        if(this.prevPrices[tkr.t]) {
+                            this.prevPrices[tkr.t].price -= tkr.dvp;
+                        }
+                    }
+                }
+                
+                this.prices[tkr.t] = { price: tkr.p, mktcap: tkr.m };
             });
 
-            if(this.lastPrices) {                
+            if(this.prevPrices) {                
                 this.backpropagate();
             }
             else {
@@ -53,7 +73,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
 
         if(this.node.activation && !this.hasOutputs()) {
             this.notify(new FeedForwardCompleteEvent(null));
-            console.log('feed forward complete for', this.currentDate);
+            console.log('feed forward complete for', this.date);
         }
     }
 
@@ -64,23 +84,24 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             var count: number = 0;
 
             for(var key in this.node.activation) {
-                if(this.prices[key] && this.lastPrices[key]) {
-                    this.actualActivation[key] = this.lastPrices[key].price / this.prices[key].price;
+                if(this.prices[key] && this.prevPrices[key]) {
+                    this.actualActivation[key] = this.prices[key].price / this.prevPrices[key].price;
                 }
                 else {
                     delete this.node.activation[key];
                 }
             }
 
-            this.actualActivation = Stats.percentRank(this.actualActivation);
+            this.actualActivation = Stats.percentRank(this.actualActivation, true);
 
             for(var key in this.node.activation) {
                 error += this.node.activation[key] - this.actualActivation[key];
+                //console.log('error', error)
                 count++;
             }
 
             error = error / count;
-            console.log(`backpropagting portfolio error for ${count} tickers`);
+            console.log(`backpropagating portfolio error for ${count} tickers`);
             super.backpropagate(new BackpropagateEvent({ error: error }) )
         }
     }

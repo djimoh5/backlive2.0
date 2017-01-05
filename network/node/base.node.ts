@@ -1,7 +1,7 @@
 import { QueueOperators } from '../event/event-queue'
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from '../event/base.event';
 import { AppEventQueue } from '../event/app-event-queue';
-import { ActivateNodeEvent, BackpropagateEvent, TrainingDataEvent } from '../event/app.event';
+import { ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent, UpdateNodeWeightsEvent, TrainingDataEvent } from '../event/app.event';
 
 import { Common } from '../../app//utility/common';
 import { ISession } from '../../core/lib/session';
@@ -17,6 +17,9 @@ export abstract class BaseNode<T extends Node> {
     protected node: T;
     private inputNodes: { [key: string]: Node } = {};
     private outputNodes: { [key: string]: Node } = {};
+
+    private totalError: number[];
+    private errorCount: number;
     
     private nodeService: NodeService<T>;
 
@@ -52,11 +55,8 @@ export abstract class BaseNode<T extends Node> {
                 }
             });
 
-            this.unsubscribe(BackpropagateEvent);
-            this.subscribe(BackpropagateEvent, 
-                event => { this.backpropagate(event); }, 
-                { filter: (event, index) => { return this.outputNodes[event.senderId] ? true : false; } }
-            );
+            this.unsubscribe(UpdateNodeWeightsEvent);
+            this.subscribe(UpdateNodeWeightsEvent, event => this.updateWeights(event.data));
         }
         else {
             setTimeout(() => { //have to run on next turn or onUpdateInputs won't be set yet
@@ -65,6 +65,13 @@ export abstract class BaseNode<T extends Node> {
                 }
             });
         }
+
+        //event input nodes (nodes without inputs) need to listen so they can fire we are complete
+        this.unsubscribe(BackpropagateEvent);
+        this.subscribe(BackpropagateEvent, 
+            event => this.backpropagate(event), 
+            { filter: (event, index) => { return this.outputNodes[event.senderId] ? true : false; } }
+        );
     }
 
     getNode(): T {
@@ -129,15 +136,28 @@ export abstract class BaseNode<T extends Node> {
             }
 
             event = new ActivateNodeEvent(activation);
+
+            //store total activation for each input, needed later for backpropagation and weighr updating
+            this.node.inputs.forEach((id, index) => {
+                var totalActivation: number = 0;
+                var count: number = 0;
+
+                for(var key in this.inputNodes[id].activation) { //get avg. activation across keys
+                    totalActivation += this.inputNodes[id].activation[key];
+                    count++;
+                }
+
+                this.totalError[index] += totalActivation / count;
+                this.inputNodes[id].activation = null; //clear out activation
+            });
         }
 
         this.node.activation = event.data;
+        this.errorCount++; //# of training data, used to update weights
+        
         this.notify(event);
-        console.log('node', this.node._id, 'activated', event);
 
-        for(var key in this.inputNodes) { //clear out your input activations
-            this.inputNodes[key].activation = null;
-        }
+        console.log('node', this.node._id, 'activated', event);
     }
 
     protected backpropagate(event: BackpropagateEvent) {
@@ -163,33 +183,34 @@ export abstract class BaseNode<T extends Node> {
             }
             
             var sigDeriv: number = 0;
-            var activation: number = 0;
             var count: number = 0;
 
-            for(var key in this.node.activation) {
-                var val = this.node.activation[key];
-                activation += val;
-                sigDeriv +=  val * (1 - val);
+            for(var key in this.node.activation) { //average sigmoid derivative across keys (these are not inputs!)
+                var sig = this.node.activation[key];
+                sigDeriv += sig * (1 - sig);
                 count++;
             }
 
             delta *= sigDeriv / count;
-            activation = activation / count;
+            this.errorCount++;
 
-            var weights: { [key: string]: number } = {};
+            var weights: { [key: string]: number } = {}; //store your weights so next layer can compute their responsibility
             this.node.weights.forEach((w, index) => {
                 weights[this.node.inputs[index]] = w;
-
-                //update weight
-                //this.node.weights[index] = w - (.2 * delta * activation)//.2 learning rate
+                this.totalError[index] = delta * this.totalError[index]; //totalError prev contains total activation
             });
 
             this.notify(new BackpropagateEvent({ error: delta, weights: weights }));
-            console.log('backpropagating node ', this.node._id, { error: delta, weights: weights });
 
             for(var key in this.outputNodes) { //clear out your output backpropagate errors
                 this.outputNodes[key].activationError = null;
             }
+
+            console.log('backpropagating node ', this.node._id, { error: delta, weights: weights });
+        }
+        else {
+            //no inputs, so must be at input layer
+            this.notify(new BackpropagateCompleteEvent(null));
         }
     }
 
@@ -201,6 +222,29 @@ export abstract class BaseNode<T extends Node> {
         while(len-- > 0) {
             this.node.weights.push(weight);
         }
+
+        this.resetError();
+    }
+
+    updateWeights(learningRate: number) {
+        this.node.weights.forEach((w, index) => {
+            console.log(w, learningRate, this.totalError, this.errorCount);
+            this.node.weights[index] = w - (learningRate * this.totalError[index] / this.errorCount);
+        });
+
+        this.resetError();
+
+        console.log(this.node._id, 'new weights', this.node.weights);
+    }
+
+    private resetError() {
+        this.totalError = [];
+
+        this.node.weights.forEach(w => {
+            this.totalError.push(0);
+        });
+
+        this.errorCount = 0;
     }
 
     private sigmoid(x: number, derivative: boolean = false) {

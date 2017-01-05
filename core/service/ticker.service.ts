@@ -1,17 +1,30 @@
 import { BaseService } from './base.service';
+import { TickercRepository } from '../repository/tickerc.repository';
 
 import { Database } from '../lib/database';
-import { Session } from '../lib/session';
+import { ISession } from '../lib/session';
 import { Common } from '../../app//utility/common';
 import { Scraper } from '../lib/scraper';
+
+import { Tickerc } from '../service/model/ticker.model';
 
 var whttp = require("../lib/whttp.js");
 
 export class TickerService extends BaseService {
     protected get pricingDatabase(): any { return Database.mongoPricing };
 
-    constructor(session: Session) {
-        super(session);
+    tickercRepository: TickercRepository;
+
+    constructor(session: ISession) {
+        super(session, { tickercRepository: TickercRepository });
+    }
+
+    getTickers(date: number) : Promise<Tickerc[]> {
+        this.tickercRepository.getByDate(date).then(tickerCache => {
+            this.done(tickerCache.data);
+        });
+
+        return this.promise;
     }
 
     getPrices(ticker, years) {

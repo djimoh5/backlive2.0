@@ -4,6 +4,8 @@ import { BaseNode } from './node/base.node';
 import { AppEventQueue } from './event/app-event-queue';
 import { Database } from '../core/lib/database';
 
+import { InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent } from './event/app.event';
+
 import { NodeConfig } from './node/node.config';
 import { Node } from '../core/service/model/node.model';
 import { LoadNodeEvent, NodeChangeEvent } from '../app/component/node/node.event';
@@ -25,12 +27,15 @@ export class Network {
 
     activityState: number = 0;
     onIdle: () => void;
+
+    subscriberName: string = 'network';
     
     constructor() {
         AppEventQueue.global();
-        AppEventQueue.subscribe(NodeChangeEvent, 'network', event => this.loadNode(event.data));
-        AppEventQueue.subscribe(LoadNodeEvent, 'network', event => this.loadOutputNode(event.data));
-        AppEventQueue.subscribe(ExecuteNodeEvent, 'network', event => this.executeNetwork(event.data));
+        AppEventQueue.subscribe(NodeChangeEvent, this.subscriberName, event => this.loadNode(event.data));
+        AppEventQueue.subscribe(LoadNodeEvent, this.subscriberName, event => this.loadOutputNode(event.data));
+        AppEventQueue.subscribe(ExecuteNodeEvent, this.subscriberName, event => this.executeNetwork(event.data));
+        AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.updateNodeWeights());
 
         Database.open(() => {
             console.log('Database opened');
@@ -66,15 +71,19 @@ export class Network {
     }
 
     executeNetwork(node: Node) {
-        this.onIdle = () =>  this.dataNode.init();
+        this.onIdle = () => { AppEventQueue.notify(new InitializeDataEvent(null)); };
         this.loadOutputNode(node);
+    }
+
+    updateNodeWeights() {
+        AppEventQueue.notify(new UpdateNodeWeightsEvent(.2)); //.2 learningRate
     }
 
     private activity(active: boolean) {
         if(active) { this.activityState++; }
         else { this.activityState--; }
 
-        console.log('activity state:', this.activityState);
+        //console.log('activity state:', this.activityState);
         if(this.activityState === 0 && this.onIdle) {
             this.onIdle();
             this.onIdle = null;

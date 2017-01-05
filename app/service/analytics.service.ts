@@ -36,7 +36,7 @@ export class AnalyticsService {
             var customDimensions;
             
             ga(AnalyticsService.trackerFn('set'), 'page', path);
-            ga(AnalyticsService.trackerFn('send'), 'pageview', customDimensions);
+            ga(AnalyticsService.trackerFn('send'), 'pageview', path, customDimensions);
         }
     }
     

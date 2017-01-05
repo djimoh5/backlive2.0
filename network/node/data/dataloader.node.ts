@@ -1,4 +1,7 @@
-import { DataEvent, DataSubscriptionEvent, DataFilterEvent, NetworkDateEvent, FeedForwardCompleteEvent, BackpropagateCompleteEvent } from '../../event/app.event';
+import { 
+    DataEvent, DataSubscriptionEvent, DataFilterEvent, InitializeDataEvent, NetworkDateEvent, 
+    FeedForwardCompleteEvent, BackpropagateCompleteEvent, EpochCompleteEvent
+} from '../../event/app.event';
 import { BaseDataNode, IDataNode, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
 
 import { DataFieldMap, DataCollectionMap } from './field-map';
@@ -14,6 +17,7 @@ export class DataLoaderNode extends BaseDataNode {
     startDate: number;
     endDate: number;
     currentDate: number;
+    prevDate: number;
 
     nonTickerTypes: IndicatorParamType[] = [IndicatorParamType.Macro];
 
@@ -25,6 +29,8 @@ export class DataLoaderNode extends BaseDataNode {
 
     constructor() {
         super();
+
+        this.subscribe(InitializeDataEvent, event => this.init());
 
         this.subscribe(DataSubscriptionEvent, event => {
             //console.log('updating data subscriptions', event.data.params);
@@ -43,7 +49,9 @@ export class DataLoaderNode extends BaseDataNode {
         });
 
         this.subscribe(BackpropagateCompleteEvent, event => {
-            this.execute();
+            if(this.currentDate !== this.prevDate) {
+                this.execute();
+            }
         });
     }
 
@@ -71,35 +79,38 @@ export class DataLoaderNode extends BaseDataNode {
         });
     }
 
-    nextTick() {
+    private nextTick() {
         this.currentDate = this.dates.splice(0, 1)[0];
 
         if(this.currentDate) {
             this.notify(new NetworkDateEvent(this.currentDate));
         }
+        else {
+            this.notify(new EpochCompleteEvent(null));
+        }
     }
 
     private execute() {
-        var self = this;
-        this.cache = {};
-        this.allCacheKeys = [];
-        var numFieldTypes = 0;
+        this.prevDate = this.currentDate;
+        
+        if(this.dates.length > 0) {
+            this.cache = {};
+            this.allCacheKeys = [];
+            var numFieldTypes = 0;
 
-        for (var type in this.fields) {
-            numFieldTypes++;
-        }
+            for (var type in this.fields) {
+                numFieldTypes++;
+            }
 
-        var date: number = this.currentDate;
-        var cnt: number = numFieldTypes;
+            var cnt: number = numFieldTypes;
 
-        if (date) {
             for (var type in this.fields) {
                 var t = parseInt(type);
-                this.callDB(date, this.fields[type], t, function (vals: DataResult, cacheType: number) {
-                    if (self.ticker && date && Common.inArray(cacheType, self.nonTickerTypes)) {
+                this.callDB(this.currentDate, this.fields[type], t, (vals: DataResult, cacheType: number) => {
+                    if (this.ticker && this.currentDate && Common.inArray(cacheType, this.nonTickerTypes)) {
                         //set key for ticker to value so that equations can be calculated
                         var tmpVals: DataResult = { 0: vals[0] };
-                        var tkrs = toString.call(self.ticker) === "[object Array]" ? self.ticker : [self.ticker];
+                        var tkrs = toString.call(this.ticker) === "[object Array]" ? this.ticker : [this.ticker];
 
                         for (var t = 0, tlen = tkrs.length; t < tlen; t++) {
                             for (var key in vals) {
@@ -107,20 +118,22 @@ export class DataLoaderNode extends BaseDataNode {
                             }
                         }
 
-                        self.cache[cacheType] = tmpVals;
+                        this.cache[cacheType] = tmpVals;
                     }
                     else {
-                        self.cache[cacheType] = vals;
+                        this.cache[cacheType] = vals;
                     }
 
                     if (--cnt == 0) {
-                        self.notify(new DataEvent({ cache: self.cache, allCacheKeys: self.allCacheKeys }));
+                        this.notify(new DataEvent({ cache: this.cache, allCacheKeys: this.allCacheKeys }));
                     }
                 }, !this.ticker || Common.inArray(parseInt(type), this.nonTickerTypes) ? null : this.ticker);
             }
         }
         else {
-            console.log('DataLoader idle');
+            //at last date so no need to feed forward
+            this.notify(new EpochCompleteEvent(null));
+            console.log('DataLoader Idle');
         }
     }
 

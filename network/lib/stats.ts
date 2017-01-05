@@ -1,7 +1,8 @@
 export class Stats {
-    static percentRank(vals: { [key: string]: number }) {
+    static percentRank(vals: { [key: string]: number }, sortDesc: boolean = false) {
         var arr: string[] = [];
         var newVals: { [key: string]: number } = {};
+        var sortDir = sortDesc ? -1 : 1;
 
         for(var key in vals) {
             arr.push(key);
@@ -9,10 +10,10 @@ export class Stats {
 
         arr.sort((a: string, b: string) => {
             if(vals[a] <= vals[b]) {
-                return -1;
+                return -1 * sortDir;
             }
             else {
-                return 1;
+                return 1 * sortDir;
             }
         });
 

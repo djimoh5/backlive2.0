@@ -8,6 +8,9 @@ import { IndicatorParam } from '../../core/service/model/indicator.model';
 @AppEvent('Event.Network.Date')
 export class NetworkDateEvent extends BaseEvent<number> {}
 
+@AppEvent('Event.Network.EpochComplete')
+export class EpochCompleteEvent extends BaseEvent<null> {}
+
 /* activation events */
 
 @AppEvent('Event.Node.Activate')
@@ -15,6 +18,9 @@ export class ActivateNodeEvent extends BaseEvent<Activation> {}
 
 @AppEvent('Event.Node.FeedForwardComplete')
 export class FeedForwardCompleteEvent extends BaseEvent<null> {}
+
+@AppEvent('Event.Node.UpdateWeights')
+export class UpdateNodeWeightsEvent extends BaseEvent<number> {} //learningRate
 
 @AppEvent('Event.Indicator')
 export class IndicatorEvent extends ActivateNodeEvent { }
@@ -31,6 +37,9 @@ export class BackpropagateCompleteEvent extends BaseEvent<null> {}
 
 @AppEvent('Event.TrainingData')
 export class TrainingDataEvent extends BaseEvent<{ input: number[][], output: { [key: string]: number } }> {}
+
+@AppEvent('Event.Data.Initialize')
+export class InitializeDataEvent extends BaseEvent<null> {}
 
 @AppEvent('Event.Data')
 export class DataEvent extends BaseEvent<{ cache: DataCache, allCacheKeys?: string[] | number[] }> {}
