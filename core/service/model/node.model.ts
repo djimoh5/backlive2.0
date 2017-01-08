@@ -34,6 +34,6 @@ export interface Activation {
 }
 
 export interface ActivationError {
-    error: number,
+    error: { [key: string]: number },
     weights?: { [key: string]: number } //nodeId => weight
 }

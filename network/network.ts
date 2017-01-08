@@ -29,13 +29,15 @@ export class Network {
     onIdle: () => void;
 
     subscriberName: string = 'network';
+
+    hyperParams: HyperParameters;
     
     constructor() {
         AppEventQueue.global();
         AppEventQueue.subscribe(NodeChangeEvent, this.subscriberName, event => this.loadNode(event.data));
         AppEventQueue.subscribe(LoadNodeEvent, this.subscriberName, event => this.loadOutputNode(event.data));
         AppEventQueue.subscribe(ExecuteNodeEvent, this.subscriberName, event => this.executeNetwork(event.data));
-        AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.updateNodeWeights());
+        AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.updateNodeWeights(event.data));
 
         Database.open(() => {
             console.log('Database opened');
@@ -72,11 +74,22 @@ export class Network {
 
     executeNetwork(node: Node) {
         this.onIdle = () => { AppEventQueue.notify(new InitializeDataEvent(null)); };
+
+        this.hyperParams = new HyperParameters(.5, 500);
         this.loadOutputNode(node);
     }
 
-    updateNodeWeights() {
-        AppEventQueue.notify(new UpdateNodeWeightsEvent(.2)); //.2 learningRate
+    updateNodeWeights(date: number) {
+        if(this.hyperParams.epochCount < this.hyperParams.epochs) {
+            AppEventQueue.notify(new UpdateNodeWeightsEvent(this.hyperParams.learningRate)); //.2 learningRate
+
+            //validate on out of sample test data here!!
+
+            console.log(date, 'completed epoch', ++this.hyperParams.epochCount);
+
+            //run another epoch
+            AppEventQueue.notify(new InitializeDataEvent(null));
+        }
     }
 
     private activity(active: boolean) {
@@ -102,4 +115,15 @@ export class Network {
 
 interface NodeMap<T> {
     [key: string]: T;
+}
+
+class HyperParameters {
+    learningRate: number;
+    epochs: number;
+    epochCount: number = 0;
+
+    constructor(learningRate, epochs) {
+        this.learningRate = learningRate;
+        this.epochs = epochs;
+    }
 }

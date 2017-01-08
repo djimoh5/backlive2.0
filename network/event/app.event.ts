@@ -9,7 +9,7 @@ import { IndicatorParam } from '../../core/service/model/indicator.model';
 export class NetworkDateEvent extends BaseEvent<number> {}
 
 @AppEvent('Event.Network.EpochComplete')
-export class EpochCompleteEvent extends BaseEvent<null> {}
+export class EpochCompleteEvent extends BaseEvent<number> {}
 
 /* activation events */
 

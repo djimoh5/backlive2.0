@@ -2,7 +2,7 @@ import { BaseNode } from '../base.node'
 import { ActivateNodeEvent, TrainingDataEvent, BackpropagateEvent } from '../../event/app.event';
 
 import { NodeService } from '../../../core/service/node.service';
-import { Node } from '../../../core/service/model/node.model';
+import { Node, Activation } from '../../../core/service/model/node.model';
 
 export class BasicNode extends BaseNode<Node> {
     trainingData: { input: number[][], output: { [key: string]: number } };
@@ -23,9 +23,9 @@ export class BasicNode extends BaseNode<Node> {
         this.activate();
 
         if(this.node.activation && !this.hasOutputs()) {
-            var error: number;
+            var error: Activation;
             for(var key in this.node.activation) {
-                error = this.cost(this.node.activation[key], this.trainingData.output[this.node._id]);
+                error[key] = this.costDerivative(this.node.activation[key], this.trainingData.output[this.node._id]);
                 break; //should only be one key for basic node
             }
 
@@ -34,6 +34,10 @@ export class BasicNode extends BaseNode<Node> {
     }
 
     cost(output: number, target: number) {
+        return .5 * Math.pow(output - target, 2);
+    }
+
+    costDerivative(output: number, target: number) {
         return output - target;
     }
 }

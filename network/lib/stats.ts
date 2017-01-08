@@ -1,3 +1,5 @@
+var jStat = require("../../js/jstat.min.js").jStat;
+
 export class Stats {
     static percentRank(vals: { [key: string]: number }, sortDesc: boolean = false) {
         var arr: string[] = [];
@@ -23,5 +25,9 @@ export class Stats {
         });
 
         return newVals;
+    }
+
+    static randomNormalDist(mean: number, standardDeviation: number) {
+        return jStat.normal.sample(mean, standardDeviation);
     }
 }

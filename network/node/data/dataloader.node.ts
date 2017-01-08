@@ -21,10 +21,12 @@ export class DataLoaderNode extends BaseDataNode {
 
     nonTickerTypes: IndicatorParamType[] = [IndicatorParamType.Macro];
 
-    cache: DataCache;
+    data: DataCache;
+    dataCache: { [key: number]: DataCache } = {};
     allCacheKeys: string[] | number[];
 
     dates: number[] = [];
+    datesCache: number[] = [];
     weeks: number[] = [];
 
     constructor() {
@@ -56,27 +58,34 @@ export class DataLoaderNode extends BaseDataNode {
     }
 
     init() {
-        Database.mongo.collection('file_date', (err, collection) => {
-            collection.find().sort({ date: 1 }).toArray((err, results) => {
-                if (err) {
-                    console.log('Error selecting data: ' + err.message);
-                    return;
-                } else {
-                    for (var i = 0, cnt = results.length; i < cnt; i++) {
-                        if (!results[i].hide) {
-                            this.dates.push(parseInt(results[i].date.toString()));
-                            this.weeks.push(results[i].wk);
+        if(this.datesCache.length > 0) {
+            this.dates = this.datesCache.slice(0);
+            this.nextTick();
+        }
+        else {
+            Database.mongo.collection('file_date', (err, collection) => {
+                collection.find().sort({ date: 1 }).toArray((err, results) => {
+                    if (err) {
+                        console.log('Error selecting data: ' + err.message);
+                        return;
+                    } else {
+                        for (var i = 0, cnt = results.length; i < cnt; i++) {
+                            if (!results[i].hide) {
+                                var date = parseInt(results[i].date.toString());
 
-                            if(this.dates.length > 1) {
-                                break;
+                                if(date >= 20160101 && date < 20160401) {
+                                    this.dates.push(date);
+                                    this.datesCache.push(date);
+                                    this.weeks.push(results[i].wk);
+                                }
                             }
                         }
                     }
-                }
 
-                this.nextTick();
+                    this.nextTick();
+                });
             });
-        });
+        }
     }
 
     private nextTick() {
@@ -86,54 +95,59 @@ export class DataLoaderNode extends BaseDataNode {
             this.notify(new NetworkDateEvent(this.currentDate));
         }
         else {
+            console.log('we should never get to this point!!!!');
             this.notify(new EpochCompleteEvent(null));
         }
     }
 
     private execute() {
         this.prevDate = this.currentDate;
-        
+
         if(this.dates.length > 0) {
-            this.cache = {};
-            this.allCacheKeys = [];
-            var numFieldTypes = 0;
-
-            for (var type in this.fields) {
-                numFieldTypes++;
+            if(this.dataCache[this.currentDate]) {
+                this.notify(new DataEvent({ cache: this.dataCache[this.currentDate], allCacheKeys: null }));
             }
+            else {
+                this.data = {};
+                this.allCacheKeys = [];
+                var numFieldTypes = 0;
 
-            var cnt: number = numFieldTypes;
+                for (var type in this.fields) {
+                    numFieldTypes++;
+                }
 
-            for (var type in this.fields) {
-                var t = parseInt(type);
-                this.callDB(this.currentDate, this.fields[type], t, (vals: DataResult, cacheType: number) => {
-                    if (this.ticker && this.currentDate && Common.inArray(cacheType, this.nonTickerTypes)) {
-                        //set key for ticker to value so that equations can be calculated
-                        var tmpVals: DataResult = { 0: vals[0] };
-                        var tkrs = toString.call(this.ticker) === "[object Array]" ? this.ticker : [this.ticker];
+                for (var type in this.fields) {
+                    var t = parseInt(type);
+                    this.callDB(this.currentDate, this.fields[type], t, (vals: DataResult, cacheType: number) => {
+                        if (this.ticker && this.currentDate && Common.inArray(cacheType, this.nonTickerTypes)) {
+                            //set key for ticker to value so that equations can be calculated
+                            var tmpVals: DataResult = { 0: vals[0] };
+                            var tkrs = toString.call(this.ticker) === "[object Array]" ? this.ticker : [this.ticker];
 
-                        for (var t = 0, tlen = tkrs.length; t < tlen; t++) {
-                            for (var key in vals) {
-                                tmpVals[<string>tkrs[t]] = vals[key];
+                            for (var t = 0, tlen = tkrs.length; t < tlen; t++) {
+                                for (var key in vals) {
+                                    tmpVals[<string>tkrs[t]] = vals[key];
+                                }
                             }
+
+                            this.data[cacheType] = tmpVals;
+                        }
+                        else {
+                            this.data[cacheType] = vals;
                         }
 
-                        this.cache[cacheType] = tmpVals;
-                    }
-                    else {
-                        this.cache[cacheType] = vals;
-                    }
-
-                    if (--cnt == 0) {
-                        this.notify(new DataEvent({ cache: this.cache, allCacheKeys: this.allCacheKeys }));
-                    }
-                }, !this.ticker || Common.inArray(parseInt(type), this.nonTickerTypes) ? null : this.ticker);
+                        if (--numFieldTypes == 0) {
+                            this.dataCache[this.currentDate] = this.data;
+                            this.notify(new DataEvent({ cache: this.data, allCacheKeys: this.allCacheKeys }));
+                        }
+                    }, !this.ticker || Common.inArray(parseInt(type), this.nonTickerTypes) ? null : this.ticker);
+                }
             }
         }
         else {
             //at last date so no need to feed forward
-            this.notify(new EpochCompleteEvent(null));
-            console.log('DataLoader Idle');
+            this.notify(new EpochCompleteEvent(this.currentDate));
+            //console.log('DataLoader Idle');
         }
     }
 

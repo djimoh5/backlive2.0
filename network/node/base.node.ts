@@ -18,8 +18,9 @@ export abstract class BaseNode<T extends Node> {
     private inputNodes: { [key: string]: Node } = {};
     private outputNodes: { [key: string]: Node } = {};
 
+    private inputActivations: Activation[];
     private totalError: number[];
-    private errorCount: number;
+    private trainingCount: number;
     
     private nodeService: NodeService<T>;
 
@@ -105,7 +106,7 @@ export abstract class BaseNode<T extends Node> {
 
     protected abstract receive(event: ActivateNodeEvent);
 
-    protected activate(event?: ActivateNodeEvent) {
+    protected activate(event?: ActivateNodeEvent, useLinear?: boolean) {
         if(!event) {
             var activation: Activation = {};
 
@@ -131,39 +132,43 @@ export abstract class BaseNode<T extends Node> {
                 }
             }
 
-            for(var k in activation) {
-                activation[k] = this.sigmoid(activation[k]);
+            if(!useLinear) {
+                for(var k in activation) {
+                    activation[k] = this.sigmoid(activation[k]);
+                }
             }
 
             event = new ActivateNodeEvent(activation);
 
-            //store total activation for each input, needed later for backpropagation and weighr updating
+            //store activation for each input, needed later for backpropagation
+            var first: boolean = true;
+            this.inputActivations = [];
             this.node.inputs.forEach((id, index) => {
-                var totalActivation: number = 0;
-                var count: number = 0;
+                this.inputActivations[index] = {};
 
-                for(var key in this.inputNodes[id].activation) { //get avg. activation across keys
-                    totalActivation += this.inputNodes[id].activation[key];
-                    count++;
+                for(var key in this.inputNodes[id].activation) {
+                    this.inputActivations[index][key] = this.inputNodes[id].activation[key];
+                    if(first) {
+                        this.trainingCount++; //# of training data, used to update weights
+                    }
                 }
 
-                this.totalError[index] += totalActivation / count;
                 this.inputNodes[id].activation = null; //clear out activation
+                first = false;
             });
         }
 
         this.node.activation = event.data;
-        this.errorCount++; //# of training data, used to update weights
         
         this.notify(event);
 
-        console.log('node', this.node._id, 'activated', event);
+        //console.log('node', this.node._id, 'activated', event);
     }
 
     protected backpropagate(event: BackpropagateEvent) {
         if(this.node.inputs) {
             var data = event.data;
-            var delta = 0;
+            var delta: Activation = {};
 
             if(data.weights) {
                 this.outputNodes[event.senderId].activationError = data;
@@ -175,30 +180,30 @@ export abstract class BaseNode<T extends Node> {
                         return; //must have backpropagation from all your outputs to backpropagate yourself
                     }
 
-                    delta += data.error * data.weights[this.node._id];
+                    for(var key in data.error) {
+                        delta[key] = data.error[key] * data.weights[this.node._id];
+                    }
                 }
             }
             else {
                 delta = data.error;
             }
-            
-            var sigDeriv: number = 0;
-            var count: number = 0;
 
             for(var key in this.node.activation) { //average sigmoid derivative across keys (these are not inputs!)
                 var sig = this.node.activation[key];
-                sigDeriv += sig * (1 - sig);
-                count++;
+                delta[key] *= sig * (1 - sig); //sigmoid prime
             }
 
-            delta *= sigDeriv / count;
-            this.errorCount++;
+            if(this.node.weights) {
+                var weights: { [key: string]: number } = {}; //store your weights so next layer can compute their responsibility
+                this.node.weights.forEach((w, index) => {
+                    weights[this.node.inputs[index]] = w;
 
-            var weights: { [key: string]: number } = {}; //store your weights so next layer can compute their responsibility
-            this.node.weights.forEach((w, index) => {
-                weights[this.node.inputs[index]] = w;
-                this.totalError[index] = delta * this.totalError[index]; //totalError prev contains total activation
-            });
+                    for(var key in this.inputActivations[index]) {
+                         this.totalError[index] += delta[key] * this.inputActivations[index][key];
+                    }
+                });
+            }
 
             this.notify(new BackpropagateEvent({ error: delta, weights: weights }));
 
@@ -206,7 +211,7 @@ export abstract class BaseNode<T extends Node> {
                 this.outputNodes[key].activationError = null;
             }
 
-            console.log('backpropagating node ', this.node._id, { error: delta, weights: weights });
+            //console.log('backpropagating node ', this.node._id, { error: delta, weights: weights });
         }
         else {
             //no inputs, so must be at input layer
@@ -216,25 +221,29 @@ export abstract class BaseNode<T extends Node> {
 
     private initializeWeights() {
         var len = this.node.inputs.length;
-        var weight = Common.round(1 / len, 4);
-        this.node.weights = [];
+        if(len > 1) {
+            this.node.weights = [];
+            var cnt = len;
+            while(cnt-- > 0) {
+                var weight = Stats.randomNormalDist(0, 1 / Math.sqrt(len));
+                this.node.weights.push(weight);
+            }
 
-        while(len-- > 0) {
-            this.node.weights.push(weight);
+            this.resetError();
         }
-
-        this.resetError();
     }
 
     updateWeights(learningRate: number) {
-        this.node.weights.forEach((w, index) => {
-            console.log(w, learningRate, this.totalError, this.errorCount);
-            this.node.weights[index] = w - (learningRate * this.totalError[index] / this.errorCount);
-        });
+        if(this.node.weights) {
+            this.node.weights.forEach((w, index) => {
+                console.log(w, this.totalError[index], this.trainingCount);
+                this.node.weights[index] = w - (learningRate * this.totalError[index] / this.trainingCount);
+            });
 
-        this.resetError();
+            this.resetError();
 
-        console.log(this.node._id, 'new weights', this.node.weights);
+            console.log(this.node._id, 'new weights', this.node.weights);
+        }
     }
 
     private resetError() {
@@ -244,10 +253,10 @@ export abstract class BaseNode<T extends Node> {
             this.totalError.push(0);
         });
 
-        this.errorCount = 0;
+        this.trainingCount = 0;
     }
 
-    private sigmoid(x: number, derivative: boolean = false) {
+    protected sigmoid(x: number, derivative: boolean = false) {
         var val = 1 / (1 + Math.exp(-x));
         return derivative ? (val * (1 - val)) : val;
     }
@@ -268,6 +277,21 @@ export abstract class BaseNode<T extends Node> {
     hasOutputs() {
         return Common.hasKeys(this.outputNodes);
     }
+
+    numOutputs() {
+        var cnt = 0;
+        for(var key in this.outputNodes) {
+            cnt++;
+        }
+
+        return cnt;
+    }
+
+    static forEachKey<T>(obj: { [key: string]: T }, fn: (obj: T) => void) {
+        for(var key in obj) {
+            fn(obj[key]);
+        }
+    }
 }
 
 export class MockSession implements ISession {
@@ -282,4 +306,3 @@ export class MockSession implements ISession {
 export enum Normalize {
     PercentRank = 1
 }
-
