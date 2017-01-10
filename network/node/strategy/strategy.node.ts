@@ -14,7 +14,9 @@ export class StrategyNode extends BaseNode<Strategy> {
     constructor(private model: Strategy) {
         super(model, StrategyService);
         var data: any = {
-            universeTkrs: { incl: 1, tkrs: ['MSFT', 'BAC', 'JPM', 'ESV', 'AAPL', 'IBM'] },
+            universeTkrs: { incl: 1, tkrs: [
+                'MSFT', 'BAC', 'JPM', 'ESV', 'AAPL', 'IBM', "RIG", "GS", "FB", "NFLX", "FCX", "CAT", "F", "GM", "C", "GOOGL", "XOM", "PSX"
+            ] },
             startYr: 20150101,
             endYr: 20170101
         }

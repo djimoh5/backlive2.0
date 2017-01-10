@@ -26,7 +26,6 @@ export class StrategyComponent extends NodeComponent<Strategy> implements OnInit
     }
 
     update() {
-        console.log('updating strategy');
         if(this.strategy.name) {
             this.strategyService.update(this.strategy).then(strategy => {
                 if(strategy._id) {

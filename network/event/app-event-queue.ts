@@ -25,7 +25,7 @@ export class AppEventQueue {
         AppEventQueue.eventQueue.notify(event);
 
         if(!fromClient/* && event.isSocketEvent*/) {
-            process.send(event);
+            //process.send(event);
         }
     }
 }

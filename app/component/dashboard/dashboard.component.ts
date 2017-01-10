@@ -76,18 +76,13 @@ export class DashboardComponent extends PageComponent {
             }
         });
         
-        //console.log(JSON.stringify(this.liveStrategies[0]));
-        //console.log(this.liveStrategies, this.strategies);
         this.onDateChange(this.currentDateOption);
     }
     
     getReturns(startDate: number, endDate: number) {
-        //console.log(startDate, endDate);
-        
         this.strategyService.getReturns(this.liveStrategies.map(strategy => { return strategy._id; }), startDate, endDate).then(res => {
             var strats = res.data;
-            //console.log(strats);
-            
+
             for(var id in this.stratsById) {
                 this.stratsById[id].results = null;
             }

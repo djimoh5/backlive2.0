@@ -7,8 +7,8 @@ import { Node, Activation } from '../../../core/service/model/node.model';
 export class BasicNode extends BaseNode<Node> {
     trainingData: { input: number[][], output: { [key: string]: number } };
 
-    constructor(private model: Node) {
-        super(model, NodeService);
+    constructor(private model: Node, nodeService?: typeof NodeService) {
+        super(model, nodeService ? nodeService : NodeService);
         
         this.subscribe(TrainingDataEvent, event => this.processData(event));
     }
@@ -19,7 +19,7 @@ export class BasicNode extends BaseNode<Node> {
     }
 
     receive(event: ActivateNodeEvent) {
-        console.log('Basic node received an event', event);
+        //console.log(this.node._id, 'Basic node received an event from ', event.senderId);
         this.activate();
 
         if(this.node.activation && !this.hasOutputs()) {

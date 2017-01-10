@@ -21,6 +21,8 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     prevDate: number;
     actualActivation: Activation;
 
+    logFreq: number = 0;
+
     constructor(private model: Portfolio) {
         super(model, PortfolioService);
 
@@ -130,7 +132,11 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             //console.log('actual', this.actualActivation)
 
             //console.log(`backpropagating portfolio error`);
-            console.log(this.date, 'total cost:', totalCost);
+            if(this.logFreq-- === 0) {
+                console.log('total cost:', totalCost);
+                this.logFreq = 52;
+            }
+            
             super.backpropagate(new BackpropagateEvent({ error: error }) )
         }
     }

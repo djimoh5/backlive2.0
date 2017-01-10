@@ -46,7 +46,6 @@ export class IndicatorDataMenuComponent extends BaseComponent implements OnChang
     }
     
     ngOnChanges(simpleChanges: SimpleChanges) {
-        console.log(simpleChanges);
         if(simpleChanges['searchKey']) {
             this.searchFields();
         }

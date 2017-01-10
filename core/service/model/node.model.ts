@@ -23,6 +23,7 @@ export class Node {
 }
 
 export enum NodeType {
+    Virtual = 99,
     Basic = 1,
     Indicator = 2,
     Strategy = 3,

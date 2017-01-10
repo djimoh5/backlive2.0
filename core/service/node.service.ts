@@ -11,7 +11,7 @@ export class NodeService<T extends Node> extends BaseService {
 
     constructor(session: ISession, nodeRepository?: typeof NodeRepository) {
         var repo: any = nodeRepository;
-        super(session, { nodeRepository: repo ? repo: NodeRepository });
+        super(session, { nodeRepository: (repo ? repo : NodeRepository) });
     }
 
     getNodes() {

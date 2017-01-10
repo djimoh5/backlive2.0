@@ -103,7 +103,6 @@ export class TickerService extends BaseService {
                 var line = data[i].split(',');
                 
                 if(line.length > 3) {
-                    //console.log(line);
                     var tkr = line[0].trim().replace('-', '.');
                     var price = parseFloat(line[1].trim());
                     var chng = parseFloat(line[2].trim());

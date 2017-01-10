@@ -1,28 +1,30 @@
 /// <reference path="../typings/index.d.ts" />
 
 import { BaseNode } from './node/base.node';
+import { VirtualNodeService } from './node/basic/virtual-node.service';
 import { AppEventQueue } from './event/app-event-queue';
 import { Database } from '../core/lib/database';
 
 import { InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent } from './event/app.event';
 
 import { NodeConfig } from './node/node.config';
-import { Node } from '../core/service/model/node.model';
+import { Node, NodeType } from '../core/service/model/node.model';
 import { LoadNodeEvent, NodeChangeEvent } from '../app/component/node/node.event';
 
 import { IDataNode } from './node/data/data.node';
 import { DataLoaderNode } from './node/data/dataloader.node';
-
-import { IndicatorNode } from './node/indicator/indicator.node';
 
 import { ExecuteNodeEvent } from '../app/component/node/node.event';
 
 import { IExecutionNode } from './node/execution/execution.node';
 import { BacktestExecutionNode } from './node/execution/backtest-execution.node';
 
+import { Common } from '../app//utility/common';
+
 export class Network {
     dataNode: IDataNode;
     nodes:  NodeMap<BaseNode<any>> = {};
+    outputNode: Node;
     executionNode: IExecutionNode;
 
     activityState: number = 0;
@@ -46,49 +48,102 @@ export class Network {
         });
     }
 
-    loadOutputNode(node: Node) {
-        var n: BaseNode<any> = this.loadNode(node);
-    }
-
-    loadNode(node: Node) {
+    loadNode(node: Node, inputNodes?: { [key: string]: Node }) { //inputNodes only used for virtual nodes
         this.activity(true);
+        var clone = this.cloneNode(node);
+
         if(!this.nodes[node._id]) {
-            this.nodes[node._id] = new (NodeConfig.node(node.ntype))(this.cloneNode(node));
-            this.nodes[node._id].onUpdateInputs = (inputNodes) => this.updateInputNodes(node, inputNodes);
+            this.nodes[node._id] = new (NodeConfig.node(node.ntype))(clone);
+            this.nodes[node._id].onUpdateInputs = (inputNodes) => this.updateInputNodes(clone, inputNodes);
+
+            if(node.ntype === NodeType.Virtual) {
+                VirtualNodeService.save(node, inputNodes);
+            }
         }
         else {
-            this.nodes[node._id].setNode(this.cloneNode(node));
+            this.nodes[node._id].setNode(clone);
         }
 
         return this.nodes[node._id];
     }
 
     updateInputNodes(node: Node, inputNodes: { [key: string]: Node }) {
-        for(var key in inputNodes) {
-            var inputNode: BaseNode<any> = this.loadNode(inputNodes[key]);
-            inputNode.updateOutput(this.cloneNode(node));
+        if(node.ntype === NodeType.Strategy) {
+            this.createVirtualNodes(node, inputNodes);
+        }
+        else {
+            for(var key in inputNodes) {
+                var inputNode: BaseNode<any> = this.loadNode(inputNodes[key]);
+                inputNode.updateOutput(this.cloneNode(node));
+            }
         }
 
         this.activity(false);
     }
 
-    executeNetwork(node: Node) {
-        this.onIdle = () => { AppEventQueue.notify(new InitializeDataEvent(null)); };
+    createVirtualNodes(node: Node, inputNodes: { [key: string]: Node }) {
+        var baseNode = this.nodes[node._id];
+        var inputs = node.inputs;
+        node.inputs = [];
 
-        this.hyperParams = new HyperParameters(.5, 500);
+        var hiddenNodes: Node[] = [];
+        for(var i = 0; i < this.hyperParams.hiddenNodes; i++) {
+            var model = new Node(NodeType.Virtual);
+            model._id = Common.uniqueId();
+            model.name = 'hidden' + (i + 1);
+            model.inputs = inputs;
+
+            hiddenNodes.push(model);
+            node.inputs.push(model._id);
+
+            this.loadNode(model, baseNode.getInputNodes()).updateOutput(this.cloneNode(node));
+        }
+
+        baseNode.updateInputs(hiddenNodes);
+    }
+
+    loadOutputNode(node: Node) {
+        this.hyperParams = new HyperParameters(.5, 300);
+        VirtualNodeService.reset();
+
+        this.outputNode = node;
+        this.loadNode(node);
+    }
+
+    executeNetwork(node: Node) {
+        this.onIdle = () => {
+            this.print(this.nodes[node._id], 0);
+            AppEventQueue.notify(new InitializeDataEvent(null)); 
+        };
+
         this.loadOutputNode(node);
     }
 
+    print<T extends Node>(baseNode: BaseNode<T>, level: number) {
+        level++;
+        var node = baseNode.getNode();
+        console.log(level, " - ", node._id, node.weights);
+
+        if(node.inputs) {
+            node.inputs.forEach(nid => {
+                this.print(this.nodes[nid], level);
+            });
+        }
+    }
+
     updateNodeWeights(date: number) {
-        if(this.hyperParams.epochCount < this.hyperParams.epochs) {
+        if(this.hyperParams.epochCount++ < this.hyperParams.epochs) {
             AppEventQueue.notify(new UpdateNodeWeightsEvent(this.hyperParams.learningRate)); //.2 learningRate
 
             //validate on out of sample test data here!!
 
-            console.log(date, 'completed epoch', ++this.hyperParams.epochCount);
+            console.log('completed epoch', this.hyperParams.epochCount);
 
             //run another epoch
             AppEventQueue.notify(new InitializeDataEvent(null));
+        }
+        else {
+            this.print(this.nodes[this.outputNode._id], 0);
         }
     }
 
@@ -121,6 +176,7 @@ class HyperParameters {
     learningRate: number;
     epochs: number;
     epochCount: number = 0;
+    hiddenNodes: number = 3;
 
     constructor(learningRate, epochs) {
         this.learningRate = learningRate;

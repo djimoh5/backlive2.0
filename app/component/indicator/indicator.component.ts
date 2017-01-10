@@ -35,7 +35,6 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
     }
 
     update() {
-        console.log('updating indicator');
         this.indicatorService.update(this.indicator).then(indicator => {
             if(indicator._id) {
                 this.indicator._id = indicator._id;

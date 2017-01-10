@@ -116,7 +116,6 @@ export class UserService extends BaseService {
     changePassword(opword: string, npword: string) {
         var md5 = require('../.' + Config.DIR_JS + 'md5.min');
         var oid = new db.ObjectID(this.user.uid);
-        //console.log(opword, npword);
 
         db.mongo.collection('user', (error, collection) => {
             collection.findOne({ _id:oid }, { p:1 }, (err, result) => {

@@ -47,9 +47,7 @@ export abstract class BaseNode<T extends Node> {
         if(node.inputs) {
             this.nodeService.getInputs(node._id).then(nodes => {
                 this.updateInputs(nodes); 
-                if(this.onUpdateInputs) {
-                    this.onUpdateInputs(this.inputNodes);
-                }
+                if(this.onUpdateInputs) { this.onUpdateInputs(this.inputNodes); }
 
                 if(this.hasOutputs()) {
                     this.unsubscribe(TrainingDataEvent);
@@ -61,13 +59,11 @@ export abstract class BaseNode<T extends Node> {
         }
         else {
             setTimeout(() => { //have to run on next turn or onUpdateInputs won't be set yet
-                if(this.onUpdateInputs) {
-                    this.onUpdateInputs(this.inputNodes);
-                }
+                if(this.onUpdateInputs) { this.onUpdateInputs(this.inputNodes); }
             });
         }
-
-        //event input nodes (nodes without inputs) need to listen so they can fire we are complete
+        
+        //event input nodes (nodes without inputs) still need to listen so they can fire we are complete
         this.unsubscribe(BackpropagateEvent);
         this.subscribe(BackpropagateEvent, 
             event => this.backpropagate(event), 
@@ -79,7 +75,12 @@ export abstract class BaseNode<T extends Node> {
         return this.node;
     }
 
-    private updateInputs(nodes: Node[]) {
+    updateInputs(nodes: Node[]) {
+        for(var key in this.inputNodes) {
+            this.unsubscribe(NodeConfig.activationEvent(this.inputNodes[key].ntype));
+            delete this.subscribedTypes[this.inputNodes[key].ntype]
+        }
+         
         this.inputNodes = {};
 
         nodes.forEach(n => {
@@ -162,7 +163,7 @@ export abstract class BaseNode<T extends Node> {
         
         this.notify(event);
 
-        //console.log('node', this.node._id, 'activated', event);
+        //console.log('node', this.node.name, 'activated');
     }
 
     protected backpropagate(event: BackpropagateEvent) {
@@ -236,13 +237,13 @@ export abstract class BaseNode<T extends Node> {
     updateWeights(learningRate: number) {
         if(this.node.weights) {
             this.node.weights.forEach((w, index) => {
-                console.log(w, this.totalError[index], this.trainingCount);
+                //console.log(w, this.totalError[index], this.trainingCount);
                 this.node.weights[index] = w - (learningRate * this.totalError[index] / this.trainingCount);
             });
 
             this.resetError();
 
-            console.log(this.node._id, 'new weights', this.node.weights);
+            //console.log(this.node._id, 'new weights', this.node.weights);
         }
     }
 
@@ -272,6 +273,10 @@ export abstract class BaseNode<T extends Node> {
     notify(event: BaseEvent<any>) {
         event.senderId = this.nodeId;
         AppEventQueue.notify(event);
+    }
+
+    getInputNodes() {
+        return this.inputNodes;
     }
 
     hasOutputs() {
