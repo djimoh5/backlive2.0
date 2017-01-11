@@ -10,10 +10,6 @@ export class Node {
     created: number;
     modified; number;
 
-    //only set during execution
-    activation?: Activation;
-    activationError?: ActivationError;
-    
     //client-side only
     position: { x: number, y: number };
     

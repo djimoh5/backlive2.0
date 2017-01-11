@@ -73,7 +73,7 @@ export class DataLoaderNode extends BaseDataNode {
                             if (!results[i].hide) {
                                 var date = parseInt(results[i].date.toString());
 
-                                if(date >= 20160101 && date < 20161001) {
+                                if(date >= 20160101 && date < 20160901) {
                                     this.dates.push(date);
                                     this.datesCache.push(date);
                                     this.weeks.push(results[i].wk);

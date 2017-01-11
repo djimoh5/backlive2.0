@@ -22,10 +22,10 @@ export class BasicNode extends BaseNode<Node> {
         //console.log(this.node._id, 'Basic node received an event from ', event.senderId);
         this.activate();
 
-        if(this.node.activation && !this.hasOutputs()) {
+        if(this.state.activation && this.numOutputs() === 0) {
             var error: Activation;
-            for(var key in this.node.activation) {
-                error[key] = this.costDerivative(this.node.activation[key], this.trainingData.output[this.node._id]);
+            for(var key in this.state.activation) {
+                error[key] = this.costDelta(this.state.activation[key], this.trainingData.output[this.node._id]);
                 break; //should only be one key for basic node
             }
 
@@ -33,11 +33,17 @@ export class BasicNode extends BaseNode<Node> {
         }
     }
 
+    //PULL THIS OUT INTO SEPARATE CLASS
     cost(output: number, target: number) {
         return .5 * Math.pow(output - target, 2);
     }
 
     costDerivative(output: number, target: number) {
         return output - target;
+    }
+
+    costDelta(output: number, target: number) {
+        //in our case output is sigmoid so can use it directly to calculate sig prime: sig * (1 - sig)
+        return this.costDerivative(output, target) * (output * (1 - output));
     }
 }

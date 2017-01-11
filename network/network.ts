@@ -50,18 +50,18 @@ export class Network {
 
     loadNode(node: Node, inputNodes?: { [key: string]: Node }) { //inputNodes only used for virtual nodes
         this.activity(true);
-        var clone = this.cloneNode(node);
 
         if(!this.nodes[node._id]) {
-            this.nodes[node._id] = new (NodeConfig.node(node.ntype))(clone);
-            this.nodes[node._id].onUpdateInputs = (inputNodes) => this.updateInputNodes(clone, inputNodes);
+            this.nodes[node._id] = new (NodeConfig.node(node.ntype))(node);
+            this.nodes[node._id].onUpdateInputs = (inputNodes) => this.updateInputNodes(node, inputNodes);
 
             if(node.ntype === NodeType.Virtual) {
                 VirtualNodeService.save(node, inputNodes);
             }
         }
         else {
-            this.nodes[node._id].setNode(clone);
+            this.nodes[node._id].setNode(node);
+            this.nodes[node._id].onUpdateInputs = (inputNodes) => this.updateInputNodes(node, inputNodes);
         }
 
         return this.nodes[node._id];
@@ -74,7 +74,7 @@ export class Network {
         else {
             for(var key in inputNodes) {
                 var inputNode: BaseNode<any> = this.loadNode(inputNodes[key]);
-                inputNode.updateOutput(this.cloneNode(node));
+                inputNode.updateOutput(node);
             }
         }
 
@@ -96,7 +96,7 @@ export class Network {
             hiddenNodes.push(model);
             node.inputs.push(model._id);
 
-            this.loadNode(model, baseNode.getInputNodes()).updateOutput(this.cloneNode(node));
+            this.loadNode(model, inputNodes).updateOutput(node);
         }
 
         baseNode.updateInputs(hiddenNodes);
@@ -156,15 +156,6 @@ export class Network {
             this.onIdle();
             this.onIdle = null;
         }
-    }
-
-    private cloneNode(node: Node) {
-        var clone = new Node(node.ntype);
-        for(var key in node) {
-            clone[key] = node[key];
-        }
-
-        return clone;
     }
 }
 

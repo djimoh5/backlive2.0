@@ -1,6 +1,6 @@
 import { BaseNode, MockSession } from '../base.node'
 
-import { ActivateNodeEvent, DataEvent, DataSubscriptionEvent, NetworkDateEvent, FeedForwardCompleteEvent, BackpropagateEvent, BackpropagateCompleteEvent } from '../../event/app.event';
+import { ActivateNodeEvent, DataEvent, DataSubscriptionEvent, NetworkDateEvent, FeedForwardCompleteEvent, BackpropagateEvent, BackpropagateCompleteEvent, EpochCompleteEvent } from '../../event/app.event';
 
 import { PortfolioService } from '../../../core/service/portfolio.service';
 import { TickerService } from '../../../core/service/ticker.service';
@@ -21,13 +21,19 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     prevDate: number;
     actualActivation: Activation;
 
-    logFreq: number = 0;
+    totalCost: number = 0;
+    trainingCount: number = 0;
 
-    constructor(private model: Portfolio) {
-        super(model, PortfolioService);
+    constructor(node: Portfolio) {
+        super(node, PortfolioService);
 
-        this.tickerService = new TickerService(new MockSession({ uid: model.uid }));
+        this.tickerService = new TickerService(new MockSession({ uid: node.uid }));
         this.subscribe(NetworkDateEvent, event => this.setPrices(event.data));
+        this.subscribe(EpochCompleteEvent, event => {
+            console.log('total cost:', this.totalCost, 'trainining size:', this.trainingCount);
+            this.totalCost = 0;
+            this.trainingCount = 0;
+        });
     }
 
     setPrices(date: number) {
@@ -82,15 +88,15 @@ export class PortfolioNode extends BaseNode<Portfolio> {
 
     receive(event: ActivateNodeEvent) {
         //console.log('portfolio received a strategy event');
-        if(!this.hasOutputs()) {
+        if(this.numOutputs() === 0) {
             if(this.node.inputs.length === 1) { //just one strategy passing through its values, so use those
-                this.node.activation = event.data;
+                this.state.activation = event.data;
             }
             else { //multiple strategy inputs
                 this.activate(null, true);
             }
 
-            if(this.node.activation) {
+            if(this.state.activation) {
                 this.notify(new FeedForwardCompleteEvent(null));
                 //console.log('feed forward complete for', this.date);
             }
@@ -101,17 +107,16 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     }
 
     backpropagate() {
-        if(this.node.activation && !this.hasOutputs()) {
+        if(this.state.activation && this.numOutputs() === 0) {
             this.actualActivation = {};
             var error: Activation = {};
-            var totalCost: number = 0;
 
-            for(var key in this.node.activation) {
+            for(var key in this.state.activation) {
                 if(this.prices[key] && this.prevPrices[key]) {
                     this.actualActivation[key] = (this.prices[key].price + this.prices[key].dividend) / this.prevPrices[key].price;
                 }
                 else {
-                    delete this.node.activation[key];
+                    delete this.state.activation[key];
                 }
             }
 
@@ -120,10 +125,11 @@ export class PortfolioNode extends BaseNode<Portfolio> {
                 this.actualActivation[k] = this.sigmoid(this.actualActivation[k]);
             }
 
-            for(var key in this.node.activation) {
+            for(var key in this.state.activation) {
                 //console.log(this.cost(this.node.activation[key], this.actualActivation[key]));
-                error[key] = this.costDerivative(this.node.activation[key], this.actualActivation[key]);
-                totalCost += this.cost(this.node.activation[key], this.actualActivation[key]);
+                error[key] = this.costDelta(this.state.activation[key], this.actualActivation[key]);
+                this.totalCost += this.cost(this.state.activation[key], this.actualActivation[key]);
+                this.trainingCount++;
                 //console.log('error', error)
             }
 
@@ -132,20 +138,22 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             //console.log('actual', this.actualActivation)
 
             //console.log(`backpropagating portfolio error`);
-            if(this.logFreq-- === 0) {
-                console.log('total cost:', totalCost);
-                this.logFreq = 52;
-            }
             
             super.backpropagate(new BackpropagateEvent({ error: error }) )
         }
     }
 
+    //PULL THIS OUT INTO SEPARATE CLASS
     cost(output: number, target: number) {
         return .5 * Math.pow(output - target, 2);
     }
 
     costDerivative(output: number, target: number) {
         return output - target;
+    }
+
+    costDelta(output: number, target: number) {
+        //in our case output is sigmoid so can use it directly to calculate sig prime: sig * (1 - sig)
+        return this.costDerivative(output, target) * (output * (1 - output));
     }
 }

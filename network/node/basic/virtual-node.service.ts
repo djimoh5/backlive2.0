@@ -22,7 +22,7 @@ export class VirtualNodeService extends NodeService<Node> {
     static save(node: Node, inputNodes: { [key: string]: Node }) {
         var nodes: Node[] = [];
         for(var key in inputNodes) {
-            nodes.push(this.cloneNode(inputNodes[key]));
+            nodes.push(inputNodes[key]);
         }
 
         this.inputsByNode[node._id] = nodes;
@@ -30,14 +30,5 @@ export class VirtualNodeService extends NodeService<Node> {
 
     static reset() {
         this.inputsByNode = {};
-    }
-
-    private static cloneNode(node: Node) {
-        var clone = new Node(node.ntype);
-        for(var key in node) {
-            clone[key] = node[key];
-        }
-
-        return clone;
     }
 }
