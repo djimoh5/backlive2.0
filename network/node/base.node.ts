@@ -72,7 +72,7 @@ export abstract class BaseNode<T extends Node> {
         );
     }
 
-    getNode(): T {
+    getNode(): Node {
         return this.node;
     }
 
@@ -89,7 +89,7 @@ export abstract class BaseNode<T extends Node> {
             inputNodes[n._id] = n;
             
             if(!this.subscribedTypes[n.ntype]) {
-                this.subscribe(NodeConfig.activationEvent(n.ntype), 
+                this.subscribe(NodeConfig.activationEvent(n.ntype),
                     event => {
                         this.state.inputActivations[event.senderId] = event.data;
                         this.receive(event);
@@ -129,19 +129,36 @@ export abstract class BaseNode<T extends Node> {
             var activation: Activation = {};
             var first: boolean = true;
 
+            //console.log(this.node._id, 'activating');
+            var keys = this.state.inputActivations[this.node.inputs[0]];
+var count = 0;
+
             this.node.inputs.forEach((id, i) => {
                 var inActivation = this.state.inputActivations[id];
-                for(var k in inActivation) {
-                    if(!activation[k]) { activation[k] = 0; }
-                    activation[k] += this.node.weights[i] * inActivation[k];
+                for(var k in keys) {
+                    if(typeof(inActivation[k]) !== 'undefined') {
+                        if(first) {
+                            activation[k] = this.node.bias;
+                            this.state.trainingCount++; //# of training data, used to update weights
+                        }
 
-                    if(first) {
-                        this.state.trainingCount++; //# of training data, used to update weights
+                        activation[k] += this.node.weights[i] * inActivation[k];
+                    }
+                    else {
+                        console.log(this.node._id, k, i, 'invalid');
+                        delete activation[k];
+                        delete keys[k];
                     }
                 }
 
                 first = false;
             });
+
+console.log(keys, count);
+            for(var k in keys) {
+                count++;
+            }
+            console.log(count);
 
             if(!useLinear) { //CREATE A SEPARATE CLASS THAT HANDLES VARIOUS ACTIVATION TYPES, E.G. TANH, SIGMOID, REL, LINEAR
                 for(var k in activation) {
@@ -189,14 +206,19 @@ export abstract class BaseNode<T extends Node> {
             }
 
             if(this.node.weights) {
+                var first: boolean = true;
                 var weights: { [key: string]: number } = {};
+
                 this.node.weights.forEach((w, index) => {
                     weights[this.node.inputs[index]] = w; //store your weights so next layer can compute their responsibility
                     var inActivation = this.state.inputActivations[this.node.inputs[index]];
                     
-                    for(var k in inActivation) { //delta with respect to weight (which uses incoming activation at weight)
-                         this.state.totalError[index] += delta[k] * inActivation[k];
+                    for(var k in delta) { //delta with respect to weight (which uses incoming activation at weight)
+                        this.state.totalError[index] += delta[k] * inActivation[k];
+                        if(first) { this.state.totalBiasError += delta[k]; }
                     }
+
+                    first = false;
                 });
             }
 
@@ -215,8 +237,10 @@ export abstract class BaseNode<T extends Node> {
     private initializeWeights() {
         var len = this.node.inputs.length;
         if(len > 1) {
+            this.node.bias = Stats.randomNormalDist(0, 1);
             this.node.weights = [];
             var cnt = len;
+
             while(cnt-- > 0) {
                 var weight = Stats.randomNormalDist(0, 1 / Math.sqrt(len));
                 this.node.weights.push(weight);
@@ -229,13 +253,13 @@ export abstract class BaseNode<T extends Node> {
     updateWeights(learningRate: number) {
         if(this.node.weights) {
             this.node.weights.forEach((w, index) => {
-                //console.log(w, this.state.totalError[index], this.state.trainingCount);
                 this.node.weights[index] = w - (learningRate * this.state.totalError[index] / this.state.trainingCount);
+                this.node.bias = this.node.bias - (learningRate * this.state.totalBiasError / this.state.trainingCount);
             });
 
             this.resetError();
 
-            //console.log(this.node._id, 'new weights', this.node.weights);
+            console.log(this.node._id, 'weights:', this.node.weights, 'bias:', this.node.bias);
         }
     }
 
@@ -246,6 +270,7 @@ export abstract class BaseNode<T extends Node> {
     }
 
     private resetError() {
+        this.state.totalBiasError = 0;
         this.state.totalError = [];
 
         this.node.weights.forEach(w => {
@@ -302,6 +327,7 @@ class State {
     inputActivations: { [key: string]: Activation } = {}; //nodeId => Activation
     activationErrors: { [key: string]: ActivationError } = {};
 
+    totalBiasError: number = 0; 
     totalError: number[] = [];
     trainingCount: number = 0;
 }

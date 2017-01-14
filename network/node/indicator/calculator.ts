@@ -144,11 +144,13 @@ export class Calculator {
                 }
             }
 
-            if (!subEq && !signed && val < 0)
+            if (!subEq && !signed && val < 0) {
                 val = NO_VALUE;
+            }
 
-            if (val != NO_VALUE)
+            if (val != NO_VALUE) {
                 finalVals[key] = val;
+            }
         }
 
         return finalVals;

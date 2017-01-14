@@ -1,7 +1,7 @@
 <div [animate]="pageAnimation" *ngIf="eventLoop">
     <svg>
         <template ngFor let-node [ngForOf]="nodes" let-i="index">
-            <path *ngIf="node.ntype === NodeType.Indicator" [attr.d]="getLine(node)" stroke="#12455a" stroke-width="2" />
+            <path *ngIf="node.ntype === NodeType.Indicator" [attr.d]="getLine(node)" [attr.stroke]="node.activating ? '#ff0000' : '#12455a'" stroke-width="2" />
         </template>
     </svg>
     <template ngFor let-node [ngForOf]="nodes" let-i="index">

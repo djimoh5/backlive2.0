@@ -6,6 +6,7 @@ export class Node {
 
     inputs: string[];
     weights: number[];
+    bias: number;
     
     created: number;
     modified; number;
@@ -19,7 +20,8 @@ export class Node {
 }
 
 export enum NodeType {
-    Virtual = 99,
+    Virtual = -1,
+    Hidden = -2,
     Basic = 1,
     Indicator = 2,
     Strategy = 3,

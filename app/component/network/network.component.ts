@@ -8,7 +8,7 @@ import { NodeService } from '../../service/node.service';
 
 import { Route } from 'backlive/routes';
 import { Strategy, Indicator, Portfolio, Node, NodeType } from 'backlive/service/model';
-import { SlidingNavItemsEvent, LoadNodeEvent, NodeChangeEvent } from 'backlive/event';
+import { SlidingNavItemsEvent, LoadNodeEvent, NodeChangeEvent, ActivateNodeEvent, IndicatorEvent } from 'backlive/event';
 
 import { PlatformUI } from 'backlive/utility/ui';
 
@@ -48,6 +48,29 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         this.lookupService.getDataFields(); //just to cache data
 
         this.platformUI.onResize('network', size => this.positionNodes()); 
+
+        this.subscribeEvent(ActivateNodeEvent, event => {
+            this.activate(event);
+        });
+
+        this.subscribeEvent(IndicatorEvent, event => {
+            this.activate(event);
+        });
+    }
+
+    activate(event: ActivateNodeEvent) {
+        this.nodes.forEach(node => {
+            if(node['activating']) {
+                setTimeout(() => {
+                    node['activating'] = event.senderId === node._id;
+                }, 200);
+            }
+            else {
+                node['activating'] = event.senderId === node._id;
+            }
+           
+            console.log(node['activating'], event.senderId, node._id)
+        });
     }
     
     ngOnInit() {

@@ -73,7 +73,7 @@ export class DataLoaderNode extends BaseDataNode {
                             if (!results[i].hide) {
                                 var date = parseInt(results[i].date.toString());
 
-                                if(date >= 20160101 && date < 20160901) {
+                                if(date >= 20160115 && date < 20161020) {
                                     this.dates.push(date);
                                     this.datesCache.push(date);
                                     this.weeks.push(results[i].wk);
@@ -138,6 +138,7 @@ export class DataLoaderNode extends BaseDataNode {
                         }
 
                         if (--numFieldTypes == 0) {
+                            //console.log(this.data);
                             this.dataCache[this.currentDate] = this.data;
                             this.notify(new DataEvent({ cache: this.data, allCacheKeys: this.allCacheKeys }));
                         }

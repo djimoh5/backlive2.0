@@ -30,7 +30,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         this.tickerService = new TickerService(new MockSession({ uid: node.uid }));
         this.subscribe(NetworkDateEvent, event => this.setPrices(event.data));
         this.subscribe(EpochCompleteEvent, event => {
-            console.log('total cost:', this.totalCost, 'trainining size:', this.trainingCount);
+            console.log('total cost:', this.totalCost, 'training size:', this.trainingCount);
             this.totalCost = 0;
             this.trainingCount = 0;
         });

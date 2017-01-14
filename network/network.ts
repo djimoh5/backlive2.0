@@ -106,6 +106,13 @@ export class Network {
         this.hyperParams = new HyperParameters(.5, 300);
         VirtualNodeService.reset();
 
+        for(var id in this.nodes) {
+            if(this.nodes[id].getNode().ntype === NodeType.Virtual) {
+                this.nodes[id].unsubscribe(null);
+                delete this.nodes[id];
+            }
+        }
+
         this.outputNode = node;
         this.loadNode(node);
     }
@@ -122,7 +129,7 @@ export class Network {
     print<T extends Node>(baseNode: BaseNode<T>, level: number) {
         level++;
         var node = baseNode.getNode();
-        console.log(level, " - ", node._id, node.weights);
+        console.log(level, " - ", node._id);
 
         if(node.inputs) {
             node.inputs.forEach(nid => {

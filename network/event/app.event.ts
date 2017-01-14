@@ -1,4 +1,4 @@
-import { AppEvent, BaseEvent } from './base.event';
+import { AppEvent, SocketEvent, BaseEvent } from './base.event';
 
 import { Activation, ActivationError, NodeType } from '../../core/service/model/node.model';
 import { DataCache, DataResult } from '../node/data/data.node';
@@ -13,7 +13,7 @@ export class EpochCompleteEvent extends BaseEvent<number> {}
 
 /* activation events */
 
-@AppEvent('Event.Node.Activate')
+@SocketEvent('Event.Node.Activate')
 export class ActivateNodeEvent extends BaseEvent<Activation> {}
 
 @AppEvent('Event.Node.FeedForwardComplete')
