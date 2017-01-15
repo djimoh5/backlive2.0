@@ -8,7 +8,7 @@ import { NodeService } from '../../service/node.service';
 
 import { Route } from 'backlive/routes';
 import { Strategy, Indicator, Portfolio, Node, NodeType } from 'backlive/service/model';
-import { SlidingNavItemsEvent, LoadNodeEvent, NodeChangeEvent, ActivateNodeEvent, IndicatorEvent } from 'backlive/event';
+import { SlidingNavItemsEvent, LoadNodeEvent, NodeChangeEvent, ActivateNodeEvent } from 'backlive/event';
 
 import { PlatformUI } from 'backlive/utility/ui';
 
@@ -52,25 +52,37 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         this.subscribeEvent(ActivateNodeEvent, event => {
             this.activate(event);
         });
-
-        this.subscribeEvent(IndicatorEvent, event => {
-            this.activate(event);
-        });
     }
 
     activate(event: ActivateNodeEvent) {
+        var actCnt = 0;
+        var activatedNode: Node;
+        
         this.nodes.forEach(node => {
             if(node['activating']) {
                 setTimeout(() => {
                     node['activating'] = event.senderId === node._id;
-                }, 200);
+                    node['a-line'] = null;
+                }, 500);
             }
             else {
                 node['activating'] = event.senderId === node._id;
+                if(node['activating']) {
+                    activatedNode = node;
+                    node['activated'] = node['activated'] ? ++node['activated'] : 1;
+                }
             }
-           
-            console.log(node['activating'], event.senderId, node._id)
+
+            if(node['activated']) {
+                actCnt += node['activated'];
+            }
         });
+
+        if(actCnt >= (this.nodes.length + 1)) {
+            this.nodes.forEach(node => {
+                node['activated'] = node._id !== activatedNode._id ? 0 : 1;
+            });
+        }
     }
     
     ngOnInit() {
@@ -193,20 +205,60 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                     x: radiusPercent * Math.cos(angle / 180 * Math.PI),
                     y: radius * Math.sin(angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30 //extra 30 for amount strategy pod is off center;
                 };
+
+                node['line'] = null;
             }
         });
     }
     
-    getLine(indicator: Indicator) {
-        var centerX = this.platformUI.query(window).width() / 2;
-        var centerY = this.platformUI.query(window).height() / 2;
-        
+    getNodeLine(node: Node) {
+        if(!node['line']) {
+            var centerX = this.platformUI.query(window).width() / 2;
+            var centerY = this.platformUI.query(window).height() / 2;
+            
+            node['line'] = this.getLine(
+                centerX + (centerX * 2 * node.position.x / 100), 
+                centerY + node.position.y + (this.indicatorSize.height / 2),
+                centerX,
+                centerY - 30
+            )
+        }
+
+        return node['line'];
+    }
+
+    getActivationLine(indicator: Indicator) {
+        if(!indicator['a-line']) {
+            var path = this.platformUI.query('path[id="path' + indicator._id + '"]')[0];
+            var pathLen = path.getTotalLength();
+
+            var interval = pathLen / 30;
+            var newLen  = 0;
+            var p1 = path.getPointAtLength(newLen);
+            var p2 = path.getPointAtLength(newLen + interval);
+            indicator['a-line'] = this.getLine(p1.x, p1.y, p2.x, p2.y);
+
+            var activating = setInterval(() => {
+                var p1 = path.getPointAtLength(newLen);
+                var p2 = path.getPointAtLength(newLen + (interval * 2));
+                indicator['a-line'] = this.getLine(p1.x, p1.y, p2.x, p2.y);
+
+                newLen += interval;
+
+                if(newLen > pathLen) {
+                    clearInterval(activating);
+                    indicator['activating'] = null;
+                }
+            }, 16);
+        }
+
+        return indicator['a-line'];
+    }
+    
+    getLine(x1, y1, x2, y2) {
         var lineData = [
-           { 
-             x: centerX + (centerX * 2 * indicator.position.x / 100), 
-             y: centerY + indicator.position.y + (this.indicatorSize.height / 2)
-           },  
-           { x: centerX, y: centerY - 30 }
+            { x: x1, y: y1 },  
+            { x: x2, y: y2 }
         ];
         
         var line = d3.line()
@@ -214,7 +266,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                         .y(function(d) { return d.y; })
                         .curve(d3.curveBundle.beta(1));
 
-        return line(lineData);
+       return line(lineData);
     }
 
     ngOnDestroy() {

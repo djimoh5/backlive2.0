@@ -22,9 +22,6 @@ export class FeedForwardCompleteEvent extends BaseEvent<null> {}
 @AppEvent('Event.Node.UpdateWeights')
 export class UpdateNodeWeightsEvent extends BaseEvent<number> {} //learningRate
 
-@AppEvent('Event.Indicator')
-export class IndicatorEvent extends ActivateNodeEvent { }
-
 /* back propagation events */
 
 @AppEvent('Event.Node.Backpropagate')

@@ -1,5 +1,5 @@
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from '../event/base.event';
-import { ActivateNodeEvent, IndicatorEvent } from '../event/app.event';
+import { ActivateNodeEvent } from '../event/app.event';
 
 import { BaseNode } from './base.node';
 import { BasicNode } from './basic/basic.node';
@@ -14,7 +14,7 @@ export class NodeConfig {
     private static activationEventConfig: { [key: number]: typeof ActivateNodeEvent } = {
         [NodeType.Basic]: ActivateNodeEvent,
         [NodeType.Virtual]: ActivateNodeEvent,
-        [NodeType.Indicator]: IndicatorEvent,
+        [NodeType.Indicator]: ActivateNodeEvent,
         [NodeType.Strategy]: ActivateNodeEvent
     };
 

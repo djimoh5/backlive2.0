@@ -1,5 +1,5 @@
 import { BaseNode } from '../base.node'
-import { ActivateNodeEvent, DataFilterEvent, IndicatorEvent } from '../../event/app.event';
+import { ActivateNodeEvent, DataFilterEvent } from '../../event/app.event';
 
 import { StrategyService } from '../../../core/service/strategy.service';
 import { Strategy } from '../../../core/service/model/strategy.model';

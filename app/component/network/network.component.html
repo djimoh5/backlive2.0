@@ -1,7 +1,10 @@
 <div [animate]="pageAnimation" *ngIf="eventLoop">
     <svg>
         <template ngFor let-node [ngForOf]="nodes" let-i="index">
-            <path *ngIf="node.ntype === NodeType.Indicator" [attr.d]="getLine(node)" [attr.stroke]="node.activating ? '#ff0000' : '#12455a'" stroke-width="2" />
+            <template [ngIf]="node.ntype === NodeType.Indicator">
+                <path [attr.id]="'path' + node._id" [attr.d]="getNodeLine(node)" [attr.stroke]="node.activated ? '#4797A8' : '#12455a'" stroke-width="2" />
+                <path *ngIf="node.activating" [attr.d]="getActivationLine(node, this)" [attr.stroke]="'#f00'" stroke-width="3" />
+            </template>
         </template>
     </svg>
     <template ngFor let-node [ngForOf]="nodes" let-i="index">
@@ -16,7 +19,7 @@
             </backlive-indicator>
             <!-- strategies -->
             <div *ngSwitchCase="NodeType.Strategy" class="center-strategy">
-                <backlive-strategy
+                <backlive-strategy [class.activating]="node.activating" [class.activated]="node.activated"
                     [strategy]="node"
                     (nodeChange)="onNodeChange($event, i)" 
                     (addInput)="onAddInput(node, $event)">
@@ -24,7 +27,7 @@
             </div>
             <!-- portfolios -->
             <div *ngSwitchCase="NodeType.Portfolio" class="portfolio">
-                <backlive-portfolio
+                <backlive-portfolio [class.activating]="node.activating" [class.activated]="node.activated"
                     [portfolio]="node"
                     (nodeChange)="onNodeChange($event, i)" 
                     (addInput)="onAddInput(node, $event)">

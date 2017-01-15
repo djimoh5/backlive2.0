@@ -51,7 +51,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             this.tickerService.getTickers(this.date).then(tickers => {
                 //need to adjust for splits!
                 var dateObj: Date = Common.parseDate(this.prevDate);
-
+                
                 tickers.forEach(tkr => {
                     this.prices[tkr.t] = { price: tkr.p, mktcap: tkr.m, dividend: 0 };
 
@@ -91,6 +91,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         if(this.numOutputs() === 0) {
             if(this.node.inputs.length === 1) { //just one strategy passing through its values, so use those
                 this.state.activation = event.data;
+                this.notify(new ActivateNodeEvent(this.state.activation));
             }
             else { //multiple strategy inputs
                 this.activate(null, true);
@@ -136,8 +137,6 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             //console.log('total error', error)
             //console.log('expected', this.node.activation)
             //console.log('actual', this.actualActivation)
-
-            //console.log(`backpropagating portfolio error`);
             
             super.backpropagate(new BackpropagateEvent({ error: error }) )
         }

@@ -131,7 +131,6 @@ export abstract class BaseNode<T extends Node> {
 
             //console.log(this.node._id, 'activating');
             var keys = this.state.inputActivations[this.node.inputs[0]];
-var count = 0;
 
             this.node.inputs.forEach((id, i) => {
                 var inActivation = this.state.inputActivations[id];
@@ -145,7 +144,6 @@ var count = 0;
                         activation[k] += this.node.weights[i] * inActivation[k];
                     }
                     else {
-                        console.log(this.node._id, k, i, 'invalid');
                         delete activation[k];
                         delete keys[k];
                     }
@@ -153,12 +151,6 @@ var count = 0;
 
                 first = false;
             });
-
-console.log(keys, count);
-            for(var k in keys) {
-                count++;
-            }
-            console.log(count);
 
             if(!useLinear) { //CREATE A SEPARATE CLASS THAT HANDLES VARIOUS ACTIVATION TYPES, E.G. TANH, SIGMOID, REL, LINEAR
                 for(var k in activation) {
@@ -259,7 +251,7 @@ console.log(keys, count);
 
             this.resetError();
 
-            console.log(this.node._id, 'weights:', this.node.weights, 'bias:', this.node.bias);
+            //console.log(this.node._id, 'weights:', this.node.weights, 'bias:', this.node.bias);
         }
     }
 

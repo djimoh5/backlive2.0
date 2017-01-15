@@ -6,7 +6,6 @@ import { AppService, UserService, StrategyService } from 'backlive/service';
 
 import { Indicator, Strategy, Node } from 'backlive/service/model';
 import { ExecuteStrategyEvent } from './strategy.event';
-import { IndicatorEvent } from 'backlive/network/event';
 
 @Component({
     selector: 'backlive-strategy',

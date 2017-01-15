@@ -5,7 +5,7 @@ import { VirtualNodeService } from './node/basic/virtual-node.service';
 import { AppEventQueue } from './event/app-event-queue';
 import { Database } from '../core/lib/database';
 
-import { InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent } from './event/app.event';
+import { NetworkDateEvent, InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent, ActivateNodeEvent } from './event/app.event';
 
 import { NodeConfig } from './node/node.config';
 import { Node, NodeType } from '../core/service/model/node.model';
@@ -33,12 +33,25 @@ export class Network {
     subscriberName: string = 'network';
 
     hyperParams: HyperParameters;
+    prevDate: number;
+    currDate: number;
     
     constructor() {
         AppEventQueue.global();
         AppEventQueue.subscribe(NodeChangeEvent, this.subscriberName, event => this.loadNode(event.data));
         AppEventQueue.subscribe(LoadNodeEvent, this.subscriberName, event => this.loadOutputNode(event.data));
         AppEventQueue.subscribe(ExecuteNodeEvent, this.subscriberName, event => this.executeNetwork(event.data));
+
+        AppEventQueue.subscribe(NetworkDateEvent, this.subscriberName, event => {
+            this.currDate = event.data;
+            if(this.prevDate === this.currDate) {
+                console.log("Duplicate network dates fired " + this.currDate);
+                throw("Duplicate network dates fired " + this.currDate);
+            }
+
+            this.prevDate = this.currDate;
+        });
+
         AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.updateNodeWeights(event.data));
 
         Database.open(() => {
@@ -129,7 +142,7 @@ export class Network {
     print<T extends Node>(baseNode: BaseNode<T>, level: number) {
         level++;
         var node = baseNode.getNode();
-        console.log(level, " - ", node._id);
+        console.log(level, " - ", node._id, node.weights);
 
         if(node.inputs) {
             node.inputs.forEach(nid => {
@@ -139,6 +152,8 @@ export class Network {
     }
 
     updateNodeWeights(date: number) {
+        ActivateNodeEvent.isSocketEvent = false;
+
         if(this.hyperParams.epochCount++ < this.hyperParams.epochs) {
             AppEventQueue.notify(new UpdateNodeWeightsEvent(this.hyperParams.learningRate)); //.2 learningRate
 

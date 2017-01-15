@@ -1,5 +1,5 @@
 import { BaseNode, Normalize } from '../base.node'
-import { DataEvent, DataSubscriptionEvent, IndicatorEvent } from '../../event/app.event';
+import { DataEvent, DataSubscriptionEvent, ActivateNodeEvent } from '../../event/app.event';
 
 import { IndicatorService } from '../../../core/service/indicator.service';
 import { Indicator, IndicatorParam } from '../../../core/service/model/indicator.model';
@@ -28,6 +28,6 @@ export class IndicatorNode extends BaseNode<Indicator> {
         this.calculator.addValue('allCacheKeys', event.data.allCacheKeys);
         var vals: { [key: string]: number } = this.calculator.execute(this.node, event.data.cache);
 
-        this.activate(new IndicatorEvent(Stats.percentRank(vals)));
+        this.activate(new ActivateNodeEvent(Stats.percentRank(vals)));
     }
 }
