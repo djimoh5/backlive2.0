@@ -64,7 +64,7 @@ export class DataLoaderNode extends BaseDataNode {
         }
         else {
             Database.mongo.collection('file_date', (err, collection) => {
-                collection.find().sort({ date: 1 }).toArray((err, results) => {
+                collection.find({ wk: 1 }).sort({ date: 1 }).toArray((err, results) => {
                     if (err) {
                         console.log('Error selecting data: ' + err.message);
                         return;
@@ -73,7 +73,7 @@ export class DataLoaderNode extends BaseDataNode {
                             if (!results[i].hide) {
                                 var date = parseInt(results[i].date.toString());
 
-                                if(date >= 20150101 && date < 20160106) {
+                                if(date >= 20120101 && date < 20160106) {
                                     this.dates.push(date);
                                     this.datesCache.push(date);
                                     this.weeks.push(results[i].wk);

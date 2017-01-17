@@ -78,7 +78,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
             }
         });
 
-        if(actCnt >= (this.nodes.length + 1)) {
+        if(actCnt > this.nodes.length) {
             this.nodes.forEach(node => {
                 node['activated'] = node._id !== activatedNode._id ? 0 : 1;
             });
@@ -99,6 +99,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     }
 
     loadNode<T extends Node>(node: Node, isOutput: boolean = false) {
+        node['activating'] = node['activated'] = false;
         this.nodes.push(node);
         this.positionNodes();
 
@@ -205,9 +206,9 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                     x: radiusPercent * Math.cos(angle / 180 * Math.PI),
                     y: radius * Math.sin(angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30 //extra 30 for amount strategy pod is off center;
                 };
-
-                node['line'] = null;
             }
+
+            node['line'] = null;
         });
     }
     
@@ -216,46 +217,56 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
             var centerX = this.platformUI.query(window).width() / 2;
             var centerY = this.platformUI.query(window).height() / 2;
             
-            node['line'] = this.getLine(
-                centerX + (centerX * 2 * node.position.x / 100), 
-                centerY + node.position.y + (this.indicatorSize.height / 2),
-                centerX,
-                centerY - 30
-            )
+            var x1: number, y1: number, x2: number, y2: number;
+
+            switch(node.ntype) {
+                case NodeType.Indicator:
+                    x1 = centerX + (centerX * 2 * node.position.x / 100); 
+                    y1 = centerY + node.position.y + (this.indicatorSize.height / 2);
+                    x2 = centerX; 
+                    y2 = centerY - 30;
+                    break;
+                case NodeType.Strategy:
+                    x1 = centerX; y1 = centerY - 30;
+                    x2 = (centerX * 2) * .9 - 50; y2 = centerY - 30;
+                    break;
+            }
+
+            node['line'] = this.getLine(x1, y1, x2, y2);
         }
 
         return node['line'];
     }
 
-    getActivationLine(indicator: Indicator) {
-        if(!indicator['a-line']) {
-            var path = this.platformUI.query('path[id="path' + indicator._id + '"]')[0];
+    getActivationLine(node: Node) {
+        if(!node['a-line']) {
+            var path = this.platformUI.query('path[id="path' + node._id + '"]')[0];
             var pathLen = path.getTotalLength();
 
             var interval = pathLen / 30;
             var newLen  = 0;
             var p1 = path.getPointAtLength(newLen);
             var p2 = path.getPointAtLength(newLen + interval);
-            indicator['a-line'] = this.getLine(p1.x, p1.y, p2.x, p2.y);
+            node['a-line'] = this.getLine(p1.x, p1.y, p2.x, p2.y);
 
             var activating = setInterval(() => {
                 var p1 = path.getPointAtLength(newLen);
                 var p2 = path.getPointAtLength(newLen + (interval * 2));
-                indicator['a-line'] = this.getLine(p1.x, p1.y, p2.x, p2.y);
+                node['a-line'] = this.getLine(p1.x, p1.y, p2.x, p2.y);
 
                 newLen += interval;
 
                 if(newLen > pathLen) {
                     clearInterval(activating);
-                    indicator['activating'] = null;
+                    node['activating'] = null;
                 }
             }, 16);
         }
 
-        return indicator['a-line'];
+        return node['a-line'];
     }
     
-    getLine(x1, y1, x2, y2) {
+    getLine(x1: number, y1: number, x2: number, y2: number) {
         var lineData = [
             { x: x1, y: y1 },  
             { x: x2, y: y2 }

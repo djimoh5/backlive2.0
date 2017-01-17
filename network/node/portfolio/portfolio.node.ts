@@ -12,6 +12,8 @@ import { Activation } from '../../../core/service/model/node.model';
 import { Stats } from '../../lib/stats';
 import { Common } from '../../../app//utility/common';
 
+import { Network } from '../../network';
+
 export class PortfolioNode extends BaseNode<Portfolio> {
     tickerService: TickerService;
     prices: { [key: string]: { price: number, mktcap: number, dividend: number } };
@@ -30,7 +32,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         this.tickerService = new TickerService(new MockSession({ uid: node.uid }));
         this.subscribe(NetworkDateEvent, event => this.setPrices(event.data));
         this.subscribe(EpochCompleteEvent, event => {
-            console.log('total cost:', this.totalCost, 'training size:', this.trainingCount);
+            console.log('total cost:', this.totalCost, 'avg. cost:', this.totalCost / this.trainingCount, 'training size:', this.trainingCount);
             this.totalCost = 0;
             this.trainingCount = 0;
         });
@@ -128,8 +130,8 @@ export class PortfolioNode extends BaseNode<Portfolio> {
 
             for(var key in this.state.activation) {
                 //console.log(this.cost(this.node.activation[key], this.actualActivation[key]));
-                error[key] = this.costDelta(this.state.activation[key], this.actualActivation[key]);
-                this.totalCost += this.cost(this.state.activation[key], this.actualActivation[key]);
+                error[key] = Network.costFunction.delta(this.state.activation[key], this.actualActivation[key]);
+                this.totalCost += Network.costFunction.cost(this.state.activation[key], this.actualActivation[key]);
                 this.trainingCount++;
                 //console.log('error', error)
             }
@@ -140,19 +142,5 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             
             super.backpropagate(new BackpropagateEvent({ error: error }) )
         }
-    }
-
-    //PULL THIS OUT INTO SEPARATE CLASS
-    cost(output: number, target: number) {
-        return .5 * Math.pow(output - target, 2);
-    }
-
-    costDerivative(output: number, target: number) {
-        return output - target;
-    }
-
-    costDelta(output: number, target: number) {
-        //in our case output is sigmoid so can use it directly to calculate sig prime: sig * (1 - sig)
-        return this.costDerivative(output, target) * (output * (1 - output));
     }
 }

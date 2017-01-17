@@ -19,6 +19,8 @@ import { ExecuteNodeEvent } from '../app/component/node/node.event';
 import { IExecutionNode } from './node/execution/execution.node';
 import { BacktestExecutionNode } from './node/execution/backtest-execution.node';
 
+import { ICostFunction, QuadraticCost, CrossEntropyCost } from './lib/cost-function';
+
 import { Common } from '../app//utility/common';
 
 export class Network {
@@ -33,6 +35,8 @@ export class Network {
     subscriberName: string = 'network';
 
     hyperParams: HyperParameters;
+    static costFunction: ICostFunction;
+
     prevDate: number;
     currDate: number;
     
@@ -116,7 +120,7 @@ export class Network {
     }
 
     loadOutputNode(node: Node) {
-        this.hyperParams = new HyperParameters(.5, 300);
+        this.hyperParams = new HyperParameters(.5, 100, new QuadraticCost());
         VirtualNodeService.reset();
 
         for(var id in this.nodes) {
@@ -191,8 +195,9 @@ class HyperParameters {
     epochCount: number = 0;
     hiddenNodes: number = 3;
 
-    constructor(learningRate, epochs) {
+    constructor(learningRate, epochs, costFunction: ICostFunction) {
         this.learningRate = learningRate;
         this.epochs = epochs;
+        Network.costFunction = costFunction;
     }
 }

@@ -1,22 +1,24 @@
 <div [animate]="pageAnimation" *ngIf="eventLoop">
     <svg>
         <template ngFor let-node [ngForOf]="nodes" let-i="index">
-            <template [ngIf]="node.ntype === NodeType.Indicator">
+            <template [ngIf]="node.ntype === NodeType.Indicator || node.ntype === NodeType.Strategy">
                 <path [attr.id]="'path' + node._id" [attr.d]="getNodeLine(node)" [attr.stroke]="node.activated ? '#4797A8' : '#12455a'" stroke-width="2" />
-                <path *ngIf="node.activating" [attr.d]="getActivationLine(node, this)" [attr.stroke]="'#f00'" stroke-width="3" />
+                <path *ngIf="node.activating" [attr.d]="getActivationLine(node)" [attr.stroke]="'#f00'" stroke-width="3" />
             </template>
         </template>
     </svg>
     <template ngFor let-node [ngForOf]="nodes" let-i="index">
         <div [ngSwitch]="node.ntype">
             <!-- indicators -->
-            <backlive-indicator *ngSwitchCase="NodeType.Indicator"
-                [indicator]="node" 
-                (nodeChange)="onNodeChange($event, i)"
-                (remove)="onRemoveNode($event, i)"
-                [style.margin-left]="node.position.x + '%'" 
-                [style.margin-top.px]="node.position.y">
-            </backlive-indicator>
+            <div *ngSwitchCase="NodeType.Indicator">
+                <backlive-indicator [class.activated]="node.activated"
+                    [indicator]="node" 
+                    (nodeChange)="onNodeChange($event, i)"
+                    (remove)="onRemoveNode($event, i)"
+                    [style.margin-left]="node.position.x + '%'" 
+                    [style.margin-top.px]="node.position.y">
+                </backlive-indicator>
+            </div>
             <!-- strategies -->
             <div *ngSwitchCase="NodeType.Strategy" class="center-strategy">
                 <backlive-strategy [class.activating]="node.activating" [class.activated]="node.activated"

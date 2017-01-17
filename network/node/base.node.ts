@@ -246,9 +246,10 @@ export abstract class BaseNode<T extends Node> {
         if(this.node.weights) {
             this.node.weights.forEach((w, index) => {
                 this.node.weights[index] = w - (learningRate * this.state.totalError[index] / this.state.trainingCount);
-                this.node.bias = this.node.bias - (learningRate * this.state.totalBiasError / this.state.trainingCount);
             });
 
+            this.node.bias = this.node.bias - (learningRate * this.state.totalBiasError / this.state.trainingCount);
+            
             this.resetError();
 
             //console.log(this.node._id, 'weights:', this.node.weights, 'bias:', this.node.bias);
