@@ -20,7 +20,7 @@
                     <option value="100,102">player</option>
                 </select>
             </div>
-            <div class="aggr col-xs-12 col-md-4">
+            <div class="aggr col-xs-12 col-md-6">
                 Transform Value
                 <ui-icon type="question" tooltip="Choose 'No Transform' to use exact value from above calculation. Or choose to average, sum, % change etc. the value over a specified time period."></ui-icon>
                 <br/>
@@ -59,7 +59,7 @@
                     </template>
                 </div>
             </div>
-            <div *ngIf="indicator.env !== 'sports'" class="col-xs-6 col-md-4">
+            <div *ngIf="indicator.env !== 'sports'" class="col-xs-6 col-md-6">
                 Rank By <ui-icon type="question" tooltip="Rank all stocks together or rank each sector separately"></ui-icon>
                 <br/>
                 <radio-button [(value)]="indicator.rankIndustry" 
@@ -78,17 +78,6 @@
                         { value: 2, title: 'opponent' },
                         { value: 3, title: 'difference' },
                         { value: 4, title: 'sum' }
-                    ]">
-                </radio-button>
-            </div>
-            <div class="col-xs-6 col-md-4">
-                Sort By <ui-icon type="question" tooltip="When ranking stocks, should the lowest or highest values for this indicator be given the higher score? i.e. for a value strategy with indicator of P/E, you would want to trade 'lowest'."></ui-icon>
-                <br/>
-                <radio-button [(value)]="indicator.sortDesc" 
-                    [options]="[
-                        { value: -1, title: 'N/A' }, 
-                        { value: 0, title: 'lowest' },
-                        { value: 1, title: 'highest' }
                     ]">
                 </radio-button>
             </div>

@@ -21,8 +21,6 @@ export class Indicator extends Node {
     exclOp: number = 2;
     excl: number = null;
     rankIndustry: boolean = false;
-    sortDesc: number = -1;
-    //weight: number = 100;
     
     //exp: number = 100;
     //expSh: number = 100;

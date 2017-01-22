@@ -5,7 +5,7 @@ import { VirtualNodeService } from './node/basic/virtual-node.service';
 import { AppEventQueue } from './event/app-event-queue';
 import { Database } from '../core/lib/database';
 
-import { NetworkDateEvent, InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent, ActivateNodeEvent } from './event/app.event';
+import { NetworkDateEvent, InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent, ValidateDataEvent, ActivateNodeEvent } from './event/app.event';
 
 import { NodeConfig } from './node/node.config';
 import { Node, NodeType } from '../core/service/model/node.model';
@@ -169,6 +169,13 @@ export class Network {
             AppEventQueue.notify(new InitializeDataEvent(null));
         }
         else {
+            if(date) {
+                AppEventQueue.notify(new ValidateDataEvent(null));
+            }
+            else {
+                console.log('validation complete');
+            }
+
             this.print(this.nodes[this.outputNode._id], 0);
         }
     }

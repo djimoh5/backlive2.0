@@ -1,3 +1,7 @@
+@import "css/plugins/mixins.less";
+@import "css/themes/colors.less";
+@import "css/themes/text.less";
+
 svg {
     position: absolute;
     top: 0;
@@ -23,4 +27,25 @@ backlive-indicator {
     right: 10%;
     top: 50%;
     margin-top: -47px;
+}
+.date-slider {
+    position: absolute;
+    top: 50px;
+    width: 50%;
+    left: 25%;
+    z-index: 100;
+    text-align: center;
+    input {
+        width: 50%;
+    }
+    input:first-child {
+        float: left;
+    }
+    input:last-child {
+        float: right;
+    }
+    .label {
+        margin-top: 10px;
+        font-size: @text-large;
+    }
 }

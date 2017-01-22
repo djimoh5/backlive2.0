@@ -38,6 +38,9 @@ export class TrainingDataEvent extends BaseEvent<{ input: number[][], output: { 
 @AppEvent('Event.Data.Initialize')
 export class InitializeDataEvent extends BaseEvent<null> {}
 
+@AppEvent('Event.Data.Validate')
+export class ValidateDataEvent extends BaseEvent<null> {}
+
 @AppEvent('Event.Data')
 export class DataEvent extends BaseEvent<{ cache: DataCache, allCacheKeys?: string[] | number[] }> {}
 

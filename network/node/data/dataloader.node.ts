@@ -1,5 +1,5 @@
 import { 
-    DataEvent, DataSubscriptionEvent, DataFilterEvent, InitializeDataEvent, NetworkDateEvent, 
+    DataEvent, DataSubscriptionEvent, DataFilterEvent, InitializeDataEvent, NetworkDateEvent, ValidateDataEvent,
     FeedForwardCompleteEvent, BackpropagateCompleteEvent, EpochCompleteEvent
 } from '../../event/app.event';
 import { BaseDataNode, IDataNode, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
@@ -16,6 +16,7 @@ export class DataLoaderNode extends BaseDataNode {
     ticker: string | string[];
     startDate: number;
     endDate: number;
+    validationDate: number;
     currentDate: number;
     prevDate: number;
 
@@ -28,6 +29,8 @@ export class DataLoaderNode extends BaseDataNode {
     dates: number[] = [];
     datesCache: number[] = [];
     weeks: number[] = [];
+
+    validating: boolean;
 
     constructor() {
         super();
@@ -55,9 +58,16 @@ export class DataLoaderNode extends BaseDataNode {
                 this.execute();
             }
         });
+
+        this.subscribe(ValidateDataEvent, event => {
+            this.validating = true;
+            this.execute();
+        });
     }
 
     init() {
+        this.validating = false;
+
         if(this.datesCache.length > 0) {
             this.dates = this.datesCache.slice(0);
             this.nextTick();
@@ -73,13 +83,15 @@ export class DataLoaderNode extends BaseDataNode {
                             if (!results[i].hide) {
                                 var date = parseInt(results[i].date.toString());
 
-                                if(date >= 20120101 && date < 20160106) {
+                                if(date >= 20080101 && date <= 20160106) {
                                     this.dates.push(date);
                                     this.datesCache.push(date);
                                     this.weeks.push(results[i].wk);
                                 }
                             }
                         }
+
+                        this.validationDate = 20120106;
                     }
 
                     this.nextTick();
@@ -104,6 +116,11 @@ export class DataLoaderNode extends BaseDataNode {
         this.prevDate = this.currentDate;
 
         if(this.dates.length > 0) {
+            if(this.currentDate >= this.validationDate && !this.validating) {
+                this.notify(new EpochCompleteEvent(this.currentDate));
+                return;
+            }
+
             if(this.dataCache[this.currentDate]) {
                 this.notify(new DataEvent({ cache: this.dataCache[this.currentDate], allCacheKeys: null }));
             }
@@ -149,7 +166,7 @@ export class DataLoaderNode extends BaseDataNode {
         }
         else {
             //at last date so no need to feed forward
-            this.notify(new EpochCompleteEvent(this.currentDate));
+            this.notify(new EpochCompleteEvent(this.validating ? null : this.currentDate));
             //console.log('DataLoader Idle');
         }
     }

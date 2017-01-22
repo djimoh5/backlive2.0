@@ -12,6 +12,8 @@ import { SlidingNavItemsEvent, LoadNodeEvent, NodeChangeEvent, ActivateNodeEvent
 
 import { PlatformUI } from 'backlive/utility/ui';
 
+import { Common } from 'backlive/utility';
+
 declare var d3;
 
 @Component({
@@ -31,9 +33,18 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     NodeType = NodeType;
     tmpInputMap: { [key: string]: { node: Node, input: Node } } = {};
 
+    startSliderVal: number;
+    endSliderVal: number;
+    todayDate: number;
+    minStartDate: number = 20030103;
+
     constructor(appService: AppService, private userService: UserService, private lookupService: LookupService, private platformUI: PlatformUI, 
         private nodeService: BasicNodeService, private indicatorService: IndicatorService, private strategyService: StrategyService, private portfolioService: PortfolioService) {
         super(appService);
+
+        this.todayDate = Common.dbDate(new Date());
+        this.startSliderVal = this.toSliderVal(20080101);
+        this.endSliderVal = this.toSliderVal(20160101);
         
         var items = [
             { icon: "search", component: SearchBarComponent },
@@ -210,6 +221,14 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
 
             node['line'] = null;
         });
+    }
+
+    toDate(sliderVal: number) {
+        return Math.round(this.minStartDate + ((this.todayDate - this.minStartDate) / 100 * sliderVal));
+    }
+
+    toSliderVal(date: number) {
+        return (date - this.minStartDate) / (this.todayDate - this.minStartDate) * 100;
     }
     
     getNodeLine(node: Node) {
