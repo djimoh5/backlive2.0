@@ -7,6 +7,7 @@ import { UserService } from './user.service';
 
 import { AnalyticsService } from './analytics.service'
 import { BasicNodeService } from './basic-node.service';
+import { NetworkService } from './network.service';
 import { IndicatorService } from './indicator.service';
 import { NewsService } from './news.service';
 import { PortfolioService } from './portfolio.service';
@@ -23,6 +24,7 @@ import { ClientSocket } from './client.socket';
         RouterService, 
         ApiService,
         BasicNodeService,
+        NetworkService,
         IndicatorService,
         NewsService,
         PortfolioService,

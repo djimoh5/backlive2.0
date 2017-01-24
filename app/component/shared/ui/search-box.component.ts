@@ -3,8 +3,7 @@ import {SearchBoxDirective} from 'backlive/directive';
 
 @Component({
     selector: 'search-box',
-    template: `<ui-icon type="search"></ui-icon><input searchbox (search)="onSearch($event)" class="form-control" placeholder="{{placeholder}}">`,
-    directives: [SearchBoxDirective]
+    template: `<ui-icon type="search"></ui-icon><input searchbox (search)="onSearch($event)" class="form-control" placeholder="{{placeholder}}">`
 })
 export class SearchBoxComponent {
     @Input() placeholder: string;

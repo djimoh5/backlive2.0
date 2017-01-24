@@ -3,11 +3,11 @@ import { ApiService } from './api.service';
 import { AppService } from './app.service';
 import { NodeService } from './node.service';
 
-import { Indicator } from 'backlive/service/model';
+import { Network } from 'backlive/service/model';
 
 @Injectable()
-export class IndicatorService extends NodeService<Indicator> {
+export class NetworkService extends NodeService<Network> {
     constructor(apiService: ApiService, appService: AppService) {
-        super(apiService, appService, 'indicator');
+        super(apiService, appService, 'network');
     }
 }

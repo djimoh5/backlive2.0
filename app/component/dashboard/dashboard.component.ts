@@ -3,13 +3,13 @@ import { Path } from 'backlive/config';
 
 import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
 import { RadioButtonOption } from 'backlive/component/shared/ui';
+import { SlidingNavItem } from 'backlive/component/navigation';
 
 import { AppService, UserService, StrategyService } from 'backlive/service';
 
 import { Common } from 'backlive/utility';
 
 import { Ticker, Strategy, Performance } from 'backlive/service/model';
-import { SlidingNavItemsEvent } from 'backlive/event';
 
 @Component({
     selector: 'backlive-dashboard',
@@ -17,6 +17,8 @@ import { SlidingNavItemsEvent } from 'backlive/event';
     styleUrls: [Path.ComponentStyle('dashboard')]
 })
 export class DashboardComponent extends PageComponent {
+    navItems: SlidingNavItem[];
+
     liveStrategies: Strategy[];
     strategies: Strategy[];
     stratsById: {[key: string]: Strategy};
@@ -33,15 +35,13 @@ export class DashboardComponent extends PageComponent {
         
         strategyService.getBacktests().then((strategies: Strategy[]) => this.loadStrategies(strategies));
         
-        var items = [
-            { icon: "search", component: SearchBarComponent },
-            { icon: "video", onClick: () => this.filterMenu(), tooltip:'test' },
-            { icon: "list", onClick: () => this.filterMenu() },
-            { icon: "settings", component: null }
+        this.navItems = [
+            { icon: 'search', component: SearchBarComponent },
+            { icon: 'video', onClick: () => this.filterMenu(), tooltip:'test' },
+            { icon: 'list', onClick: () => this.filterMenu() },
+            { icon: 'settings', component: null }
         ];
-        
-        appService.notify(new SlidingNavItemsEvent(items));
-        
+
         this.dateOptions = [
           { title: '1d', value: 1 },
           { title: '5d', value: 5 },

@@ -5,7 +5,6 @@ import { Route } from 'backlive/routes';
 
 /* components */
 import { BaseComponent, ModalComponent } from 'backlive/component/shared';
-import { HeaderNavComponent, SlidingNavComponent, FooterNavComponent } from 'backlive/component/navigation';
 
 /* services */
 import { AppService, RouterService, ApiService, UserService } from 'backlive/service';

@@ -1,6 +1,7 @@
 /// <reference path="../typings/index.d.ts" />
 
 import { BaseNode } from './node/base.node';
+import { NetworkService } from '../core/service/network.service';
 import { VirtualNodeService } from './node/basic/virtual-node.service';
 import { AppEventQueue } from './event/app-event-queue';
 import { Database } from '../core/lib/database';
@@ -9,12 +10,12 @@ import { NetworkDateEvent, InitializeDataEvent, EpochCompleteEvent, UpdateNodeWe
 
 import { NodeConfig } from './node/node.config';
 import { Node, NodeType } from '../core/service/model/node.model';
-import { LoadNodeEvent, NodeChangeEvent } from '../app/component/node/node.event';
+import { Network as NetworkModel } from '../core/service/model/network.model';
+import { NodeChangeEvent } from '../app/component/node/node.event';
+import { LoadNetworkEvent, ExecuteNetworkEvent } from '../app/component/network/network.event';
 
 import { IDataNode } from './node/data/data.node';
 import { DataLoaderNode } from './node/data/dataloader.node';
-
-import { ExecuteNodeEvent } from '../app/component/node/node.event';
 
 import { IExecutionNode } from './node/execution/execution.node';
 import { BacktestExecutionNode } from './node/execution/backtest-execution.node';
@@ -24,9 +25,11 @@ import { ICostFunction, QuadraticCost, CrossEntropyCost } from './lib/cost-funct
 import { Common } from '../app//utility/common';
 
 export class Network {
-    dataNode: IDataNode;
+    network: NetworkModel;
     nodes:  NodeMap<BaseNode<any>> = {};
-    outputNode: Node;
+    private networkService: NetworkService;
+
+    dataNode: IDataNode;
     executionNode: IExecutionNode;
 
     activityState: number = 0;
@@ -34,8 +37,8 @@ export class Network {
 
     subscriberName: string = 'network';
 
-    hyperParams: HyperParameters;
     static costFunction: ICostFunction;
+    epochCount: number = 0;
 
     prevDate: number;
     currDate: number;
@@ -43,8 +46,8 @@ export class Network {
     constructor() {
         AppEventQueue.global();
         AppEventQueue.subscribe(NodeChangeEvent, this.subscriberName, event => this.loadNode(event.data));
-        AppEventQueue.subscribe(LoadNodeEvent, this.subscriberName, event => this.loadOutputNode(event.data));
-        AppEventQueue.subscribe(ExecuteNodeEvent, this.subscriberName, event => this.executeNetwork(event.data));
+        AppEventQueue.subscribe(LoadNetworkEvent, this.subscriberName, event => this.loadNetwork(event.data));
+        AppEventQueue.subscribe(ExecuteNetworkEvent, this.subscriberName, event => this.executeNetwork(event.data));
 
         AppEventQueue.subscribe(NetworkDateEvent, this.subscriberName, event => {
             this.currDate = event.data;
@@ -85,7 +88,7 @@ export class Network {
     }
 
     updateInputNodes(node: Node, inputNodes: { [key: string]: Node }) {
-        if(node.ntype === NodeType.Strategy) {
+        if(node.ntype === NodeType.Strategy && this.network.hiddenLayers.length > 0) {
             this.createVirtualNodes(node, inputNodes);
         }
         else {
@@ -104,7 +107,7 @@ export class Network {
         node.inputs = [];
 
         var hiddenNodes: Node[] = [];
-        for(var i = 0; i < this.hyperParams.hiddenNodes; i++) {
+        for(var i = 0; i < this.network.hiddenLayers[0].numNodes; i++) {
             var model = new Node(NodeType.Virtual);
             model._id = Common.uniqueId();
             model.name = 'hidden' + (i + 1);
@@ -119,8 +122,11 @@ export class Network {
         baseNode.updateInputs(hiddenNodes);
     }
 
-    loadOutputNode(node: Node) {
-        this.hyperParams = new HyperParameters(.5, 100, new QuadraticCost());
+    loadNetwork(network: NetworkModel) {
+        this.network = network;
+        this.epochCount = 0;
+
+        Network.costFunction = new QuadraticCost();
         VirtualNodeService.reset();
 
         for(var id in this.nodes) {
@@ -129,18 +135,25 @@ export class Network {
                 delete this.nodes[id];
             }
         }
-
-        this.outputNode = node;
-        this.loadNode(node);
+        
+        this.networkService = new NetworkService({ user: { uid: network.uid }, cookies: null });
+        this.networkService.getInputs(network._id).then(nodes => {
+            this.loadNode(nodes[0]);
+        });
     }
 
-    executeNetwork(node: Node) {
+    executeNetwork(network: NetworkModel) {
         this.onIdle = () => {
-            this.print(this.nodes[node._id], 0);
+            this.printNetwork();
             AppEventQueue.notify(new InitializeDataEvent(null)); 
         };
 
-        this.loadOutputNode(node);
+        this.loadNetwork(network);
+    }
+
+    printNetwork() {
+        console.log(this.network);
+        this.print(this.nodes[this.network.inputs[0]], 0);
     }
 
     print<T extends Node>(baseNode: BaseNode<T>, level: number) {
@@ -158,12 +171,9 @@ export class Network {
     updateNodeWeights(date: number) {
         ActivateNodeEvent.isSocketEvent = false;
 
-        if(this.hyperParams.epochCount++ < this.hyperParams.epochs) {
-            AppEventQueue.notify(new UpdateNodeWeightsEvent(this.hyperParams.learningRate)); //.2 learningRate
-
-            //validate on out of sample test data here!!
-
-            console.log('completed epoch', this.hyperParams.epochCount);
+        if(this.epochCount++ < this.network.epochs) {
+            AppEventQueue.notify(new UpdateNodeWeightsEvent(this.network.learnRate));
+            console.log('completed epoch', this.epochCount);
 
             //run another epoch
             AppEventQueue.notify(new InitializeDataEvent(null));
@@ -176,7 +186,7 @@ export class Network {
                 console.log('validation complete');
             }
 
-            this.print(this.nodes[this.outputNode._id], 0);
+            this.printNetwork();
         }
     }
 
@@ -194,17 +204,4 @@ export class Network {
 
 interface NodeMap<T> {
     [key: string]: T;
-}
-
-class HyperParameters {
-    learningRate: number;
-    epochs: number;
-    epochCount: number = 0;
-    hiddenNodes: number = 3;
-
-    constructor(learningRate, epochs, costFunction: ICostFunction) {
-        this.learningRate = learningRate;
-        this.epochs = epochs;
-        Network.costFunction = costFunction;
-    }
 }

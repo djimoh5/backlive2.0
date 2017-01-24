@@ -1,11 +1,4 @@
 <div [animate]="pageAnimation" *ngIf="eventLoop">
-    <div class="date-slider">
-        <div class="clearfix">
-            <input type="range" [(ngModel)]="startSliderVal" />
-            <input type="range" [(ngModel)]="endSliderVal" />
-        </div>
-        <div class="label">{{toDate(startSliderVal)}} - {{toDate(endSliderVal)}}</div>
-    </div>
     <svg>
         <template ngFor let-node [ngForOf]="nodes" let-i="index">
             <template [ngIf]="node.ntype === NodeType.Indicator || node.ntype === NodeType.Strategy">
@@ -45,3 +38,4 @@
         </div>
     </template>
 </div>
+<sliding-nav [items]="navItems"></sliding-nav>

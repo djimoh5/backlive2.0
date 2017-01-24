@@ -21,9 +21,6 @@ export class SearchKeyUpEvent extends BaseEvent<string> {}
 @AppEvent('Event.SlidingNavVisible')
 export class SlidingNavVisibleEvent extends BaseEvent<boolean> {}
 
-@AppEvent('Event.SlidingNavItems')
-export class SlidingNavItemsEvent extends BaseEvent<SlidingNavItem[]> {}
-
 @AppEvent('Event.OpenModal')
 export class OpenModalEvent extends BaseEvent<ModalOptions> {}
 

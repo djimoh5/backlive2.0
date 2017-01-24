@@ -1,5 +1,6 @@
 import { BaseController } from './controller/base.controller';
 import { HomeController } from './controller/home.controller';
+import { NetworkController } from './controller/network.controller';
 import { IndicatorController } from './controller/indicator.controller';
 import { StrategyController } from './controller/strategy.controller';
 import { PortfolioController } from './controller/portfolio.controller';
@@ -18,6 +19,7 @@ export var routes: RouteInfo[] = [
     //API Endpoints
 	{ path: '/api/user', controller: UserController },
     { path: '/api/ticker', controller: TickerController },
+    { path: '/api/network', controller: NetworkController },
     { path: '/api/indicator', controller: IndicatorController },
     { path: '/api/news', controller: NewsController },
     { path: '/api/portfolio', controller: PortfolioController },

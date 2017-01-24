@@ -21,11 +21,11 @@ export class Node {
 
 export enum NodeType {
     Virtual = -1,
-    Hidden = -2,
-    Basic = 1,
-    Indicator = 2,
-    Strategy = 3,
-    Portfolio = 4
+    Network = 1,
+    Basic = 2,
+    Indicator = 10,
+    Strategy = 11,
+    Portfolio = 12,
 }
 
 export interface Activation {

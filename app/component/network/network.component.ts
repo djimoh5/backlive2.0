@@ -2,13 +2,14 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Path } from 'backlive/config';
 import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
 import { StrategyComponent } from '../strategy/strategy.component';
+import { SlidingNavItem } from 'backlive/component/navigation';
 
-import { AppService, UserService, BasicNodeService, IndicatorService, StrategyService, PortfolioService, LookupService } from 'backlive/service';
+import { AppService, UserService, NetworkService, BasicNodeService, IndicatorService, StrategyService, PortfolioService, LookupService } from 'backlive/service';
 import { NodeService } from '../../service/node.service';
 
 import { Route } from 'backlive/routes';
-import { Strategy, Indicator, Portfolio, Node, NodeType } from 'backlive/service/model';
-import { SlidingNavItemsEvent, LoadNodeEvent, NodeChangeEvent, ActivateNodeEvent } from 'backlive/event';
+import { Network, Portfolio, Node, NodeType } from 'backlive/service/model';
+import { NodeChangeEvent, ActivateNodeEvent, ExecuteStrategyEvent, ExecuteNetworkEvent, LoadNetworkEvent } from 'backlive/event';
 
 import { PlatformUI } from 'backlive/utility/ui';
 
@@ -22,39 +23,33 @@ declare var d3;
     styleUrls: [Path.ComponentStyle('network')]
 })
 export class NetworkComponent extends PageComponent implements OnInit, OnDestroy {
+    network: Network;
     eventLoop: any;
     life: { numLoops: number };
+    navItems: SlidingNavItem[];
     
     errMessage: string;
     nodes: Node[] = [];
-    strategy: Strategy;
     indicatorSize = { width: 38, height: 34 };
 
     NodeType = NodeType;
     tmpInputMap: { [key: string]: { node: Node, input: Node } } = {};
 
-    startSliderVal: number;
-    endSliderVal: number;
     todayDate: number;
     minStartDate: number = 20030103;
 
     constructor(appService: AppService, private userService: UserService, private lookupService: LookupService, private platformUI: PlatformUI, 
-        private nodeService: BasicNodeService, private indicatorService: IndicatorService, private strategyService: StrategyService, private portfolioService: PortfolioService) {
+        private nodeService: BasicNodeService, private networkService: NetworkService, private indicatorService: IndicatorService, private strategyService: StrategyService, private portfolioService: PortfolioService) {
         super(appService);
 
         this.todayDate = Common.dbDate(new Date());
-        this.startSliderVal = this.toSliderVal(20080101);
-        this.endSliderVal = this.toSliderVal(20160101);
         
-        var items = [
-            { icon: "search", component: SearchBarComponent },
-            { icon: "video", onClick: () => {}, tooltip:'test' },
-            { icon: "list", onClick: () => {} },
+        this.navItems = [
+            { icon: 'search', component: SearchBarComponent },
+            { icon: 'list', onClick: () => {}, tooltip: 'my strategies' },
             { icon: "settings", component: null }
         ];
         
-        appService.notify(new SlidingNavItemsEvent(items));
-
         this.life = { numLoops: 0 };
         this.lookupService.getDataFields(); //just to cache data
 
@@ -62,6 +57,10 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
 
         this.subscribeEvent(ActivateNodeEvent, event => {
             this.activate(event);
+        });
+
+        this.subscribeEvent(ExecuteStrategyEvent, () => { 
+            this.appService.notify(new ExecuteNetworkEvent(this.network));
         });
     }
 
@@ -97,25 +96,42 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     }
     
     ngOnInit() {
-        this.portfolioService.list().then(portfolios => {
-            if(portfolios.length > 0) {
-                this.loadNode(portfolios[0], true);
+        this.networkService.list().then(networks => {
+            if(networks.length > 0) {
+                this.loadNetwork(networks[0]);
             }
             else {
-                this.loadNode(new Portfolio());
+                var network = new Network(.5, 50, [3], null);
+                this.networkService.update(network).then(network => {
+                    this.loadNode(network);
+                });
             }
 
             this.startEventLoop();
         });
     }
 
-    loadNode<T extends Node>(node: Node, isOutput: boolean = false) {
+    loadNetwork(network: Network) {
+        this.network = network;
+        this.nodes = [];
+        this.networkService.getInputs(network._id).then(nodes => {
+            if(nodes.length > 0) {
+                this.loadNode(nodes[0]);
+                this.appService.notify(new LoadNetworkEvent(network));
+            }
+            else {
+                this.loadNode(new Portfolio());
+            }      
+        });
+    }
+
+    loadNode<T extends Node>(node: Node) {
         node['activating'] = node['activated'] = false;
         this.nodes.push(node);
         this.positionNodes();
 
         if(node._id) {
-            var service: NodeService<Strategy | Portfolio>;
+            var service: NodeService<Node>;
 
             switch(node.ntype) {
                 case NodeType.Basic: service = this.nodeService;
@@ -140,10 +156,6 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                     else {
                         delete node.inputs;
                         delete node.weights;
-                    }
-
-                    if(isOutput) {
-                        this.appService.notify(new LoadNodeEvent(node));
                     }
                 });
             }

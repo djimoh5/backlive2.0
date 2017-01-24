@@ -25,6 +25,8 @@ export class Type {
     //display
     static list: string = 'glyphicon-align-justify';
     static grid: string = 'glyphicon-th';
+    static folder: string = 'glyphicon-folder-close';
+    static folderOpen: string = 'glyphicon-folder-open';
     static video: string = 'glyphicon-facetime-video';
     static recycle: string = 'glyphicon-retweet';
     static fontColor: string = 'glyphicon-text-color';

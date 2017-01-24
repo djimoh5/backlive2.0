@@ -1,19 +1,19 @@
-import { Component, ElementRef, Type, ComponentRef, ComponentFactoryResolver, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ElementRef, Type, ComponentRef, ComponentFactoryResolver, ViewChild, ViewContainerRef, Input, OnChanges, OnDestroy } from '@angular/core';
 import { Path } from 'backlive/config';
 import { BaseComponent } from 'backlive/component/shared';
 import { TooltipDirective } from 'backlive/directive';
 
 import { AppService } from 'backlive/service';
 
-import { SlidingNavVisibleEvent, SlidingNavItemsEvent } from 'backlive/event';
+import { SlidingNavVisibleEvent } from 'backlive/event';
 
 @Component({
     selector: 'sliding-nav',
     templateUrl: Path.ComponentView('navigation/sliding-nav'),
     styleUrls: [Path.ComponentStyle('navigation/sliding-nav')]
 })
-export class SlidingNavComponent extends BaseComponent {
-    items: SlidingNavItem[];
+export class SlidingNavComponent extends BaseComponent implements OnChanges, OnDestroy {
+    @Input() items: SlidingNavItem[];
     
     @ViewChild('component', {read: ViewContainerRef}) componentRef: ViewContainerRef;
     
@@ -24,35 +24,16 @@ export class SlidingNavComponent extends BaseComponent {
     constructor(appService:AppService, private componentResolver: ComponentFactoryResolver, private elementRef: ElementRef) {
         super(appService);
         this.items = [];
-        
-        this.subscribeEvent(SlidingNavItemsEvent, event => this.updateItems(event.data));
     }
-    
+
+    ngOnChanges() {
+        this.updateItems(this.items);
+    }
+
     updateItems(items: SlidingNavItem[]) {
-        //this.items = items
+        this.items = items;
         this.isActive = false;
         this.appService.notify(new SlidingNavVisibleEvent(true));
-        
-        //angular bug exists where classes from previous items do not get removed, so instead update each item one by one
-        //TODO: remove if this bug gets fixed in later versions
-        items.forEach((item, i) => {
-            if(this.items[i]) {
-                delete this.items[i].component;
-                delete this.items[i].onClick;
-                delete this.items[i].isActive;
-                
-                for(var key in item) {
-                    this.items[i][key] = item[key];
-                }
-            }
-            else {
-                this.items.push(item);
-            }
-        });
-        
-        if(this.items.length > items.length) {
-            this.items.splice(items.length, this.items.length - items.length);
-        }
     }
     
     showSideBar(navItem: SlidingNavItem) {
@@ -83,6 +64,11 @@ export class SlidingNavComponent extends BaseComponent {
                 navItem.onClick();
             }
         }
+    }
+
+    ngOnDestroy() {
+        super.ngOnDestroy();
+        this.appService.notify(new SlidingNavVisibleEvent(false));
     }
 }
 

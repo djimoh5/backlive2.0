@@ -18,10 +18,7 @@ export abstract class BaseNode<T extends Node> {
     private outputs: string[] = [];
 
     state: State;
-    //private inputActivations: Activation[];
-    //private totalError: number[];
-    //private trainingCount: number;
-    
+
     private nodeService: NodeService<T>;
 
     private subscribedTypes: { [key: number]: boolean  } = {};
