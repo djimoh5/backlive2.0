@@ -5,8 +5,16 @@ import { Common } from 'backlive/utility';
 export class Strategy extends Node {
     date: number;
     type: StrategyType;
-    live: number;  
-    
+    live: number; 
+
+    minMktCap: number;
+    maxMktCap: number;
+    exclSectors: string[];
+    universeTkrs: { incl:number, tkrs: string[] };
+    exchange: '0'|'N'|'M'|'A';
+    index: '0'|'sp'|'dow';
+    adr: 1|0;
+
     data: StrategyParams;
 
     constructor(name: string) {
@@ -27,9 +35,9 @@ export interface StrategyParams {
     universeTkrs: { incl:number, tkrs: string[] };
     
     //portfolio settings
-    startYr: number,
-    endYr: number,
-    minMktCap: number,
+    startYr: number;
+    endYr: number;
+    minMktCap: number;
     
     initCapt: number;
     numStocks: number;

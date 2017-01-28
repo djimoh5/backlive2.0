@@ -58,10 +58,12 @@ export class Common {
     static padDatePart (datePart: any) {
 	    datePart = "" + datePart;
 
-	    if(datePart.length == 1)
+	    if(datePart.length == 1) {
 	    	return "0" + datePart;
-	    else
+        }
+	    else {
 	    	return datePart;
+        }
 	}
 	
 	static getMonthNameAndYear(date: string) {
@@ -141,8 +143,9 @@ export class Common {
 		switch(format) {
 			case 1:
 				var split = str.split('/');
-				if(split[0].substring(0, 1) == '0')
+				if(split[0].substring(0, 1) == '0') {
 					split[0] = split[0].substring(1,2);
+                }
 				date = new Date(parseInt(split[2]), parseInt(split[0]) - 1, parseInt(split[1]), 0, 0, 0, 0);
 				break;
             case 2:
@@ -165,11 +168,11 @@ export class Common {
 
     static DateFormat = DateFormat;
     static formatDate(date: Date, format: string, options: {} = null) {
-        return formatDate(date, format, options)
+        return formatDate(date, format, options);
     }
     
     static formatDBDate(date: number, format: string, options: {} = null) {
-        return formatDate(date, format, options)
+        return formatDate(date, format, options);
     }
     
     static dbDate(date: Date): number {
@@ -181,11 +184,10 @@ export class Common {
     }
 	
 	static timeAgo(time: any) {
-        var originalTime = time;
         switch (typeof time) {
             case 'number': break;
             case 'string': time = +new Date(time); break;
-            case 'object': if (time.constructor === Date) time = time.getTime(); break;
+            case 'object': if (time.constructor === Date) { time = time.getTime(); } break;
             default: time = +new Date();
         }
         var time_formats = [
@@ -200,7 +202,7 @@ export class Common {
         var seconds = (+new Date() - time) / 1000,
             token = 'ago', list_choice = 1;
         var i = 0, format;
-        while (format = time_formats[i++])
+        while (format = time_formats[i++]) {
             if (seconds < format[0]) {
                 if (typeof format[2] == 'string') {
                     return format[list_choice];
@@ -209,6 +211,7 @@ export class Common {
                     return Math.ceil(seconds / format[2]) + ' ' + format[1] + ' ' + token;
                 }
             }
+        }
         return null;
     }
 
@@ -216,13 +219,16 @@ export class Common {
 		if(places && places > 0) {
 			num = parseFloat(Math.round(num * Math.pow(10, places)) / Math.pow(10, places) + '');
 			
-			if(!isNaN(num))
+			if(!isNaN(num)) {
 				return num;
-			else
+            }
+			else {
 				return 0;
+            }
 		}
-		else
+		else {
 			return Math.round(num);
+        }
 	}
     
 	static uniqueId() {

@@ -17,12 +17,11 @@
     .border-default;
 }
 search-bar {
-    float:right;
     padding: 15px 15px 0 15px;
     .form-group {
         position:relative;
         input {
-            min-width:225px;
+            width: 100%;
         }
         button {
             position:absolute;
@@ -31,7 +30,7 @@ search-bar {
         }
         ui-icon {
             position: absolute;
-            top: 12px;
+            top: 11px;
             right: 8px;
             font-size: 1.2em;
         }
@@ -50,6 +49,9 @@ ui-button {
     }
     .btn-icon-right {
         margin-left: 10px;
+    }
+    &.click-disabled {
+        pointer-events: none;
     }
 }
 .btn {

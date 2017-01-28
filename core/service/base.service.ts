@@ -5,7 +5,7 @@ import { BaseRepository } from '../repository/base.repository';
 var Q = require('q');
 
 export abstract class BaseService {
-    protected get database(): any { return Database.mongo };
+    protected get database(): any { return Database.mongo; };
     protected session: ISession;
     protected user: User;
     protected promise: Promise<any>;
@@ -14,7 +14,7 @@ export abstract class BaseService {
 
     constructor(session: ISession, repositories?: { [key: string]: { new(): BaseRepository; } }) {
         this.session = session;
-        this.user = session.user
+        this.user = session.user;
 
         if(repositories) {
             for(var key in repositories) {
@@ -37,7 +37,7 @@ export abstract class BaseService {
     
     success(data?: any) {
         var obj = { success: 1 };
-        if(data) { obj['data'] = data };
+        if(data) { obj['data'] = data; };
 		this.deferred.resolve(obj);
         this.initPromise();
 	}

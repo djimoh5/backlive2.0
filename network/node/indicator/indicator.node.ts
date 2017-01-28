@@ -1,11 +1,8 @@
-import { BaseNode, Normalize } from '../base.node'
+import { BaseNode } from '../base.node';
 import { DataEvent, DataSubscriptionEvent, ActivateNodeEvent } from '../../event/app.event';
 
 import { IndicatorService } from '../../../core/service/indicator.service';
-import { Indicator, IndicatorParam } from '../../../core/service/model/indicator.model';
-import { Common } from '../../../app//utility/common';
-
-import { DataCache } from '../../node/data/data.node';
+import { Indicator } from '../../../core/service/model/indicator.model';
 
 import { Calculator } from './calculator';
 import { Stats } from '../../lib/stats';

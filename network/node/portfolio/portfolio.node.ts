@@ -1,12 +1,11 @@
-import { BaseNode, MockSession } from '../base.node'
+import { BaseNode, MockSession } from '../base.node';
 
-import { ActivateNodeEvent, DataEvent, DataSubscriptionEvent, NetworkDateEvent, FeedForwardCompleteEvent, BackpropagateEvent, BackpropagateCompleteEvent, EpochCompleteEvent } from '../../event/app.event';
+import { ActivateNodeEvent, NetworkDateEvent, FeedForwardCompleteEvent, BackpropagateEvent, BackpropagateCompleteEvent, EpochCompleteEvent } from '../../event/app.event';
 
 import { PortfolioService } from '../../../core/service/portfolio.service';
 import { TickerService } from '../../../core/service/ticker.service';
 
 import { Portfolio } from '../../../core/service/model/portfolio.model';
-import { IndicatorParamType } from '../../../core/service/model/indicator.model';
 import { Activation } from '../../../core/service/model/node.model';
 
 import { Stats } from '../../lib/stats';
@@ -140,7 +139,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             //console.log('expected', this.node.activation)
             //console.log('actual', this.actualActivation)
             
-            super.backpropagate(new BackpropagateEvent({ error: error }) )
+            super.backpropagate(new BackpropagateEvent({ error: error }));
         }
     }
 }

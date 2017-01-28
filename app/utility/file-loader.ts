@@ -17,10 +17,10 @@ if (!FileReader.prototype.readAsBinaryString) {
 
             pt.content = binary;
             pt.onload();
-        }
+        };
 
         reader.readAsArrayBuffer(fileData);
-    }
+    };
 }
 
 export class FileLoader {
@@ -66,7 +66,7 @@ export class FileLoader {
             case FileType.CSV: this.processCSV();
                 break;
             case FileType.XLSX: this.processXLSX();
-                break
+                break;
             case FileType.Binary:
             case FileType.ArrayBuffer:
                 this.processFileUpload(f);
@@ -78,7 +78,7 @@ export class FileLoader {
     private processXLSX() {
         var output: { [key: string]: string }[] = [];
         var columnIndex: { [key: string]: number } = {};
-        ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'].forEach((letter, index) => { columnIndex[letter] = index });
+        ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'].forEach((letter, index) => { columnIndex[letter] = index; });
 
         var binaryData = this.reader.result ? this.reader.result : this.reader['content'];
 

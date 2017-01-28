@@ -12,6 +12,7 @@ import { NewsController } from './controller/news.controller';
 export var routes: RouteInfo[] = [
     //Pages
     { path: '/strategy', controller: HomeController },
+    { path: '/strategy/:id', controller: HomeController },
     { path: '/dashboard', controller: HomeController },
     { path: '/portfolio', controller: HomeController },
     { path: '/research', controller: HomeController },

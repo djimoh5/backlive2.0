@@ -1,8 +1,6 @@
 import { NodeService } from '../../../core/service/node.service';
 import { Node } from '../../../core/service/model/node.model';
 
-import { Common } from '../../../app//utility/common';
-
 export class VirtualNodeService extends NodeService<Node> {
     static inputsByNode: { [key: string]: Node[] } = {};
 

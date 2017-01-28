@@ -15,7 +15,7 @@ export class Calculator {
         var fields: string[] = [];
         var fns: number[] = [];
 
-        if (date) { date = parseInt(<string>date) };
+        if (date) { date = parseInt(<string>date); };
 
         for (var i = 0, cnt = indicator.vars.length; i < cnt; i++) {
             var obj = indicator.vars[i];
@@ -102,8 +102,9 @@ export class Calculator {
                 val = NO_VALUE;
             }
             else {
-                if (fns[0] && fns[0] == 1)
+                if (fns[0] && fns[0] == 1) {
                     val = Math.abs(val);
+                }
 
                 for (var i = 1, len = vals.length; i < len; i++) {
                     var tmpVal = fields[i] != null ? (vals[i][key] ? vals[i][key][fields[i]] : null) : vals[i][key];
@@ -116,8 +117,9 @@ export class Calculator {
                     else {
                         var op = ops[i - 1];
 
-                        if (fns[i] && fns[i] == 1)
+                        if (fns[i] && fns[i] == 1) {
                             tmpVal = Math.abs(tmpVal);
+                        }
 
                         switch (op) {
                             case Operator.Add: val += tmpVal; break;

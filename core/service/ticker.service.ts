@@ -11,7 +11,7 @@ import { Tickerc } from '../service/model/ticker.model';
 var whttp = require("../lib/whttp.js");
 
 export class TickerService extends BaseService {
-    protected get pricingDatabase(): any { return Database.mongoPricing };
+    protected get pricingDatabase(): any { return Database.mongoPricing; };
 
     tickercRepository: TickercRepository;
 
@@ -40,13 +40,15 @@ export class TickerService extends BaseService {
                 var date = results[results.length - 1].date;
                 var time = results[results.length - 1].time;
                 
-                if(!Common.isNumber(date))
+                if(!Common.isNumber(date)) {
                     results = [];
+                }
             }
             
             if(results.length == 0 || ((time + 3600000) < today.getTime() && date < Common.dbDate(today))) {
-                if(query.ticker == 'SP500')
-                    query.ticker = '^GSPC'
+                if(query.ticker == 'SP500') {
+                    query.ticker = '^GSPC';
+                }
                         
                 //scrape the data
                 Scraper.loadPricing(query.ticker, null, (results) => {
@@ -57,8 +59,6 @@ export class TickerService extends BaseService {
                 years = null; //doesn't need to be spliced since we already selected the correct timeframe
                 this.finish(results, years);
             }
-            
-            var self = this;
         });
         
         return this.promise;
@@ -69,21 +69,26 @@ export class TickerService extends BaseService {
             var days = years * 252;
             var len = results.length;
             
-            if(len > days)
+            if(len > days) {
                 this.done(results.splice(len - days));
-            else
+            }
+            else {
                 this.done(results);
+            }
         }
-        else
+        else {
             this.done(results);
+        }
     }
     
     getPrice(ticker, date) {
         this.pricingDatabase.collection(ticker.substring(0, 1).toUpperCase()).findOne({ ticker: ticker, date: parseInt(date) }, { adjClose:1 }, (err, result) => {
-            if(result)
+            if(result) {
                 this.done({ success:1, price:result.adjClose });
-            else
+            }
+            else {
                 this.done({ success:0 });
+            }
         });
         
         return this.promise;

@@ -1,4 +1,3 @@
-import { Database, Mongo, Collection } from '../lib/database';
 import { BaseRepository, Operations, Context } from './base.repository';
 import { Node, NodeType } from '../service/model/node.model';
 export { Node, NodeType } from '../service/model/node.model';
@@ -42,7 +41,7 @@ export abstract class NodeRepository<T extends Node> extends BaseRepository {
 
         this.context.findOne({ _id: this.dbObjectId(nodeId), uid: userId }).then((node: Node) => {
             if(node.inputs) {
-                var ids = node.inputs.map(id => { return this.dbObjectId(id) });
+                var ids = node.inputs.map(id => { return this.dbObjectId(id); });
                 this.nodeContext.find({ _id: { $in: ids } }).then((nodes: Node[]) => {
                     deferred.resolve(nodes);
                 });

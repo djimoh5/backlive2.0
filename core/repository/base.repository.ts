@@ -1,4 +1,4 @@
-import { Database, Mongo, Collection } from '../lib/database';
+import { Database, Collection } from '../lib/database';
 
 var Q = require('q');
 
@@ -97,5 +97,5 @@ export class Context {
 }
 
 export class Operations {
-    sort: { [key: string]: 1|-1 }
+    sort: { [key: string]: 1|-1 };
 }

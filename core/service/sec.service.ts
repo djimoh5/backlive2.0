@@ -1,9 +1,8 @@
 import { BaseService } from './base.service';
 
 import { Session } from '../lib/session';
-import { Common } from '../../app//utility/common';
 
-var urlParser = require("url");
+//var urlParser = require("url");
 var whttp = require("../lib/whttp.js");
 
 export class SECService extends BaseService {

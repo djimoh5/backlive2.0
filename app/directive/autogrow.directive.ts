@@ -1,5 +1,5 @@
-import {Directive, ElementRef, Input, EventEmitter, Output, AfterViewInit} from '@angular/core';
-import {PlatformUI} from 'backlive/utility/ui'
+import {Directive, ElementRef, Input, AfterViewInit} from '@angular/core';
+import {PlatformUI} from 'backlive/utility/ui';
 
 @Directive({
     selector: '[autogrow]'

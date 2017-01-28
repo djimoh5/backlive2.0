@@ -1,5 +1,4 @@
-import {Component, Input, Output, OnChanges, HostBinding, EventEmitter, ElementRef, AfterViewInit, AfterContentInit, NgZone, ContentChildren, QueryList} from '@angular/core';
-import {Path} from 'backlive/config';
+import {Component, Input, Output, HostBinding, EventEmitter, ElementRef, AfterViewInit, AfterContentInit, NgZone, ContentChildren, QueryList} from '@angular/core';
 
 import {BaseComponent} from 'backlive/component/shared';
 import {AppService} from 'backlive/service';

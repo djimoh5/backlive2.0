@@ -1,10 +1,10 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {Path} from 'backlive/config';
-import {BaseComponent} from 'backlive/component/shared';
+import { Component, Input, OnInit } from '@angular/core';
+import { Path } from 'backlive/config';
+import { BaseComponent } from 'backlive/component/shared';
 
-import {AppService, TickerService} from 'backlive/service';
+import { AppService, TickerService } from 'backlive/service';
 
-import {Ticker, Price} from 'backlive/service/model';
+import { Price } from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-ticker',
@@ -23,7 +23,7 @@ export class TickerComponent extends BaseComponent implements OnInit {
     ngOnInit() {
         this.tickerService.getPrices(this.ticker).then((prices: Price[]) => this.loadPrices(prices));
         this.tickerService.getPrice(this.ticker, 20160115).then((price: Price) => this.loadPrice(price));
-        this.tickerService.getPrice(this.ticker).then((price: Price) => this.loadPrice(price))
+        this.tickerService.getPrice(this.ticker).then((price: Price) => this.loadPrice(price));
     }
     
     loadPrices(price: Price[]) {

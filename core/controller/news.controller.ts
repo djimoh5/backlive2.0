@@ -1,4 +1,4 @@
-import { BaseController, Get, Post, Delete } from './base.controller';
+import { BaseController, Get } from './base.controller';
 import { NewsService } from '../service/news.service';
 
 export class NewsController extends BaseController {

@@ -1,10 +1,9 @@
 import { Routes, RouterModule } from '@angular/router';
 
-import {RouterService} from 'backlive/service';
-import {Config, AuthGuard} from 'backlive/config';
+import { AuthGuard } from 'backlive/config';
 
-import {AccessDeniedComponent} from './home/access-denied/access-denied.component';
-import {HomeComponent} from './home/home.component'
+import { AccessDeniedComponent } from './home/access-denied/access-denied.component';
+import { HomeComponent } from './home/home.component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent, canActivate: [AuthGuard] },

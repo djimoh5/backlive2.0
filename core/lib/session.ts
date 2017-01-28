@@ -1,7 +1,5 @@
 var Cookies = require('cookies');
-import { Config } from '../config';
 import { Database as db } from './database';
-import { Common } from '../../app/utility/common';
 import { User } from '../service/model/user.model';
 export { User } from '../service/model/user.model';
 

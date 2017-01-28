@@ -1,4 +1,4 @@
-import { BaseRepository, Operations } from './base.repository';
+import { BaseRepository } from './base.repository';
 
 import { DataField } from '../service/model/lookup.model';
 

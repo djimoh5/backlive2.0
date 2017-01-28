@@ -1,5 +1,4 @@
 import {Directive, ElementRef, Input, OnChanges, HostBinding, Output, EventEmitter, SimpleChanges} from '@angular/core';
-import {Common} from 'backlive/utility';
 import {PlatformUI} from 'backlive/utility/ui';
 
 @Directive({
@@ -68,7 +67,7 @@ export class AnimateDirective implements OnChanges {
     }
 
     fadeIn3D() {
-        var elem = this.platformUI.query(this.elementRef.nativeElement).addClass('vn-animate-rotate3d').removeClass('hide');
+        this.platformUI.query(this.elementRef.nativeElement).addClass('vn-animate-rotate3d').removeClass('hide');
         setTimeout(() => {
             this.platformUI.query(this.elementRef.nativeElement).removeClass('vn-animate-hide');
         });

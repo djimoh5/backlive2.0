@@ -118,7 +118,7 @@ export class FooterModalComponent extends BaseComponent {
             if(this.options.eventHandlers && this.options.eventHandlers[eventKey]) {
                 this.options.eventHandlers[eventKey]($event);
             }
-        }
+        };
     }
     
     isString(str: any) {

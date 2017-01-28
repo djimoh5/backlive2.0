@@ -1,14 +1,8 @@
-import { BaseNode } from '../base.node'
+import { BaseNode } from '../base.node';
 import { ActivateNodeEvent, DataFilterEvent } from '../../event/app.event';
 
 import { StrategyService } from '../../../core/service/strategy.service';
 import { Strategy } from '../../../core/service/model/strategy.model';
-import { Operator, IndicatorParam } from '../../../core/service/model/indicator.model';
-import { Common } from '../../../app//utility/common';
-
-import { DataCache } from '../data/data.node';
-
-import { IndicatorNode } from '../indicator/indicator.node';
 
 export class StrategyNode extends BaseNode<Strategy> {
     constructor(node: Strategy) {
@@ -19,7 +13,7 @@ export class StrategyNode extends BaseNode<Strategy> {
             ] },
             startYr: 20150101,
             endYr: 20170101
-        }
+        };
 
         this.notify(new DataFilterEvent({
             startDate: data.startYr, endDate: data.endYr,

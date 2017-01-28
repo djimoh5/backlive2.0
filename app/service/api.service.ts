@@ -15,9 +15,9 @@ export class ApiService {
     private http: Http;
     private token: string;
     
-    get baseUrl(): string { return '/api/' };
-    get AuthorizationHeader(): { [key: string]: string }  { return this.getAuthorizatioHeader() };
-    get ApiCacheCategory(): string { return 'api' };
+    get baseUrl(): string { return '/api/'; };
+    get AuthorizationHeader(): { [key: string]: string }  { return this.getAuthorizatioHeader(); };
+    get ApiCacheCategory(): string { return 'api'; };
     
     constructor(http: Http) {
         this.http = http;
@@ -40,7 +40,6 @@ export class ApiService {
     }
     
     get(endpoint: string, data: any = null): Observable<Response> {
-        var requestId = Common.uniqueId();
         endpoint = this.buildQueryString(endpoint, data);
                
         return this.execute(new ApiRequest(this.http, this.baseUrl + endpoint,

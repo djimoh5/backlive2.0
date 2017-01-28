@@ -1,8 +1,7 @@
 import { AppEvent, SocketEvent, BaseEvent } from './base.event';
 
-import { Activation, ActivationError, NodeType } from '../../core/service/model/node.model';
-import { DataCache, DataResult } from '../node/data/data.node';
-import { Ticker } from '../../core/service/model/ticker.model';
+import { Activation, ActivationError } from '../../core/service/model/node.model';
+import { DataCache } from '../node/data/data.node';
 import { IndicatorParam } from '../../core/service/model/indicator.model';
 
 @AppEvent('Event.Network.Date')

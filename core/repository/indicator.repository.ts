@@ -1,4 +1,3 @@
-import { BaseRepository, Operations } from './base.repository';
 import { NodeRepository, NodeType } from './node.repository';
 
 import { Indicator } from '../service/model/indicator.model';

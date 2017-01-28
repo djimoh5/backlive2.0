@@ -13,7 +13,7 @@ export class PageComponent extends BaseComponent {
     loading: boolean;
 
     constructor (appService: AppService, autoAnimateIn: boolean = true, defaultAnimation: string = AnimationType.FadeIn) {
-        super(appService)
+        super(appService);
 
         this.service().notify(new SlidingNavVisibleEvent(false));
         

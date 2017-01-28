@@ -15,9 +15,9 @@ export class BaseService {
     protected apiService: ApiService;
     protected appService: AppService;
     protected baseUrl: string;
-    protected get ServiceComponentId() { return 'service' };
+    protected get ServiceComponentId() { return 'service'; };
     
-    get AuthorizationHeader(): { [key: string] : string }  { return this.apiService.AuthorizationHeader };
+    get AuthorizationHeader(): { [key: string] : string }  { return this.apiService.AuthorizationHeader; };
     
     constructor(apiService: ApiService, appService: AppService, baseUrl: string) {
         this.apiService = apiService;

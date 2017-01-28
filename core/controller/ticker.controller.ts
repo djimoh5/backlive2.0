@@ -1,4 +1,4 @@
-import { BaseController, Get, Post, Delete } from './base.controller';
+import { BaseController, Get } from './base.controller';
 import { TickerService } from '../service/ticker.service';
 import { NewsService } from '../service/news.service';
 import { IndicatorService } from '../service/indicator.service';

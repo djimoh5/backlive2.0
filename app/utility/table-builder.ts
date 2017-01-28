@@ -1,10 +1,9 @@
-import {TableRow, TableColumn, TableColumnType, TableFooterColumn} from 'backlive/component/shared';
+import {TableRow, TableColumnType, TableFooterColumn} from 'backlive/component/shared';
 import {Common} from './common';
 
 export class TableBuilder {
 	static rows(dataRows: {}[], model: any[], options: TableBuilderOptions = null, dataFooterRows: {}[] = []) : TableRow[] {
 		var rows: TableRow[] = [];
-        var footerRow: TableFooterColumn[] = [];
         var fieldIndex = {};
         var fieldNames = [];
         var nextFieldIndex = 0;

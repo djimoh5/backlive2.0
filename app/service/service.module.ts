@@ -5,7 +5,7 @@ import { RouterService } from './router.service';
 import { ApiService } from './api.service';
 import { UserService } from './user.service';
 
-import { AnalyticsService } from './analytics.service'
+//import { AnalyticsService } from './analytics.service'
 import { BasicNodeService } from './basic-node.service';
 import { NetworkService } from './network.service';
 import { IndicatorService } from './indicator.service';

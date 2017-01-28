@@ -1,6 +1,4 @@
-import { Database, Mongo, Collection } from '../lib/database';
-import { BaseRepository, Operations, Context } from './base.repository';
-var Q = require('q');
+import { BaseRepository } from './base.repository';
 
 import { TickerCache } from '../service/model/ticker.model';
 

@@ -1,15 +1,12 @@
-import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Path } from 'backlive/config';
 import { NodeComponent } from 'backlive/component/shared';
 import { IndicatorEditorComponent } from './editor/editor.component';
 
-import { Common } from 'backlive/utility';
-
-import { AppService, UserService, IndicatorService } from 'backlive/service';
-import { Indicator, Node } from 'backlive/service/model';
+import { AppService, IndicatorService } from 'backlive/service';
+import { Indicator } from 'backlive/service/model';
 
 import { OpenFooterModalEvent } from 'backlive/event';
-import { NodeChangeEvent, RemoveNodeEvent } from '../node/node.event';
 
 @Component({
     selector: 'backlive-indicator',

@@ -52,10 +52,12 @@ export class AutoCompleterDirective implements OnChanges {
         $elem.autocomplete(options);
 
         $elem.blur((event) => {
-            if (this.blurDisabled)
+            if (this.blurDisabled) {
                 event.preventDefault();
-            else
+            }
+            else {
                 this.cancel.emit();
+            }
         });
     }
 

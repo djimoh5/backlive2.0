@@ -1,4 +1,4 @@
-import { BaseNode } from '../base.node'
+import { BaseNode } from '../base.node';
 import { ActivateNodeEvent, TrainingDataEvent, BackpropagateEvent } from '../../event/app.event';
 
 import { NodeService } from '../../../core/service/node.service';
@@ -31,7 +31,7 @@ export class BasicNode extends BaseNode<Node> {
                 break; //should only be one key for basic node
             }
 
-            this.backpropagate(new BackpropagateEvent({ error: error }) )
+            this.backpropagate(new BackpropagateEvent({ error: error }));
         }
     }
 }

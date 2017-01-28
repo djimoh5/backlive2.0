@@ -10,7 +10,6 @@ export class DatePickerDirective implements OnChanges {
     platformUI: PlatformUI;
     @Input('datepicker') date: any;
     @Input('datepicker-format') format: string = 'MM/dd/yy';
-    @Input() monthPicker: boolean;
     @Input() maxDate: boolean;
     @Input() minDate: boolean;
     
@@ -51,17 +50,9 @@ export class DatePickerDirective implements OnChanges {
         $elem.datepicker({
             changeMonth: true,
             changeYear: true,
-            showButtonPanel: (this.monthPicker),
             onSelect: (dateText: string) => {
                 this.onTimeChanged(dateText);
                 this.onDateChanged(dateText);
-            },
-            onClose: (event: any, date: any) => {
-                if (this.monthPicker) {
-                    var month = date.selectedMonth + 1;
-                    var year = date.selectedYear;
-                    this.onChangeMonthYearChanged(month + '/1/' + year);
-                }
             },
             beforeShow: function (input, inst) {
                 if (inst.input.hasClass('month-only')) {
@@ -89,16 +80,6 @@ export class DatePickerDirective implements OnChanges {
         }
 
         $elem.val(this.formattedDate(this.date));
-    }
-    
-    onChangeMonthYearChanged(date: string) {
-        var calendarDate = Common.formatDate(new Date(date), Common.DateFormat.monthYear);
-        this.date = this.defaultFormattedDate(date);
-
-        var $elem = this.platformUI.query(this.elementRef.nativeElement);
-        $elem.val(calendarDate);
-
-        this.monthYearChange.emit(this.date);
     }
     
     onDateChanged(date: string) {
@@ -130,7 +111,7 @@ export class DatePickerDirective implements OnChanges {
     
     formattedDate(date: any) {
         
-        if (!date) return '';
+        if (!date) { return ''; };
 
         if (this.format) {
             var dateObj = Common.parseDate(date);

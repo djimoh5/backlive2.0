@@ -1,6 +1,6 @@
 require('./globals.js');
 
-import { Network } from './network'
+import { Network } from './network';
 
 new Network();
 

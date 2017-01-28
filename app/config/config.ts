@@ -3,12 +3,12 @@ declare var WEB_CONFIG: any;
 export class Path {
 	static baseComponentUrl = 'app/component/';
 	
-	static Component(path: string) { return this.baseComponentUrl + path + WEB_CONFIG.CacheBuster };
-	static ComponentView(path: string) { return this.baseComponentUrl + path + '/' + this.lastPath(path) + '.component.html' + WEB_CONFIG.CacheBuster };
-	static ComponentStyle(path: string) { return this.baseComponentUrl + path + '/' + this.lastPath(path) + '.component.css' + WEB_CONFIG.CacheBuster };
-    static ComponentRoute(path: string) { return 'app/component/' + path + '/' + this.lastPath(path) + '.component' };
+	static Component(path: string) { return this.baseComponentUrl + path + WEB_CONFIG.CacheBuster; };
+	static ComponentView(path: string) { return this.baseComponentUrl + path + '/' + this.lastPath(path) + '.component.html' + WEB_CONFIG.CacheBuster; };
+	static ComponentStyle(path: string) { return this.baseComponentUrl + path + '/' + this.lastPath(path) + '.component.css' + WEB_CONFIG.CacheBuster; };
+    static ComponentRoute(path: string) { return 'app/component/' + path + '/' + this.lastPath(path) + '.component'; };
 	
-	static JSImports(path: string) { return 'Scripts/imports/' + path + WEB_CONFIG.CacheBuster };
+	static JSImports(path: string) { return 'Scripts/imports/' + path + WEB_CONFIG.CacheBuster; };
 	
 	private static lastPath(path: string) {
 		var split = path.split('/');

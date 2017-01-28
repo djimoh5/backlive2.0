@@ -1,8 +1,8 @@
-import {Component, ElementRef, Input, Output, EventEmitter, HostListener, NgZone} from '@angular/core';
-import {DropdownMenuComponent} from './dropdown-menu.component';
-import {AppService} from 'backlive/service';
+import { Component, ElementRef, Input, Output, EventEmitter, NgZone } from '@angular/core';
+import { DropdownMenuComponent } from './dropdown-menu.component';
+import { AppService } from 'backlive/service';
 
-import {PlatformUI} from 'backlive/utility/ui';
+import { PlatformUI } from 'backlive/utility/ui';
 
 @Component({
     selector: 'dropdown-button',

@@ -1,13 +1,10 @@
 ﻿import { Injectable } from '@angular/core';
-import { BaseService } from './base.service';
-import { ApiService } from './api.service';
 import { UserService } from './user.service';
 
 import { RouteInfo, RouterService, RouteParamsCallback } from './router.service';
 import { ClientSocket } from './client.socket';
 
 import { Config } from 'backlive/config';
-import { Common, Cache } from 'backlive/utility';
 import { PlatformUI } from 'backlive/utility/ui';
 
 import { EventQueue, BaseEvent, TypeOfBaseEvent, BaseEventCallback, QueueOperators } from 'backlive/network/event';
@@ -20,7 +17,7 @@ export class AppService {
     private eventQueue: EventQueue;
 
     private componentLoaded: boolean; //denotes when at least one component has loaded after routing
-    protected get ServiceComponentId() { return 'service' };
+    protected get ServiceComponentId() { return 'service'; };
     
     constructor(public routerService: RouterService, public clientSocket: ClientSocket, private platformUI: PlatformUI) {
         this.eventQueue = new EventQueue();

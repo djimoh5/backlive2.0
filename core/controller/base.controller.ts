@@ -1,4 +1,3 @@
-var DIR_ROOT = './../.';
 var url = require('url');
 
 import * as express from 'express';
@@ -8,21 +7,21 @@ import { BaseService } from '../service/base.service';
 
 export function Get(path) {
     return function (target: BaseController, propertyKey: string, descriptor: PropertyDescriptor) {
-		if(!target.get) { target.get = {} };
+		if(!target.get) { target.get = {}; };
 		target.get[path] = target[propertyKey];
     };
 }
 
 export function Post(path) {
     return function (target: BaseController, propertyKey: string, descriptor: PropertyDescriptor) {
-		if(!target.post) { target.post = {} };
+		if(!target.post) { target.post = {}; };
 		target.post[path] = target[propertyKey];
     };
 }
 
 export function Delete(path) {
     return function (target: BaseController, propertyKey: string, descriptor: PropertyDescriptor) {
-		if(!target.delete) { target.delete = {} };
+		if(!target.delete) { target.delete = {}; };
 		target.delete[path] = target[propertyKey];
     };
 }
@@ -42,9 +41,9 @@ export class BaseController {
 
         this.router.use(bodyParser.json());
         this.router.use(bodyParser.urlencoded());
-        this.router.use((req, res, next) => { this.queryParser(req, res, next) });
-        this.router.use((req, res, next) => { this.initSession(req, res, next) });
-        this.router.use((req, res, next) => { this.injectServices(req, res, next) });
+        this.router.use((req, res, next) => { this.queryParser(req, res, next); });
+        this.router.use((req, res, next) => { this.initSession(req, res, next); });
+        this.router.use((req, res, next) => { this.injectServices(req, res, next); });
     }
 
     private queryParser(req, res, next) {

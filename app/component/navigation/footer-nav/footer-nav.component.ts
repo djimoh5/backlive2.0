@@ -1,4 +1,4 @@
-import { Component, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Path } from 'backlive/config';
 import { BaseComponent } from 'backlive/component/shared';
 
@@ -37,7 +37,7 @@ export class FooterNavComponent extends BaseComponent implements OnInit {
                     case 'IXIC': lastPrice.ticker = 'Nasdaq'; break;
                 }
 
-                this.lastPrices.push(lastPrice)
+                this.lastPrices.push(lastPrice);
             }
         });
     }

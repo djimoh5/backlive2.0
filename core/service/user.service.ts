@@ -4,7 +4,6 @@ import { Session } from '../lib/session';
 import { Config } from '../config';
 import { Database as db } from '../lib/database';
 import { Common } from '../../app/utility/common';
-import { User } from '../service/model/user.model';
 
 export class UserService extends BaseService {
     constructor(session: Session) {
@@ -49,7 +48,7 @@ export class UserService extends BaseService {
                     this.user = { error:'the username or password is incorrect', uid: null };
                 }
                     
-                this.done(this.user)
+                this.done(this.user);
             });
     	});
 
@@ -135,11 +134,13 @@ export class UserService extends BaseService {
                                 this.success(); 
                             });
                         }
-                        else
+                        else {
                             this.error('the existing password is incorrect');
+                        }
                     }
-                    else
+                    else {
                         this.error('new password must be at least 4 chars');
+                    }
                 }
                 else {
                     this.error('user does not exist');
@@ -165,8 +166,9 @@ export class UserService extends BaseService {
                         this.done({ success:1, pw:pw, e:result.e });
                     });
                 }
-                else
+                else {
                     this.error('user does not exist');
+                }
             });
     	});
 
@@ -181,7 +183,7 @@ export class UserService extends BaseService {
             collection.update({ _id:oid }, { $set:obj }, () => {
                 this.user.btuid = custId;
                 this.success();
-            })
+            });
     	});
 
         return this.promise;
@@ -218,10 +220,12 @@ export class UserService extends BaseService {
 	    var pword = "";
 
 	    for(var i = 0; i < pwordLen; i++) {
-	        if(Math.round(Math.random() * 100) % 4 == 0)
+	        if(Math.round(Math.random() * 100) % 4 == 0) {
 	        	pword += special[Math.round(Math.random() * (special.length - 1))];
-			else
+            }
+			else {
 			    pword += alpha[Math.round(Math.random() * (alpha.length - 1))];
+            }
 	    }
 	
 		return pword;

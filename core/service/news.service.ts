@@ -1,6 +1,5 @@
 import { BaseService } from './base.service';
 import { Session } from '../lib/session';
-import { Common } from '../../app//utility/common';
 
 var urlParser = require("url");
 var whttp = require("../lib/whttp.js");
@@ -17,8 +16,9 @@ export class NewsService extends BaseService {
                 this.done(data);
             });
         }
-        else
+        else {
             this.done('');
+        }
     }
     
     getCompanyNews(ticker) {
@@ -30,8 +30,9 @@ export class NewsService extends BaseService {
                     this.done(data);
                 });
             }
-            else
+            else {
                 this.done([]);
+            }
         });
         
         return this.promise;
@@ -43,7 +44,7 @@ export class NewsService extends BaseService {
         whttp.get('feeds.finance.yahoo.com', '/rss/2.0/category-stocks?region=US&lang=en-US', (data) => {
             ft.push(data);
             whttp.get('feeds.finance.yahoo.com', '/rss/2.0/category-economy-govt-and-policy?region=US&lang=en-US', (data) =>{			
-                ft.push(data)
+                ft.push(data);
                 this.done(ft);
             });
         });

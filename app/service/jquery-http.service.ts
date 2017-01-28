@@ -20,7 +20,7 @@ export class JQueryHttp {
 		var params: any = {
 			url: url,
 			method: method
-		}
+		};
 		
 		if(data) {
 			params.data = data;
@@ -56,7 +56,7 @@ export interface RequestOptions {
 }
 
 export class Response {
-	body: string
+	body: string;
 	
 	constructor(body: string) {
 		this.body = body;

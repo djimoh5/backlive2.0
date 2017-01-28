@@ -1,4 +1,3 @@
-import { BaseService } from './base.service';
 import { NodeService } from './node.service';
 import { PortfolioRepository } from '../repository/portfolio.repository';
 

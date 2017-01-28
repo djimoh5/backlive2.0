@@ -1,4 +1,4 @@
-import { BaseNode } from '../base.node'
+import { BaseNode } from '../base.node';
 
 export interface IExecutionNode {
     

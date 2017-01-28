@@ -1,7 +1,7 @@
 import {Directive, ElementRef, Input, HostListener} from '@angular/core';
-import {PlatformUI} from 'backlive/utility/ui'
+import {PlatformUI} from 'backlive/utility/ui';
 
-import {Common} from 'backlive/utility'
+import {Common} from 'backlive/utility';
 
 @Directive({
     selector: '[inputFormat]'
@@ -54,7 +54,7 @@ export class InputFormatDirective {
                 break;
             case InputFormat.alphanumeric:
                 var regex = /^[a-z0-9]+$/i;
-                isValid = regex.test(String.fromCharCode(keycode))
+                isValid = regex.test(String.fromCharCode(keycode));
                 break;
         }
        
@@ -100,7 +100,7 @@ export class InputFormatDirective {
             var val = $elem.val();
 
             if(!Common.isNumber(val.substring(val.length - 1))) {
-                $elem.val(val.substring(0, val.length - 1))
+                $elem.val(val.substring(0, val.length - 1));
                 return true;
             }
         }

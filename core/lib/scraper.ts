@@ -18,8 +18,9 @@ export class Scraper {
             var results = [];   
             var time = (new Date()).getTime();
             
-            if(tkr == '^GSPC')
+            if(tkr == '^GSPC') {
                 tkr = 'SP500';
+            }
 
             var collection = Database.mongo.collection('market');
             collection.remove({ ticker:tkr }, function() {
@@ -42,8 +43,9 @@ export class Scraper {
                         results.unshift({ date:date, close:close, adjClose:adjClose, high:high, low:low, volume:volume });
                     }
                     
-                    if((i + 1) == cnt && callback)
+                    if((i + 1) == cnt && callback) {
                         callback(results);
+                    }
                 }
             });
 			

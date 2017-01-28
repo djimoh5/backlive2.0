@@ -1,11 +1,10 @@
-import { Component, Input, Output, OnChanges, EventEmitter, ElementRef, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, OnChanges, EventEmitter, SimpleChanges } from '@angular/core';
 import { Path } from 'backlive/config';
 
 import { BaseComponent } from 'backlive/component/shared';
-import { Common } from 'backlive/utility';
 
 import { AppService, LookupService } from 'backlive/service';
-import { Indicator, DataField, DataFieldMap, IndicatorParamType, IndicatorParam } from 'backlive/service/model';
+import { DataField, DataFieldMap, IndicatorParamType, IndicatorParam } from 'backlive/service/model';
 
 import { SearchKeyCode } from '../editor/editor.component';
 
@@ -34,9 +33,9 @@ export class IndicatorDataMenuComponent extends BaseComponent implements OnChang
                             .localeCompare(DataFieldMap.toDisplayName(dataField.type, b).toLowerCase()); 
                 });
 
-                dataField.fieldObjs = []
+                dataField.fieldObjs = [];
                 dataField.fields.forEach(field => {
-                    dataField.fieldObjs.push({ name: field })
+                    dataField.fieldObjs.push({ name: field });
                 });
             });
 

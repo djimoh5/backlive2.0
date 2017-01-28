@@ -34,7 +34,7 @@ export interface Price {
 }
 
 export interface LastPrice {
-    ticker: string,
+    ticker: string;
     price: number;
     change: number;
     percentChange: number;

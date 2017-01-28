@@ -1,6 +1,6 @@
-import {Control} from '@angular/common';
+import { FormControl } from '@angular/forms';
 
-export function CreditCardValidator(control: Control) 
+export function CreditCardValidator(control: FormControl) 
 {
     if(control && control.value) {
         var cc = control.value.replace(/-/g, '').replace(/ /g, '');
@@ -8,9 +8,9 @@ export function CreditCardValidator(control: Control)
         var numdigits = cc.length;
         var parity = numdigits % 2;
         for(var i=0; i < numdigits; i++) {
-            var digit = parseInt(cc.charAt(i))
-            if(i % 2 == parity) digit *= 2;
-            if(digit > 9) digit -= 9;
+            var digit = parseInt(cc.charAt(i));
+            if(i % 2 == parity) { digit *= 2; }
+            if(digit > 9) { digit -= 9; }
             sum += digit;
         }
         

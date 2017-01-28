@@ -1,9 +1,9 @@
-﻿import {Component, Input, AfterViewInit, ViewChild, OnInit, Type} from '@angular/core';
+﻿import { Component, Input, AfterViewInit, ViewChild, OnInit } from '@angular/core';
 
-import {Path} from 'backlive/config';
-import {PlatformUI} from 'backlive/utility/ui';
-import {AppService} from 'backlive/service';
-import {BaseComponent} from 'backlive/component/shared';
+import { Path } from 'backlive/config';
+import { PlatformUI } from 'backlive/utility/ui';
+import { AppService } from 'backlive/service';
+import { BaseComponent } from 'backlive/component/shared';
 
 @Component({
     selector: 'backlive-audio',
@@ -19,7 +19,7 @@ export class AudioComponent extends BaseComponent implements OnInit, AfterViewIn
 
     @ViewChild('vnAudio') vnAudio: any;
 
-    loopCallback: Function = () => { this.loopPlayback() };
+    loopCallback: Function = () => { this.loopPlayback(); };
 
     constructor(appService: AppService, private platformUI: PlatformUI) {
         super(appService);this.volume = 0;

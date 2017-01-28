@@ -1,8 +1,8 @@
 //TODO: import jQuery and move ALL app usage of it to this class!
 declare var window:any, document: any, $:any;
 
-import {Config} from 'backlive/config';
-import {PlatformUI} from './platform-ui';
+import { Config } from 'backlive/config';
+import { PlatformUI } from './platform-ui';
 
 export class DomUI implements PlatformUI {
     reload(path: string = null, event?: MouseEvent) {
@@ -15,7 +15,24 @@ export class DomUI implements PlatformUI {
     }
 
     open(path: string = null) {
-        window.open(Config.SITE_URL + (path ? (path.substring(0, 1) === '/' ? path : `/${path}`) : ''));
+        window.open(Config.SITE_URL + (path ? (path.substring(0, 1) === '/' ? path : `/${path}`) : ''), '_blank');
+    }
+
+    openExternal(path: string = null) {
+        if (path) {
+            if (path.substring(0, 1) === '/') {
+                window.open(path, '_blank');
+            }
+            else if (path.substring(0, 4) === 'http') {
+                window.open(path, '_blank');
+            }
+            else {
+                window.open(`/${path}`, '_blank');
+            }
+        }
+        else {
+            window.open('', '_blank');
+        }
     }
     
     redirect(path: string = '', event?: MouseEvent) {
@@ -23,21 +40,12 @@ export class DomUI implements PlatformUI {
             window.location.href = '/' + path;
         }
         else {
-            window.open('/' + path);
+            window.open('/' + path, '_blank');
         }
     }
     
     query(selector: any): any {
         return $(selector);
-    }
-    
-    hideHeader(isHidden: boolean) {
-        if (isHidden) {
-            $('header-nav').addClass('hide');
-        }
-        else {
-            $('header-nav').removeClass('hide');
-        }
     }
     
     onResize(eventNamespace: string, callback: (size: { width: number, height: number }) => void) {
@@ -48,11 +56,22 @@ export class DomUI implements PlatformUI {
         
         callback({ width: $(window).width(), height: $(window).height() });
     }
-    
-    onScroll(eventNamespace: string, callback: Function) {
+
+    endOnResize(eventNamespace: string) {
+        $(window).off('resize.' + eventNamespace);
+    }
+
+    onScroll(eventNamespace: string, callback: (scrollTop: number) => void) {
+        $(window).off('scroll.' + eventNamespace);
         $(window).on('scroll.' + eventNamespace, () => {
             callback($(window).scrollTop());
         });
+
+        callback($(window).scrollTop());
+    }
+
+    endOnScroll(eventNamespace: string) {
+        $(window).off('scroll.' + eventNamespace);
     }
     
 	infiniteScroll(onMoreResults: Function, scrollBuffer: number) {
@@ -73,7 +92,20 @@ export class DomUI implements PlatformUI {
     endInfiniteScroll() {
         $(window).off('scroll.paging');
     }
-    
+
+    addDocumentOffClick(nativeElem: any, thenDo: Function) {
+        var container = $(nativeElem);
+        $(document).on('mouseup.menu-offclick', (e) => {
+            if (!container.is(e.target) && container.has(e.target).length === 0) {
+                thenDo();
+            }
+        });
+    }
+
+    endDocumentOffClick() {
+        $(document).off('mouseup.menu-offclick');
+    }
+
     scrollToTop(animationTime?:number) {
         if(animationTime) {
             $('html,body').animate({ scrollTop: 0 }, animationTime);

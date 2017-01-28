@@ -1,4 +1,3 @@
-import { BaseService } from './base.service';
 import { IndicatorRepository } from '../repository/indicator.repository';
 
 import { NodeService } from './node.service';

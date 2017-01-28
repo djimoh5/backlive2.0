@@ -6,7 +6,7 @@ declare var SnapEngage: any, SnapABugChat: any, SnapABug: any;
 import { Injectable } from '@angular/core';
 import { AppService } from './app.service';
 import { RouterService } from './router.service';
-import { AnalyticsDimension, AnalyticsEvent, AnalyticsTiming, AnalyticsEventCategory, AnalyticsEventAction, AnalyticsTimingVar } from './model/analytics.model';
+import { AnalyticsDimension, AnalyticsEvent, AnalyticsTiming } from './model/analytics.model';
 
 import { User } from 'backlive/service/model';
 
@@ -51,7 +51,7 @@ export class AnalyticsService {
                     description: event.label
                 }),
                 eventValue: event.value
-            }
+            };
             
             AnalyticsService.trackHit(hit, customDimensions);
         }

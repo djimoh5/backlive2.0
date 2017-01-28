@@ -1,4 +1,4 @@
-import { AppEvent, SocketEvent, BaseEvent } from '../../network/event/base.event';
+import { SocketEvent, BaseEvent } from '../../network/event/base.event';
 import { LastPrice } from '../../core/service/model/ticker.model';
 
 @SocketEvent('Event.Ticker.LastPrice')

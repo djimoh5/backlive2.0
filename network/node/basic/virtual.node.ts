@@ -1,4 +1,4 @@
-import { BasicNode } from './basic.node'
+import { BasicNode } from './basic.node';
 
 import { VirtualNodeService } from './virtual-node.service';
 import { Node } from '../../../core/service/model/node.model';

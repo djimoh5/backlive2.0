@@ -1,4 +1,4 @@
-import { BaseNode } from '../base.node'
+import { BaseNode } from '../base.node';
 
 export declare type ParamValues = { date: number; ticker: string; [key: string]: number | string };
 export declare type DataResult = { [key: string]: ParamValues };

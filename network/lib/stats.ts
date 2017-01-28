@@ -21,7 +21,7 @@ export class Stats {
 
         var len = arr.length;
         arr.forEach((key, index) => {
-            newVals[key] = (len - index) / len
+            newVals[key] = (len - index) / len;
         });
 
         return newVals;

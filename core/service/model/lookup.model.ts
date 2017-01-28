@@ -281,7 +281,7 @@ export class DataFieldMap {
         'mscore':'M Score',
         'zscore':'Altman Z Score',
         }
-    }}
+    }; }
 
     private static dictionary: FieldMap = {
         1: { 
@@ -512,7 +512,7 @@ export class DataFieldMap {
         'mscore':'b/beneishmodel.asp',
         'zscore':'a/altman.asp',
         }
-    }
+    };
 }
 
 export const NO_VALUE = -99999;

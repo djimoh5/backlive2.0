@@ -1,7 +1,7 @@
 import { NodeService } from './node.service';
 import { StrategyRepository } from '../repository/strategy.repository';
 
-import { Session, User } from '../lib/session';
+import { Session } from '../lib/session';
 import { Common } from '../../app//utility/common';
 
 import { Strategy } from './model/strategy.model';
@@ -71,14 +71,17 @@ export class StrategyService extends NodeService<Strategy> {
                 doc.name = name;
 
                 collection.update({ _id:oid, uid: this.user.uid }, doc, (err) => {
-                    if(err)
+                    if(err) {
                         this.error(err);
-                    else
+                    }
+                    else {
                         this.success();
+                    }
                 });
             }
-            else
+            else {
                 this.error(null);
+            }
         });
         
         return this.promise;
@@ -102,8 +105,9 @@ export class StrategyService extends NodeService<Strategy> {
                     });
                 });
             }
-            else
+            else {
                 this.error(doc.live ? "Live strategies cannot be removed. Please first stop automation." : "");
+            }
         });
         
         return this.promise;
@@ -121,10 +125,12 @@ export class StrategyService extends NodeService<Strategy> {
                 if(doc) {
                     doc.pub = isPublic;
                     collection.update({ _id:oid, uid: this.user.uid }, doc, (err) => {
-                        if(err)
+                        if(err) {
                             this.error("an unexpected error occurred");
-                        else
+                        }
+                        else {
                             this.done({ success:1, msg:'your backtests have been made public to all users' });
+                        }
                     });
                 }
             });
@@ -151,13 +157,15 @@ export class StrategyService extends NodeService<Strategy> {
                                     this.done({ success:1, msg:'your backtests have been shared successfully', email:email, id:bt._id });
                                 });
                             }
-                            else
+                            else {
                                 this.error("the backtest does not exist");
+                            }
                         });
                     });
                 }
-                else
+                else {
                     this.error("the user does not exist");
+                }
             });
         }
         
@@ -171,8 +179,9 @@ export class StrategyService extends NodeService<Strategy> {
                     this.done({ id:result._id, bt_id:result.bt_id, capt:result.capt, exec:result.exec, data:data });
                 });
             }
-            else
+            else {
                 this.error(null);
+            }
         });
         
         return this.promise;
@@ -189,15 +198,17 @@ export class StrategyService extends NodeService<Strategy> {
                 doc.live = 1;
 
                 collection.update({ _id:oid, uid: this.user.uid }, doc, (err) => {
-                    if(err)
+                    if(err) {
                         this.done({ "success":0 });
+                    }
                     else {
                         //add to automation table
                         var obj = { bt_id:backtestId, uid: this.user.uid, capt:startCapital, date:(new Date()).getTime(), active:1 };
                         
                         this.database.collection('user_stgy').update({ bt_id:backtestId }, obj, { upsert:true }, (err)  => {
-                            if(err)
+                            if(err) {
                                 this.done({ "success":0 });
+                            }
                             else {
                                 this.done({ "success":1 });
                                 
@@ -211,8 +222,9 @@ export class StrategyService extends NodeService<Strategy> {
                     }
                 });
             }
-            else
+            else {
                 this.done({ "success":0 });
+            }
         });
         
         return this.promise;
@@ -229,21 +241,25 @@ export class StrategyService extends NodeService<Strategy> {
                 doc.live = 0;
 
                 collection.update({ _id:oid, uid: this.user.uid }, doc, (err) => {
-                    if(err)
+                    if(err) {
                         this.done({ "success":0 });
+                    }
                     else {
                         //update automation table
                         this.database.collection('user_stgy').update({ bt_id: strategyId }, { $set:{ active:0 } }, (err) => {
-                            if(err)
+                            if(err) {
                                 this.done({ "success":0 });
-                            else
+                            }
+                            else {
                                 this.done({ "success":1 });
+                            }
                         });
                     }
                 });
             }
-            else
+            else {
                 this.done({ "success":0 });
+            }
         });
         
         return this.promise;

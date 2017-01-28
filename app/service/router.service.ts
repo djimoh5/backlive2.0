@@ -1,13 +1,12 @@
-import {Injectable,Type, ModuleWithProviders} from '@angular/core';
-import {Title} from '@angular/platform-browser';
-import {RouterModule, Router, Route, RouterOutletMap, ActivatedRoute, ActivatedRouteSnapshot, UrlTree, NavigationStart, NavigationEnd} from '@angular/router';
-import {Location} from '@angular/common';
+import { Injectable } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { Router, ActivatedRoute, ActivatedRouteSnapshot, UrlTree, NavigationStart, NavigationEnd } from '@angular/router';
+import { Location } from '@angular/common';
 
-import {Observable, Subscribable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
+import { Subscription } from 'rxjs/Subscription';
 
-import {Common} from 'backlive/utility';
-import {Config} from 'backlive/config';
+import { Common } from 'backlive/utility';
+import { Config } from 'backlive/config';
 
 declare var System: any;
 
@@ -17,18 +16,18 @@ export class RouterService {
     static activeUrl: string;
 
     private pageTitle: string;
-    
+
     private router: Router;
     private location: Location;
     private isActiveRouteTree: ActivatedRoute[];
-    
+
     private backSubcriber: Function; //current subscriber to the browser back button
     private routerSubcriber: Function; //current subscriber to route changes
     private navigationStartSubcribers: Function[]; //subscribe to navigation start event
     private urlSubscribers: Function[];
     private paramsSubscribers: { [key: number]: RouteParamsCallback };
     private queryParamsSubscribers: { [key: number]: RouteParamsCallback };
-    
+
     private titleService: Title;
     private linkUrlCache: { [key: string]: string } = {};
     private currentParams: { [key: string]: any } = {};
@@ -36,8 +35,8 @@ export class RouterService {
     private subscriptionsToParams: Subscription[] = [];
     private subscriptionsToQueryParams: Subscription[] = [];
 
-	constructor(router: Router, location: Location, titleService: Title) {
-		this.router = router;
+    constructor(router: Router, location: Location, titleService: Title) {
+        this.router = router;
         this.location = location;
 
         this.titleService = titleService;
@@ -95,7 +94,7 @@ export class RouterService {
             }
         });
 
-        this.initSubscribers();       
+        this.initSubscribers();
     }
 
     initSubscribers() {
@@ -138,7 +137,7 @@ export class RouterService {
         return this.location.path();
     }
 
-    isRouteActive(route: RouteInfo, componentExactMatch: boolean = false, matchParams: {[key: string]: any } = null) {
+    isRouteActive(route: RouteInfo, componentExactMatch: boolean = false, matchParams: { [key: string]: any } = null) {
         if (!this.isActiveRouteTree) {
             this.isActiveRouteTree = this.getRouteTree();
         }
@@ -212,7 +211,7 @@ export class RouterService {
             query = queryParams;
         }
 
-        if(Config.APP_CRASHED) {
+        if (Config.APP_CRASHED) {
             window.location.href = this.getLinkUrl(route, params);
             return;
         }
@@ -244,7 +243,7 @@ export class RouterService {
             else {
                 var urls: string[] = RouterService.activeUrl.split('?')[0].split(';')[0].split('/');
                 for (var i = urls.length - 1; i >= 0; i--) {
-                    if (urls[i]) {
+                    if (urls[i] && urls[i].length < 24) {
                         pageTitle = urls[i].toLowerCase().replace(/-/g, ' ').replace(/\b[a-z](?=[a-z]{2})/g, function (letter) { return letter.toUpperCase(); });;
                         break;
                     }
@@ -274,7 +273,7 @@ export class RouterService {
 
         return (relativeToBase ? '' : Config.SITE_URL) + linkUrl;
     }
-    
+
     private getRouteLink(route: RouteInfo, params: {}) {
         var routeLink: any[] = [route.path];
         var optionalParams = {};
@@ -300,10 +299,10 @@ export class RouterService {
         if (hasOptionalParams) {
             routeLink.push(optionalParams);
         }
-        
+
         return routeLink;
     }
-    
+
     subscribe(callback: Function) {
         this.routerSubcriber = callback;
     }
@@ -315,7 +314,7 @@ export class RouterService {
     subscribeToBack(callback: Function) {
         this.backSubcriber = callback;
     }
-    
+
     unsubscribeToBack() {
         this.backSubcriber = null;
     }
@@ -351,7 +350,7 @@ export class RouterService {
     subscribeToUrl(subscriber: Function) {
         this.urlSubscribers.push(subscriber);
     }
- 
+
     notifyUrlSubscribers(path: string, params: { [key: string]: any }) {
         setTimeout(() => {
             this.urlSubscribers.forEach(subscriber => subscriber(path, params));

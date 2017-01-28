@@ -1,5 +1,5 @@
-import {Component, Input, Output, EventEmitter, OnChanges} from '@angular/core';
-import {Type} from './icon.input';
+import { Component, Input, OnChanges } from '@angular/core';
+import { Type } from './icon.input';
 
 @Component({
     selector: 'ui-icon',
@@ -15,7 +15,7 @@ export class IconComponent implements OnChanges {
         this.iconClass = 'glyphicon ';
 
         if(this.type && Type[this.type]) {
-            this.iconClass += Type[this.type]
+            this.iconClass += Type[this.type];
         }
         
         /*if(this.size && Size[this.size]) {

@@ -1,5 +1,5 @@
 import { BaseController, Get } from './base.controller';
-import { Config } from '../config';
+
 var path = require("path");
 
 export class HomeController extends BaseController {

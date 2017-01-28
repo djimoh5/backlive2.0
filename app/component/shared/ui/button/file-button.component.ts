@@ -1,6 +1,6 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {ButtonComponent} from './button.component';
-import {AppService} from 'backlive/service';
+import { Component, Output, EventEmitter } from '@angular/core';
+import { ButtonComponent } from './button.component';
+import { AppService } from 'backlive/service';
 
 @Component({
     selector: 'file-button',

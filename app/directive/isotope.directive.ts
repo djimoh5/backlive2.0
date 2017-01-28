@@ -1,4 +1,4 @@
-import {Directive, ElementRef, Input, Output, EventEmitter, OnInit, AfterViewInit} from '@angular/core';
+import {Directive, ElementRef, Input, Output, EventEmitter, AfterViewInit} from '@angular/core';
 
 declare var Isotope: any;
 

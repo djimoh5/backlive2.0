@@ -1,5 +1,5 @@
 import { Routes, RouterModule } from '@angular/router';
-import { Config, AuthGuard } from 'backlive/config';
+import { AuthGuard } from 'backlive/config';
 
 import { ResearchComponent } from './research.component';
 

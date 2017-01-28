@@ -10,7 +10,7 @@ export class Network extends Node {
         super(NodeType.Network);
         this.learnRate = learningRate;
         this.epochs = numEpochs;
-        this.regParam = regParam
+        this.regParam = regParam;
 
         if(hiddenNodes) {
             this.hiddenLayers = [];

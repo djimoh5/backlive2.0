@@ -1,7 +1,11 @@
-import {Component, Input, Output, EventEmitter, OnChanges} from '@angular/core';
-import {AppService} from 'backlive/service';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, HostListener, HostBinding } from '@angular/core';
+import { AppService } from 'backlive/service';
 
-import {Type, Size} from './button.input';
+import { Type, Size } from './button.input';
+
+import { BaseComponent } from 'backlive/component/shared';
+
+import { PageLoadingEvent } from 'backlive/event';
 
 @Component({
     selector: 'ui-button',
@@ -10,7 +14,7 @@ import {Type, Size} from './button.input';
                </button>`,
     styles: []
 })
-export class ButtonComponent implements OnChanges {
+export class ButtonComponent extends BaseComponent implements OnInit, OnChanges {
     @Input() title: string;
     @Input() type: string;
     @Input() size: string;
@@ -21,19 +25,54 @@ export class ButtonComponent implements OnChanges {
     @Input() icon: string;
     @Input() iconRight: string;
     
-    btnClass: string;
     appService: AppService;
 
+    btnClass: string;
+    hasBeenClicked: boolean;
+
     static inputs = ['title', 'type', 'size', 'width', 'disabled'];
-    
-    constructor (appService: AppService) {
+
+    constructor(appService: AppService) {
+        super(appService);
+
         this.appService = appService;
         this.btnClass = 'btn ' + Type.default + ' ' + Size.default;
     }
 
-    ngOnChanges () {
+    ngOnInit() {
+        if (this.isSubmitType()) {
+            this.subscribeEvent(PageLoadingEvent, event => this.onApiPost(event.data));
+        }
+    }
+
+    ngOnChanges(simpleChanges: SimpleChanges) {
         this.btnClass = "btn";
         this.btnClass += ' ' + (this.type && Type[this.type] ? Type[this.type] : Type.default);
         this.btnClass += ' ' + (this.size && Size[this.size] ? Size[this.size] : Size.default);
+    }
+
+    @HostListener('click', ['$event'])
+    onButtonClickListener(event: MouseEvent) {
+        this.hasBeenClicked = true;
+    }
+
+    onApiPost(loading: boolean) {
+        if (this.hasBeenClicked) {
+            if (loading) {
+                this.disabled = true;
+            }
+            else {
+                this.disabled = false;
+                this.hasBeenClicked = false;
+            }
+        }
+    }
+
+    isSubmitType() {
+        return this.type === 'submit';
+    }
+
+    @HostBinding('class.click-disabled') get isDisabled() {
+        return this.disabled;
     }
 }

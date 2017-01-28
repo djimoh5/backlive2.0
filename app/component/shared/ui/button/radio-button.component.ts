@@ -6,7 +6,7 @@ import {AppService} from 'backlive/service';
     selector: 'radio-button',
     template: `<div *ngIf="toggle" class="btn-group" data-toggle="buttons" [class.collapsible]="collapsible" [class.split-button]="split" [style.width]="width">
                     <label *ngFor="let option of options" [class]="btnClass" [class.active]="option.value == value" (click)="onSelect(option)">
-                        <input type="radio"><ui-icon *ngIf="option.icon" [type]="option.icon" [class.btn-icon-left]="option.title"></ui-icon>{{option.title}}
+                        <input type="checkbox"><ui-icon *ngIf="option.icon" [type]="option.icon" [class.btn-icon-left]="option.title"></ui-icon>{{option.title}}
                     </label>
                </div>
                <div *ngIf="!toggle" class="check-options">

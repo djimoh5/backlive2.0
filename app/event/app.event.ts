@@ -1,5 +1,4 @@
 import { AppEvent, BaseEvent } from 'backlive/network/event';
-import { SlidingNavItem } from 'backlive/component/navigation';
 import { ModalOptions } from '../component/shared/modal/modal.component';
 import { ModalOptions as FooterModalOptions } from '../component/navigation/footer-nav/modal/modal.component';
 

@@ -4,8 +4,6 @@ import {PageComponent} from 'backlive/component/shared';
 
 import {AppService, UserService} from 'backlive/service';
 
-import {Route} from 'backlive/routes';
-
 @Component({
     selector: 'backlive-research',
     templateUrl: Path.ComponentView('research')

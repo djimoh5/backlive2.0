@@ -1,9 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Path } from 'backlive/config';
-import { Common } from 'backlive/utility';
 
 import { NodeComponent } from 'backlive/component/shared';
-import { PageComponent } from 'backlive/component/shared';
 
 import { AppService, UserService, PortfolioService } from 'backlive/service';
 import { Portfolio, Strategy } from 'backlive/service/model';

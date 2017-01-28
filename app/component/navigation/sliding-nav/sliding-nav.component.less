@@ -1,6 +1,8 @@
 @import "css/plugins/mixins.less";
 @import "css/themes/colors.less";
 
+@sideBarWidth: 390px;
+
 .sidebar {
 	z-index:998;
     color: @text-primary;
@@ -31,8 +33,9 @@
 		}
 	}
 	.component {
-		float:right;
-        width:0;
+		float:left;
+		padding-left: 20px;
+		width: @sideBarWidth - 70;
         visibility: hidden;
         opacity: 0;
         .transition(~"width .5s linear, visibility .5s linear, opacity .8s ease");
@@ -41,7 +44,7 @@
 	/*background:darken(@brand-primary, 15%);
     background: rgba(0,0,0, 0.4);*/
     &.active {
-        width: 290px;
+        width: @sideBarWidth;
         background: rgba(0,0,0, 0.8);
         .component {
             visibility: visible;

@@ -1,5 +1,4 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {DatePipe} from '@angular/common';
 
 @Pipe({
     name: 'formatNumber',
@@ -31,11 +30,13 @@ export class FormatNumberPipe implements PipeTransform  {
     }
     
     durationFormat(timeSpanInDays) {
-        if (timeSpanInDays > 729)
+        if (timeSpanInDays > 729) {
             return Math.floor(timeSpanInDays / 365) + ' Years';
+        }
         
-        if (timeSpanInDays > 90)
+        if (timeSpanInDays > 90) {
             return Math.floor(timeSpanInDays / 30) + ' Months';
+        }
         
         return timeSpanInDays + ' Days';
     }

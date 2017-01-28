@@ -1,4 +1,4 @@
-import { QueueOperators } from '../event/event-queue'
+import { QueueOperators } from '../event/event-queue';
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from '../event/base.event';
 import { AppEventQueue } from '../event/app-event-queue';
 import { ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent, UpdateNodeWeightsEvent, TrainingDataEvent } from '../event/app.event';

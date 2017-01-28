@@ -1,0 +1,46 @@
+<div class="section">
+    <div class="page-header">
+    <h4>Choose Sectors to exclude from trading <a href="javascript:void(0)">exclude all</a></h4>
+    </div>
+    <radio-button [options]="sectors"></radio-button>
+</div>
+<div class="section">
+    <div class="page-header">
+    <h4>Restrict trading to a specific exchange or index</h4>
+    </div>
+    <div class="row">
+        <div class="col-xs-6 col-md-4">
+            Exchange <ui-icon type="question" tooltip=""></ui-icon>
+            <br/>
+            <radio-button [(value)]="strategy.exchange" 
+                [options]="[
+                    { value: 0, title: 'N/A' }, 
+                    { value: 'N', title: 'NYSE' },
+                    { value: 'M', title: 'Nasdaq' },
+                    { value: 'A', title: 'AMEX' }
+                ]">
+            </radio-button>
+        </div>
+        <div class="col-xs-6 col-md-4">
+            Index <ui-icon type="question" tooltip=""></ui-icon>
+            <br/>
+            <radio-button [(value)]="strategy.index" 
+                [options]="[
+                    { value: 0, title: 'N/A' }, 
+                    { value: 'sp', title: 'S&P 500' },
+                    { value: 'dow', title: 'Dow' }
+                ]">
+            </radio-button>
+        </div>
+        <div class="col-xs-6 col-md-4">
+            Include ADRs <ui-icon type="question" tooltip=""></ui-icon>
+            <br/>
+            <radio-button [(value)]="strategy.adr" 
+                [options]="[
+                    { value: 0, title: 'No' }, 
+                    { value: 1, title: 'Yes' }
+                ]">
+            </radio-button>
+        </div>
+    </div>
+</div>

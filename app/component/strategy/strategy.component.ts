@@ -1,11 +1,14 @@
-import { Component, OnInit, Input, Output, EventEmitter, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ElementRef } from '@angular/core';
 import { Path } from 'backlive/config';
 import { NodeComponent } from 'backlive/component/shared';
+import { StrategyEditorComponent } from './editor/editor.component';
 
-import { AppService, UserService, StrategyService } from 'backlive/service';
+import { AppService, StrategyService } from 'backlive/service';
 
-import { Indicator, Strategy, Node } from 'backlive/service/model';
+import { Indicator, Strategy } from 'backlive/service/model';
 import { ExecuteStrategyEvent } from './strategy.event';
+
+import { OpenFooterModalEvent } from 'backlive/event';
 
 @Component({
     selector: 'backlive-strategy',
@@ -39,8 +42,17 @@ export class StrategyComponent extends NodeComponent<Strategy> implements OnInit
         this.addInput.emit(new Indicator());
     }
 
-    editStrategy() {
-
+    onEdit() {
+        this.appService.notify(new OpenFooterModalEvent({ 
+            title: 'Edit Strategy',
+            body: StrategyEditorComponent,
+            model: {
+                strategy: this.strategy
+            },
+            onModalClose: () => {
+                this.update();
+            }
+        }));
     }
 
     executeStrategy() {

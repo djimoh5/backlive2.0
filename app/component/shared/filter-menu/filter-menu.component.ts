@@ -3,8 +3,6 @@ import {Path} from 'backlive/config';
 
 import {BaseComponent} from 'backlive/component/shared';
 
-import {SearchBoxDirective} from 'backlive/directive';
-
 import {AppService} from 'backlive/service';
 
 @Component({

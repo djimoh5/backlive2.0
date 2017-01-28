@@ -2,7 +2,7 @@ import {
     DataEvent, DataSubscriptionEvent, DataFilterEvent, InitializeDataEvent, NetworkDateEvent, ValidateDataEvent,
     FeedForwardCompleteEvent, BackpropagateCompleteEvent, EpochCompleteEvent
 } from '../../event/app.event';
-import { BaseDataNode, IDataNode, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
+import { BaseDataNode, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
 
 import { DataFieldMap, DataCollectionMap } from './field-map';
 import { IndicatorParam, IndicatorParamType, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
@@ -174,8 +174,9 @@ export class DataLoaderNode extends BaseDataNode {
     private callDB(date: number | number[], fields: DBFields, type: number, callback: Function, ticker: string | string[]) { //optional ticker, otherwise get values for all tickers
         var self = this;
         var tickerArr: string[], dateArr: number[];
-        if (ticker && Common.isArray(ticker))
+        if (ticker && Common.isArray(ticker)) {
             tickerArr = <string[]>ticker;
+        }
 
         if (date && Common.isArray(date)) {
             dateArr = <number[]>date;
@@ -215,7 +216,7 @@ export class DataLoaderNode extends BaseDataNode {
                             }
                             else {
                                 if (dateArr) {
-                                    if (!vals[result.date]) vals[result.date] = {};
+                                    if (!vals[result.date]) { vals[result.date] = {}; }
                                     vals[result.date][result.ticker] = result;
                                 }
                                 else {
@@ -238,8 +239,9 @@ export class DataLoaderNode extends BaseDataNode {
                         var vals: DataResult = {};
 
                         cursor.each(function (err, result) {
-                            if (result == null)
+                            if (result == null) {
                                 callback(vals, type);
+                            }
                             else {
                                 vals[result.date] = result;
                                 self.allCacheKeys[result.date] = 1;

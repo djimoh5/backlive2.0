@@ -1,5 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Path } from 'backlive/config';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { BaseComponent } from 'backlive/component/shared';
 
 import { AppService } from 'backlive/service';
@@ -7,7 +6,6 @@ import { NodeService } from '../../service/node.service';
 
 import { Node } from 'backlive/service/model';
 import { NodeChangeEvent, RemoveNodeEvent } from './node.event';
-import { BaseEvent } from 'backlive/network/event';
 
 @Component({
     selector: 'backlive-node',

@@ -1,14 +1,14 @@
 export function AppEvent(name: string) {
     return function (target: typeof BaseEvent) {
         target.eventName = name;
-    }
+    };
 }
 
 export function SocketEvent(name: string) {
     return function (target: typeof BaseEvent) {
         target.eventName = name;
         target.isSocketEvent = true;
-    }
+    };
 }
 
 export class BaseEvent<T> {

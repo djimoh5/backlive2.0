@@ -48,8 +48,9 @@ export class ServerSocket {
             var day = date.getDay();
             var hour = date.getUTCHours();
                     
-            if(day == 0 || day == 6 || hour < 13 || hour > 20)
+            if(day == 0 || day == 6 || hour < 13 || hour > 20) {
                 return;
+            }
             else {
                 this.emitTickerLastPrice(this.io.sockets);
                 console.log('broadcasting stock ticker');

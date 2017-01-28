@@ -5,7 +5,7 @@ import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
 import { RadioButtonOption } from 'backlive/component/shared/ui';
 import { SlidingNavItem } from 'backlive/component/navigation';
 
-import { AppService, UserService, StrategyService } from 'backlive/service';
+import { AppService, StrategyService } from 'backlive/service';
 
 import { Common } from 'backlive/utility';
 
@@ -107,7 +107,7 @@ export class DashboardComponent extends PageComponent {
     
     onDateChange(value: number) {
         if(value === -1) {
-            return
+            return;
         }
         
         var today = new Date();

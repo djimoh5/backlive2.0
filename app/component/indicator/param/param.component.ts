@@ -2,7 +2,6 @@ import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { Path } from 'backlive/config';
 
 import { BaseComponent } from 'backlive/component/shared';
-import { Common } from 'backlive/utility';
 
 import { AppService } from 'backlive/service';
 import { IndicatorParam, IndicatorParamGroup } from 'backlive/service/model';

@@ -1,6 +1,5 @@
-import {Directive, ElementRef, Input, EventEmitter, OnInit, AfterViewInit} from '@angular/core';
+import {Directive, ElementRef, Input, AfterViewInit} from '@angular/core';
 import {PlatformUI} from 'backlive/utility/ui';
-import {PasswordValidator} from 'backlive/utility/validator';
 
 @Directive({
     selector: '[passwordStrength]'

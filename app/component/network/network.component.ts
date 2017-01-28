@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Path } from 'backlive/config';
 import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
-import { StrategyComponent } from '../strategy/strategy.component';
+import { NetworkListComponent } from './shared/list/list.component';
 import { SlidingNavItem } from 'backlive/component/navigation';
 
-import { AppService, UserService, NetworkService, BasicNodeService, IndicatorService, StrategyService, PortfolioService, LookupService } from 'backlive/service';
+import { AppService, UserService, NetworkService, BasicNodeService, IndicatorService, StrategyService, PortfolioService, LookupService, RouterService } from 'backlive/service';
 import { NodeService } from '../../service/node.service';
 
 import { Route } from 'backlive/routes';
@@ -13,7 +13,7 @@ import { NodeChangeEvent, ActivateNodeEvent, ExecuteStrategyEvent, ExecuteNetwor
 
 import { PlatformUI } from 'backlive/utility/ui';
 
-import { Common } from 'backlive/utility';
+import { Common, Cache } from 'backlive/utility';
 
 declare var d3;
 
@@ -39,14 +39,15 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     minStartDate: number = 20030103;
 
     constructor(appService: AppService, private userService: UserService, private lookupService: LookupService, private platformUI: PlatformUI, 
-        private nodeService: BasicNodeService, private networkService: NetworkService, private indicatorService: IndicatorService, private strategyService: StrategyService, private portfolioService: PortfolioService) {
+        private nodeService: BasicNodeService, private networkService: NetworkService, private indicatorService: IndicatorService, private strategyService: StrategyService, 
+        private portfolioService: PortfolioService, private routerService: RouterService) {
         super(appService);
 
         this.todayDate = Common.dbDate(new Date());
         
         this.navItems = [
             { icon: 'search', component: SearchBarComponent },
-            { icon: 'list', onClick: () => {}, tooltip: 'my strategies' },
+            { icon: 'list', component: NetworkListComponent, eventHandlers: { select: (node: Network) => this.loadNetwork(node) }, tooltip: 'my strategies' },
             { icon: "settings", component: null }
         ];
         
@@ -64,41 +65,24 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         });
     }
 
-    activate(event: ActivateNodeEvent) {
-        var actCnt = 0;
-        var activatedNode: Node;
-        
-        this.nodes.forEach(node => {
-            if(node['activating']) {
-                setTimeout(() => {
-                    node['activating'] = event.senderId === node._id;
-                    node['a-line'] = null;
-                }, 500);
-            }
-            else {
-                node['activating'] = event.senderId === node._id;
-                if(node['activating']) {
-                    activatedNode = node;
-                    node['activated'] = node['activated'] ? ++node['activated'] : 1;
-                }
-            }
-
-            if(node['activated']) {
-                actCnt += node['activated'];
-            }
-        });
-
-        if(actCnt > this.nodes.length) {
-            this.nodes.forEach(node => {
-                node['activated'] = node._id !== activatedNode._id ? 0 : 1;
-            });
-        }
-    }
-    
     ngOnInit() {
+        var id = this.routerService.params('id');
+        if(!id) {
+            id =  Cache.get('strategyId', 'pref');
+        }
+
         this.networkService.list().then(networks => {
             if(networks.length > 0) {
-                this.loadNetwork(networks[0]);
+                var n: Network;
+                if(id) {
+                    n = networks.filter((network) => { return network._id === id; })[0];
+                }
+
+                if(!n) {
+                    n = networks[0];
+                }
+
+                this.loadNetwork(n);
             }
             else {
                 var network = new Network(.5, 50, [3], null);
@@ -120,9 +104,12 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                 this.appService.notify(new LoadNetworkEvent(network));
             }
             else {
-                this.loadNode(new Portfolio());
+                this.onAddInput(this.network, new Portfolio());
             }      
         });
+
+        this.appService.navigate(Route.Strategy, { id: this.network._id });
+        Cache.set('strategyId', network._id, 0, 'pref');
     }
 
     loadNode<T extends Node>(node: Node) {
@@ -181,6 +168,11 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                 delete this.tmpInputMap[key];
             }
         }
+
+        if(node.ntype === NodeType.Strategy && node.name !== this.network.name) {
+            this.network.name = node.name;
+            this.networkService.update(this.network);
+        }
     }
 
     onRemoveNode(node: Node, index: number = null) {
@@ -208,6 +200,37 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                 //this.life.numLoops++;
             }
         }, 200);*/
+    }
+
+    activate(event: ActivateNodeEvent) {
+        var actCnt = 0;
+        var activatedNode: Node;
+        
+        this.nodes.forEach(node => {
+            if(node['activating']) {
+                setTimeout(() => {
+                    node['activating'] = event.senderId === node._id;
+                    node['a-line'] = null;
+                }, 500);
+            }
+            else {
+                node['activating'] = event.senderId === node._id;
+                if(node['activating']) {
+                    activatedNode = node;
+                    node['activated'] = node['activated'] ? ++node['activated'] : 1;
+                }
+            }
+
+            if(node['activated']) {
+                actCnt += node['activated'];
+            }
+        });
+
+        if(actCnt > this.nodes.length) {
+            this.nodes.forEach(node => {
+                node['activated'] = node._id !== activatedNode._id ? 0 : 1;
+            });
+        }
     }
 
     positionNodes(animating: boolean = false) {

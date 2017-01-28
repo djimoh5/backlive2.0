@@ -41,7 +41,7 @@ export interface Collection {
     findOne(query: { [key: string]: any }, callback: (err, doc) => void);
     findOne(query: { [key: string]: any }, fields: { [key: string]: any }, callback: (err, doc) => void);
     insert(data: any, callback?: (err) => void);
-    insert(data: any, { safe: boolean }, callback?: (err) => void);
+    insert(data: any, options: { safe: boolean }, callback?: (err) => void);
     update(query: { [key: string]: any }, data: { $set: any } | any, callback?: (err) => void);
     update(query: { [key: string]: any }, data: { $set: any } | any, options: { upsert?: boolean, multi?: boolean }, callback?: (err) => void);
     remove(query: { [key: string]: any }, callback?: (err) => void);

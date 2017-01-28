@@ -19,7 +19,7 @@ import { SplitViewComponent } from './split-view/split-view.component';
 import { AudioComponent } from './audio/audio.component';
 
 var sharedComponents = [BaseComponent, PageComponent, ModalComponent, SearchBarComponent, AccordionComponent, AccordionGroupComponent,
-    TabComponent, TabContentComponent, TabViewComponent, FilterMenuComponent, TableComponent, SplitViewComponent, AudioComponent]
+    TabComponent, TabContentComponent, TabViewComponent, FilterMenuComponent, TableComponent, SplitViewComponent, AudioComponent];
 
 /* UI components */
 import { AlertComponent } from './ui/alert/alert.component';
@@ -51,11 +51,11 @@ var uiComponents = [
 /* directives */
 import {
     AnimateDirective, JIsotopeDirective, DatePickerDirective, AutoCompleterDirective, FileUploaderDirective, TooltipDirective, ReadMoreDirective, SearchBoxDirective,
-    InputFormatDirective, FocusDirective
+    InputFormatDirective, FocusDirective, NavigateDirective
 } from 'backlive/directive';
 
 var directives = [AnimateDirective, JIsotopeDirective, DatePickerDirective, AutoCompleterDirective, FileUploaderDirective, TooltipDirective, ReadMoreDirective, SearchBoxDirective,
-    InputFormatDirective, FocusDirective];
+    InputFormatDirective, NavigateDirective, FocusDirective];
 
 /* pipes */
 import { FormatDatePipe, SortByPipe } from 'backlive/pipe';

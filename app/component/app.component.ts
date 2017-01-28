@@ -1,13 +1,12 @@
-﻿import { Component, ElementRef } from '@angular/core';
+﻿import { Component } from '@angular/core';
 
 import { Path } from 'backlive/config';
-import { Route } from 'backlive/routes';
 
 /* components */
-import { BaseComponent, ModalComponent } from 'backlive/component/shared';
+import { BaseComponent } from 'backlive/component/shared';
 
 /* services */
-import { AppService, RouterService, ApiService, UserService } from 'backlive/service';
+import { AppService, RouterService, UserService } from 'backlive/service';
 
 /* models */
 import { User } from 'backlive/service/model';
@@ -34,8 +33,8 @@ export class AppComponent extends BaseComponent {
         this.subscribeEvent(SlidingNavVisibleEvent, event => {
              this.isSlidingNavVisible = event.data;
         });
-        this.subscribeEvent(PageLoadingEvent, event => { this.isPageLoading = event.data });
-        this.subscribeEvent(RouterLoadingEvent, event => { this.isRouterLoading = event.data });
+        this.subscribeEvent(PageLoadingEvent, event => { this.isPageLoading = event.data; });
+        this.subscribeEvent(RouterLoadingEvent, event => { this.isRouterLoading = event.data; });
     }
     
     init(user: User) {

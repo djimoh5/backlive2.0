@@ -1,11 +1,11 @@
-import { Component, Input, Output, OnInit, AfterViewInit, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Path } from 'backlive/config';
 
 import { BaseComponent } from 'backlive/component/shared';
 import { Common } from 'backlive/utility';
 
 import { AppService, IndicatorService } from 'backlive/service';
-import { Indicator, Node, IndicatorParam, IndicatorParamType, Operator } from 'backlive/service/model';
+import { Indicator, IndicatorParam, IndicatorParamType, Operator } from 'backlive/service/model';
 
 import { CloseFooterModalEvent } from 'backlive/event';
 
