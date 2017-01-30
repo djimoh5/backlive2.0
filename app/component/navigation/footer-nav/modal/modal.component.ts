@@ -96,10 +96,7 @@ export class FooterModalComponent extends BaseComponent {
             }
         }
 
-        if (componentRef.instance.ngOnInit) {
-            componentRef.instance.ngOnInit();
-        }
-        else if (componentRef.instance.ngOnChanges) {
+        if (componentRef.instance.ngOnChanges) {
             componentRef.instance.ngOnChanges({});
         }
 

@@ -1,44 +1,144 @@
-<div class="section">
-    <div class="page-header">
-    <h4>Choose Sectors to exclude from trading <a href="javascript:void(0)">exclude all</a></h4>
-    </div>
-    <radio-button [options]="sectors"></radio-button>
+<div class="page-header">
+    <h4><ui-icon type="globe"></ui-icon> Stock Universe</h4>
 </div>
 <div class="section">
     <div class="page-header">
-    <h4>Restrict trading to a specific exchange or index</h4>
+        <h5>Restrict stocks by size, listed exchange, or index</h5>
     </div>
     <div class="row">
-        <div class="col-xs-6 col-md-4">
-            Exchange <ui-icon type="question" tooltip=""></ui-icon>
-            <br/>
-            <radio-button [(value)]="strategy.exchange" 
+        <div class="col-xs-6 col-md-3">
+            <div class="mktcap">
+                Market Cap (in Millions)<br/>
+                <input [(ngModel)]="strategy.settings.minMktCap" type="text" class="form-control" /> to
+                <input [(ngModel)]="strategy.settings.maxMktCap" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="col-xs-6 col-md-3">
+            Exchange<br/>
+            <radio-button [(value)]="strategy.settings.exchange" 
                 [options]="[
-                    { value: 0, title: 'N/A' }, 
+                    { value: '', title: 'N/A' }, 
                     { value: 'N', title: 'NYSE' },
                     { value: 'M', title: 'Nasdaq' },
                     { value: 'A', title: 'AMEX' }
                 ]">
             </radio-button>
         </div>
-        <div class="col-xs-6 col-md-4">
-            Index <ui-icon type="question" tooltip=""></ui-icon>
-            <br/>
-            <radio-button [(value)]="strategy.index" 
+        <div class="col-xs-6 col-md-3">
+            Index<br/>
+            <radio-button [(value)]="strategy.settings.index" 
                 [options]="[
-                    { value: 0, title: 'N/A' }, 
+                    { value: '', title: 'N/A' }, 
                     { value: 'sp', title: 'S&P 500' },
                     { value: 'dow', title: 'Dow' }
                 ]">
             </radio-button>
         </div>
-        <div class="col-xs-6 col-md-4">
-            Include ADRs <ui-icon type="question" tooltip=""></ui-icon>
+        <div class="col-xs-6 col-md-3">
+            Include ADRs <ui-icon type="question" tooltip="an American depositary receipt (ADR) is a stock that trades in the United States but represents a specified number of shares in a foreign corporation. ADRs are bought and sold on American markets just like regular stocks, and are issued/sponsored in the U.S. by a bank or brokerage"></ui-icon>
             <br/>
-            <radio-button [(value)]="strategy.adr" 
+            <radio-button [(value)]="strategy.settings.adr" 
                 [options]="[
                     { value: 0, title: 'No' }, 
                     { value: 1, title: 'Yes' }
+                ]">
+            </radio-button>
+        </div>
+    </div>
+</div>
+<div class="section">
+    <div class="page-header">
+        <h5>Choose Sectors to exclude from trading <a href="javascript:void(0)" (click)="excludeAllSectors()">exclude all</a></h5>
+    </div>
+    <checkbox-button [(value)]="strategy.settings.exclSectors" [options]="sectors" [split]="true"></checkbox-button>
+</div>
+<div class="section portfolio-settings">
+    <div class="page-header">
+        <h4><ui-icon type="tasks"></ui-icon> Portfolio Settings</h4>
+    </div>
+    <div class="row">
+        <div>
+            Initial Capital<br/>
+            <input [(ngModel)]="strategy.settings.initCapt" type="text" class="form-control init-capt" />
+        </div>
+        <div>
+            # Stocks <ui-icon type="question" placement="top" tooltip="# of stocks to include per long / short portfolio. So if going both long and short, the total number of positions traded will be twice the value specified here."></ui-icon>
+            <br/><input [(ngModel)]="strategy.settings.numStocks" type="text" class="form-control" />
+        </div>
+        <div>
+            Portfolio Weighting <ui-icon type="question" placement="top" tooltip="how $ should be allocated to each position in the portfolio"></ui-icon>
+            <br/>
+            <radio-button [(value)]="strategy.settings.weighting" 
+                [options]="[
+                    { value: PortfolioWeighting.Equal, title: 'equal weight' }, 
+                    { value: PortfolioWeighting.Score, title: 'score' },
+                    { value: PortfolioWeighting.LargeCap, title: 'market cap' },
+                    { value: PortfolioWeighting.SmallCap, title: 'small cap' },
+                    { value: PortfolioWeighting.Volatility, title: 'volatility' },
+                    { value: PortfolioWeighting.MinCorrelation, title: 'min. corr' }
+                ]">
+            </radio-button>
+        </div>
+        <div>
+            Trading Frequency <ui-icon type="question" placement="top" tooltip="Positions will be held for this amount of time, then indicators will be re-caluclated, and new positons selected if need be."></ui-icon>
+            <br/>
+            <radio-button [(value)]="strategy.settings.frequency" 
+                [options]="[
+                    { value: TradingFrequency.Daily, title: 'daily' },
+                    { value: TradingFrequency.Weekly, title: 'week' },
+                    { value: TradingFrequency.BiWeekly, title: '2 weeks' },
+                    { value: TradingFrequency.Monthly, title: 'month' },
+                    { value: TradingFrequency.BiMonthly, title: '2 months' },
+                    { value: TradingFrequency.Quarterly, title: 'quarter' },
+                    { value: TradingFrequency.Annually, title: 'year' }
+                ]">
+            </radio-button>
+        </div>
+        <div>
+            Sector Allocation <ui-icon type="question" placement="top" tooltip="Whether or not portfolio should be evenly balanced between all sectors, or selected purely by rank order regardless of sector."></ui-icon>
+            <br/>
+            <radio-button [(value)]="strategy.settings.sectNeutral" 
+                [options]="[
+                    { value: 0, title: 'N/A' },
+                    { value: 1, title: 'Neutral' }
+                ]">
+            </radio-button>
+        </div>
+        <div>
+            Long Exposure % <ui-icon type="question" placement="top" tooltip="A value greater than 1 indicates using borrowed money to increase your long portfolio's exposore to the market."></ui-icon>
+            <br/><input [(ngModel)]="strategy.settings.exposure" type="text" class="form-control" />
+        </div>
+        <div>
+            Short Exposure % <ui-icon type="question" placement="top" tooltip="Use a value between 0 and 1 to limit your short portfolio size. i.e. a value of .5 denotes a 50% gross exposure to your short strategy."></ui-icon>
+            <br/><input [(ngModel)]="strategy.settings.shortExposure" type="text" class="form-control" />
+        </div>
+        <div>
+            Portfolio Stop % <ui-icon type="question" placement="top" tooltip="maximum % loss of entire portfolio during any trading period. i.e If trading frequency set to 'monthly' and stop triggered, all positions will be exited until start of next month."></ui-icon>
+            <br/><input [(ngModel)]="strategy.settings.stopLoss" type="text" class="form-control" />
+        </div>
+        <div>
+            Position Stop % <ui-icon type="question" placement="top" tooltip="The maximum % loss allowed on each individual trade."></ui-icon>
+            <br/><input [(ngModel)]="strategy.settings.posStopLoss" type="text" class="form-control" />
+        </div>
+        <div>
+            Benchmark <ui-icon type="question" placement="top" tooltip="Select a benchmark for comparison against your strategy"></ui-icon>
+            <br/>
+            <radio-button [(value)]="strategy.settings.benchmark" 
+                [options]="[
+                    { value: 'SPY', title: 'SPY' },
+                    { value: 'IWM', title: 'IWM' },
+                    { value: 'VTI', title: 'VTI' }
+                ]">
+            </radio-button>
+        </div>
+        <div>
+            Trade Friction <ui-icon type="question" placement="top" tooltip="The cost of executing each trade. Estimate as a fixed % of trade size, or use Interactive Broker's (IB) fixed trading commission algorithm."></ui-icon>
+            <br/>
+            <input *ngIf="strategy.settings.frictionType === FrictionType.Percentage" [(ngModel)]="strategy.settings.friction" type="text" class="form-control" />
+            <radio-button [(value)]="strategy.settings.frictionType"
+                [options]="[
+                    { value: FrictionType.Percentage, title: '% of Trade' },
+                    { value: FrictionType.InteractiveBrokers, title: 'IB Fixed Rate' }
                 ]">
             </radio-button>
         </div>

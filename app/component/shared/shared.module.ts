@@ -33,6 +33,7 @@ import { SelectOptionComponent, SelectCategoryComponent, SelectComponent } from 
 import { ButtonComponent } from './ui/button/button.component';
 import { ToggleButtonComponent } from './ui/button/toggle-button.component';
 import { RadioButtonComponent } from './ui/button/radio-button.component';
+import { CheckboxButtonComponent } from './ui/button/checkbox-button.component';
 import { DropdownButtonComponent } from './ui/button/dropdown-button.component';
 import { DropdownMenuComponent } from './ui/button/dropdown-menu.component';
 import { FileButtonComponent } from './ui/button/file-button.component';
@@ -44,7 +45,7 @@ import { IconComponent } from './ui/icon/icon.component';
 var uiComponents = [
     AlertComponent, ProgressBarComponent, AjaxLoaderComponent, SearchBoxComponent,
     SelectComponent, SelectOptionComponent, SelectCategoryComponent,
-    RadioButtonComponent, ButtonComponent, ToggleButtonComponent, DropdownButtonComponent, DropdownMenuComponent, FileButtonComponent,
+    RadioButtonComponent, CheckboxButtonComponent, ButtonComponent, ToggleButtonComponent, DropdownButtonComponent, DropdownMenuComponent, FileButtonComponent,
     CheckboxComponent, IconComponent
 ];
 

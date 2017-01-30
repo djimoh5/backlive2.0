@@ -62,9 +62,9 @@ export class SlidingNavComponent extends BaseComponent implements OnChanges, OnD
                         }
                     }
 
-                    /*if (this.activeComponent.instance.ngOnChanges) {
+                    if (this.activeComponent.instance.ngOnChanges) {
                         this.activeComponent.instance.ngOnChanges({});
-                    }*/
+                    }
                 }, 500);
             }
         }

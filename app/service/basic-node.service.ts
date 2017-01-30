@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { BaseService } from './base.service';
 import { ApiService } from './api.service';
 import { AppService } from './app.service';
 import { NodeService } from './node.service';

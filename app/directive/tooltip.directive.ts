@@ -1,10 +1,10 @@
-import {Directive, ElementRef, Input, OnInit} from '@angular/core';
-import {PlatformUI} from 'backlive/utility/ui';
+import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
+import { PlatformUI } from 'backlive/utility/ui';
 
 @Directive({
     selector: '[tooltip]'
 })
-export class TooltipDirective implements OnInit {
+export class TooltipDirective implements OnChanges {
     @Input('tooltip') title: string;
     @Input() placement: string;
     elementRef: ElementRef;
@@ -15,10 +15,13 @@ export class TooltipDirective implements OnInit {
         this.platformUI = platformUI;
     }
     
-    ngOnInit() {
+    ngOnChanges() {
         if(this.title) {
             var options = { title: this.title, placement: this.placement };
             this.platformUI.query(this.elementRef.nativeElement).tooltip(options);
+        }
+        else {
+            this.platformUI.query(this.elementRef.nativeElement).tooltip('destroy');
         }
     }
 }

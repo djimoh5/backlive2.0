@@ -24,6 +24,7 @@ export class Type {
     
     //display
     static list: string = 'glyphicon-align-justify';
+    static tasks: string = 'glyphicon-tasks';
     static grid: string = 'glyphicon-th';
     static folder: string = 'glyphicon-folder-close';
     static folderOpen: string = 'glyphicon-folder-open';
@@ -34,6 +35,7 @@ export class Type {
     static view: string = 'glyphicon-eye-open';
     static question: string = 'glyphicon-question-sign';
     static play: string = 'glyphicon-play-circle';
-    
+
+    static globe: string = 'glyphicon-globe';
     static signal: string = 'glyphicon-signal';
 }

@@ -10,6 +10,11 @@
 		{
 			"taskName": "tslint",
 			"args": [],
+			/*"commandBinding": {
+				"id": "task.tslint",
+				"title": "TSLint",
+                "category": "Custom Task"
+			},*/
 			"problemMatcher": {
 				"owner": "tslint",
 				"fileLocation": [

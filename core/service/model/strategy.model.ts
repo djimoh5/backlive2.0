@@ -7,15 +7,9 @@ export class Strategy extends Node {
     type: StrategyType;
     live: number; 
 
-    minMktCap: number;
-    maxMktCap: number;
-    exclSectors: string[];
-    universeTkrs: { incl:number, tkrs: string[] };
-    exchange: '0'|'N'|'M'|'A';
-    index: '0'|'sp'|'dow';
-    adr: 1|0;
+    settings: StrategySettings;
 
-    data: StrategyParams;
+    data: StrategyParams; //deprecateed, remove this!!
 
     constructor(name: string) {
         super(NodeType.Strategy);
@@ -24,6 +18,29 @@ export class Strategy extends Node {
     
     //client-side
     results: Performance;
+}
+
+export class StrategySettings {
+    minMktCap: number = 200;
+    maxMktCap: number;
+    exclSectors: string[];
+    universeTkrs: { incl: booleanInt, tkrs: string[] };
+    exchange: ''|'N'|'M'|'A' = '';
+    index: ''|'sp'|'dow' = '';
+    adr: booleanInt = 0;
+
+    initCapt: number = 10000;
+    numStocks: number = 20;
+    weighting: PortfolioWeighting = PortfolioWeighting.Equal;
+    frequency: TradingFrequency = TradingFrequency.Quarterly;
+    sectNeutral: booleanInt = 0;
+    exposure: number = 100;
+    shortExposure: number = 0;
+    stopLoss: number;
+    posStopLoss: number;
+    friction: number = 0;
+    frictionType: FrictionType = FrictionType.Percentage;
+    benchmark: string = 'SPY';
 }
 
 export interface StrategyParams {
@@ -82,3 +99,29 @@ export enum StrategyType {
     Screen,
     Backtest
 }
+
+export enum PortfolioWeighting {
+    Equal = 1,
+    Score = 2,
+    LargeCap = 3,
+    SmallCap = 4,
+    Volatility = 5,
+    MinCorrelation = 6
+}
+
+export enum TradingFrequency {
+    Daily = -99,
+    Weekly = -1,
+    BiWeekly = -2,
+    Monthly = 1,
+    BiMonthly = 2,
+    Quarterly = 3,
+    Annually = 12
+}
+
+export enum FrictionType {
+    Percentage = 1,
+    InteractiveBrokers = 2
+}
+
+export type booleanInt = 1|0;

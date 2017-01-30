@@ -5,7 +5,7 @@ import { BaseComponent } from 'backlive/component/shared';
 import { RadioButtonOption } from 'backlive/component/shared/ui';
 
 import { AppService, StrategyService } from 'backlive/service';
-import { Strategy } from 'backlive/service/model';
+import { Strategy, StrategySettings, PortfolioWeighting, FrictionType, TradingFrequency } from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-strategy-editor',
@@ -15,12 +15,22 @@ import { Strategy } from 'backlive/service/model';
 export class StrategyEditorComponent extends BaseComponent implements OnInit {
     @Input() strategy: Strategy;
     sectors: RadioButtonOption[];
+
+    PortfolioWeighting = PortfolioWeighting;
+    FrictionType = FrictionType;
+    TradingFrequency = TradingFrequency;
       
     constructor(appService: AppService, private strategyService: StrategyService) {
         super(appService);
     }
     
     ngOnInit() {
+        if(!this.strategy.settings) {
+            this.strategy.settings = new StrategySettings();
+        }
+
+        console.log(this.strategy.settings);
+
         this.sectors = [
             { value: '01', title: 'Basic Materials' },
             { value: '02', title: 'Capital Goods' },
@@ -35,5 +45,12 @@ export class StrategyEditorComponent extends BaseComponent implements OnInit {
             { value: '11', title: 'Transportation' },
             { value: '12', title: 'Utilities' }
         ];
+    }
+
+    excludeAllSectors() {
+        this.strategy.settings.exclSectors = [];
+        this.sectors.forEach(sector => {
+            this.strategy.settings.exclSectors.push(sector.value);
+        });
     }
 }
