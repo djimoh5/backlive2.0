@@ -46,6 +46,7 @@ export class StrategyComponent extends NodeComponent<Strategy> implements OnInit
         this.appService.notify(new OpenFooterModalEvent({ 
             title: 'Edit Strategy',
             body: StrategyEditorComponent,
+            nameEditor: { model: this.strategy, field: 'name' },
             model: {
                 strategy: this.strategy
             },

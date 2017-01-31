@@ -44,6 +44,7 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
         this.appService.notify(new OpenFooterModalEvent({ 
             title: 'Edit Indicator',
             body: IndicatorEditorComponent,
+            nameEditor: { model: this.indicator, field: 'name' },
             model: {
                 indicator: this.indicator
             },

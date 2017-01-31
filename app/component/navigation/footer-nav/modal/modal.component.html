@@ -3,6 +3,7 @@
 		<button type="button" class="close" (click)="close()"><span aria-hidden="true">&times;</span></button>
 		<ui-icon type="{{options.icon}}" *ngIf="options.icon"></ui-icon>
 		<h3 class="modal-title">{{options.title}}</h3>
+		<input *ngIf="options.nameEditor" [(ngModel)]="options.nameEditor.model[options.nameEditor.field]" type="text" class="form-control" placeholder="enter name" max-length="200" />
 	</div>
 	<div class="body">
 		<div *ngIf="isString(options.body)" (click)="onBodyClick($event)" [innerHtml]="options.body" [class.center]="options.centerText"></div>

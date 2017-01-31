@@ -135,6 +135,7 @@ export interface ModalOptions {
     icon?: string;
     body?: string | Type<any>;
     footer?: string | Type<any>;
+    nameEditor?: { model: any, field: string };
     centerText?: boolean;
     model?: {};
     onSubmit?: Function;

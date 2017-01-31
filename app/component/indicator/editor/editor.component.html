@@ -148,12 +148,4 @@
 
     <!-- data menu -->
     <backlive-indicator-data-menu [searchKey]="dataSearchKey" [searchKeyCode]="searchKeyCode" [excludedTypes]="indicator.exclIndTypes" (select)="onSelectParam($event)"></backlive-indicator-data-menu>
-
-    <!-- save buttons -->
-    <div class="row save-button">
-        <div class="col-xs-12 col-md-offset-4 col-md-4">
-            <input [(ngModel)]="indicator.name" type="text" class="form-control" placeholder="name your indicator" maxlength="25" />
-            <ui-button icon="checkmark" type="submit" [full]="true" size="large" (click)="closeEditor()">Update Indicator</ui-button>
-        </div>
-    </div>
 </div>
