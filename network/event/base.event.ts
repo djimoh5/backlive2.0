@@ -18,10 +18,12 @@ export class BaseEvent<T> {
     eventName: string;
     isSocketEvent: boolean;
     data: T;
+    date: number;
     senderId: string;
     
-    constructor(data: T) {
+    constructor(data: T, date?: number) {
         this.data = data;
+        this.date = date || Date.now();
         this.eventName = (<typeof BaseEvent> this.constructor).eventName;
         this.isSocketEvent = (<typeof BaseEvent> this.constructor).isSocketEvent;
     }

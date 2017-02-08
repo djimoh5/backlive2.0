@@ -55,7 +55,7 @@ export enum Operator {
 }
 
 export enum IndicatorParamType {
-    Value = 0,
+    Ticker = 0,
     IncomeStatement = 1, 
     BalanceSheet = 2, 
     CashFlowStatement = 3, 
@@ -65,8 +65,8 @@ export enum IndicatorParamType {
     Macro = 7, 
     ShortInterest = 8, 
     FinancialStatement = 10, 
-    FinancialIndicators = 11, 
-    Funds = 99, 
+    FinancialIndicators = 11,
+    Funds = 99,
     Constant = -1,
     Indicator = -2
 }

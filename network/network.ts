@@ -6,7 +6,7 @@ import { VirtualNodeService } from './node/basic/virtual-node.service';
 import { AppEventQueue } from './event/app-event-queue';
 import { Database } from '../core/lib/database';
 
-import { NetworkDateEvent, InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent, ValidateDataEvent, ActivateNodeEvent } from './event/app.event';
+import { InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent, ValidateDataEvent, ActivateNodeEvent } from './event/app.event';
 
 import { NodeConfig } from './node/node.config';
 import { Node, NodeType } from '../core/service/model/node.model';
@@ -38,27 +38,14 @@ export class Network {
     subscriberName: string = 'network';
 
     static costFunction: ICostFunction;
+    static isLearning: boolean = true;
     epochCount: number = 0;
 
-    prevDate: number;
-    currDate: number;
-    
     constructor() {
         AppEventQueue.global();
         AppEventQueue.subscribe(NodeChangeEvent, this.subscriberName, event => this.loadNode(event.data));
         AppEventQueue.subscribe(LoadNetworkEvent, this.subscriberName, event => this.loadNetwork(event.data));
         AppEventQueue.subscribe(ExecuteNetworkEvent, this.subscriberName, event => this.executeNetwork(event.data));
-
-        AppEventQueue.subscribe(NetworkDateEvent, this.subscriberName, event => {
-            this.currDate = event.data;
-            if(this.prevDate === this.currDate) {
-                console.log("Duplicate network dates fired " + this.currDate);
-                throw("Duplicate network dates fired " + this.currDate);
-            }
-
-            this.prevDate = this.currDate;
-        });
-
         AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.updateNodeWeights(event.data));
 
         Database.open(() => {
@@ -168,7 +155,7 @@ export class Network {
         }
     }
 
-    updateNodeWeights(date: number) {
+    updateNodeWeights(validating: boolean) {
         ActivateNodeEvent.isSocketEvent = false;
 
         if(this.epochCount++ < this.network.epochs) {
@@ -179,7 +166,7 @@ export class Network {
             AppEventQueue.notify(new InitializeDataEvent(null));
         }
         else {
-            if(date) {
+            if(!validating) {
                 AppEventQueue.notify(new ValidateDataEvent(null));
             }
             else {

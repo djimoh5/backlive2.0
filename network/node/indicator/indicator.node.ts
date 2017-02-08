@@ -25,6 +25,6 @@ export class IndicatorNode extends BaseNode<Indicator> {
         this.calculator.addValue('allCacheKeys', event.data.allCacheKeys);
         var vals: { [key: string]: number } = this.calculator.execute(this.node, event.data.cache);
 
-        this.activate(new ActivateNodeEvent(Stats.percentRank(vals)));
+        this.activate(new ActivateNodeEvent(Stats.percentRank(vals), event.date));
     }
 }

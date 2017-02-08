@@ -14,7 +14,7 @@ export interface DataField  {
 
 declare type FieldMap = { [key: number]: { [key: string]: string } };
 
-export var DataCollectionMap =  [ "", "is", "bs", "cf", "snt", "mos", "tech", "macro", "shrt_intr", "is_gr", "fs", "fi" ];
+export var DataCollectionMap =  [ "tickers", "is", "bs", "cf", "snt", "mos", "tech", "macro", "shrt_intr", "is_gr", "fs", "fi" ];
 
 export class DataFieldMap {
     static toDisplayName(type: IndicatorParamType, fieldName: string) {

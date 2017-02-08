@@ -1,6 +1,6 @@
 import { 
-    DataEvent, DataSubscriptionEvent, DataFilterEvent, InitializeDataEvent, NetworkDateEvent, ValidateDataEvent,
-    FeedForwardCompleteEvent, BackpropagateCompleteEvent, EpochCompleteEvent
+    DataEvent, DataSubscriptionEvent, DataFilterEvent, InitializeDataEvent, ValidateDataEvent,
+    BackpropagateCompleteEvent, EpochCompleteEvent
 } from '../../event/app.event';
 import { BaseDataNode, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
 
@@ -18,7 +18,7 @@ export class DataLoaderNode extends BaseDataNode {
     endDate: number;
     validationDate: number;
     currentDate: number;
-    prevDate: number;
+    backPropDate: number;
 
     nonTickerTypes: IndicatorParamType[] = [IndicatorParamType.Macro];
 
@@ -49,13 +49,10 @@ export class DataLoaderNode extends BaseDataNode {
             this.endDate = event.data.endDate;
         });
 
-        this.subscribe(FeedForwardCompleteEvent, event => {
-            this.nextTick();
-        });
-
         this.subscribe(BackpropagateCompleteEvent, event => {
-            if(this.currentDate !== this.prevDate) {
-                this.execute();
+            if(event.date !== this.backPropDate) {
+                this.backPropDate = event.date;
+                this.nextTick();
             }
         });
 
@@ -79,14 +76,21 @@ export class DataLoaderNode extends BaseDataNode {
                         console.log('Error selecting data: ' + err.message);
                         return;
                     } else {
+                        var prevDate;
                         for (var i = 0, cnt = results.length; i < cnt; i++) {
                             if (!results[i].hide) {
                                 var date = parseInt(results[i].date.toString());
 
                                 if(date >= 20080101 && date <= 20160106) {
+                                    if(prevDate && date <= prevDate) {
+                                        console.log("Duplicate network dates fired " + date);
+                                        throw("Duplicate network dates fired " + date);
+                                    }
+
                                     this.dates.push(date);
                                     this.datesCache.push(date);
                                     this.weeks.push(results[i].wk);
+                                    prevDate = date;
                                 }
                             }
                         }
@@ -102,27 +106,18 @@ export class DataLoaderNode extends BaseDataNode {
 
     private nextTick() {
         this.currentDate = this.dates.splice(0, 1)[0];
-
-        if(this.currentDate) {
-            this.notify(new NetworkDateEvent(this.currentDate));
-        }
-        else {
-            console.log('we should never get to this point!!!!');
-            this.notify(new EpochCompleteEvent(null));
-        }
+        this.execute();
     }
 
     private execute() {
-        this.prevDate = this.currentDate;
-
-        if(this.dates.length > 0) {
+        if(this.currentDate) {
             if(this.currentDate >= this.validationDate && !this.validating) {
-                this.notify(new EpochCompleteEvent(this.currentDate));
+                this.notify(new EpochCompleteEvent(this.validating));
                 return;
             }
 
             if(this.dataCache[this.currentDate]) {
-                this.notify(new DataEvent({ cache: this.dataCache[this.currentDate], allCacheKeys: null }));
+                this.notify(new DataEvent({ cache: this.dataCache[this.currentDate], allCacheKeys: null }, this.currentDate));
             }
             else {
                 this.data = {};
@@ -158,15 +153,14 @@ export class DataLoaderNode extends BaseDataNode {
                         if (--numFieldTypes == 0) {
                             //console.log(this.data);
                             this.dataCache[this.currentDate] = this.data;
-                            this.notify(new DataEvent({ cache: this.data, allCacheKeys: this.allCacheKeys }));
+                            this.notify(new DataEvent({ cache: this.data, allCacheKeys: this.allCacheKeys }, this.currentDate));
                         }
                     }, !this.ticker || Common.inArray(parseInt(type), this.nonTickerTypes) ? null : this.ticker);
                 }
             }
         }
         else {
-            //at last date so no need to feed forward
-            this.notify(new EpochCompleteEvent(this.validating ? null : this.currentDate));
+            this.notify(new EpochCompleteEvent(this.validating));
             //console.log('DataLoader Idle');
         }
     }

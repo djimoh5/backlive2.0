@@ -4,19 +4,13 @@ import { Activation, ActivationError } from '../../core/service/model/node.model
 import { DataCache } from '../node/data/data.node';
 import { IndicatorParam } from '../../core/service/model/indicator.model';
 
-@AppEvent('Event.Network.Date')
-export class NetworkDateEvent extends BaseEvent<number> {}
-
 @AppEvent('Event.Network.EpochComplete')
-export class EpochCompleteEvent extends BaseEvent<number> {}
+export class EpochCompleteEvent extends BaseEvent<boolean> {}
 
 /* activation events */
 
 @SocketEvent('Event.Node.Activate')
 export class ActivateNodeEvent extends BaseEvent<Activation> {}
-
-@AppEvent('Event.Node.FeedForwardComplete')
-export class FeedForwardCompleteEvent extends BaseEvent<null> {}
 
 @AppEvent('Event.Node.UpdateWeights')
 export class UpdateNodeWeightsEvent extends BaseEvent<number> {} //learningRate

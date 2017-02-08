@@ -31,7 +31,7 @@ export class BasicNode extends BaseNode<Node> {
                 break; //should only be one key for basic node
             }
 
-            this.backpropagate(new BackpropagateEvent({ error: error }));
+            this.backpropagate(new BackpropagateEvent({ error: error }, event.date));
         }
     }
 }

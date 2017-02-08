@@ -18,6 +18,8 @@ export abstract class BaseNode<T extends Node> {
     private outputs: string[] = [];
 
     state: State;
+    pastState: { [key: string]: State };
+    learningError: LearningError;
 
     private nodeService: NodeService<T>;
 
@@ -41,6 +43,7 @@ export abstract class BaseNode<T extends Node> {
         this.node = node;
         this.nodeId = node._id;
         this.state = new State();
+        this.pastState = {};
 
         if(node.inputs) {
             this.nodeService.getInputs(node._id).then(nodes => {
@@ -88,6 +91,7 @@ export abstract class BaseNode<T extends Node> {
             if(!this.subscribedTypes[n.ntype]) {
                 this.subscribe(NodeConfig.activationEvent(n.ntype),
                     event => {
+                        this.state.date = event.date;
                         this.state.inputActivations[event.senderId] = event.data;
                         this.receive(event);
                     }, 
@@ -135,7 +139,7 @@ export abstract class BaseNode<T extends Node> {
                     if(typeof(inActivation[k]) !== 'undefined') {
                         if(first) {
                             activation[k] = this.node.bias;
-                            this.state.trainingCount++; //# of training data, used to update weights
+                            this.learningError.trainingCount++; //# of training data, used to update weights
                         }
 
                         activation[k] += this.node.weights[i] * inActivation[k];
@@ -155,10 +159,11 @@ export abstract class BaseNode<T extends Node> {
                 }
             }
 
-            event = new ActivateNodeEvent(activation);
+            event = new ActivateNodeEvent(activation, this.state.date);
         }
 
         this.state.activation = event.data;
+        this.pastState[event.date] = this.state;
         
         this.notify(event);
 
@@ -167,21 +172,22 @@ export abstract class BaseNode<T extends Node> {
 
     protected backpropagate(event: BackpropagateEvent) {
         if(this.node.inputs) {
+            var state: State = this.pastState[event.date];
             var delta: Activation = {};
 
             if(event.data.weights) {
-                this.state.activationErrors[event.senderId] = event.data;
+                state.activationErrors[event.senderId] = event.data;
 
                 for(var i = 0, len = this.outputs.length; i < len; i++) {
-                    if(!this.state.activationErrors[this.outputs[i]]) {
+                    if(!state.activationErrors[this.outputs[i]]) {
                         return; //must have backpropagation error from all your outputs to backpropagate yourself
                     }
                 }
                 
-                for(var id in this.state.activationErrors) {
-                    var activationError = this.state.activationErrors[id];
+                for(var id in state.activationErrors) {
+                    var activationError = state.activationErrors[id];
                     for(var k in activationError.error) {
-                        var sig = this.state.activation[k];
+                        var sig = state.activation[k];
                         var sigPrime = sig * (1 - sig);
 
                         if(!delta[k]) { delta[k] = 0; }
@@ -200,26 +206,26 @@ export abstract class BaseNode<T extends Node> {
 
                 this.node.weights.forEach((w, index) => {
                     weights[this.node.inputs[index]] = w; //store your weights so next layer can compute their responsibility
-                    var inActivation = this.state.inputActivations[this.node.inputs[index]];
+                    var inActivation = state.inputActivations[this.node.inputs[index]];
                     
                     for(var k in delta) { //delta with respect to weight (which uses incoming activation at weight)
-                        this.state.totalError[index] += delta[k] * inActivation[k];
-                        if(first) { this.state.totalBiasError += delta[k]; }
+                        this.learningError.total[index] += delta[k] * inActivation[k];
+                        if(first) { this.learningError.totalBias += delta[k]; }
                     }
 
                     first = false;
                 });
             }
 
-            this.notify(new BackpropagateEvent({ error: delta, weights: weights }));
+            this.notify(new BackpropagateEvent({ error: delta, weights: weights }, event.date));
 
-            this.clearActivations();
+            this.state = new State();
 
             //console.log('backpropagating node ', this.node._id, { error: delta, weights: weights });
         }
         else {
             //no inputs, so must be at input layer
-            this.notify(new BackpropagateCompleteEvent(null));
+            this.notify(new BackpropagateCompleteEvent(null, event.date));
         }
     }
 
@@ -242,10 +248,10 @@ export abstract class BaseNode<T extends Node> {
     updateWeights(learningRate: number) {
         if(this.node.weights) {
             this.node.weights.forEach((w, index) => {
-                this.node.weights[index] = w - (learningRate * this.state.totalError[index] / this.state.trainingCount);
+                this.node.weights[index] = w - (learningRate * this.learningError.total[index] / this.learningError.trainingCount);
             });
 
-            this.node.bias = this.node.bias - (learningRate * this.state.totalBiasError / this.state.trainingCount);
+            this.node.bias = this.node.bias - (learningRate * this.learningError.totalBias / this.learningError.trainingCount);
             
             this.resetError();
 
@@ -253,21 +259,14 @@ export abstract class BaseNode<T extends Node> {
         }
     }
 
-    private clearActivations() {
-        this.state.activation = {};
-        this.state.inputActivations = {};
-        this.state.activationErrors = {};
-    }
-
     private resetError() {
-        this.state.totalBiasError = 0;
-        this.state.totalError = [];
+        this.learningError = new LearningError();
 
         this.node.weights.forEach(w => {
-            this.state.totalError.push(0);
+            this.learningError.total.push(0);
         });
 
-        this.state.trainingCount = 0;
+        this.learningError.trainingCount = 0;
     }
 
     protected sigmoid(x: number, derivative: boolean = false) {
@@ -313,11 +312,14 @@ export enum Normalize {
 }
 
 class State {
+    date: number;
     activation: Activation = {};
     inputActivations: { [key: string]: Activation } = {}; //nodeId => Activation
     activationErrors: { [key: string]: ActivationError } = {};
+}
 
-    totalBiasError: number = 0; 
-    totalError: number[] = [];
+class LearningError {
+    totalBias: number = 0; 
+    total: number[] = [];
     trainingCount: number = 0;
 }
