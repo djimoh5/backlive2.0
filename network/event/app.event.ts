@@ -41,7 +41,17 @@ export class DataEvent extends BaseEvent<{ cache: DataCache, allCacheKeys?: stri
 export class DataSubscriptionEvent extends BaseEvent<{ params: IndicatorParam[] }> {}
 
 @AppEvent('Event.Data.Filter')
-export class DataFilterEvent extends BaseEvent<{ startDate: number, endDate: number, entities?: string[] }> {}
+export class DataFilterEvent extends BaseEvent<{ 
+    startDate: number, 
+    endDate: number, 
+    minMktCap?: number;
+    maxMktCap?: number;
+    exclSectors?: string[];
+    tickers?: { incl: 1|0, tkrs: string[] };
+    exchange?: ''|'N'|'M'|'A';
+    index?: ''|'sp'|'dow';
+    adr?: 1|0;
+}> {}
 
 @AppEvent('Event.Order')
 export class OrderEvent extends BaseEvent<{}> {}

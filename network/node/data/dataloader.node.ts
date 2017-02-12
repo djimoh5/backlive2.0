@@ -16,6 +16,8 @@ export class DataLoaderNode extends BaseDataNode {
     ticker: string | string[];
     startDate: number;
     endDate: number;
+    filterEvent: DataFilterEvent;
+
     validationDate: number;
     currentDate: number;
     backPropDate: number;
@@ -25,6 +27,7 @@ export class DataLoaderNode extends BaseDataNode {
     data: DataCache;
     dataCache: { [key: number]: DataCache } = {};
     allCacheKeys: string[] | number[];
+    numFieldTypes: number;
 
     dates: number[] = [];
     datesCache: number[] = [];
@@ -38,13 +41,12 @@ export class DataLoaderNode extends BaseDataNode {
         this.subscribe(InitializeDataEvent, event => this.init());
 
         this.subscribe(DataSubscriptionEvent, event => {
-            //console.log('updating data subscriptions', event.data.params);
             this.setFields(event.data.params);
         });
 
         this.subscribe(DataFilterEvent, event => {
-            //console.log('updating data filters', event.data.startDate, event.data.endDate);
-            this.ticker = event.data.entities;
+            console.log('updating data filters', event.data);
+            this.filterEvent = event;
             this.startDate = event.data.startDate;
             this.endDate = event.data.endDate;
         });
@@ -83,7 +85,6 @@ export class DataLoaderNode extends BaseDataNode {
 
                                 if(date >= 20080101 && date <= 20160106) {
                                     if(prevDate && date <= prevDate) {
-                                        console.log("Duplicate network dates fired " + date);
                                         throw("Duplicate network dates fired " + date);
                                     }
 
@@ -122,55 +123,88 @@ export class DataLoaderNode extends BaseDataNode {
             else {
                 this.data = {};
                 this.allCacheKeys = [];
-                var numFieldTypes = 0;
+                this.numFieldTypes = 0;
+                this.ticker = null;
 
                 console.log(this.currentDate);
 
                 for (var type in this.fields) {
-                    numFieldTypes++;
+                    this.numFieldTypes++;
                 }
 
-                for (var type in this.fields) {
-                    var t = parseInt(type);
-                    this.callDB(this.currentDate, this.fields[type], t, (vals: DataResult, cacheType: number) => {
-                        if (this.ticker && this.currentDate && Common.inArray(cacheType, this.nonTickerTypes)) {
-                            //set key for ticker to value so that equations can be calculated
-                            var tmpVals: DataResult = { 0: vals[0] };
-                            var tkrs = toString.call(this.ticker) === "[object Array]" ? this.ticker : [this.ticker];
+                if(this.fields[IndicatorParamType.Ticker]) {
+                    //get tickers first so we can filter other tables
+                    this.loadData(IndicatorParamType.Ticker, this.getTickerFilter(), data => {
+                        this.ticker = [];
+                        var exclADRs = this.filterEvent && this.filterEvent.data.adr === 0;
 
-                            for (var t = 0, tlen = tkrs.length; t < tlen; t++) {
-                                for (var key in vals) {
-                                    tmpVals[<string>tkrs[t]] = vals[key];
-                                }
+                        for(var tkr in data) {
+                            if(!exclADRs || data[tkr]['adr'] !== 1) {
+                                this.ticker.push(tkr);
                             }
-
-                            this.data[cacheType] = tmpVals;
-                        }
-                        else {
-                            this.data[cacheType] = vals;
                         }
 
-                        if (--numFieldTypes == 0) {
-                            //console.log(this.data);
-                            this.dataCache[this.currentDate] = this.data;
-                            this.notify(new DataEvent({ cache: this.data, allCacheKeys: this.allCacheKeys }, this.currentDate));
+                        for (var type in this.fields) {
+                            var t = parseInt(type);
+                            if(t !== IndicatorParamType.Ticker) {
+                                this.loadData(t);
+                            }
                         }
-                    }, !this.ticker || Common.inArray(parseInt(type), this.nonTickerTypes) ? null : this.ticker);
+                    });
+                }
+                else {
+                    for (var type in this.fields) {
+                        this.loadData(parseInt(type));
+                    }
                 }
             }
         }
         else {
             this.notify(new EpochCompleteEvent(this.validating));
-            //console.log('DataLoader Idle');
         }
     }
 
-    private callDB(date: number | number[], fields: DBFields, type: number, callback: Function, ticker: string | string[]) { //optional ticker, otherwise get values for all tickers
-        var self = this;
-        var tickerArr: string[], dateArr: number[];
-        if (ticker && Common.isArray(ticker)) {
-            tickerArr = <string[]>ticker;
+    private loadData(type: IndicatorParamType, filter?: { ticker?: any, [key: string]: any }, callback?: (data: DataResult) => void) {
+        if(!filter) {
+            filter = {};
         }
+
+        if(this.ticker && !Common.inArray(type, this.nonTickerTypes)) {
+            filter.ticker = Common.isArray(this.ticker) ? { $in: this.ticker } : this.ticker;
+        }
+        
+        this.callDB(this.currentDate, this.fields[type], type, (vals: DataResult, cacheType: number) => {
+            if (this.ticker && this.currentDate && Common.inArray(cacheType, this.nonTickerTypes)) {
+                //set key for ticker to value so that equations can be calculated
+                var tmpVals: DataResult = { 0: vals[0] };
+                var tkrs = Common.isArray(this.ticker) ? this.ticker : [this.ticker];
+
+                for (var t = 0, tlen = tkrs.length; t < tlen; t++) {
+                    for (var key in vals) {
+                        tmpVals[<string>tkrs[t]] = vals[key];
+                    }
+                }
+
+                this.data[cacheType] = tmpVals;
+            }
+            else {
+                this.data[cacheType] = vals;
+            }
+
+            if(callback) {
+                callback(this.data[cacheType]);
+            }
+            
+            if (--this.numFieldTypes == 0) {
+                this.dataCache[this.currentDate] = this.data;
+                this.notify(new DataEvent({ cache: this.data, allCacheKeys: this.allCacheKeys }, this.currentDate));
+            }
+        }, filter);
+    }
+
+    private callDB(date: number | number[], fields: DBFields, type: number, callback: Function, filter?: { [key: string]: any }) { //optional filter, otherwise get values for all tickers
+        var self = this;
+        var dateArr: number[];
 
         if (date && Common.isArray(date)) {
             dateArr = <number[]>date;
@@ -178,19 +212,16 @@ export class DataLoaderNode extends BaseDataNode {
 
         Database.mongo.collection(DataCollectionMap[type], (error, collection) => {
             if (error) {
-                this.callDB(date, fields, type, callback, ticker);
+                this.callDB(date, fields, type, callback, filter);
             }
             else {
                 var query: { ticker?: any, date?: any } = {};
                 fields.ticker = 1;
 
-                if (tickerArr) {
-                    query.ticker = { $in: tickerArr };
+                if (filter) {
+                    query = filter;
                 }
-                else if (ticker) {
-                    query.ticker = ticker;
-                }
-
+                
                 if (date) {
                     if (dateArr) {
                         query.date = { $in: dateArr };
@@ -267,6 +298,46 @@ export class DataLoaderNode extends BaseDataNode {
                 this.fields[type][map || field] = 1;
             }
         }
+    }
+
+    getTickerFilter() {
+        var filter: { [key: string]: any } = null;
+        if(this.filterEvent) {
+            filter = {};
+            var data = this.filterEvent.data;
+
+            if(data.exchange) {
+                filter['exchange'] = data.exchange;
+            }
+            
+            if(data.index) {
+                switch(data.index) {
+                    case 'sp': filter['sp'] = '500'; break;
+                    case 'dow': filter['dow'] = 'DI'; break;
+                }
+            }
+
+            //market cap filter
+            var mktcapFilter;
+            if(data.minMktCap) {
+                mktcapFilter = { $gte: data.minMktCap };
+            }
+
+            if(data.maxMktCap) {
+                if(mktcapFilter) {
+                    mktcapFilter['$lte'] = data.maxMktCap;
+                }
+                else {
+                    mktcapFilter = { $lte: data.maxMktCap };
+                }
+            }
+
+            if(mktcapFilter) {
+                filter['mktcap'] = mktcapFilter;
+            }
+        }
+
+        return filter;
     }
 }
 

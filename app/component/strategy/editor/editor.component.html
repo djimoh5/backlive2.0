@@ -9,13 +9,13 @@
         <div class="col-xs-6 col-md-3">
             <div class="mktcap">
                 Market Cap (in Millions)<br/>
-                <input [(ngModel)]="strategy.settings.minMktCap" type="text" class="form-control" /> to
-                <input [(ngModel)]="strategy.settings.maxMktCap" type="text" class="form-control" />
+                <input [(ngModel)]="strategy.filter.minMktCap" type="text" class="form-control" /> to
+                <input [(ngModel)]="strategy.filter.maxMktCap" type="text" class="form-control" />
             </div>
         </div>
         <div class="col-xs-6 col-md-3">
             Exchange<br/>
-            <radio-button [(value)]="strategy.settings.exchange" 
+            <radio-button [(value)]="strategy.filter.exchange" 
                 [options]="[
                     { value: '', title: 'N/A' }, 
                     { value: 'N', title: 'NYSE' },
@@ -26,7 +26,7 @@
         </div>
         <div class="col-xs-6 col-md-3">
             Index<br/>
-            <radio-button [(value)]="strategy.settings.index" 
+            <radio-button [(value)]="strategy.filter.index" 
                 [options]="[
                     { value: '', title: 'N/A' }, 
                     { value: 'sp', title: 'S&P 500' },
@@ -37,7 +37,7 @@
         <div class="col-xs-6 col-md-3">
             Include ADRs <ui-icon type="question" tooltip="an American depositary receipt (ADR) is a stock that trades in the United States but represents a specified number of shares in a foreign corporation. ADRs are bought and sold on American markets just like regular stocks, and are issued/sponsored in the U.S. by a bank or brokerage"></ui-icon>
             <br/>
-            <radio-button [(value)]="strategy.settings.adr" 
+            <radio-button [(value)]="strategy.filter.adr" 
                 [options]="[
                     { value: 0, title: 'No' }, 
                     { value: 1, title: 'Yes' }
@@ -50,7 +50,7 @@
     <div class="page-header">
         <h5>Choose Sectors to exclude from trading <a href="javascript:void(0)" (click)="excludeAllSectors()">exclude all</a></h5>
     </div>
-    <checkbox-button [(value)]="strategy.settings.exclSectors" [options]="sectors" [split]="true"></checkbox-button>
+    <checkbox-button [(value)]="strategy.filter.exclSectors" [options]="sectors" [split]="true"></checkbox-button>
 </div>
 <div class="section portfolio-settings">
     <div class="page-header">

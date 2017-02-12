@@ -5,7 +5,7 @@ import { BaseComponent } from 'backlive/component/shared';
 import { RadioButtonOption } from 'backlive/component/shared/ui';
 
 import { AppService, StrategyService } from 'backlive/service';
-import { Strategy, StrategySettings, PortfolioWeighting, FrictionType, TradingFrequency } from 'backlive/service/model';
+import { Strategy, StrategySettings, StrategyFilter, PortfolioWeighting, FrictionType, TradingFrequency } from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-strategy-editor',
@@ -29,7 +29,9 @@ export class StrategyEditorComponent extends BaseComponent implements OnInit {
             this.strategy.settings = new StrategySettings();
         }
 
-        console.log(this.strategy.settings);
+        if(!this.strategy.filter) {
+            this.strategy.filter = new StrategyFilter();
+        }
 
         this.sectors = [
             { value: '01', title: 'Basic Materials' },

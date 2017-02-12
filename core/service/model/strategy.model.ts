@@ -7,6 +7,9 @@ export class Strategy extends Node {
     type: StrategyType;
     live: number; 
 
+    startDate: number;
+    endDate: number;
+    filter: StrategyFilter;
     settings: StrategySettings;
 
     data: StrategyParams; //deprecateed, remove this!!
@@ -20,15 +23,17 @@ export class Strategy extends Node {
     results: Performance;
 }
 
-export class StrategySettings {
+export class StrategyFilter {
     minMktCap: number = 200;
     maxMktCap: number;
     exclSectors: string[];
-    universeTkrs: { incl: booleanInt, tkrs: string[] };
+    tickers: { incl: booleanInt, tkrs: string[] };
     exchange: ''|'N'|'M'|'A' = '';
     index: ''|'sp'|'dow' = '';
     adr: booleanInt = 0;
+}
 
+export class StrategySettings {
     initCapt: number = 10000;
     numStocks: number = 20;
     weighting: PortfolioWeighting = PortfolioWeighting.Equal;

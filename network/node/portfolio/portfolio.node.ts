@@ -49,7 +49,8 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             [IndicatorParamType.Ticker, 'dvx'],
             [IndicatorParamType.Ticker, 'dvt'],
             [IndicatorParamType.Ticker, 'split_date'],
-            [IndicatorParamType.Ticker, 'split_fact']
+            [IndicatorParamType.Ticker, 'split_fact'],
+            [IndicatorParamType.Ticker, 'adr']
         ]}));
     }
 
@@ -109,7 +110,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             }
 
             if(this.state.activation) {
-                if(Network.isLearning && this.prevDate) {
+                if(this.prevDate) {
                     this.backpropagate();
                 }
                 else {
@@ -149,7 +150,12 @@ export class PortfolioNode extends BaseNode<Portfolio> {
                 this.trainingCount++;
             }
 
-            super.backpropagate(new BackpropagateEvent({ error: error }, this.prevDate));
+            if(Network.isLearning) {
+                super.backpropagate(new BackpropagateEvent({ error: error }, this.prevDate));
+            }
+            else {
+                this.notify(new BackpropagateCompleteEvent(null));
+            }
         }
     }
 }

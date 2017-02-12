@@ -135,6 +135,7 @@ export class Network {
             AppEventQueue.notify(new InitializeDataEvent(null)); 
         };
 
+        Network.isLearning = true;
         this.loadNetwork(network);
     }
 
@@ -167,6 +168,7 @@ export class Network {
         }
         else {
             if(!validating) {
+                Network.isLearning = false;
                 AppEventQueue.notify(new ValidateDataEvent(null));
             }
             else {
