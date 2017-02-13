@@ -77,19 +77,21 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             var prevDateObj: Date = Common.parseDate(this.prevDate);
             for(var key in data) {
                 var tkr: Ticker = <Ticker>data[key];
-                this.prices[tkr.ticker] = { price: tkr.price, mktcap: tkr.mktcap, dividend: 0 };
+                if(tkr.price) {
+                    this.prices[tkr.ticker] = { price: tkr.price, mktcap: tkr.mktcap, dividend: 0 };
 
-                if(this.prevPrices) {
-                    //splits
-                    if(tkr.split_date && tkr.split_fact && prevDateObj < tkr.split_date) {
-                        if(this.prevPrices[tkr.ticker]) {
-                            this.prevPrices[tkr.ticker].price = this.prevPrices[tkr.ticker].price / tkr.split_fact;
+                    if(this.prevPrices) {
+                        //splits
+                        if(tkr.split_date && tkr.split_fact && prevDateObj < tkr.split_date) {
+                            if(this.prevPrices[tkr.ticker]) {
+                                this.prevPrices[tkr.ticker].price = this.prevPrices[tkr.ticker].price / tkr.split_fact;
+                            }
                         }
-                    }
 
-                    //dividends
-                    if(tkr.dvp && this.prevDate < tkr.dvx && tkr.dvt == 'Cash') {
-                        this.prices[tkr.ticker].dividend = tkr.dvp;
+                        //dividends
+                        if(tkr.dvp && this.prevDate < tkr.dvx && tkr.dvt == 'Cash') {
+                            this.prices[tkr.ticker].dividend = tkr.dvp;
+                        }
                     }
                 }
             };
@@ -101,8 +103,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     receive(event: ActivateNodeEvent) {
         if(this.numOutputs() === 0) {
             if(this.node.inputs.length === 1) { //just one strategy passing through its values, so use those
-                this.state.activation = event.data;
-                this.pastState[event.date] = this.state;
+                this.persistActivation(event);
                 this.notify(new ActivateNodeEvent(this.state.activation, event.date));
             }
             else { //multiple strategy inputs
@@ -154,7 +155,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
                 super.backpropagate(new BackpropagateEvent({ error: error }, this.prevDate));
             }
             else {
-                this.notify(new BackpropagateCompleteEvent(null));
+                this.notify(new BackpropagateCompleteEvent(null, this.prevDate));
             }
         }
     }

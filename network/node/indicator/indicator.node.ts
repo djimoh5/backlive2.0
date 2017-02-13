@@ -21,7 +21,7 @@ export class IndicatorNode extends BaseNode<Indicator> {
     receive() {}
 
     processData(event: DataEvent) {
-        //console.log('Indicator ' + this.nodeId + ' received data event', event);
+        //console.log('Indicator ' + this.nodeId + ' received data event');
         this.calculator.addValue('allCacheKeys', event.data.allCacheKeys);
         var vals: { [key: string]: number } = this.calculator.execute(this.node, event.data.cache);
 

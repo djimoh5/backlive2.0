@@ -130,7 +130,6 @@ export abstract class BaseNode<T extends Node> {
             var activation: Activation = {};
             var first: boolean = true;
 
-            //console.log(this.node._id, 'activating');
             var keys = this.state.inputActivations[this.node.inputs[0]];
 
             this.node.inputs.forEach((id, i) => {
@@ -162,71 +161,73 @@ export abstract class BaseNode<T extends Node> {
             event = new ActivateNodeEvent(activation, this.state.date);
         }
 
-        this.state.activation = event.data;
-        this.pastState[event.date] = this.state;
-        
+        this.persistActivation(event);
         this.notify(event);
-
         //console.log('node', this.node.name, 'activated');
     }
 
+    persistActivation(event: ActivateNodeEvent) {
+        this.state.activation = event.data;
+        this.pastState[event.date] = this.state;
+        this.state = new State();
+    }
+
     protected backpropagate(event: BackpropagateEvent) {
-        if(this.node.inputs) {
-            var state: State = this.pastState[event.date];
-            var delta: Activation = {};
+        var state: State = this.pastState[event.date];
+        var delta: Activation = {};
 
-            if(event.data.weights) {
-                state.activationErrors[event.senderId] = event.data;
+        if(event.data.weights) {
+            state.activationErrors[event.senderId] = event.data;
 
-                for(var i = 0, len = this.outputs.length; i < len; i++) {
-                    if(!state.activationErrors[this.outputs[i]]) {
-                        return; //must have backpropagation error from all your outputs to backpropagate yourself
-                    }
-                }
-                
-                for(var id in state.activationErrors) {
-                    var activationError = state.activationErrors[id];
-                    for(var k in activationError.error) {
-                        var sig = state.activation[k];
-                        var sigPrime = sig * (1 - sig);
-
-                        if(!delta[k]) { delta[k] = 0; }
-                        delta[k] += activationError.weights[this.node._id] * activationError.error[k] * sigPrime;
-                    }
+            for(var i = 0, len = this.outputs.length; i < len; i++) {
+                if(!state.activationErrors[this.outputs[i]]) {
+                    return; //must have backpropagation error from all your outputs to backpropagate yourself
                 }
             }
-            else {
-                //means output node called backpropagate to itself
-                delta = event.data.error;
+            
+            if(!this.node.inputs) {
+                //no inputs, so must be at input layer
+                this.notify(new BackpropagateCompleteEvent(null, event.date));
+                return; 
             }
 
-            if(this.node.weights) {
-                var first: boolean = true;
-                var weights: { [key: string]: number } = {};
+            for(var id in state.activationErrors) {
+                var activationError = state.activationErrors[id];
+                for(var k in activationError.error) {
+                    var sig = state.activation[k];
+                    var sigPrime = sig * (1 - sig);
 
-                this.node.weights.forEach((w, index) => {
-                    weights[this.node.inputs[index]] = w; //store your weights so next layer can compute their responsibility
-                    var inActivation = state.inputActivations[this.node.inputs[index]];
-                    
-                    for(var k in delta) { //delta with respect to weight (which uses incoming activation at weight)
-                        this.learningError.total[index] += delta[k] * inActivation[k];
-                        if(first) { this.learningError.totalBias += delta[k]; }
-                    }
-
-                    first = false;
-                });
+                    if(!delta[k]) { delta[k] = 0; }
+                    delta[k] += activationError.weights[this.node._id] * activationError.error[k] * sigPrime;
+                }
             }
-
-            this.notify(new BackpropagateEvent({ error: delta, weights: weights }, event.date));
-
-            this.state = new State();
-
-            //console.log('backpropagating node ', this.node._id, { error: delta, weights: weights });
         }
         else {
-            //no inputs, so must be at input layer
-            this.notify(new BackpropagateCompleteEvent(null, event.date));
+            //means output node called backpropagate to itself
+            delta = event.data.error;
         }
+
+        var weights: { [key: string]: number };
+
+        if(this.node.weights) {
+            var first: boolean = true;
+            weights = {};
+
+            this.node.weights.forEach((w, index) => {
+                weights[this.node.inputs[index]] = w; //store your weights so next layer can compute their responsibility
+                var inActivation = state.inputActivations[this.node.inputs[index]];
+                
+                for(var k in delta) { //delta with respect to weight (which uses incoming activation at weight)
+                    this.learningError.total[index] += delta[k] * inActivation[k];
+                    if(first) { this.learningError.totalBias += delta[k]; }
+                }
+
+                first = false;
+            });
+        }
+
+        this.notify(new BackpropagateEvent({ error: delta, weights: weights }, event.date));
+        //console.log('backpropagating node ', this.node._id, { error: delta, weights: weights });
     }
 
     private initializeWeights() {
