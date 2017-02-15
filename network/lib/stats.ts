@@ -2,8 +2,20 @@ var jStat = require("../../js/jstat.min.js").jStat;
 
 export class Stats {
     static percentRank(vals: { [key: string]: number }, sortDesc: boolean = false) {
-        var arr: string[] = [];
         var newVals: { [key: string]: number } = {};
+        
+        var arr: string[] = Stats.sort(vals, sortDesc);
+        var len = arr.length;
+
+        arr.forEach((key, index) => {
+            newVals[key] = (len - index) / len;
+        });
+
+        return newVals;
+    }
+
+    static sort(vals: { [key: string]: number }, sortDesc: boolean = false) {
+        var arr: string[] = [];
         var sortDir = sortDesc ? -1 : 1;
 
         for(var key in vals) {
@@ -19,12 +31,7 @@ export class Stats {
             }
         });
 
-        var len = arr.length;
-        arr.forEach((key, index) => {
-            newVals[key] = (len - index) / len;
-        });
-
-        return newVals;
+        return arr;
     }
 
     static randomNormalDist(mean: number, standardDeviation: number) {

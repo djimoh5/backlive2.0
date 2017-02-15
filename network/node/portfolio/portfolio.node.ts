@@ -37,6 +37,10 @@ export class PortfolioNode extends BaseNode<Portfolio> {
 
         this.subscribe(DataEvent, event => this.processPrices(event));
         this.subscribe(EpochCompleteEvent, event => {
+            if(this.trainingCount === 0) {
+                console.log('Error: training count for epoch was 0');
+                throw('training count for epoch was 0');
+            }
             console.log('total cost:', this.totalCost, 'avg. cost:', this.totalCost / this.trainingCount, 'training size:', this.trainingCount);
             this.totalCost = 0;
             this.trainingCount = 0;
@@ -59,7 +63,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             this.setPrices(event.date, event.data.cache[IndicatorParamType.Ticker]);
         }
         else {
-            throw('no prices for date', event.date);
+            throw('no prices for date ' + event.date);
         }
     }
 
@@ -100,6 +104,14 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         }
     }
 
+    trade() {
+        if(!Network.isLearning) {
+            var tkrs: string[] = Stats.sort(this.pastState[this.date].activation, true);
+            console.log('Buy', tkrs.slice(0, 15));
+            console.log('Sell', tkrs.slice(tkrs.length - 15));
+        }
+    }
+
     receive(event: ActivateNodeEvent) {
         if(this.numOutputs() === 0) {
             if(this.node.inputs.length === 1) { //just one strategy passing through its values, so use those
@@ -117,6 +129,8 @@ export class PortfolioNode extends BaseNode<Portfolio> {
                 else {
                     this.notify(new BackpropagateCompleteEvent(null));
                 }
+
+                this.trade();
             }
         }
         else {

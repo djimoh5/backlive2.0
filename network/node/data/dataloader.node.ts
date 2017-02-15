@@ -83,8 +83,9 @@ export class DataLoaderNode extends BaseDataNode {
                             if (!results[i].hide) {
                                 var date = parseInt(results[i].date.toString());
 
-                                if(date >= 20080101 && date <= 20160106) {
+                                if(date >= 20070101 && date <= 20170210) {
                                     if(prevDate && date <= prevDate) {
+                                        console.log("Error: Duplicate network dates fired " + date);
                                         throw("Duplicate network dates fired " + date);
                                     }
 
@@ -96,7 +97,7 @@ export class DataLoaderNode extends BaseDataNode {
                             }
                         }
 
-                        this.validationDate = 20120106;
+                        this.validationDate = 20120108;
                     }
 
                     this.nextTick();

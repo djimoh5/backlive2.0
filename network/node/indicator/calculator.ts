@@ -1,4 +1,4 @@
-import { Operator, Indicator, IndicatorParam, IndicatorParamType, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
+import { Operator, Indicator, IndicatorParam, IndicatorParamType, IndicatorParamTransform, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
 import { Common } from '../../../app//utility/common';
 
 import { DataCache } from '../data/data.node';
@@ -102,7 +102,7 @@ export class Calculator {
                 val = NO_VALUE;
             }
             else {
-                if (fns[0] && fns[0] == 1) {
+                if (fns[0] && fns[0] == IndicatorParamTransform.AbsoluteValue) {
                     val = Math.abs(val);
                 }
 
@@ -117,7 +117,7 @@ export class Calculator {
                     else {
                         var op = ops[i - 1];
 
-                        if (fns[i] && fns[i] == 1) {
+                        if (fns[i] && fns[i] == IndicatorParamTransform.AbsoluteValue) {
                             tmpVal = Math.abs(tmpVal);
                         }
 

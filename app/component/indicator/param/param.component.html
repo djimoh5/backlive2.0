@@ -17,5 +17,5 @@
         <span class="abs-val" (click)="setAbsoluteValue()" tooltip="absolute value">| |</span>
         <span class="remove" (click)="removeField()" tooltip="remove">&times;</span>
     </div>
-    <div class="name" (click)="fieldClicked()">{{param[1]}}</div>
+    <div class="name" [class.abs]="isAbsoluteValue()" (click)="fieldClicked()">{{param[1]}}</div>
 </div>

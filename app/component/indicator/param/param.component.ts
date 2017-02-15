@@ -4,7 +4,7 @@ import { Path } from 'backlive/config';
 import { BaseComponent } from 'backlive/component/shared';
 
 import { AppService } from 'backlive/service';
-import { IndicatorParam, IndicatorParamGroup } from 'backlive/service/model';
+import { IndicatorParam, IndicatorParamGroup, IndicatorParamTransform } from 'backlive/service/model';
 
 @Component({
     selector: 'backlive-indicator-param',
@@ -31,7 +31,16 @@ export class  IndicatorParamComponent extends BaseComponent implements OnInit {
     }
 
     setAbsoluteValue() {
+        if(this.isAbsoluteValue()) {
+            (<any[]>this.param).splice(2, 1);
+        }
+        else {
+            this.param[2] = IndicatorParamTransform.AbsoluteValue;
+        }
+    }
 
+    isAbsoluteValue() {
+        return this.param[2] === IndicatorParamTransform.AbsoluteValue;
     }
 
     //current param
