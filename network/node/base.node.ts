@@ -114,7 +114,7 @@ export abstract class BaseNode<T extends Node> {
 
     protected abstract receive(event: ActivateNodeEvent);
 
-    protected activate(event?: ActivateNodeEvent, useLinear?: boolean) {
+    protected activate(event?: ActivateNodeEvent, useLinear: boolean = false) {
         if(!event) {
             for(var i = 0, len = this.node.inputs.length; i < len; i++) {
                 if(!this.state.inputActivations[this.node.inputs[i]]) {
@@ -242,6 +242,7 @@ export abstract class BaseNode<T extends Node> {
                 this.node.weights.push(weight);
             }
 
+            console.log(this.node.weights);
             this.resetError();
         }
     }

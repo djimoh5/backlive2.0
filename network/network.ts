@@ -20,7 +20,7 @@ import { DataLoaderNode } from './node/data/dataloader.node';
 import { IExecutionNode } from './node/execution/execution.node';
 import { BacktestExecutionNode } from './node/execution/backtest-execution.node';
 
-import { ICostFunction, QuadraticCost, /*CrossEntropyCost*/ } from './lib/cost-function';
+import { ICostFunction, QuadraticCost, CrossEntropyCost } from './lib/cost-function';
 
 import { Common } from '../app//utility/common';
 
@@ -112,6 +112,9 @@ export class Network {
     loadNetwork(network: NetworkModel) {
         this.network = network;
         this.epochCount = 0;
+
+        this.network.epochs = 50;
+        this.network.learnRate = .8;
 
         Network.costFunction = new QuadraticCost();
         VirtualNodeService.reset();

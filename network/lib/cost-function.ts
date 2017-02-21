@@ -16,7 +16,16 @@ export class QuadraticCost implements ICostFunction {
 
 export class CrossEntropyCost implements ICostFunction {
     cost(output: number, target: number): number {
-        return (-target * Math.log(output)) - (1 - target) * Math.log(1 - output);
+        var val = (-target * Math.log(output)) - (1 - target) * Math.log(1 - output);
+        if(isNaN(val)) {
+            console.log(target, output, val, Math.log(output), Math.log(1 - output));
+            return 0;
+        }
+        else if(!isFinite(val)) {
+            console.log(target, output, val, Math.log(output), Math.log(1 - output));
+        }
+
+        return val;
     }
 
     delta(output: number, target: number): number { 

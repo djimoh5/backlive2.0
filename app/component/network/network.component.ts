@@ -82,7 +82,6 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                     n = networks[0];
                 }
 
-                n.learnRate = .8;
                 this.loadNetwork(n);
             }
             else {

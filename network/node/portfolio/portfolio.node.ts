@@ -30,6 +30,9 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     totalCost: number = 0;
     trainingCount: number = 0;
 
+    capital = 50000;
+    positions: Position[] = [];
+
     constructor(node: Portfolio) {
         super(node, PortfolioService);
 
@@ -106,10 +109,58 @@ export class PortfolioNode extends BaseNode<Portfolio> {
 
     trade() {
         if(!Network.isLearning) {
-            var tkrs: string[] = Stats.sort(this.pastState[this.date].activation, true);
-            console.log('Buy', tkrs.slice(0, 15));
-            console.log('Sell', tkrs.slice(tkrs.length - 15));
+            this.closePositions();
+            this.openPositions();
         }
+    }
+
+    closePositions() {
+        this.positions.forEach(position => {
+            var price = this.prevPrices[position.ticker].price;
+            var ret = 0;
+
+            if(this.prices[position.ticker]) {
+                var prevPrice = price;
+                price = this.prices[position.ticker].price + this.prices[position.ticker].dividend;
+                ret = (price - prevPrice) / prevPrice * (position.shares < 0 ? -1 : 1);
+            }
+
+            //console.log('closing:', position.ticker, 'return:',  ret);
+            this.capital += price * position.shares;
+        });
+
+        console.log('capital:', this.capital);
+        this.positions = [];
+    }
+
+    openPositions() {
+        var numPos = 20;
+        var tkrs: string[] = Stats.sort(this.pastState[this.date].activation, true);
+        var tkrLen = tkrs.length;
+        
+        var posSize = this.capital / numPos;
+
+        //long
+        for(var i = 0; i < numPos; i++) {
+            var tkr = tkrs[i];
+            var price = this.prices[tkr].price;
+            var shares = Math.floor(posSize / price);
+            this.positions.push({ ticker: tkr, price: price, shares: shares });
+
+            //console.log('Buy', tkr, price, shares);
+            this.capital -= price * shares;
+        }
+
+        //short
+        /*for(var i = tkrLen - 1; i >= tkrLen - numPos; i--) {
+            var tkr = tkrs[i];
+            var price = this.prices[tkr].price;
+            var shares = -1 * Math.floor(posSize / price);
+            this.positions.push({ ticker: tkr, price: price, shares: shares });
+
+            //console.log('Sell', tkr, price, shares);
+            this.capital -= price * shares;
+        }*/
     }
 
     receive(event: ActivateNodeEvent) {
@@ -144,31 +195,43 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         if(state.activation && this.numOutputs() === 0) {
             var actualActivation: Activation = {};
             var error: Activation = {};
+            var actCnt = 0;
 
             for(var key in state.activation) {
                 if(this.prices[key] && this.prevPrices[key]) {
                     actualActivation[key] = (this.prices[key].price + this.prices[key].dividend) / this.prevPrices[key].price;
+                    actCnt++;
                 }
                 else {
                     delete state.activation[key];
                 }
             }
 
-            actualActivation = Stats.percentRank(actualActivation, true);
+            //actualActivation = Stats.percentRank(actualActivation, true);
             for(var k in actualActivation) {
                 actualActivation[k] = this.sigmoid(actualActivation[k]);
             }
+            var predictedActivation = state.activation;//Stats.percentRank(state.activation, true);
+            actCnt = Math.floor(actCnt / 2);
 
             for(var key in state.activation) {
-                error[key] = Network.costFunction.delta(state.activation[key], actualActivation[key]);
-                this.totalCost += Network.costFunction.cost(state.activation[key], actualActivation[key]);
+                error[key] = Network.costFunction.delta(predictedActivation[key], actualActivation[key]);
+                this.totalCost += Network.costFunction.cost(predictedActivation[key], actualActivation[key]);
                 this.trainingCount++;
+
+                /*if(--actCnt === 0) {
+                    break;
+                }*/
             }
 
             if(Network.isLearning) {
                 super.backpropagate(new BackpropagateEvent({ error: error }, this.prevDate));
             }
             else {
+
+                console.log('prediction:', predictedActivation);
+                console.log('actual:', actualActivation);
+                
                 this.notify(new BackpropagateCompleteEvent(null, this.prevDate));
             }
         }
@@ -185,4 +248,10 @@ class Ticker {
     dvt?: string; //dividend type e.g. Cash
     split_date?: Date;
     split_fact?: number;
+}
+
+class Position {
+    ticker: string;
+    price: number;
+    shares: number;
 }
