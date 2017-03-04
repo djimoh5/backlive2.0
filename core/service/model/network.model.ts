@@ -13,11 +13,15 @@ export class Network extends Node {
         this.regParam = regParam;
 
         if(hiddenNodes) {
-            this.hiddenLayers = [];
-            hiddenNodes.forEach(cnt => {
-                this.hiddenLayers.push({ numNodes: cnt, weights: [] });
-            });
+            Network.setHiddenLayers(this, hiddenNodes);
         }
+    }
+
+    static setHiddenLayers(network, hiddenNodes: number[]) {
+        network.hiddenLayers = [];
+        hiddenNodes.forEach(cnt => {
+            network.hiddenLayers.push({ numNodes: cnt, weights: [] });
+        });
     }
 }
 

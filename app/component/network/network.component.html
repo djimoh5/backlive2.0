@@ -7,6 +7,24 @@
             </template>
         </template>
     </svg>
+    <div class="hyper-params clearfix">
+        <div class="param">
+            <label>Learning Rate</label>
+            <input type="text" [(ngModel)]="network.learnRate" class="form-control" (blur)="update()" />
+        </div>
+        <div class="param">
+            <label># Epochs</label>
+            <input type="text" [(ngModel)]="network.epochs" class="form-control" (blur)="update()" />
+        </div>
+        <div class="param">
+            <label>Reg. Param</label>
+            <input type="text" [(ngModel)]="network.regParam" class="form-control" (blur)="update()" />
+        </div>
+        <div class="param">
+            <label>Hidden Nodes</label>
+            <input type="text"[(ngModel)]="network.hiddenLayers[0].numNodes" class="form-control" (blur)="update()" />
+        </div>
+    </div>
     <template ngFor let-node [ngForOf]="nodes" let-i="index">
         <div [ngSwitch]="node.ntype">
             <!-- indicators -->
@@ -39,3 +57,5 @@
     </template>
 </div>
 <sliding-nav [items]="navItems"></sliding-nav>
+
+<backlive-modal></backlive-modal>

@@ -2,7 +2,8 @@
     <div class="button-container">
         <ui-button type="action" [full]="true" (click)="newNode()">Create New Strategy</ui-button>
     </div>
-    <div class="item" *ngFor="let node of nodes" (click)="selectNode(node)">
-        {{node.name ? node.name : 'unnamed'}}
+    <div class="item" *ngFor="let node of nodes">
+        <div class="inner" (click)="selectNode(node)">{{node.name ? node.name : 'unnamed'}}</div>
+        <ui-icon type="remove" class="hover" (click)="confirmRemoveNode(node)"></ui-icon>
     </div>
 </div>

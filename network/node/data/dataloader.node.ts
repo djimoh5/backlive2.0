@@ -138,13 +138,11 @@ export class DataLoaderNode extends BaseDataNode {
                     this.loadData(IndicatorParamType.Ticker, this.getTickerFilter(), data => {
                         this.ticker = [];
                         var exclADRs = this.filterEvent && this.filterEvent.data.adr === 0;
-                        var cnt = 0;
+                     
                         for(var tkr in data) {
                             if(!exclADRs || data[tkr]['adr'] !== 1) {
                                 this.ticker.push(tkr);
                             }
-
-                            if(++cnt === 10) break;
                         }
 
                         for (var type in this.fields) {

@@ -113,17 +113,12 @@ export class Network {
         this.network = network;
         this.epochCount = 0;
 
-        this.network.epochs = 50;
-        this.network.learnRate = .8;
-
         Network.costFunction = new QuadraticCost();
         VirtualNodeService.reset();
 
         for(var id in this.nodes) {
-            if(this.nodes[id].getNode().ntype === NodeType.Virtual) {
-                this.nodes[id].unsubscribe(null);
-                delete this.nodes[id];
-            }
+            this.nodes[id].unsubscribe(null);
+            delete this.nodes[id];
         }
         
         this.networkService = new NetworkService({ user: { uid: network.uid }, cookies: null });
@@ -177,8 +172,6 @@ export class Network {
             else {
                 console.log('validation complete');
             }
-
-            this.printNetwork();
         }
     }
 

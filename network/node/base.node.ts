@@ -242,7 +242,6 @@ export abstract class BaseNode<T extends Node> {
                 this.node.weights.push(weight);
             }
 
-            console.log(this.node.weights);
             this.resetError();
         }
     }

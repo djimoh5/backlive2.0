@@ -134,9 +134,9 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     }
 
     openPositions() {
-        var numPos = 20;
         var tkrs: string[] = Stats.sort(this.pastState[this.date].activation, true);
         var tkrLen = tkrs.length;
+        var numPos = Math.min(20, tkrLen);
         
         var posSize = this.capital / numPos;
 
@@ -212,25 +212,19 @@ export class PortfolioNode extends BaseNode<Portfolio> {
                 actualActivation[k] = this.sigmoid(actualActivation[k]);
             }
             var predictedActivation = state.activation;//Stats.percentRank(state.activation, true);
-            actCnt = Math.floor(actCnt / 2);
 
             for(var key in state.activation) {
                 error[key] = Network.costFunction.delta(predictedActivation[key], actualActivation[key]);
                 this.totalCost += Network.costFunction.cost(predictedActivation[key], actualActivation[key]);
                 this.trainingCount++;
-
-                /*if(--actCnt === 0) {
-                    break;
-                }*/
             }
 
             if(Network.isLearning) {
                 super.backpropagate(new BackpropagateEvent({ error: error }, this.prevDate));
             }
             else {
-
-                console.log('prediction:', predictedActivation);
-                console.log('actual:', actualActivation);
+                //console.log('prediction:', predictedActivation);
+                //console.log('actual:', actualActivation);
                 
                 this.notify(new BackpropagateCompleteEvent(null, this.prevDate));
             }

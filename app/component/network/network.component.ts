@@ -95,6 +95,10 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         });
     }
 
+    update() {
+        this.networkService.update(this.network);
+    }
+
     loadNetwork(network: Network) {
         this.network = network;
         this.nodes = [];
