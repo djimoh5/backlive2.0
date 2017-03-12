@@ -3,9 +3,11 @@ import { Node } from '../../../core/service/model/node.model';
 
 export class VirtualNodeService extends NodeService<Node> {
     static inputsByNode: { [key: string]: Node[] } = {};
+    static pid: number;
 
     constructor(session: any) {
         super(session);
+        console.log('virtual node');
     }
 
     getInputs(nodeId: string) {

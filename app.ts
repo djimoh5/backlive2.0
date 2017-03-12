@@ -1,6 +1,8 @@
 /// <reference path="./typings/index.d.ts" />
 
 require('./network/globals.js');
+var numchild  = require('os').cpus().length;
+console.log(numchild);
 
 import { Server } from './core/server';
 import { ServerSocket } from './core/server.socket';

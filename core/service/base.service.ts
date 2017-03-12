@@ -1,3 +1,5 @@
+/// <reference path="../../typings/index.d.ts" />
+
 import { ISession, User } from '../lib/session';
 import { Database } from '../lib/database';
 import { BaseRepository } from '../repository/base.repository';
@@ -16,7 +18,7 @@ export abstract class BaseService {
         this.session = session;
         this.user = session.user;
 
-        if(repositories) {
+        if(Database.mongo && repositories) {
             for(var key in repositories) {
                 this[key] = new repositories[key]();
             }

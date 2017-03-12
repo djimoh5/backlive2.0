@@ -53,4 +53,8 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
             }
         }));
     }
+
+    addIndicator() {
+
+    }
 }

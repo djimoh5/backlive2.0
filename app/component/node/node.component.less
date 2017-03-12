@@ -36,7 +36,7 @@
             position: absolute;
             top: 0;
             right: 0;
-            width: 77px;
+            width: 93px;
             padding: 8px 0 4px 20px;
             z-index: 1;
             border: 1px solid @white;
@@ -46,13 +46,19 @@
             border-bottom-left-radius: 0px;
             .transition(~"right .5s ease-out, opacity .5s ease-out");
             ui-icon {
-                padding: 0 5px;
+                padding: 0 3px;
                 cursor: pointer;
                 &[type="edit"] {
                     color: @brand-secondary;
                 }
                 &[type="remove"] {
                     color: @brand-danger;
+                }
+                &[type="add"] {
+                    color: @brand-success;
+                    font-size: .87em;
+                    position: relative;
+                    top: -2px;
                 }
                 &:hover {
                     .opacity(70);
@@ -71,7 +77,7 @@
         &:hover {
             .controls {
                 .opacity(100);
-                right: -63px;
+                right: -80px;
             }
         }
     }

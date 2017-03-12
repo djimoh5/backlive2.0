@@ -11,8 +11,9 @@ import { InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent, Valida
 import { NodeConfig } from './node/node.config';
 import { Node, NodeType } from '../core/service/model/node.model';
 import { Network as NetworkModel } from '../core/service/model/network.model';
-import { NodeChangeEvent } from '../app/component/node/node.event';
 import { LoadNetworkEvent, ExecuteNetworkEvent } from '../app/component/network/network.event';
+
+import { HiddenLayerNode } from './node/hidden-layer.node';
 
 import { IDataNode } from './node/data/data.node';
 import { DataLoaderNode } from './node/data/dataloader.node';
@@ -22,11 +23,10 @@ import { BacktestExecutionNode } from './node/execution/backtest-execution.node'
 
 import { ICostFunction, QuadraticCost, CrossEntropyCost } from './lib/cost-function';
 
-import { Common } from '../app//utility/common';
-
 export class Network {
     network: NetworkModel;
     nodes:  NodeMap<BaseNode<any>> = {};
+    hiddenLayers: HiddenLayerNode[] = [];
     private networkService: NetworkService;
 
     dataNode: IDataNode;
@@ -43,7 +43,6 @@ export class Network {
 
     constructor() {
         AppEventQueue.global();
-        AppEventQueue.subscribe(NodeChangeEvent, this.subscriberName, event => this.loadNode(event.data));
         AppEventQueue.subscribe(LoadNetworkEvent, this.subscriberName, event => this.loadNetwork(event.data));
         AppEventQueue.subscribe(ExecuteNetworkEvent, this.subscriberName, event => this.executeNetwork(event.data));
         AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.updateNodeWeights(event.data));
@@ -55,28 +54,24 @@ export class Network {
         });
     }
 
-    loadNode(node: Node, inputNodes?: { [key: string]: Node }) { //inputNodes only used for virtual nodes
+    loadNode(node: Node) { //inputNodes only used for virtual nodes
         this.activity(true);
 
         if(!this.nodes[node._id]) {
             this.nodes[node._id] = new (NodeConfig.node(node.ntype))(node);
-            this.nodes[node._id].onUpdateInputs = (inputNodes) => this.updateInputNodes(node, inputNodes);
-
-            if(node.ntype === NodeType.Virtual) {
-                VirtualNodeService.save(node, inputNodes);
-            }
         }
         else {
             this.nodes[node._id].setNode(node);
-            this.nodes[node._id].onUpdateInputs = (inputNodes) => this.updateInputNodes(node, inputNodes);
         }
+
+        this.nodes[node._id].onUpdateInputs = (inputNodes) => this.updateInputNodes(node, inputNodes);
 
         return this.nodes[node._id];
     }
 
     updateInputNodes(node: Node, inputNodes: { [key: string]: Node }) {
-        if(node.ntype === NodeType.Strategy && this.network.hiddenLayers.length > 0) {
-            this.createVirtualNodes(node, inputNodes);
+        if(node.ntype === NodeType.Strategy && this.network.hiddenLayers.length > 0 && this.network.hiddenLayers[0].numNodes > 0) {
+            this.createHiddenLayer(node, inputNodes);
         }
         else {
             for(var key in inputNodes) {
@@ -88,25 +83,20 @@ export class Network {
         this.activity(false);
     }
 
-    createVirtualNodes(node: Node, inputNodes: { [key: string]: Node }) {
-        var baseNode = this.nodes[node._id];
-        var inputs = node.inputs;
-        node.inputs = [];
+    createHiddenLayer(outputNode: Node, inputNodes: { [key: string]: Node }) {
+        var baseNode = this.nodes[outputNode._id];
+        outputNode.inputs = [];
 
-        var hiddenNodes: Node[] = [];
-        for(var i = 0; i < this.network.hiddenLayers[0].numNodes; i++) {
-            var model = new Node(NodeType.Virtual);
-            model._id = Common.uniqueId();
-            model.name = 'hidden' + (i + 1);
-            model.inputs = inputs;
+        var hiddenLayer = new HiddenLayerNode(this.network.hiddenLayers[0], inputNodes);
+        hiddenLayer.nodes.forEach(n => {
+            outputNode.inputs.push(n._id);
+            this.loadNode(n).updateOutput(outputNode);
+        });
 
-            hiddenNodes.push(model);
-            node.inputs.push(model._id);
+        hiddenLayer.updateOutput(outputNode);
+        this.hiddenLayers.push(hiddenLayer);
 
-            this.loadNode(model, inputNodes).updateOutput(node);
-        }
-
-        baseNode.updateInputs(hiddenNodes);
+        baseNode.updateInputs(hiddenLayer.nodes);
     }
 
     loadNetwork(network: NetworkModel) {
@@ -117,10 +107,13 @@ export class Network {
         VirtualNodeService.reset();
 
         for(var id in this.nodes) {
-            this.nodes[id].unsubscribe(null);
+            this.nodes[id].unsubscribe();
             delete this.nodes[id];
         }
-        
+
+        this.hiddenLayers.forEach(layer => { layer.unsubscribe(); });
+        this.hiddenLayers = [];
+
         this.networkService = new NetworkService({ user: { uid: network.uid }, cookies: null });
         this.networkService.getInputs(network._id).then(nodes => {
             this.loadNode(nodes[0]);

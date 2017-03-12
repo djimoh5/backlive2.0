@@ -1,11 +1,14 @@
 import { AppEvent, SocketEvent, BaseEvent } from './base.event';
 
-import { Activation, ActivationError } from '../../core/service/model/node.model';
+import { Node, Activation, ActivationError } from '../../core/service/model/node.model';
 import { DataCache } from '../node/data/data.node';
 import { IndicatorParam } from '../../core/service/model/indicator.model';
 
 @AppEvent('Event.Network.EpochComplete')
 export class EpochCompleteEvent extends BaseEvent<boolean> {}
+
+@AppEvent('Event.Node.InitProcess')
+export class InitNodeProcessEvent extends BaseEvent<{ node: Node, inputNodes: { [key: string]: Node } }> {}
 
 /* activation events */
 

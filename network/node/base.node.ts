@@ -1,16 +1,20 @@
 import { QueueOperators } from '../event/event-queue';
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from '../event/base.event';
 import { AppEventQueue } from '../event/app-event-queue';
-import { ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent, UpdateNodeWeightsEvent, TrainingDataEvent } from '../event/app.event';
+import { InitNodeProcessEvent, ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent, UpdateNodeWeightsEvent, TrainingDataEvent } from '../event/app.event';
 
 import { Common } from '../../app//utility/common';
 import { ISession } from '../../core/lib/session';
 
 import { NodeService } from '../../core/service/node.service';
+import { VirtualNodeService } from './basic/virtual-node.service';
+
 import { Node, Activation, ActivationError } from '../../core/service/model/node.model';
 import { NodeConfig } from './node.config';
 
 import { Stats } from '../lib/stats';
+
+import { ChildProcess } from 'child_process';
 
 export abstract class BaseNode<T extends Node> {
     protected nodeId: string;
@@ -25,9 +29,16 @@ export abstract class BaseNode<T extends Node> {
 
     private subscribedTypes: { [key: number]: boolean  } = {};
 
+    process: ChildProcess;
+
     constructor(node: T, serviceType?: typeof NodeService) {
         if(serviceType) {
-            this.nodeService = new serviceType(new MockSession({ uid: node.uid }));
+            var session = new MockSession({ uid: (node ? node.uid : null) });
+            console.log('pid', VirtualNodeService.pid)
+            this.nodeService = VirtualNodeService.pid ? new VirtualNodeService(session) : new serviceType(session);
+            if(VirtualNodeService.pid) {
+                console.log(this.nodeService);
+            }
         }
 
         if(node && this.nodeService) {
@@ -48,6 +59,8 @@ export abstract class BaseNode<T extends Node> {
         if(node.inputs) {
             this.nodeService.getInputs(node._id).then(nodes => {
                 var inputNodes = this.updateInputs(nodes); 
+                this.initProcess(inputNodes);
+
                 if(this.onUpdateInputs) { this.onUpdateInputs(inputNodes); }
 
                 if(this.numOutputs() > 0) {
@@ -60,6 +73,7 @@ export abstract class BaseNode<T extends Node> {
         }
         else {
             setTimeout(() => { //have to run on next turn or onUpdateInputs won't be set yet
+                this.initProcess(null);
                 if(this.onUpdateInputs) { this.onUpdateInputs({}); }
             });
         }
@@ -70,6 +84,13 @@ export abstract class BaseNode<T extends Node> {
             event => this.backpropagate(event), 
             { filter: (event, index) => { return Common.inArray(event.senderId, this.outputs); } }
         );
+    }
+
+    initProcess(inputNodes: { [key: string]: Node }) {
+        if(!this.process) {
+            this.process = require('child_process').fork('./network/node/process.node.ts');
+            this.process.send(new InitNodeProcessEvent({ node: this.node, inputNodes: inputNodes }));
+        }
     }
 
     getNode(): Node {
@@ -279,7 +300,7 @@ export abstract class BaseNode<T extends Node> {
         return AppEventQueue.subscribe(eventType, this.nodeId, callback, operators);
     }
 
-    unsubscribe<TT extends BaseEvent<any>>(eventType: TypeOfBaseEvent<TT>) {
+    unsubscribe<TT extends BaseEvent<any>>(eventType?: TypeOfBaseEvent<TT>) {
         return AppEventQueue.unsubscribe(this.nodeId, eventType);
     }
     
@@ -312,14 +333,14 @@ export enum Normalize {
     PercentRank = 1
 }
 
-class State {
+export class State {
     date: number;
     activation: Activation = {};
     inputActivations: { [key: string]: Activation } = {}; //nodeId => Activation
     activationErrors: { [key: string]: ActivationError } = {};
 }
 
-class LearningError {
+export class LearningError {
     totalBias: number = 0; 
     total: number[] = [];
     trainingCount: number = 0;
