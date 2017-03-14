@@ -24,8 +24,8 @@ export class HiddenLayerNode extends BaseNode<Node> {
 
         node.inputs = inputs;
 
-        VirtualNodeService.save(node, inputNodes);
-        this.setNode(node);
+        //VirtualNodeService.save(node, inputNodes);
+        //this.setNode(node);
         
         for(var i = 0; i < hiddenLayer.numNodes; i++) {
             var model = new Node(NodeType.Virtual);

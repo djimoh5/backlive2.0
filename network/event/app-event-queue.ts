@@ -1,6 +1,8 @@
 import { EventQueue, QueueOperators } from './event-queue';
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from './base.event';
 
+declare var process;
+
 export class AppEventQueue {
     private static eventQueue: EventQueue;
     
@@ -21,10 +23,10 @@ export class AppEventQueue {
         return AppEventQueue.eventQueue.unsubscribe(subscriberId, eventType);
     }
     
-    static notify(event: BaseEvent<any>, fromClient: boolean = false) {
+    static notify(event: BaseEvent<any>, fromClient: boolean = false, fromChildProcess: boolean = false) {
         AppEventQueue.eventQueue.notify(event);
 
-        if(!fromClient && event.isSocketEvent) {
+        if((!fromClient && event.isSocketEvent) || fromChildProcess) {
             process.send(event);
         }
     }

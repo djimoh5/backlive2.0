@@ -6,7 +6,7 @@ import { VirtualNodeService } from './node/basic/virtual-node.service';
 import { AppEventQueue } from './event/app-event-queue';
 import { Database } from '../core/lib/database';
 
-import { InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent, ValidateDataEvent, ActivateNodeEvent } from './event/app.event';
+import { NodeProcessReadyEvent, InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent, ValidateDataEvent, ActivateNodeEvent } from './event/app.event';
 
 import { NodeConfig } from './node/node.config';
 import { Node, NodeType } from '../core/service/model/node.model';
@@ -21,7 +21,7 @@ import { DataLoaderNode } from './node/data/dataloader.node';
 import { IExecutionNode } from './node/execution/execution.node';
 import { BacktestExecutionNode } from './node/execution/backtest-execution.node';
 
-import { ICostFunction, QuadraticCost, CrossEntropyCost } from './lib/cost-function';
+import { ICostFunction, CostFunctionType, CostFunctionFactory } from './lib/cost-function';
 
 export class Network {
     network: NetworkModel;
@@ -37,9 +37,13 @@ export class Network {
 
     subscriberName: string = 'network';
 
+    costFunctionType: CostFunctionType =  CostFunctionType.Quadratic;
     static costFunction: ICostFunction;
     static isLearning: boolean = true;
     epochCount: number = 0;
+
+    multiProcess: boolean = false;
+    startTime: number;
 
     constructor() {
         AppEventQueue.global();
@@ -75,7 +79,7 @@ export class Network {
         }
         else {
             for(var key in inputNodes) {
-                var inputNode: BaseNode<any> = this.loadNode(inputNodes[key]);
+                var inputNode: BaseNode<any> = this.nodes[key] ? this.nodes[key] : this.loadNode(inputNodes[key]);
                 inputNode.updateOutput(node);
             }
         }
@@ -103,7 +107,7 @@ export class Network {
         this.network = network;
         this.epochCount = 0;
 
-        Network.costFunction = new QuadraticCost();
+        Network.costFunction = CostFunctionFactory.create(this.costFunctionType);
         VirtualNodeService.reset();
 
         for(var id in this.nodes) {
@@ -123,7 +127,27 @@ export class Network {
     executeNetwork(network: NetworkModel) {
         this.onIdle = () => {
             this.printNetwork();
-            AppEventQueue.notify(new InitializeDataEvent(null)); 
+
+            if(this.multiProcess) {
+                var numProcesses = 0;
+
+                AppEventQueue.unsubscribe(this.subscriberName, NodeProcessReadyEvent);
+                AppEventQueue.subscribe(NodeProcessReadyEvent, this.subscriberName, event => {
+                    console.log('process for node', event.data, 'ready');
+                    if(--numProcesses === 0) {
+                        this.startTime = (new Date()).getTime();
+                        AppEventQueue.notify(new InitializeDataEvent(null));
+                    }
+                });
+
+                for(var key in this.nodes) {
+                    numProcesses++;
+                    this.nodes[key].initProcess(this.costFunctionType); 
+                }
+            }
+            else {
+                AppEventQueue.notify(new InitializeDataEvent(null)); 
+            }  
         };
 
         Network.isLearning = true;
@@ -164,6 +188,7 @@ export class Network {
             }
             else {
                 console.log('validation complete');
+                console.log('total time:', (((new Date()).getTime() - this.startTime) / 1000) + 's');
             }
         }
     }

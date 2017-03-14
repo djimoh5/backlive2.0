@@ -7,7 +7,6 @@ export class VirtualNodeService extends NodeService<Node> {
 
     constructor(session: any) {
         super(session);
-        console.log('virtual node');
     }
 
     getInputs(nodeId: string) {

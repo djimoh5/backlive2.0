@@ -58,7 +58,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             [IndicatorParamType.Ticker, 'split_date'],
             [IndicatorParamType.Ticker, 'split_fact'],
             [IndicatorParamType.Ticker, 'adr']
-        ]}));
+        ]}), true);
     }
 
     processPrices(event: DataEvent) {

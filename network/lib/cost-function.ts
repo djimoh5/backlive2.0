@@ -32,3 +32,17 @@ export class CrossEntropyCost implements ICostFunction {
         return output - target;
     }
 }
+
+export class CostFunctionFactory {
+    static create(type: CostFunctionType) {
+        switch(type) {
+            case CostFunctionType.Quadratic: return new QuadraticCost();
+            case CostFunctionType.CrossEntropy: return new CrossEntropyCost();
+        }
+    }
+}
+
+export enum CostFunctionType {
+    Quadratic = 1,
+    CrossEntropy = 2
+}

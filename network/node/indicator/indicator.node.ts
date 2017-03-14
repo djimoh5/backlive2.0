@@ -15,7 +15,7 @@ export class IndicatorNode extends BaseNode<Indicator> {
         this.calculator = new Calculator();
 
         this.subscribe(DataEvent, event => this.processData(event));
-        this.notify(new DataSubscriptionEvent({ params: this.calculator.getIndicatorParams([node]) }));
+        this.notify(new DataSubscriptionEvent({ params: this.calculator.getIndicatorParams([node]) }), true);
     }
     
     receive(event: ActivateNodeEvent) {}

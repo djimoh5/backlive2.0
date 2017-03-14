@@ -16,7 +16,7 @@ export class StrategyNode extends BaseNode<Strategy> {
             exclSectors: node.filter.exclSectors,
             index: node.filter.index,
             exchange: node.filter.exchange
-        }));
+        }), true);
     }
 
     receive(event: ActivateNodeEvent) {

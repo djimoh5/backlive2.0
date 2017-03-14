@@ -89,7 +89,7 @@ export class EventQueue {
             });
         }
         else if(!event.isSocketEvent) {
-            console.log('EVENT: ' + eventName + ' has no subscribers');
+            //console.log('EVENT: ' + eventName + ' has no subscribers');
         }
     }
     

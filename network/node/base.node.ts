@@ -10,11 +10,13 @@ import { NodeService } from '../../core/service/node.service';
 import { VirtualNodeService } from './basic/virtual-node.service';
 
 import { Node, Activation, ActivationError } from '../../core/service/model/node.model';
-import { NodeConfig } from './node.config';
 
+import { CostFunctionType } from '../lib/cost-function';
 import { Stats } from '../lib/stats';
 
 import { ChildProcess } from 'child_process';
+
+declare var process;
 
 export abstract class BaseNode<T extends Node> {
     protected nodeId: string;
@@ -27,18 +29,12 @@ export abstract class BaseNode<T extends Node> {
 
     private nodeService: NodeService<T>;
 
-    private subscribedTypes: { [key: number]: boolean  } = {};
-
     process: ChildProcess;
 
     constructor(node: T, serviceType?: typeof NodeService) {
         if(serviceType) {
             var session = new MockSession({ uid: (node ? node.uid : null) });
-            console.log('pid', VirtualNodeService.pid)
             this.nodeService = VirtualNodeService.pid ? new VirtualNodeService(session) : new serviceType(session);
-            if(VirtualNodeService.pid) {
-                console.log(this.nodeService);
-            }
         }
 
         if(node && this.nodeService) {
@@ -59,8 +55,6 @@ export abstract class BaseNode<T extends Node> {
         if(node.inputs) {
             this.nodeService.getInputs(node._id).then(nodes => {
                 var inputNodes = this.updateInputs(nodes); 
-                this.initProcess(inputNodes);
-
                 if(this.onUpdateInputs) { this.onUpdateInputs(inputNodes); }
 
                 if(this.numOutputs() > 0) {
@@ -73,7 +67,6 @@ export abstract class BaseNode<T extends Node> {
         }
         else {
             setTimeout(() => { //have to run on next turn or onUpdateInputs won't be set yet
-                this.initProcess(null);
                 if(this.onUpdateInputs) { this.onUpdateInputs({}); }
             });
         }
@@ -86,10 +79,21 @@ export abstract class BaseNode<T extends Node> {
         );
     }
 
-    initProcess(inputNodes: { [key: string]: Node }) {
-        if(!this.process) {
-            this.process = require('child_process').fork('./network/node/process.node.ts');
-            this.process.send(new InitNodeProcessEvent({ node: this.node, inputNodes: inputNodes }));
+    initProcess(costType: CostFunctionType) {
+        if(!VirtualNodeService.pid) {
+            if(!this.process) {
+                this.process = require('child_process').fork('./network/node/process.node.ts');
+                this.process.on('message', (event: BaseEvent<any>) => {
+                    if(event.eventName === ActivateNodeEvent.eventName) {
+                        event.isSocketEvent = ActivateNodeEvent.isSocketEvent;
+                    }
+
+                    this.notify(event);
+                });
+            }
+
+            this.process.send(new InitNodeProcessEvent({ node: this.node, outputs: this.outputs, costType: costType }));
+            return this.process;
         }
     }
 
@@ -98,29 +102,20 @@ export abstract class BaseNode<T extends Node> {
     }
 
     updateInputs(nodes: Node[]) {
-        for(var k in this.subscribedTypes) {
-            var key: any = k;
-            this.unsubscribe(NodeConfig.activationEvent(key));
-            delete this.subscribedTypes[k];
-        }
-         
         var inputNodes = {};
-
         nodes.forEach(n => {
             inputNodes[n._id] = n;
-            
-            if(!this.subscribedTypes[n.ntype]) {
-                this.subscribe(NodeConfig.activationEvent(n.ntype),
-                    event => {
-                        this.state.date = event.date;
-                        this.state.inputActivations[event.senderId] = event.data;
-                        this.receive(event);
-                    }, 
-                    { filter: (event, index) => { return Common.inArray(event.senderId, this.node.inputs); } }
-                );
-                this.subscribedTypes[n.ntype] = true;
-            }
         });
+
+        this.unsubscribe(ActivateNodeEvent);
+        this.subscribe(ActivateNodeEvent,
+            event => {
+                this.state.date = event.date;
+                this.state.inputActivations[event.senderId] = event.data;
+                this.receive(event);
+            }, 
+            { filter: (event, index) => { return Common.inArray(event.senderId, this.node.inputs); } }
+        );
 
         return inputNodes;
     }
@@ -129,6 +124,10 @@ export abstract class BaseNode<T extends Node> {
         if(this.outputs.indexOf(node._id) < 0) {
             this.outputs.push(node._id);
         }
+    }
+
+    setOutputs(outputs: string[]) {
+        this.outputs = outputs;
     }
 
     onUpdateInputs: (nodes: { [key: string]: Node }) => void;
@@ -184,7 +183,7 @@ export abstract class BaseNode<T extends Node> {
 
         this.persistActivation(event);
         this.notify(event);
-        //console.log('node', this.node.name, 'activated');
+        //console.log('node', this.node.name, 'activated', VirtualNodeService.pid);
     }
 
     persistActivation(event: ActivateNodeEvent) {
@@ -248,7 +247,7 @@ export abstract class BaseNode<T extends Node> {
         }
 
         this.notify(new BackpropagateEvent({ error: delta, weights: weights }, event.date));
-        //console.log('backpropagating node ', this.node._id, { error: delta, weights: weights });
+        //console.log('backpropagating node ', this.node.name, VirtualNodeService.pid);
     }
 
     private initializeWeights() {
@@ -297,6 +296,16 @@ export abstract class BaseNode<T extends Node> {
     }
 
     subscribe<TT extends BaseEvent<any>>(eventType: TypeOfBaseEvent<TT>, callback: BaseEventCallback<TT>, operators?: QueueOperators<TT>) {
+        var tmp = callback;
+        callback = event => {
+            if(this.process) {
+                this.process.send(event);
+            }
+            else {
+                tmp(event);
+            }
+        };
+
         return AppEventQueue.subscribe(eventType, this.nodeId, callback, operators);
     }
 
@@ -304,9 +313,9 @@ export abstract class BaseNode<T extends Node> {
         return AppEventQueue.unsubscribe(this.nodeId, eventType);
     }
     
-    notify(event: BaseEvent<any>) {
+    notify(event: BaseEvent<any>, disableCrossProcess: boolean = false) {
         event.senderId = this.nodeId;
-        AppEventQueue.notify(event);
+        AppEventQueue.notify(event, false, VirtualNodeService.pid && !disableCrossProcess);
     }
 
     numOutputs() {
