@@ -1,7 +1,7 @@
 import { QueueOperators } from '../event/event-queue';
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from '../event/base.event';
 import { AppEventQueue } from '../event/app-event-queue';
-import { InitNodeProcessEvent, ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent, UpdateNodeWeightsEvent, TrainingDataEvent } from '../event/app.event';
+import { ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent, UpdateNodeWeightsEvent, TrainingDataEvent } from '../event/app.event';
 
 import { Common } from '../../app//utility/common';
 import { ISession } from '../../core/lib/session';
@@ -11,10 +11,9 @@ import { VirtualNodeService } from './basic/virtual-node.service';
 
 import { Node, Activation, ActivationError } from '../../core/service/model/node.model';
 
-import { CostFunctionType } from '../lib/cost-function';
 import { Stats } from '../lib/stats';
 
-import { ChildProcess } from 'child_process';
+import { ProcessWrapper } from '../process-wrapper';
 
 declare var process;
 
@@ -29,7 +28,7 @@ export abstract class BaseNode<T extends Node> {
 
     private nodeService: NodeService<T>;
 
-    process: ChildProcess;
+    process: ProcessWrapper;
 
     constructor(node: T, serviceType?: typeof NodeService) {
         if(serviceType) {
@@ -79,22 +78,9 @@ export abstract class BaseNode<T extends Node> {
         );
     }
 
-    initProcess(costType: CostFunctionType) {
-        if(!VirtualNodeService.pid) {
-            if(!this.process) {
-                this.process = require('child_process').fork('./network/node/process.node.ts');
-                this.process.on('message', (event: BaseEvent<any>) => {
-                    if(event.eventName === ActivateNodeEvent.eventName) {
-                        event.isSocketEvent = ActivateNodeEvent.isSocketEvent;
-                    }
-
-                    this.notify(event);
-                });
-            }
-
-            this.process.send(new InitNodeProcessEvent({ node: this.node, outputs: this.outputs, costType: costType }));
-            return this.process;
-        }
+    useProcess(process: ProcessWrapper) {
+        this.process = process;
+        this.process.addNode(this.node, this.outputs);
     }
 
     getNode(): Node {

@@ -22,6 +22,7 @@ import { IExecutionNode } from './node/execution/execution.node';
 import { BacktestExecutionNode } from './node/execution/backtest-execution.node';
 
 import { ICostFunction, CostFunctionType, CostFunctionFactory } from './lib/cost-function';
+import { ProcessWrapper } from './process-wrapper';
 
 export class Network {
     network: NetworkModel;
@@ -42,7 +43,9 @@ export class Network {
     static isLearning: boolean = true;
     epochCount: number = 0;
 
-    multiProcess: boolean = false;
+    multiProcess: boolean = true;
+    maxProcesses: number;
+    processes: ProcessWrapper[] = [];
     startTime: number;
 
     constructor() {
@@ -129,29 +132,47 @@ export class Network {
             this.printNetwork();
 
             if(this.multiProcess) {
+                this.initProcesses();
+                var pendingProcesses = 0;
                 var numProcesses = 0;
 
                 AppEventQueue.unsubscribe(this.subscriberName, NodeProcessReadyEvent);
                 AppEventQueue.subscribe(NodeProcessReadyEvent, this.subscriberName, event => {
                     console.log('process for node', event.data, 'ready');
-                    if(--numProcesses === 0) {
+                    if(--pendingProcesses === 0) {
                         this.startTime = (new Date()).getTime();
                         AppEventQueue.notify(new InitializeDataEvent(null));
                     }
                 });
 
                 for(var key in this.nodes) {
-                    numProcesses++;
-                    this.nodes[key].initProcess(this.costFunctionType); 
+                    if(this.nodes[key].numOutputs() > 0) {
+                        pendingProcesses++;
+                        this.nodes[key].useProcess(this.processes[numProcesses++ % this.maxProcesses]); 
+                    }
                 }
             }
             else {
-                AppEventQueue.notify(new InitializeDataEvent(null)); 
+                this.startTime = (new Date()).getTime();
+                AppEventQueue.notify(new InitializeDataEvent(null));
             }  
         };
 
         Network.isLearning = true;
         this.loadNetwork(network);
+    }
+
+    initProcesses() {
+        this.processes.forEach(process => {
+            process.kill();
+        });
+
+        this.maxProcesses = require('os').cpus().length;
+        this.processes = [];
+                
+        for(var i = 0; i < this.maxProcesses; i++) {
+            this.processes[i] = new ProcessWrapper();
+        }
     }
 
     printNetwork() {
@@ -173,6 +194,7 @@ export class Network {
 
     updateNodeWeights(validating: boolean) {
         ActivateNodeEvent.isSocketEvent = false;
+        this.processes.forEach(process => process.clearProcessedEvents());
 
         if(this.epochCount++ < this.network.epochs) {
             AppEventQueue.notify(new UpdateNodeWeightsEvent(this.network.learnRate));
@@ -208,3 +230,8 @@ export class Network {
 interface NodeMap<T> {
     [key: string]: T;
 }
+
+process.on('uncaughtException', function (exception) {
+  console.log(exception);
+  throw(exception);
+});
