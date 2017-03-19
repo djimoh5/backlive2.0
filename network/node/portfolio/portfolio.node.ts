@@ -6,7 +6,7 @@ import {
 } from '../../event/app.event';
 
 import { PortfolioService } from '../../../core/service/portfolio.service';
-import { TickerService } from '../../../core/service/ticker.service';
+import { PricingService } from '../../../core/service/pricing.service';
 
 import { DataResult } from '../data/data.node';
 
@@ -20,7 +20,7 @@ import { Common } from '../../../app//utility/common';
 import { Network } from '../../network';
 
 export class PortfolioNode extends BaseNode<Portfolio> {
-    tickerService: TickerService;
+    pricingService: PricingService;
     prices: { [key: string]: { price: number, mktcap: number, dividend: number } };
     pricesCache: { [key: number]: { [key: string]: { price: number, mktcap: number, dividend: number } } } = {};
     prevPrices: { [key: string]: { price: number, mktcap: number } };
@@ -33,10 +33,17 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     capital = 50000;
     positions: Position[] = [];
 
+    marketPrices: { [key: number]: number } = {};
+
     constructor(node: Portfolio) {
         super(node, PortfolioService);
 
-        this.tickerService = new TickerService(new MockSession({ uid: node.uid }));
+        this.pricingService = new PricingService(new MockSession({ uid: node.uid }));
+        this.pricingService.getByTicker('SPY').then(prices => {
+            prices.forEach(price => {
+                this.marketPrices[price.date] = price.price;
+            });
+        });
 
         this.subscribe(DataEvent, event => this.processPrices(event));
         this.subscribe(EpochCompleteEvent, event => {
@@ -136,7 +143,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     openPositions() {
         var tkrs: string[] = Stats.sort(this.pastState[this.date].activation, true);
         var tkrLen = tkrs.length;
-        var numPos = Math.min(20, tkrLen);
+        var numPos = Math.min(50, tkrLen);
         
         var posSize = this.capital / numPos;
 
@@ -197,9 +204,11 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             var error: Activation = {};
             var actCnt = 0;
 
+            var marketReturn = (this.marketPrices[this.date] - this.marketPrices[this.prevDate]) / this.marketPrices[this.prevDate];
+
             for(var key in state.activation) {
                 if(this.prices[key] && this.prevPrices[key]) {
-                    actualActivation[key] = (this.prices[key].price + this.prices[key].dividend) / this.prevPrices[key].price;
+                    actualActivation[key] = ((this.prices[key].price + this.prices[key].dividend) / this.prevPrices[key].price) - marketReturn;
                     actCnt++;
                 }
                 else {

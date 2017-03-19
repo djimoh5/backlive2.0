@@ -13,4 +13,8 @@ export class PricingService extends BaseService {
     getPrices(date: number) {
         return this.pricingRepository.getByDate(date);
     }
+
+    getByTicker(ticker: string): Promise<{ date: number, price: number }[]> {
+        return this.pricingRepository.getByTicker(ticker);
+    }
 }

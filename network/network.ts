@@ -43,7 +43,7 @@ export class Network {
     static isLearning: boolean = true;
     epochCount: number = 0;
 
-    multiProcess: boolean = true;
+    multiProcess: boolean = false;
     maxProcesses: number;
     processes: ProcessWrapper[] = [];
     startTime: number;
