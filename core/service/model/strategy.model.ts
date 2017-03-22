@@ -1,3 +1,4 @@
+import { booleanInt } from './shared.model';
 import { Node, NodeType } from './node.model';
 import { Indicator } from './indicator.model';
 import { Common } from 'backlive/utility';
@@ -128,5 +129,3 @@ export enum FrictionType {
     Percentage = 1,
     InteractiveBrokers = 2
 }
-
-export type booleanInt = 1|0;

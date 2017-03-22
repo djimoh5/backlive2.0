@@ -50,9 +50,9 @@ export class StrategyEditorComponent extends BaseComponent implements OnInit {
     }
 
     excludeAllSectors() {
-        this.strategy.settings.exclSectors = [];
+        this.strategy.filter.exclSectors = [];
         this.sectors.forEach(sector => {
-            this.strategy.settings.exclSectors.push(sector.value);
+            this.strategy.filter.exclSectors.push(sector.value);
         });
     }
 }

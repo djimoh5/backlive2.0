@@ -22,9 +22,14 @@ export class IndicatorNode extends BaseNode<Indicator> {
 
     processData(event: DataEvent) {
         //console.log('Indicator ' + this.nodeId + ' received data event');
-        this.calculator.addValue('allCacheKeys', event.data.allCacheKeys);
-        var vals: { [key: string]: number } = this.calculator.execute(this.node, event.data.cache);
+        if(this.pastState[event.date]) {
+            this.activate(new ActivateNodeEvent(this.pastState[event.date].activation, event.date));
+        }
+        else {
+            this.calculator.addValue('allCacheKeys', event.data.allCacheKeys);
+            var vals: { [key: string]: number } = this.calculator.execute(this.node, event.data.cache);
 
-        this.activate(new ActivateNodeEvent(Stats.percentRank(vals), event.date));
+            this.activate(new ActivateNodeEvent(Stats.percentRank(vals), event.date));
+        }
     }
 }

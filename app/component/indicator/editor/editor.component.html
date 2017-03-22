@@ -1,10 +1,4 @@
 <div class="indicator">
-    <div class="row hide">
-        <div class="col-xs-2">
-            <toggle-button class="pull-right" [(value)]="indicator.allowNeg" *ngIf="indicator.env != 'sports'">exclude < 0</toggle-button>
-        </div>
-    </div>
-
     <div class="value-container">
         <!-- indicator itself is a type of IndicatorParamGroup -->
         <div class="params-container">
@@ -20,7 +14,7 @@
                     <option value="100,102">player</option>
                 </select>
             </div>
-            <div class="aggr col-xs-12 col-md-6">
+            <div class="aggr col-xs-12 col-md-4">
                 Transform Value
                 <ui-icon type="question" tooltip="Choose 'No Transform' to use exact value from above calculation. Or choose to average, sum, % change etc. the value over a specified time period."></ui-icon>
                 <br/>
@@ -59,7 +53,7 @@
                     </template>
                 </div>
             </div>
-            <div *ngIf="indicator.env !== 'sports'" class="col-xs-6 col-md-6">
+            <div *ngIf="indicator.env !== 'sports'" class="col-xs-6 col-md-4">
                 Rank By <ui-icon type="question" tooltip="Rank all stocks together or rank each sector separately"></ui-icon>
                 <br/>
                 <radio-button [(value)]="indicator.rankIndustry" 
@@ -103,24 +97,23 @@
                     ]">
                 </radio-button>
             </div>
-            <div class="col-xs-6 col-md-3 hide">
-                <span>Include Only If</span> <ui-icon type="question" tooltip="Filter out stocks whose value for this indicator do not pass this rule. To use this indicator as a pure exclusion only, set the 'Sort By' to N/A."></ui-icon>
+            <div class="exclude col-xs-6 col-md-4">
+                <span>Exclude If</span> <ui-icon type="question" tooltip="Filter out stocks whose value for this indicator do not pass this rule."></ui-icon>
                 <br/>
                 <radio-button [(value)]="indicator.exclType" 
                     [options]="[
-                        { value: -1, title: 'N/A' }, 
+                        { value: 0, title: 'N/A' }, 
                         { value: 1, title: 'value' },
-                        { value: 0, title: 'percent rank' }
+                        { value: 2, title: 'percent rank' }
                     ]">
                 </radio-button>
-                <select [(ngModel)]="indicator.exclOp" [class.hidden]="indicator.exclType == -1" class="form-control">
-                    <!-- reversed values since specifying inclusion, but backend logic performs exclusion -->
-                    <option value="2">&lt;=</option>
-                    <option value="4">&lt;</option>
-                    <option value="1">&gt;=</option>
-                    <option value="3">&gt;</option>
+                <select [(ngModel)]="indicator.exclOp" [class.hidden]="indicator.exclType === 0" class="form-control">
+                    <option value="1">&lt;=</option>
+                    <option value="2">&lt;</option>
+                    <option value="3">&gt;=</option>
+                    <option value="4">&gt;</option>
                 </select>
-                <input [(ngModel)]="indicator.excl" [class.hidden]="indicator.exclType == -1" type="text" class="form-control" placeholder="value" />
+                <input [(ngModel)]="indicator.excl" [class.hidden]="indicator.exclType === 0" type="text" class="form-control" placeholder="value" />
             </div>
             <div *ngIf="indicator.env != 'sports'" class="col-xs-6 col-md-3 hide">
                 <span>

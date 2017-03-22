@@ -10,6 +10,8 @@ import { ExecuteStrategyEvent } from './strategy.event';
 
 import { OpenFooterModalEvent } from 'backlive/event';
 
+import { Common } from 'backlive/utility';
+
 @Component({
     selector: 'backlive-strategy',
     templateUrl: Path.ComponentView('strategy'),
@@ -51,9 +53,28 @@ export class StrategyComponent extends NodeComponent<Strategy> implements OnInit
                 strategy: this.strategy
             },
             onModalClose: () => {
+                this.inputToNumber(this.strategy.filter, 'minMktCap');
+                this.inputToNumber(this.strategy.filter, 'maxMktCap');
+                this.inputToNumber(this.strategy.settings, 'numStocks', 20);
+                this.inputToNumber(this.strategy.settings, 'initCapt', 10000);
+                this.inputToNumber(this.strategy.settings, 'exposure', 100);
+                this.inputToNumber(this.strategy.settings, 'shortExposure', 0);
+                this.inputToNumber(this.strategy.settings, 'stopLoss');
+                this.inputToNumber(this.strategy.settings, 'posStopLoss');
+                this.inputToNumber(this.strategy.settings, 'friction', 0);
+
                 this.update();
             }
         }));
+    }
+
+    inputToNumber(obj: any, field: string, defaultValue: number = null) {
+        if(Common.isNumber(obj[field])) { 
+            obj[field] = parseInt(obj[field]);
+        }
+        else {
+            obj[field] = defaultValue;
+        }
     }
 
     executeStrategy() {

@@ -169,7 +169,7 @@ export class DataLoaderNode extends BaseDataNode {
         if(!filter) {
             filter = {};
         }
-
+        
         if(this.ticker && !Common.inArray(type, this.nonTickerTypes)) {
             filter.ticker = Common.isArray(this.ticker) ? { $in: this.ticker } : this.ticker;
         }

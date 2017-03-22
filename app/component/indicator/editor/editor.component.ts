@@ -27,7 +27,6 @@ export class IndicatorEditorComponent extends BaseComponent implements OnInit, A
     }
     
     ngOnInit() {
-        
     }
 
     ngAfterViewInit() {

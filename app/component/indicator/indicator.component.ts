@@ -8,6 +8,8 @@ import { Indicator } from 'backlive/service/model';
 
 import { OpenFooterModalEvent } from 'backlive/event';
 
+import { Common } from 'backlive/utility';
+
 @Component({
     selector: 'backlive-indicator',
     templateUrl: Path.ComponentView('indicator'),
@@ -49,9 +51,19 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
                 indicator: this.indicator
             },
             onModalClose: () => {
+                this.inputToNumber(this.indicator, 'excl');
                 this.update();
             }
         }));
+    }
+
+    inputToNumber(obj: any, field: string, defaultValue: number = null) {
+        if(Common.isNumber(obj[field])) { 
+            obj[field] = parseInt(obj[field]);
+        }
+        else {
+            obj[field] = defaultValue;
+        }
     }
 
     addIndicator() {

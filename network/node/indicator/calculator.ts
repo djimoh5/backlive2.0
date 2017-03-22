@@ -1,4 +1,4 @@
-import { Operator, Indicator, IndicatorParam, IndicatorParamType, IndicatorParamTransform, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
+import { Operator, Indicator, IndicatorParam, IndicatorParamType, IndicatorParamTransform, ExclusionType, Conditional, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
 import { Common } from '../../../app//utility/common';
 
 import { DataCache } from '../data/data.node';
@@ -73,17 +73,16 @@ export class Calculator {
                 fns.push(fn);
             }
             else {
-                (<Indicator>obj).allowNeg = indicator.allowNeg;
                 vals.push(this.execute(<Indicator>obj, cache, true, ticker, date));
                 fields.push(null);
                 fns.push(null);
             }
         }
 
-        return this.calculate(vals, fields, indicator.ops, fns, subEq, indicator.allowNeg ? true : false);
+        return this.calculate(indicator, vals, fields, fns, subEq);
     }
 
-    private calculate(vals: any[], fields: string[], ops: Operator[], fns: number[], subEq: boolean, signed: boolean) { //ticker set for market S&P500 when calculating exposure
+    private calculate(indicator: Indicator, vals: any[], fields: string[], fns: number[], subEq: boolean) { //ticker set for market S&P500 when calculating exposure
         var finalVals: { [key: string]: number } = {};
         var errors = 0;
         var cnt = 0;
@@ -115,13 +114,11 @@ export class Calculator {
                         break;
                     }
                     else {
-                        var op = ops[i - 1];
-
                         if (fns[i] && fns[i] == IndicatorParamTransform.AbsoluteValue) {
                             tmpVal = Math.abs(tmpVal);
                         }
 
-                        switch (op) {
+                        switch (indicator.ops[i - 1]) {
                             case Operator.Add: val += tmpVal; break;
                             case Operator.Subtract: val -= tmpVal; break;
                             case Operator.Multiply:
@@ -146,8 +143,10 @@ export class Calculator {
                 }
             }
 
-            if (!subEq && !signed && val < 0) {
-                val = NO_VALUE;
+            if (!subEq && val != NO_VALUE) {
+                if(this.isValueExcluded(indicator, val)) {
+                    val = NO_VALUE;
+                }
             }
 
             if (val != NO_VALUE) {
@@ -156,6 +155,19 @@ export class Calculator {
         }
 
         return finalVals;
+    }
+
+    isValueExcluded(indicator: Indicator, val: number) {
+        if(indicator.exclType != ExclusionType.None) {
+            switch(indicator.exclOp) {
+                case Conditional.LessThanOrEqual: return val <= indicator.excl;
+                case Conditional.LessThan: return val < indicator.excl;
+                case Conditional.GreaterThanOrEqual: return val >= indicator.excl;
+                case Conditional.GreaterThan: return val > indicator.excl;
+            }
+        }
+
+        return false;
     }
 
     addValue(key: string, val: any) {

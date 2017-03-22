@@ -143,7 +143,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     openPositions() {
         var tkrs: string[] = Stats.sort(this.pastState[this.date].activation, true);
         var tkrLen = tkrs.length;
-        var numPos = Math.min(50, tkrLen);
+        var numPos = Math.min(30, tkrLen);
         
         var posSize = this.capital / numPos;
 

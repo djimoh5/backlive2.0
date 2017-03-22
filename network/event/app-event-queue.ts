@@ -20,7 +20,7 @@ export class AppEventQueue {
     }
 
     static unsubscribe<T extends BaseEvent<any>>(subscriberId: string, eventType: TypeOfBaseEvent<T>) {
-        return AppEventQueue.eventQueue.unsubscribe(subscriberId, eventType);
+        AppEventQueue.eventQueue.unsubscribe(subscriberId, eventType);
     }
     
     static notify(event: BaseEvent<any>, fromClient: boolean = false, fromChildProcess: boolean = false) {

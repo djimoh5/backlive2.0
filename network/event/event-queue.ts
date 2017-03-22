@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 //import 'rxjs/Rx';
 import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/share';
 
 export class EventQueue {
     protected events: { [key: string]: Observable<BaseEvent<any>> } = {};
@@ -33,6 +34,7 @@ export class EventQueue {
                 this.activators[eventName].subscribe(observer);
             });
             
+            observable.share();
             this.subscribers[eventName] = {};
         }
         else {

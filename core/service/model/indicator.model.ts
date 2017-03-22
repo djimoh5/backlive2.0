@@ -1,3 +1,4 @@
+import { booleanInt } from './shared.model';
 import { Node, NodeType } from './node.model';
 
 export declare type IndicatorParam = [IndicatorParamType, string | number] | [IndicatorParamType, string | number, IndicatorParamTransform];
@@ -11,16 +12,15 @@ export class Indicator extends Node {
     vars: (IndicatorParam | IndicatorParamGroup)[] = [];
     ops: Operator[] = [];
     
-    allowNeg: number = 1;
     aggrType: string = 'val';
     aggrSpan: number = 6;
     aggrSpanType: number = 2;
     valType: number = 1;
     
-    exclType: number = -1;
-    exclOp: number = 2;
+    exclType: ExclusionType = ExclusionType.None;
+    exclOp: Conditional = Conditional.LessThanOrEqual;
     excl: number = null;
-    rankIndustry: boolean = false;
+    rankIndustry: booleanInt = 0;
     
     //exp: number = 100;
     //expSh: number = 100;
@@ -47,11 +47,24 @@ export class SportsIndicator extends Indicator {
     exclIndTypes: number = 101;
 }
 
+export enum ExclusionType {
+    None,
+    Value,
+    PercentRank
+}
+
 export enum Operator {
     Add = 1,
     Subtract = 2,
     Multiply = 3,
     Divide = 4
+}
+
+export enum Conditional {
+    LessThanOrEqual = 1,
+    LessThan = 2,
+    GreaterThanOrEqual = 3,
+    GreaterThan = 4
 }
 
 export enum IndicatorParamType {
