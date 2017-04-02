@@ -5,7 +5,7 @@ import { StrategyEditorComponent } from './editor/editor.component';
 
 import { AppService, StrategyService } from 'backlive/service';
 
-import { Indicator, Strategy } from 'backlive/service/model';
+import { Strategy } from 'backlive/service/model';
 import { ExecuteStrategyEvent } from './strategy.event';
 
 import { OpenFooterModalEvent } from 'backlive/event';
@@ -26,7 +26,7 @@ export class StrategyComponent extends NodeComponent<Strategy> implements OnInit
     }
     
     ngOnInit() {
-        this.subscribeNodeEvents(this.strategy);
+        this.init(this.strategy);
     }
 
     update() {
@@ -38,10 +38,6 @@ export class StrategyComponent extends NodeComponent<Strategy> implements OnInit
                 }
             });
         }
-    }
-
-    addIndicator() {
-        this.addInput.emit(new Indicator());
     }
 
     onEdit() {

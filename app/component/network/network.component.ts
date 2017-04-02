@@ -4,12 +4,11 @@ import { PageComponent, SearchBarComponent } from 'backlive/component/shared';
 import { NetworkListComponent } from './shared/list/list.component';
 import { SlidingNavItem } from 'backlive/component/navigation';
 
-import { AppService, UserService, NetworkService, BasicNodeService, IndicatorService, StrategyService, PortfolioService, LookupService, RouterService } from 'backlive/service';
-import { NodeService } from '../../service/node.service';
+import { AppService, UserService, NetworkService, BasicNodeService, LookupService, RouterService } from 'backlive/service';
 
 import { Route } from 'backlive/routes';
 import { Network, Portfolio, Node, NodeType } from 'backlive/service/model';
-import { NodeChangeEvent, ActivateNodeEvent, ExecuteStrategyEvent, ExecuteNetworkEvent, LoadNetworkEvent } from 'backlive/event';
+import { NodeChangeEvent, ActivateNodeEvent, ExecuteStrategyEvent, ExecuteNetworkEvent, LoadNetworkEvent, RedrawNetworkEvent } from 'backlive/event';
 
 import { PlatformUI } from 'backlive/utility/ui';
 
@@ -30,7 +29,6 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     
     errMessage: string;
     nodes: Node[] = [];
-    indicatorSize = { width: 38, height: 34 };
 
     NodeType = NodeType;
     tmpInputMap: { [key: string]: { node: Node, input: Node } } = {};
@@ -38,9 +36,10 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     todayDate: number;
     minStartDate: number = 20030103;
 
+    static canvas: { center: { x: number, y: number } };
+
     constructor(appService: AppService, private userService: UserService, private lookupService: LookupService, private platformUI: PlatformUI, 
-        private nodeService: BasicNodeService, private networkService: NetworkService, private indicatorService: IndicatorService, private strategyService: StrategyService, 
-        private portfolioService: PortfolioService, private routerService: RouterService) {
+        private nodeService: BasicNodeService, private networkService: NetworkService, private routerService: RouterService) {
         super(appService);
 
         this.todayDate = Common.dbDate(new Date());
@@ -54,7 +53,8 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         this.life = { numLoops: 0 };
         this.lookupService.getDataFields(); //just to cache data
 
-        this.platformUI.onResize('network', size => this.positionNodes()); 
+        this.platformUI.onResize('network', size => this.positionNodes());
+        this.setCanvas();
 
         this.subscribeEvent(ActivateNodeEvent, event => {
             this.activate(event);
@@ -119,38 +119,12 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     loadNode<T extends Node>(node: Node) {
         node['activating'] = node['activated'] = false;
         this.nodes.push(node);
-        this.positionNodes();
+    }
 
-        if(node._id) {
-            var service: NodeService<Node>;
-
-            switch(node.ntype) {
-                case NodeType.Basic: service = this.nodeService;
-                    break;
-                case NodeType.Indicator: service = this.indicatorService;
-                    break;
-                case NodeType.Strategy: service = this.strategyService;
-                    break;
-                case NodeType.Portfolio: service = this.portfolioService;
-                    break;
-            }
-
-            if(node.inputs) {
-                service.getInputs(node._id).then(nodes => {
-                    if(nodes.length > 0) {
-                        node.inputs = []; //in case there are any deleted nodes still in inputs
-                        nodes.forEach(n => {
-                            node.inputs.push(n._id);
-                            this.loadNode(n);
-                        });
-                    }
-                    else {
-                        delete node.inputs;
-                        delete node.weights;
-                    }
-                });
-            }
-        }
+    onLoadInputs(node: Node, inputNodes: Node[]) {
+        inputNodes.forEach(node => {
+            this.loadNode(node);
+        });
     }
 
     onAddInput(node: Node, inputNode: Node) {
@@ -161,10 +135,14 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         this.nodes.push(inputNode);
         this.tmpInputMap[node._id] = { node: node, input: inputNode };
 
+        if(inputNode._id) {
+            this.onNodeChange(inputNode);
+        }
+
         this.positionNodes();
     }
 
-    onNodeChange(node: Node, index: number = null) {
+    onNodeChange(node: Node) {
         for(var key in this.tmpInputMap) {
             if(this.tmpInputMap[key].input === node) {
                 this.tmpInputMap[key].node.inputs.push(node._id);
@@ -238,66 +216,21 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     }
 
     positionNodes(animating: boolean = false) {
-        var radius = 250, radiusPercent = 40, angleOffset = 10, startAngle = 180;
-        var prevAngle: number;
+        this.setCanvas();
+        this.appService.notify(new RedrawNetworkEvent(this.network));
+    }
 
-        if(!animating) { //-3 because strategy and portfolio are also nodes
-            startAngle += (this.nodes.length - 3) * (angleOffset / 2); //only needed when not animating
-        }
-
-        var firstNode = true;
-        this.nodes.forEach(node => {
-            if(node.ntype === NodeType.Indicator) {
-                var angle = firstNode ? (startAngle + (.2 * this.life.numLoops)) : (prevAngle - angleOffset);
-                prevAngle = angle;
-                firstNode = false;
-
-                node.position = {
-                    x: radiusPercent * Math.cos(angle / 180 * Math.PI),
-                    y: radius * Math.sin(angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30 //extra 30 for amount strategy pod is off center;
-                };
+    setCanvas() {
+        NetworkComponent.canvas = { 
+            center: { 
+                x: this.platformUI.query(window).width() / 2,
+                y: this.platformUI.query(window).height() / 2 
             }
-
-            node['line'] = null;
-        });
-    }
-
-    toDate(sliderVal: number) {
-        return Math.round(this.minStartDate + ((this.todayDate - this.minStartDate) / 100 * sliderVal));
-    }
-
-    toSliderVal(date: number) {
-        return (date - this.minStartDate) / (this.todayDate - this.minStartDate) * 100;
-    }
-    
-    getNodeLine(node: Node) {
-        if(!node['line']) {
-            var centerX = this.platformUI.query(window).width() / 2;
-            var centerY = this.platformUI.query(window).height() / 2;
-            
-            var x1: number, y1: number, x2: number, y2: number;
-
-            switch(node.ntype) {
-                case NodeType.Indicator:
-                    x1 = centerX + (centerX * 2 * node.position.x / 100); 
-                    y1 = centerY + node.position.y + (this.indicatorSize.height / 2);
-                    x2 = centerX; 
-                    y2 = centerY - 30;
-                    break;
-                case NodeType.Strategy:
-                    x1 = centerX; y1 = centerY - 30;
-                    x2 = (centerX * 2) * .9 - 50; y2 = centerY - 30;
-                    break;
-            }
-
-            node['line'] = this.getLine(x1, y1, x2, y2);
-        }
-
-        return node['line'];
+        };
     }
 
     getActivationLine(node: Node) {
-        if(!node['a-line']) {
+        if(!node['aline']) {
             var path = this.platformUI.query('path[id="path' + node._id + '"]')[0];
             var pathLen = path.getTotalLength();
 
@@ -305,12 +238,12 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
             var newLen  = 0;
             var p1 = path.getPointAtLength(newLen);
             var p2 = path.getPointAtLength(newLen + interval);
-            node['a-line'] = this.getLine(p1.x, p1.y, p2.x, p2.y);
+            node['aline'] = Common.getLine(p1.x, p1.y, p2.x, p2.y);
 
             var activating = setInterval(() => {
                 var p1 = path.getPointAtLength(newLen);
                 var p2 = path.getPointAtLength(newLen + (interval * 2));
-                node['a-line'] = this.getLine(p1.x, p1.y, p2.x, p2.y);
+                node['aline'] = Common.getLine(p1.x, p1.y, p2.x, p2.y);
 
                 newLen += interval;
 
@@ -321,21 +254,15 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
             }, 16);
         }
 
-        return node['a-line'];
+        return node['aline'];
     }
-    
-    getLine(x1: number, y1: number, x2: number, y2: number) {
-        var lineData = [
-            { x: x1, y: y1 },  
-            { x: x2, y: y2 }
-        ];
-        
-        var line = d3.line()
-                        .x(function(d) { return d.x; })
-                        .y(function(d) { return d.y; })
-                        .curve(d3.curveBundle.beta(1));
 
-       return line(lineData);
+    toDate(sliderVal: number) {
+        return Math.round(this.minStartDate + ((this.todayDate - this.minStartDate) / 100 * sliderVal));
+    }
+
+    toSliderVal(date: number) {
+        return (date - this.minStartDate) / (this.todayDate - this.minStartDate) * 100;
     }
 
     ngOnDestroy() {

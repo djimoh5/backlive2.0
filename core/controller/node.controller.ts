@@ -32,6 +32,7 @@ export abstract class NodeController<T extends Node> extends BaseController {
     @Get(':id/inputs')
     inputs(req, res) {
         res.services.nodeService.getInputs(req.params.id).then(function (nodes) {
+            console.log('blah', nodes);
             res.send(nodes);
         });
     }

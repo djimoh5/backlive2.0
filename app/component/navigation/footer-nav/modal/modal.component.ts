@@ -1,4 +1,4 @@
-import { Component, Type, ComponentRef, ComponentFactoryResolver, EventEmitter, ViewChild, ViewContainerRef, NgZone } from '@angular/core';
+import { Component, Type, ComponentRef, ComponentFactoryResolver, EventEmitter, ViewChild, ViewContainerRef, NgZone, AfterViewInit, OnDestroy } from '@angular/core';
 import { Path } from 'backlive/config';
 import { Common } from 'backlive/utility';
 import { PlatformUI } from 'backlive/utility/ui';
@@ -14,8 +14,10 @@ import { OpenFooterModalEvent, CloseFooterModalEvent } from 'backlive/event';
     templateUrl: Path.ComponentView('navigation/footer-nav/modal'),
     styleUrls: [Path.ComponentStyle('navigation/footer-nav/modal')]
 })
-export class FooterModalComponent extends BaseComponent {
-    id: string = 'footerModal';
+export class FooterModalComponent extends BaseComponent implements AfterViewInit, OnDestroy {
+    private static modalComponentIds: string[] = [];
+
+    id: string;
     options: ModalOptions;
 
     componentRefs: ComponentRef<any>[] = [];
@@ -33,9 +35,13 @@ export class FooterModalComponent extends BaseComponent {
         this.subscribeEvent(OpenFooterModalEvent, event => this.open(event.data));
         this.subscribeEvent(CloseFooterModalEvent, () => this.close());
 
-         this.platformUI.query('#' + this.id).on('hide.bs.modal', () => {
+        this.id = Common.uniqueId();
+        FooterModalComponent.modalComponentIds.push(this.id);
+    }
+
+    ngAfterViewInit() {
+        this.platformUI.query(`#${this.id}`).on('hide.bs.modal', () => {
             this.ngZone.run(() => {
-                console.log('modal close');
                 if(this.options.eventHandlers && this.options.eventHandlers['closeModal']) {
                     this.options.eventHandlers['closeModal']();
                 }
@@ -44,6 +50,10 @@ export class FooterModalComponent extends BaseComponent {
     }
 
     open (options: ModalOptions) {
+        if (this.id !== FooterModalComponent.modalComponentIds[FooterModalComponent.modalComponentIds.length - 1]) { //only open the most recent vn-modal created
+            return;
+        }
+
         this.options = options;
 
         if(!this.options.title) {
@@ -127,6 +137,17 @@ export class FooterModalComponent extends BaseComponent {
             this.options.onBodyClick(event);
             this.close();
         }
+    }
+
+    ngOnDestroy() {
+        for (var i = FooterModalComponent.modalComponentIds.length - 1; i >= 0; i--) {
+            if (FooterModalComponent.modalComponentIds[i] === this.id) {
+                FooterModalComponent.modalComponentIds.splice(i, 1);
+                break;
+            }
+        }
+
+        super.ngOnDestroy();
     }
 }
 

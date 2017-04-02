@@ -1,8 +1,8 @@
 <div [animate]="pageAnimation" *ngIf="eventLoop">
     <svg>
         <ng-template ngFor let-node [ngForOf]="nodes" let-i="index">
-            <ng-template [ngIf]="node.ntype === NodeType.Indicator || node.ntype === NodeType.Strategy">
-                <path [attr.id]="'path' + node._id" [attr.d]="getNodeLine(node)" [attr.stroke]="node.activated ? '#4797A8' : '#12455a'" stroke-width="2" />
+            <ng-template [ngIf]="node.line">
+                <path [attr.id]="'path' + node._id" [attr.d]="node.line" [attr.stroke]="node.activated ? '#4797A8' : '#12455a'" stroke-width="2" />
                 <path *ngIf="node.activating" [attr.d]="getActivationLine(node)" [attr.stroke]="'#f00'" stroke-width="3" />
             </ng-template>
         </ng-template>
@@ -25,13 +25,15 @@
             <input type="text"[(ngModel)]="network.hiddenLayers[0].numNodes" class="form-control" (blur)="update()" />
         </div>
     </div>
-    <ng-template ngFor let-node [ngForOf]="nodes" let-i="index">
+    <ng-container *ngFor="let node of nodes; let i = index">
         <div [ngSwitch]="node.ntype">
             <!-- indicators -->
             <div *ngSwitchCase="NodeType.Indicator">
-                <backlive-indicator [class.activated]="node.activated"
+                <backlive-indicator [class.activated]="node.activated" *ngIf="node.position"
                     [indicator]="node" 
-                    (nodeChange)="onNodeChange($event, i)"
+                    (nodeChange)="onNodeChange($event)"
+                    (loadInputs)="onLoadInputs(node, $event)"
+                    (addInput)="onAddInput(node, $event)"
                     (remove)="onRemoveNode($event, i)"
                     [style.margin-left]="node.position.x + '%'" 
                     [style.margin-top.px]="node.position.y">
@@ -41,7 +43,8 @@
             <div *ngSwitchCase="NodeType.Strategy" class="center-strategy">
                 <backlive-strategy [class.activating]="node.activating" [class.activated]="node.activated"
                     [strategy]="node"
-                    (nodeChange)="onNodeChange($event, i)" 
+                    (nodeChange)="onNodeChange($event)"
+                    (loadInputs)="onLoadInputs(node, $event)"
                     (addInput)="onAddInput(node, $event)">
                 </backlive-strategy>
             </div>
@@ -49,13 +52,15 @@
             <div *ngSwitchCase="NodeType.Portfolio" class="portfolio">
                 <backlive-portfolio [class.activating]="node.activating" [class.activated]="node.activated"
                     [portfolio]="node"
-                    (nodeChange)="onNodeChange($event, i)" 
+                    (nodeChange)="onNodeChange($event)"
+                    (loadInputs)="onLoadInputs(node, $event)"
                     (addInput)="onAddInput(node, $event)">
                 </backlive-portfolio>
             </div>
         </div>
-    </ng-template>
+    </ng-container>
 </div>
-<sliding-nav [items]="navItems"></sliding-nav>
 
+<sliding-nav [items]="navItems"></sliding-nav>
+<footer-nav></footer-nav>
 <backlive-modal></backlive-modal>

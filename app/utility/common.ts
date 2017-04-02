@@ -6,6 +6,7 @@ declare var md5: any;
 declare var formatDate: any;
 declare var $: any;
 declare var _: any;
+declare var d3: any;
 
 if(typeof(require) !== 'undefined') {
     if(typeof($) === 'undefined') {
@@ -272,6 +273,20 @@ export class Common {
         }
 
         return obj;
+    }
+
+    static getLine(x1: number, y1: number, x2: number, y2: number) {
+        var lineData = [
+            { x: x1, y: y1 },  
+            { x: x2, y: y2 }
+        ];
+        
+        var line = d3.line()
+                        .x(function(d) { return d.x; })
+                        .y(function(d) { return d.y; })
+                        .curve(d3.curveBundle.beta(1));
+
+       return line(lineData);
     }
     
 	static uniqueId() {

@@ -4,7 +4,7 @@ import { PageComponent } from 'backlive/component/shared';
 
 import { AppService, UserService, NetworkService, IndicatorService } from 'backlive/service';
 
-import { Node, NodeType } from 'backlive/service/model';
+import { Node, NodeType, Indicator } from 'backlive/service/model';
 
 import { Common } from 'backlive/utility';
 
@@ -23,12 +23,10 @@ export class LibraryComponent extends PageComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.networkService.list().then(networks => {
-            this.allNodes.push({ type: NodeType.Network, nodes: networks });
-        });
-
-        this.indicatorService.list().then(indicators => {
-            this.allNodes.push({ type: NodeType.Indicator, nodes: indicators });
+        Promise.all([this.networkService.list(), this.indicatorService.list()]).then(values => {
+            values[1].splice(0, 0, new Indicator());
+            this.allNodes.push({ type: NodeType.Indicator, nodes: values[1] });
+            this.allNodes.push({ type: NodeType.Network, nodes: values[0] });
         });
     }
 

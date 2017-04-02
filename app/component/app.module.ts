@@ -10,8 +10,6 @@ import { NavigationModule } from './navigation/navigation.module';
 import { AccessDeniedComponent } from './home/access-denied/access-denied.component';
 import { HomeComponent } from './home/home.component';
 
-import { NetworkSharedModule } from './network/shared/shared.module';
-
 /* routes */
 import { Config, AuthGuard } from 'backlive/config';
 import { routing } from './app.routing';
@@ -30,7 +28,7 @@ import { AppExceptionHandler } from 'backlive/utility';
         HomeComponent
     ],
     imports: [
-        BrowserModule, HttpModule, SharedModule, NavigationModule, ServiceModule, NetworkSharedModule, routing
+        BrowserModule, HttpModule, SharedModule, NavigationModule, ServiceModule, routing
     ],
     providers: [
         Title, AuthGuard,

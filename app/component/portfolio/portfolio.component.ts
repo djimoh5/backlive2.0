@@ -27,7 +27,7 @@ export class PortfolioComponent extends NodeComponent<Portfolio> implements OnIn
             this.addStrategy();
         }
 
-        this.subscribeNodeEvents(this.portfolio);
+        this.init(this.portfolio);
     }
 
     update() {

@@ -1,75 +1,77 @@
-<div class="container">
-    <backlive-footer-modal></backlive-footer-modal>
-	<div class="inner-container">
-        <div *ngIf="showNews" class="market-news research_container">
-            <div class="add-quick-news search_container input-append hide">
-                <h5 style="margin-top:0px">
-                    Locate the URL of your favorite financial website RSS feed, and give it a short name which will appear in the footer menu.<br/>
-                    Not sure what an RSS feed is? Here are some examples to get you started:<br/>
-                    <p style="color:#666; margin:5px 0 0 45px;">
-                        Quartz - http://qz.com/feed/<br/>
-                        The Economist - http://www.economist.com/feeds/print-sections/77/business.xml<br/>
-                        Pragmatic Capitalism - http://feeds.feedburner.com/pragcap/PFxE
-                    </p>
-                </h5>
-                <div class="clearfix">
-                    <input type="text" placeholder="short name" autocomplete="off" class="first" maxlength="20">
-                    <input type="text" placeholder="enter rss feed url" autocomplete="off" class="ac_input" maxlength="500">
-                    <button class="btn btn-primary"><i class="icon-plus icon-white" style=""></i></button>
+<footer>
+    <div class="container">
+        <backlive-footer-modal></backlive-footer-modal>
+        <div class="inner-container">
+            <div *ngIf="showNews" class="market-news research_container">
+                <div class="add-quick-news search_container input-append hide">
+                    <h5 style="margin-top:0">
+                        Locate the URL of your favorite financial website RSS feed, and give it a short name which will appear in the footer menu.<br/>
+                        Not sure what an RSS feed is? Here are some examples to get you started:<br/>
+                        <p style="color:#666; margin:5px 0 0 45px;">
+                            Quartz - http://qz.com/feed/<br/>
+                            The Economist - http://www.economist.com/feeds/print-sections/77/business.xml<br/>
+                            Pragmatic Capitalism - http://feeds.feedburner.com/pragcap/PFxE
+                        </p>
+                    </h5>
+                    <div class="clearfix">
+                        <input type="text" placeholder="short name" autocomplete="off" class="first" maxlength="20">
+                        <input type="text" placeholder="enter rss feed url" autocomplete="off" class="ac_input" maxlength="500">
+                        <button class="btn btn-primary"><i class="icon-plus icon-white" style=""></i></button>
+                    </div>
+                </div>
+                <div class="hidden"></div>
+                <ul class="clearfix">
+                    <li class="footer_subnav ticker on" data-tkr="SP500">
+                        <a href="javascript:void(0)" onclick="RM.loadStockTicker('SP500')">Market</a>
+                    </li>
+                    <li class="first rsrch_subnav">
+                        <a href="javascript:void(0)" onclick="RM.researchSubNav(this, 'news')">News</a>
+                    </li>
+                    <li class="rsrch_subnav">
+                        <a href="javascript:void(0)" onclick="RM.researchSubNav(this, 'financials', 'a')">Financials</a>
+                    </li>
+                    <li class="rsrch_subnav">
+                        <a href="javascript:void(0)" onclick="RM.researchSubNav(this, 'sec')">SEC Filings</a>
+                    </li>
+                    <li class="news_subnav show icon-plus">
+                        <ui-icon type="add" class="hover" onclick="RM.addRSSFeed()"></ui-icon>
+                    </li>
+                    <li class="first news_subnav show">
+                        <a href="javascript:void(0)" onclick="RM.newsSubNav(this, 'economist')">Economist</a>
+                    </li>
+                    <li class="news_subnav show">
+                        <a href="javascript:void(0)" onclick="RM.newsSubNav(this, 'bloomberg')">Bloomberg Radio</a>
+                    </li>
+                    <li class=" news_subnav show">
+                        <a href="javascript:void(0)" onclick="RM.newsSubNav(this, 'cnbc')">CNBC</a>
+                    </li>
+                    <li class="footer_subnav back" style="display:none;">
+                        <a href="javascript:void(0)" onclick="RM.showAllTickers()" class="italic">Back To Remove/Select Stocks</a>
+                    </li>
+                </ul>
+                <!-- // btn-group -->
+            </div>
+            
+            <div class="test-years hide">
+                <ul class="clearfix">
+                    <li class="year-tab-clone">
+                        <a href="javascript:void(0)"></a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div *ngIf="showStockTicker" class="clearfix">
+                <div class="stock-ticker" *ngFor="let price of lastPrices;">
+                    <span>{{price.ticker}}</span>&nbsp;&nbsp;{{price.price}}&nbsp;&nbsp;
+                    <span [class.color-red]="price.change < 0" [class.color-green]="price.change > 0">
+                        {{price.change}}&nbsp;&nbsp;{{price.percentChange}}%
+                    </span>
                 </div>
             </div>
-            <div class="hidden"></div>
-            <ul class="clearfix">
-                <li class="footer_subnav ticker on" data-tkr="SP500">
-                    <a href="javascript:void(0)" onclick="RM.loadStockTicker('SP500')">Market</a>
-                </li>
-                <li class="first rsrch_subnav">
-                    <a href="javascript:void(0)" onclick="RM.researchSubNav(this, 'news')">News</a>
-                </li>
-                <li class="rsrch_subnav">
-                    <a href="javascript:void(0)" onclick="RM.researchSubNav(this, 'financials', 'a')">Financials</a>
-                </li>
-                <li class="rsrch_subnav">
-                    <a href="javascript:void(0)" onclick="RM.researchSubNav(this, 'sec')">SEC Filings</a>
-                </li>
-                <li class="news_subnav show icon-plus">
-                    <ui-icon type="add" class="hover" onclick="RM.addRSSFeed()"></ui-icon>
-                </li>
-                <li class="first news_subnav show">
-                    <a href="javascript:void(0)" onclick="RM.newsSubNav(this, 'economist')">Economist</a>
-                </li>
-                <li class="news_subnav show">
-                    <a href="javascript:void(0)" onclick="RM.newsSubNav(this, 'bloomberg')">Bloomberg Radio</a>
-                </li>
-                <li class=" news_subnav show">
-                    <a href="javascript:void(0)" onclick="RM.newsSubNav(this, 'cnbc')">CNBC</a>
-                </li>
-                <li class="footer_subnav back" style="display:none;">
-                    <a href="javascript:void(0)" onclick="RM.showAllTickers()" class="italic">Back To Remove/Select Stocks</a>
-                </li>
-            </ul>
-            <!-- // btn-group -->
+            
+            <button class="btn-toggle-ticker btn btn-primary" aria-label="toggle footer navigation">
+                <span class="glyphicon glyphicon-signal" aria-hidden="true"></span>
+            </button>
         </div>
-        
-        <div class="test-years hide">
-            <ul class="clearfix">
-                <li class="year-tab-clone">
-                    <a href="javascript:void(0)"></a>
-                </li>
-            </ul>
-        </div>
-        
-        <div *ngIf="showStockTicker" class="clearfix">
-            <div class="stock-ticker" *ngFor="let price of lastPrices;">
-                <span>{{price.ticker}}</span>&nbsp;&nbsp;{{price.price}}&nbsp;&nbsp;
-                <span [class.color-red]="price.change < 0" [class.color-green]="price.change > 0">
-                    {{price.change}}&nbsp;&nbsp;{{price.percentChange}}%
-                </span>
-            </div>
-        </div>
-        
-        <button class="btn-toggle-ticker btn btn-primary" aria-label="toggle footer navigation">
-            <span class="glyphicon glyphicon-signal" aria-hidden="true"></span>
-        </button>
     </div>
-</div>
+</footer>

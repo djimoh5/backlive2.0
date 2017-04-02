@@ -19,20 +19,16 @@ export class ModalComponent extends BaseComponent implements OnDestroy {
 
     id: string;
     options: ModalOptions;
-    componentResolver: ComponentFactoryResolver;
-    platformUI: PlatformUI;
 
     componentRefs: ComponentRef<any>[] = [];
     
     @ViewChild('modalbody', {read: ViewContainerRef}) modalbodyRef: ViewContainerRef;
     @ViewChild('modalfooter', {read: ViewContainerRef}) modalfooterRef: ViewContainerRef;
 
-    constructor(appService: AppService, componentResolver: ComponentFactoryResolver, platformUI: PlatformUI, private elementRef: ElementRef, private ngZone: NgZone) {
+    constructor(appService: AppService, private componentResolver: ComponentFactoryResolver, private platformUI: PlatformUI, private elementRef: ElementRef, private ngZone: NgZone) {
         super(appService);
-        this.componentResolver = componentResolver;
-        this.platformUI = platformUI;
 
-        this.options = { title: 'Envoy' };
+        this.options = { title: 'BackLive' };
 
         this.subscribeEvent(OpenModalEvent, event => this.open(event.data));
         this.subscribeEvent(CloseModalEvent, () => this.close());
