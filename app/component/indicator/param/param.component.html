@@ -1,6 +1,6 @@
-<template [ngIf]="param.vars">
+<ng-template [ngIf]="param.vars">
     <div [class.param]="!isRoot">
-        <template ngFor let-field [ngForOf]="param.vars" let-i="index">
+        <ng-template ngFor let-field [ngForOf]="param.vars" let-i="index">
             <backlive-indicator-param [param]="field" (remove)="onRemove(i)" (group)="onGroup(i, $event)" (fieldClick)="onClick(i)"></backlive-indicator-param>
             <select *ngIf="param.ops.length > i" [(ngModel)]="param.ops[i]">
                 <option value="1">+</option>
@@ -8,9 +8,9 @@
                 <option value="3">&times;</option>
                 <option value="4">/</option>
             </select>
-        </template>
+        </ng-template>
     </div>
-</template>
+</ng-template>
 <div *ngIf="!param.vars" class="field" [class.group]="isGrouping">
     <div class="controls">
         <span class="group-eq" (click)="groupEquation()" tooltip="group fields">( )</span>

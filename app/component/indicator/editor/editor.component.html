@@ -33,14 +33,14 @@
                     <span *ngIf="indicator.env != 'sports' || indicator.aggrSpanType == 1">
                         <span class="last">last</span> <input [(ngModel)]="indicator.aggrSpan" type="text" class="form-control aggr-span" />
                     </span>
-                    <template [ngIf]="indicator.env !== 'sports'">
+                    <ng-template [ngIf]="indicator.env !== 'sports'">
                         <select [(ngModel)]="indicator.aggrSpanType" class="form-control">
                             <option value="1">days</option>
                             <option value="2">months</option>
                             <option value="3">years</option>
                         </select>
-                    </template>
-                    <template [ngIf]="indicator.env === 'sports'">
+                    </ng-template>
+                    <ng-template [ngIf]="indicator.env === 'sports'">
                         <select [(ngModel)]="indicator.aggrSpanType" class="form-control">
                             <option value="1">games</option>
                             <option value="2">season to date</option>
@@ -50,7 +50,7 @@
                             <option value="0">any team</option>
                             <option value="1">opponent</option>
                         </select>
-                    </template>
+                    </ng-template>
                 </div>
             </div>
             <div *ngIf="indicator.env !== 'sports'" class="col-xs-6 col-md-4">

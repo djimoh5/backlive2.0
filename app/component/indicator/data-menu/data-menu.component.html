@@ -5,15 +5,15 @@
         </div>
     </div>
     <div class="right-col">
-        <template ngFor let-dataField [ngForOf]="dataFields">
+        <ng-template ngFor let-dataField [ngForOf]="dataFields">
             <div class="category" *ngIf="selectedDataField === dataField">
-                <template ngFor let-field [ngForOf]="dataField.fieldObjs">
+                <ng-template ngFor let-field [ngForOf]="dataField.fieldObjs">
                     <div *ngIf="!field.hidden" class="field" [class.active]="field.active" (click)="selectField(dataField.type, field.name)">
                         <span class="title">{{getDisplayName(dataField.type, field.name)}}</span>
                         <span class="definition">{{getDictionary(dataField.type, field.name)}}</span>
                     </div>
-                </template>
+                </ng-template>
             </div>
-        </template>
+        </ng-template>
     </div>
 </div>

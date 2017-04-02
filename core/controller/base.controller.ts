@@ -95,21 +95,21 @@ export class BaseController {
         
 		for(var key in self) {
 			if(key == 'post' && self.post) {
-                for(key in self.post) {
-                    this.router.post(self.getRoutePath(key), self.post[key]);
-                    console.log('- registering post route', key);
+                for(var k in self.post) {
+                    this.router.post(self.getRoutePath(k), self.post[k]);
+                    console.log('- registering post route', k);
                 }
             }
             else if(key == 'delete' && self.delete) {
-                for(key in self.delete) {
-                    this.router.delete(self.getRoutePath(key), self.delete[key]);
-                    console.log('- registering delete route', key);
+                for(k in self.delete) {
+                    this.router.delete(self.getRoutePath(k), self.delete[k]);
+                    console.log('- registering delete route', k);
                 }
             }
             else if(key == 'get' && self.get) {
-                for(key in self.get) {
-                    this.router.get(self.getRoutePath(key), self.get[key]);
-                    console.log('- registering get route', key);
+                for(k in self.get) {
+                    this.router.get(self.getRoutePath(k), self.get[k]);
+                    console.log('- registering get route', k);
                 }
             }
 		}

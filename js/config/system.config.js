@@ -41,7 +41,8 @@ if (typeof System != 'undefined') {
     ];
     
     packageNames.forEach(function(pkgName) {
-        var umdBundle = webContext ? 'bundles/' + (pkgName.split('/')[1] + '.umd.min.js') : 'index';
+        var name = pkgName.split('/')[1];
+        var umdBundle = webContext ? ('bundles/' + name + '.umd.min.js') : ('@angular/' + name);
         config.packages[pkgName] = { main: umdBundle, defaultExtension: 'js' };
     });
 

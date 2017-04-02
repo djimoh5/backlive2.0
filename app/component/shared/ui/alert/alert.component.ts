@@ -6,8 +6,7 @@ import {Type} from './alert.input';
     template: `<div class="{{alertClass}} fade alert-dismissible" [ngClass]="{ hide:!message, in: fadeIn, out:  !fadeIn }">
                    <button type="button" class="close hide" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                    {{message}}
-               <div>`,
-    directives: []
+               <div>`
 })
 export class AlertComponent implements OnChanges {
     @Input() type: string;

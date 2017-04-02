@@ -1,0 +1,21 @@
+@import "css/plugins/mixins.less";
+@import "css/themes/colors.less";
+@import "css/themes/text.less";
+
+.tab {
+    border-bottom: 2px solid @brand-primary;
+    padding: 10px 15px;
+}
+
+.content {
+    padding: 15px;
+    .pod;
+    border-top:none;
+}
+
+.node {
+    padding: 7px 12px;
+    &:hover {
+        background: lighten(@brand-primary, 20%);
+    }
+}

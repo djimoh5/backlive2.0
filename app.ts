@@ -1,5 +1,3 @@
-/// <reference path="./typings/index.d.ts" />
-
 require('./network/globals.js');
 
 import { Server } from './core/server';

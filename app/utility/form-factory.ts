@@ -42,7 +42,7 @@ export class FormFactory {
     static clear(form: FormGroup) {
         for (var key in form.controls) {
             var control: FormControl = <FormControl>form.controls[key];
-            control.touched = false;
+            control.markAsUntouched();
         }
     }
 }

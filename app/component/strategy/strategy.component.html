@@ -2,7 +2,7 @@
     <input type="text" class="form-control" [(ngModel)]="strategy.name" (blur)="update()" placeholder="enter strategy name" />
 </div>
 <div *ngIf="strategy?.name" class="controls">
-    <ui-button type="submit" (click)="addIndicator()">
+    <ui-button type="submit" (click)="showLibrary()">
         <ui-icon type="add"></ui-icon>
     </ui-button>
     <ui-button type="secondary" (click)="onEdit()">
@@ -11,7 +11,4 @@
     <ui-button type="commit" (click)="executeStrategy()">
         <ui-icon type="play"></ui-icon>
     </ui-button>
-</div>
-<div class="editor">
-    
 </div>

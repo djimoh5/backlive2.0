@@ -6,12 +6,13 @@ import { NetworkComponent } from './network.component';
 import { StrategyComponent } from '../strategy/strategy.component';
 import { IndicatorComponent } from '../indicator/indicator.component';
 import { PortfolioComponent } from '../portfolio/portfolio.component';
+import { LibraryComponent } from './library/library.component';
 
 import { networkRouting } from './network.routing';
 
 @NgModule({
     declarations: [
-        NetworkComponent, StrategyComponent, IndicatorComponent, PortfolioComponent
+        NetworkComponent, StrategyComponent, IndicatorComponent, PortfolioComponent, LibraryComponent
     ],
     imports: [SharedModule, NavigationSharedModule, networkRouting]
 })

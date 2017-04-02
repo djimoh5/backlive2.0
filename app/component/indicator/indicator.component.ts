@@ -29,6 +29,9 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
             this.update();
             this.onEdit();
         }
+        else if(this.indicator.inputs && this.indicator.inputs.length) {
+            this.getInputs();
+        }
 
         this.subscribeNodeEvents(this.indicator);
     }
@@ -64,9 +67,5 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
         else {
             obj[field] = defaultValue;
         }
-    }
-
-    addIndicator() {
-
     }
 }

@@ -513,15 +513,19 @@ export class DataFieldMap {
         'zscore':'a/altman.asp',
         }
     };
+
+    static reverse() {
+        //create reverse mapping
+        for(var type in DataFieldMap.field) {
+            DataFieldMap.rfield[type] = {};
+            
+            for(var key in DataFieldMap.field[type]) {
+                DataFieldMap.rfield[type][DataFieldMap.field[type][key]] = key;
+            }
+        }
+    }
 }
 
 export const NO_VALUE = -99999;
 
-//create reverse mapping
-for(var type in DataFieldMap.field) {
-    DataFieldMap.rfield[type] = {};
-    
-    for(var key in DataFieldMap.field[type]) {
-         DataFieldMap.rfield[type][DataFieldMap.field[type][key]] = key;
-    }
-}
+DataFieldMap.reverse();

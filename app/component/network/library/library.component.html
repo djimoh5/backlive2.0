@@ -1,0 +1,20 @@
+<div [animate]="pageAnimation">
+    <tab-view>
+        <div class="tabs">
+            <tab-link *ngFor="let nodes of allNodes">
+                <div class="tab">
+                    {{getName(nodes.type)}}
+                </div>
+            </tab-link>
+        </div>
+        <ng-container *ngFor="let nodes of allNodes; let i = index">
+            <tab-content>
+                <div class="content">
+                    <div *ngFor="let node of nodes.nodes" class="node" (click)="onSelect(node)">
+                        <h3>{{node.name}}</h3>
+                    </div>
+                </div>
+            </tab-content>
+        </ng-container>
+    </tab-view>
+</div>
