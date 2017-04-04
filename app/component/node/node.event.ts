@@ -6,4 +6,4 @@ import { Node } from 'backlive/service/model';
 export class NodeChangeEvent extends BaseEvent<Node> {}
 
 @SocketEvent('Event.Node.Remove')
-export class RemoveNodeEvent extends BaseEvent<string> {}
+export class RemoveNodeEvent extends BaseEvent<Node> {}

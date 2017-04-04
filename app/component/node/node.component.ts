@@ -6,7 +6,7 @@ import { AppService } from 'backlive/service';
 import { NodeService } from '../../service/node.service';
 
 import { Node, NodeType } from 'backlive/service/model';
-import { OpenFooterModalEvent, RedrawNetworkEvent } from 'backlive/event';
+import { OpenFooterModalEvent, CloseFooterModalEvent, RedrawNetworkEvent } from 'backlive/event';
 import { NodeChangeEvent, RemoveNodeEvent } from './node.event';
 
 import { NetworkComponent } from '../network/network.component';
@@ -39,11 +39,19 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
     protected init(node: Node) {
         this.node = node;
 
-        this.getInputs();
+        this.getInputs(true);
 
         this.subscribeEvent(NodeChangeEvent, event => {
             this.update();
+            
+            if(this.node.inputs && this.node.inputs.length !== this.inputs.length) {
+                this.getInputs();
+            }
         }, { filter: (event, index) => { return event.data._id === this.node._id; } });
+
+        this.subscribeEvent(RemoveNodeEvent, event => {
+            this.onInputRemoved(event.data);
+        }, { filter: (event, index) => { return this.inputs.indexOf(event.data) >= 0; } });
 
         this.subscribeEvent(RedrawNetworkEvent, event => this.redraw());
     }
@@ -53,13 +61,20 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
     onRemove() {
         this.nodeService.remove(this.node._id).then(success => {
             if(success) {
+                this.appService.notify(new RemoveNodeEvent(this.node));
                 this.remove.emit(this.node);
-                this.appService.notify(new RemoveNodeEvent(this.node._id));
             }
         });
     }
 
-    getInputs() {
+    onInputRemoved(input: Node) {
+        this.node.inputs.splice(this.node.inputs.indexOf(input._id), 1);
+        this.inputs.splice(this.inputs.indexOf(input), 1);
+        this.update();
+        this.redraw();
+    }
+
+    getInputs(init: boolean = false) {
         if(this.node.inputs) {
             this.nodeService.getInputs(this.node._id).then(nodes => {
                 this.inputs = nodes;
@@ -75,7 +90,10 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
                 }
 
                 this.redraw();
-                this.loadInputs.emit(this.inputs);
+
+                if(init) {
+                    this.loadInputs.emit(this.inputs);
+                }
             });
         }
     }
@@ -86,15 +104,20 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
             body: LibraryComponent,
             eventHandlers: { 
                 select: (node: Node) => {
-                    this.addInput.emit(node);
+                    this.newInput(node);
                 }
-            },
-            onModalClose: () => {
             }
         }));
     }
 
+    private newInput(node: Node) {
+        this.inputs.push(node);
+        this.redraw();
+        this.addInput.emit(node);
+    }
+
     redraw(animating: boolean = false) {
+        console.log(this.inputs.length);
         if(this.inputs.length > 0) {
             var yRadius = 250, xRadiusPercent = 40, angleOffset = 10, startAngle = 180;
             var prevAngle: number;
@@ -140,5 +163,6 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
         }
 
         node['line'] = Common.getLine(x1, y1, x2, y2);
+        console.log(node['line']);
     }
 }

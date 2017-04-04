@@ -128,17 +128,13 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     }
 
     onAddInput(node: Node, inputNode: Node) {
-        if(!node.inputs) {
-            node.inputs = [];
-        }
-
         this.nodes.push(inputNode);
         this.tmpInputMap[node._id] = { node: node, input: inputNode };
 
         if(inputNode._id) {
             this.onNodeChange(inputNode);
         }
-
+        
         this.positionNodes();
     }
 
@@ -159,17 +155,6 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
 
     onRemoveNode(node: Node, index: number = null) {
         this.nodes.splice(index, 1);
-        this.nodes.forEach(n => {
-            if(n.inputs) {
-                var index = n.inputs.indexOf(node._id);
-                if(index >= 0) {
-                    n.inputs.splice(index, 1);
-                    this.appService.notify(new NodeChangeEvent(n));
-                }
-            }
-        });
-
-        this.positionNodes();
     }
 
     startEventLoop() {
