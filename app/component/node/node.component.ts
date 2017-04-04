@@ -6,7 +6,7 @@ import { AppService } from 'backlive/service';
 import { NodeService } from '../../service/node.service';
 
 import { Node, NodeType } from 'backlive/service/model';
-import { OpenFooterModalEvent, CloseFooterModalEvent, RedrawNetworkEvent } from 'backlive/event';
+import { OpenFooterModalEvent, CloseModalEvent, RedrawNetworkEvent } from 'backlive/event';
 import { NodeChangeEvent, RemoveNodeEvent } from './node.event';
 
 import { NetworkComponent } from '../network/network.component';
@@ -30,8 +30,6 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
     private node: Node;
     inputs: Node[] = [];
 
-    indicatorSize = { width: 38, height: 34 };
-    
     constructor(appService: AppService, private nodeService: NodeService<Node>) {
         super(appService);
     }
@@ -105,6 +103,9 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
             eventHandlers: { 
                 select: (node: Node) => {
                     this.newInput(node);
+                    if(node._id) {
+                        this.appService.notify(new CloseModalEvent(null));
+                    }
                 }
             }
         }));
@@ -117,9 +118,10 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
     }
 
     redraw(animating: boolean = false) {
-        console.log(this.inputs.length);
         if(this.inputs.length > 0) {
-            var yRadius = 250, xRadiusPercent = 40, angleOffset = 10, startAngle = 180;
+            var yRadius = 250, 
+                xRadius = this.node.ntype === NodeType.Strategy ? NetworkComponent.canvas.center.x * .7 : 150, 
+                angleOffset = 10, startAngle = 180;
             var prevAngle: number;
 
             if(!animating) {
@@ -128,15 +130,20 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
 
             var firstNode = true;
             this.inputs.forEach(node => {
-                if(node.ntype === NodeType.Indicator) {
-                    var angle = firstNode ? startAngle : (prevAngle - angleOffset);
-                    prevAngle = angle;
-                    firstNode = false;
+                switch(node.ntype) {
+                    case NodeType.Strategy:
+                        node.position = { x: NetworkComponent.canvas.center.x, y: NetworkComponent.canvas.center.y };
+                        break;
+                    default:
+                        var angle = firstNode ? startAngle : (prevAngle - angleOffset);
+                        prevAngle = angle;
+                        firstNode = false;
 
-                    node.position = {
-                        x: xRadiusPercent * Math.cos(angle / 180 * Math.PI),
-                        y: yRadius * Math.sin(angle / 180 * Math.PI) - (this.indicatorSize.height / 2) - 30 //extra 30 for amount strategy pod is off center;
-                    };
+                        node.position = {
+                            x: xRadius * Math.cos(angle / 180 * Math.PI) + this.node.position.x,
+                            y: yRadius * Math.sin(angle / 180 * Math.PI) + this.node.position.y
+                        };
+                        break;
                 }
 
                 this.setNodeLine(node);
@@ -147,22 +154,21 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
     setNodeLine(node: Node) {
         var centerX = NetworkComponent.canvas.center.x;
         var centerY = NetworkComponent.canvas.center.y;
-        var x1: number, y1: number, x2: number, y2: number;
+        var x1: number = node.position.x;
+        var y1: number = node.position.y; 
+        var x2: number, y2: number;
 
         switch(node.ntype) {
-            case NodeType.Indicator:
-                x1 = centerX + (centerX * 2 * node.position.x / 100); 
-                y1 = centerY + node.position.y + (this.indicatorSize.height / 2);
-                x2 = centerX; 
-                y2 = centerY - 30;
-                break;
             case NodeType.Strategy:
-                x1 = centerX; y1 = centerY - 30;
-                x2 = (centerX * 2) * .9 - 50; y2 = centerY - 30;
+                x2 = (centerX * 2) * .9 - 50;
+                y2 = centerY;
+                break;
+            default:
+                x2 = this.node.position.x; 
+                y2 = this.node.position.y;
                 break;
         }
 
         node['line'] = Common.getLine(x1, y1, x2, y2);
-        console.log(node['line']);
     }
 }

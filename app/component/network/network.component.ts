@@ -141,6 +141,10 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     onNodeChange(node: Node) {
         for(var key in this.tmpInputMap) {
             if(this.tmpInputMap[key].input === node) {
+                if(!this.tmpInputMap[key].node.inputs) {
+                    this.tmpInputMap[key].node.inputs = [];
+                }
+                
                 this.tmpInputMap[key].node.inputs.push(node._id);
                 this.appService.notify(new NodeChangeEvent(this.tmpInputMap[key].node));
                 delete this.tmpInputMap[key];

@@ -1,4 +1,4 @@
-<div [animate]="pageAnimation" *ngIf="eventLoop">
+<div [animate]="pageAnimation" *ngIf="eventLoop" class="network">
     <svg>
         <ng-template ngFor let-node [ngForOf]="nodes" let-i="index">
             <ng-template [ngIf]="node.line">
@@ -35,8 +35,8 @@
                     (loadInputs)="onLoadInputs(node, $event)"
                     (addInput)="onAddInput(node, $event)"
                     (remove)="onRemoveNode($event, i)"
-                    [style.margin-left]="node.position.x + '%'" 
-                    [style.margin-top.px]="node.position.y">
+                    [style.left.px]="node.position.x" 
+                    [style.top.px]="node.position.y">
                 </backlive-indicator>
             </div>
             <!-- strategies -->
