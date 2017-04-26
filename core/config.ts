@@ -9,7 +9,7 @@ export class Config {
     static DIR_JS = './js/';
 
     /*** databases ***/
-    static MONGO_DB = 'btif';
+    static MONGO_DB = 'mnist'; //btif
     static MONGO_PRICING_DB = 'pricing';
     
     /*** email ***/

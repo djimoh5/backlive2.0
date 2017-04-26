@@ -10,11 +10,14 @@ import { NodeConfig } from './node.config';
 import { InitNodeProcessEvent, NodeProcessReadyEvent } from '../event/app.event';
 import { AppEventQueue } from '../event/app-event-queue';
 
+import { Network, NetworkTimings } from '../network';
+
 declare var process;
 
 export class ProcessNode {
     constructor() {
         AppEventQueue.global();
+        Network.timings = new NetworkTimings();
         
         AppEventQueue.subscribe(InitNodeProcessEvent, 'process', event => {
             var node: Node = event.data.node;

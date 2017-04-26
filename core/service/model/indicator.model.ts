@@ -14,8 +14,7 @@ export class Indicator extends Node {
     
     aggrType: string = 'val';
     aggrSpan: number = 6;
-    aggrSpanType: number = 2;
-    valType: number = 1;
+    aggrPeriod: AggregationPeriod = AggregationPeriod.Months;
     
     exclType: ExclusionType = ExclusionType.None;
     exclOp: Conditional = Conditional.LessThanOrEqual;
@@ -39,12 +38,32 @@ export class SportsIndicator extends Indicator {
     aggrType: string = 'avg';
     aggrSpan: number = 5;
     aggrSpanOpp: number = 0;
+    valType: number = 1;
     
     player: string = 'a';
     playerSort: number = 1;
     playerNum: number = 1;
     
     exclIndTypes: number = 101;
+}
+
+export enum AggregationType {
+    Value = 1,
+    PastValue = 2,
+    Average = 3,
+    RelativeToAvg = 4,
+    CAGR = 5,
+    Sum = 6,
+    PercentChange = 7,
+    GeometricAverage = 8,
+
+    NumPositive = 9
+}
+
+export enum AggregationPeriod {
+    Days = 1,
+    Months = 2,
+    Years = 3
 }
 
 export enum ExclusionType {

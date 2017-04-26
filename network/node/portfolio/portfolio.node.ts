@@ -79,6 +79,8 @@ export class PortfolioNode extends BaseNode<Portfolio> {
 
     setPrices(date: number, data: DataResult) {
         //console.log('portfolio computing actual output for ', date);
+        var startTime = Date.now();
+
         this.prevPrices = this.prices;
         this.prices = {};
         this.prevDate = this.date;
@@ -112,6 +114,8 @@ export class PortfolioNode extends BaseNode<Portfolio> {
 
             this.pricesCache[date] = this.prices;
         }
+
+        Network.timings.activation += Date.now() - startTime;
     }
 
     trade() {
@@ -143,19 +147,24 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     openPositions() {
         var tkrs: string[] = Stats.sort(this.pastState[this.date].activation, true);
         var tkrLen = tkrs.length;
-        var numPos = Math.min(30, tkrLen);
+        var numPos = Math.min(20, tkrLen);
         
         var posSize = this.capital / numPos;
+        var index = 0;
 
         //long
-        for(var i = 0; i < numPos; i++) {
-            var tkr = tkrs[i];
-            var price = this.prices[tkr].price;
-            var shares = Math.floor(posSize / price);
-            this.positions.push({ ticker: tkr, price: price, shares: shares });
+        while(numPos > 0 && index < tkrLen) {
+            var tkr = tkrs[index++];
+            var price = this.prices[tkr];
 
-            //console.log('Buy', tkr, price, shares);
-            this.capital -= price * shares;
+            if(price) {
+                var shares = Math.floor(posSize / price.price);
+                this.positions.push({ ticker: tkr, price: price.price, shares: shares });
+
+                //console.log('Buy', tkr, price, shares);
+                this.capital -= price.price * shares;
+                numPos--;
+            }
         }
 
         //short
@@ -197,6 +206,8 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     }
 
     backpropagate() {
+        var startTime = Date.now();
+        
         var state = this.pastState[this.prevDate];
 
         if(state.activation && this.numOutputs() === 0) {
@@ -229,6 +240,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             }
 
             if(Network.isLearning) {
+                Network.timings.backpropagation += Date.now() - startTime;
                 super.backpropagate(new BackpropagateEvent({ error: error }, this.prevDate));
             }
             else {

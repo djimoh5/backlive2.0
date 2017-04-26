@@ -15,6 +15,7 @@ export abstract class BaseDataNode extends BaseNode<null> implements IDataNode {
     }
     
     abstract init();
+    abstract execute();
 
     receive() {};
 }

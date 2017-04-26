@@ -5,7 +5,7 @@ import { BaseComponent } from 'backlive/component/shared';
 import { Common } from 'backlive/utility';
 
 import { AppService, IndicatorService } from 'backlive/service';
-import { Indicator, IndicatorParam, IndicatorParamType, Operator } from 'backlive/service/model';
+import { Indicator, IndicatorParam, IndicatorParamType, Operator, AggregationType } from 'backlive/service/model';
 
 import { CloseFooterModalEvent } from 'backlive/event';
 
@@ -21,6 +21,8 @@ export class IndicatorEditorComponent extends BaseComponent implements OnInit, A
     searchKeyCode: SearchKeyCode;
 
     @ViewChild('searchBox') searchBox: ElementRef; //search input native element
+
+    AggregationType = AggregationType;
       
     constructor(appService: AppService, private indicatorService: IndicatorService) {
         super(appService);

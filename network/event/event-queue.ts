@@ -34,7 +34,7 @@ export class EventQueue {
                 this.activators[eventName].subscribe(observer);
             });
             
-            observable.share();
+            //observable.share();
             this.subscribers[eventName] = {};
         }
         else {
@@ -107,6 +107,8 @@ export class EventQueue {
                     this.subscribers[name][subscriberId].forEach(subscriber => {
                        subscriber.unsubscribe(); 
                     });
+
+                    delete this.subscribers[name][subscriberId];
                 }
             }
         }

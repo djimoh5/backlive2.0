@@ -17,6 +17,7 @@ import { HiddenLayerNode } from './node/hidden-layer.node';
 
 import { IDataNode } from './node/data/data.node';
 import { DataLoaderNode } from './node/data/dataloader.node';
+import { MNISTLoaderNode } from './node/data/mnist-loader.node';
 
 import { IExecutionNode } from './node/execution/execution.node';
 import { BacktestExecutionNode } from './node/execution/backtest-execution.node';
@@ -47,6 +48,9 @@ export class Network {
     maxProcesses: number;
     processes: ProcessWrapper[] = [];
     startTime: number;
+    prevStartTime: number;
+
+    static timings: NetworkTimings;
 
     constructor() {
         AppEventQueue.global();
@@ -57,11 +61,13 @@ export class Network {
         Database.open(() => {
             console.log('Database opened');
             this.executionNode = new BacktestExecutionNode();
-            this.dataNode = new DataLoaderNode();
+            this.dataNode = new MNISTLoaderNode(); //new DataLoaderNode();
+
+            AppEventQueue.notify(new InitializeDataEvent(null)); //just for testing
         });
     }
 
-    loadNode(node: Node) { //inputNodes only used for virtual nodes
+    loadNode(node: Node) {
         this.activity(true);
 
         if(!this.nodes[node._id]) {
@@ -140,7 +146,7 @@ export class Network {
                 AppEventQueue.subscribe(NodeProcessReadyEvent, this.subscriberName, event => {
                     console.log('process for node', event.data, 'ready');
                     if(--pendingProcesses === 0) {
-                        this.startTime = (new Date()).getTime();
+                        this.startTime = Date.now();
                         AppEventQueue.notify(new InitializeDataEvent(null));
                     }
                 });
@@ -153,12 +159,15 @@ export class Network {
                 }
             }
             else {
-                this.startTime = (new Date()).getTime();
+                this.startTime = Date.now();
                 AppEventQueue.notify(new InitializeDataEvent(null));
-            }  
+            }
+
+            this.prevStartTime = this.startTime;
         };
 
         Network.isLearning = true;
+        Network.timings = new NetworkTimings();
         this.loadNetwork(network);
     }
 
@@ -199,20 +208,27 @@ export class Network {
         if(this.epochCount++ < this.network.epochs) {
             AppEventQueue.notify(new UpdateNodeWeightsEvent(this.network.learnRate));
             console.log('completed epoch', this.epochCount);
+            console.log('epoch time:', ((Date.now() - this.prevStartTime) / 1000) + 's');
+            console.log('epoch timings:', JSON.stringify(Network.timings));
 
             //run another epoch
+            Network.timings = new NetworkTimings();
             AppEventQueue.notify(new InitializeDataEvent(null));
         }
         else {
             if(!validating) {
                 Network.isLearning = false;
+                Network.timings = new NetworkTimings();
                 AppEventQueue.notify(new ValidateDataEvent(null));
             }
             else {
                 console.log('validation complete');
-                console.log('total time:', (((new Date()).getTime() - this.startTime) / 1000) + 's');
+                console.log('total time:', ((Date.now() - this.startTime) / 1000) + 's');
+                console.log(JSON.stringify(Network.timings));
             }
         }
+
+        this.prevStartTime = Date.now();
     }
 
     private activity(active: boolean) {
@@ -229,6 +245,15 @@ export class Network {
 
 interface NodeMap<T> {
     [key: string]: T;
+}
+
+export class NetworkTimings  {
+    data: number = 0;
+    event: number = 0; 
+    activation: number = 0;
+    indicatorActivation: number = 0;
+    backpropagation: number = 0;
+    weight: number = 0;
 }
 
 process.on('uncaughtException', function (exception) {

@@ -11,6 +11,8 @@ import { Common } from '../../../app/utility/common';
 
 import { Database } from '../../../core/lib/database';
 
+import { Network } from '../../network';
+
 export class DataLoaderNode extends BaseDataNode {
     fields: Fields = {};
     ticker: string | string[];
@@ -34,6 +36,8 @@ export class DataLoaderNode extends BaseDataNode {
     weeks: number[] = [];
 
     validating: boolean;
+
+    executeStartTime: number;
 
     constructor() {
         super();
@@ -66,9 +70,11 @@ export class DataLoaderNode extends BaseDataNode {
 
     init() {
         this.validating = false;
+        var startTime = Date.now();
 
         if(this.datesCache.length > 0) {
             this.dates = this.datesCache.slice(0);
+            Network.timings.data += Date.now() - startTime;
             this.nextTick();
         }
         else {
@@ -100,6 +106,7 @@ export class DataLoaderNode extends BaseDataNode {
                         this.validationDate = 20120108;
                     }
 
+                    Network.timings.data += Date.now() - startTime;
                     this.nextTick();
                 });
             });
@@ -111,14 +118,18 @@ export class DataLoaderNode extends BaseDataNode {
         this.execute();
     }
 
-    private execute() {
+    execute() {
         if(this.currentDate) {
+            this.executeStartTime = Date.now();
+
             if(this.currentDate >= this.validationDate && !this.validating) {
+                Network.timings.data += Date.now() - this.executeStartTime;
                 this.notify(new EpochCompleteEvent(this.validating));
                 return;
             }
 
             if(this.dataCache[this.currentDate]) {
+                Network.timings.data += Date.now() - this.executeStartTime;
                 this.notify(new DataEvent({ cache: this.dataCache[this.currentDate], allCacheKeys: null }, this.currentDate));
             }
             else {
@@ -197,6 +208,7 @@ export class DataLoaderNode extends BaseDataNode {
             }
             
             if (--this.numFieldTypes == 0) {
+                Network.timings.data += Date.now() - this.executeStartTime;
                 this.dataCache[this.currentDate] = this.data;
                 this.notify(new DataEvent({ cache: this.data, allCacheKeys: this.allCacheKeys }, this.currentDate));
             }

@@ -57,12 +57,21 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
     abstract update()
 
     onRemove() {
-        this.nodeService.remove(this.node._id).then(success => {
-            if(success) {
-                this.appService.notify(new RemoveNodeEvent(this.node));
-                this.remove.emit(this.node);
-            }
-        });
+        if(!this.node.name) {
+            this.nodeService.remove(this.node._id).then(success => {
+                if(success) {
+                    this.onRemoveSuccess();
+                }
+            });
+        }
+        else {
+            this.onRemoveSuccess();
+        }
+    }
+
+    onRemoveSuccess() {
+        this.appService.notify(new RemoveNodeEvent(this.node));
+        this.remove.emit(this.node);
     }
 
     onInputRemoved(input: Node) {
@@ -120,8 +129,8 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
     redraw(animating: boolean = false) {
         if(this.inputs.length > 0) {
             var yRadius = 250, 
-                xRadius = this.node.ntype === NodeType.Strategy ? NetworkComponent.canvas.center.x * .7 : 150, 
-                angleOffset = 10, startAngle = 180;
+                xRadius = this.node.ntype === NodeType.Strategy ? NetworkComponent.canvas.center.x * .55 : 160, 
+                angleOffset = 12, startAngle = 180;
             var prevAngle: number;
 
             if(!animating) {

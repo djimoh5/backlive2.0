@@ -13,6 +13,7 @@ import { Node, Activation, ActivationError } from '../../core/service/model/node
 
 import { Stats } from '../lib/stats';
 
+import { Network } from '../network';
 import { ProcessWrapper } from '../process-wrapper';
 
 declare var process;
@@ -20,7 +21,7 @@ declare var process;
 export abstract class BaseNode<T extends Node> {
     protected nodeId: string;
     protected node: T;
-    private outputs: string[] = [];
+    protected outputs: string[] = [];
 
     state: State;
     pastState: { [key: string]: State };
@@ -70,7 +71,6 @@ export abstract class BaseNode<T extends Node> {
             });
         }
         
-        //event input nodes (nodes without inputs) still need to listen so they can fire we are complete
         this.unsubscribe(BackpropagateEvent);
         this.subscribe(BackpropagateEvent, 
             event => this.backpropagate(event), 
@@ -98,7 +98,16 @@ export abstract class BaseNode<T extends Node> {
             event => {
                 this.state.date = event.date;
                 this.state.inputActivations[event.senderId] = event.data;
-                this.receive(event);
+
+                var duration = Date.now() - event.created;
+                if(!event['time'] || duration > event['time']) {
+                    duration = duration - (event['time'] ? event['time'] : 0);
+                    Network.timings.event += duration;
+                }
+                
+                setTimeout(() => {
+                    this.receive(event);
+                });              
             }, 
             { filter: (event, index) => { return Common.inArray(event.senderId, this.node.inputs); } }
         );
@@ -121,10 +130,13 @@ export abstract class BaseNode<T extends Node> {
     protected abstract receive(event: ActivateNodeEvent);
 
     protected activate(event?: ActivateNodeEvent, useLinear: boolean = false) {
+        var startTime = Date.now();
+
         if(!event) {
             for(var i = 0, len = this.node.inputs.length; i < len; i++) {
                 if(!this.state.inputActivations[this.node.inputs[i]]) {
                     this.state.activation = null;
+                    Network.timings.activation += Date.now() - startTime;
                     return; //must first have an activation of all inputs to activate yourself
                 }
             }
@@ -168,6 +180,7 @@ export abstract class BaseNode<T extends Node> {
         }
 
         this.persistActivation(event);
+        Network.timings.activation += Date.now() - startTime;
         this.notify(event);
         //console.log('node', this.node.name, 'activated', VirtualNodeService.pid);
     }
@@ -179,6 +192,8 @@ export abstract class BaseNode<T extends Node> {
     }
 
     protected backpropagate(event: BackpropagateEvent) {
+        var startTime = Date.now();
+
         var state: State = this.pastState[event.date];
         var delta: Activation = {};
 
@@ -187,12 +202,14 @@ export abstract class BaseNode<T extends Node> {
 
             for(var i = 0, len = this.outputs.length; i < len; i++) {
                 if(!state.activationErrors[this.outputs[i]]) {
+                    Network.timings.backpropagation += Date.now() - startTime;
                     return; //must have backpropagation error from all your outputs to backpropagate yourself
                 }
             }
             
             if(!this.node.inputs) {
                 //no inputs, so must be at input layer
+                Network.timings.backpropagation += Date.now() - startTime;
                 this.notify(new BackpropagateCompleteEvent(null, event.date));
                 return; 
             }
@@ -232,6 +249,7 @@ export abstract class BaseNode<T extends Node> {
             });
         }
 
+        Network.timings.backpropagation += Date.now() - startTime;
         this.notify(new BackpropagateEvent({ error: delta, weights: weights }, event.date));
         //console.log('backpropagating node ', this.node.name, VirtualNodeService.pid);
     }
@@ -253,6 +271,8 @@ export abstract class BaseNode<T extends Node> {
     }
 
     updateWeights(learningRate: number) {
+        var startTime = Date.now();
+
         if(this.node.weights) {
             this.node.weights.forEach((w, index) => {
                 this.node.weights[index] = w - (learningRate * this.learningError.total[index] / this.learningError.trainingCount);
@@ -264,6 +284,8 @@ export abstract class BaseNode<T extends Node> {
 
             //console.log(this.node._id, 'weights:', this.node.weights, 'bias:', this.node.bias);
         }
+
+         Network.timings.weight += Date.now() - startTime;
     }
 
     private resetError() {
