@@ -142,7 +142,7 @@ export abstract class BaseNode<T extends Node> {
             var activation = new Activation();
             var weightIndex = 0;
 
-            this.node.inputs.forEach((id, i) => {
+            this.node.inputs.forEach(id => {
                 var inActivation = this.state.inputActivations[id].vals;
                 this.activateMatrix(activation, inActivation, weightIndex);
                 weightIndex += inActivation[0].length;
@@ -173,8 +173,8 @@ export abstract class BaseNode<T extends Node> {
             }
 
             var weightIndex = startWeightIndex;
-            input.forEach(val => {
-                activation.vals[row][0] += val * this.node.weights[weightIndex++];
+            input.forEach(feature => {
+                activation.vals[row][0] += feature * this.node.weights[weightIndex++];
             });
         });
     }
@@ -221,19 +221,25 @@ export abstract class BaseNode<T extends Node> {
         var weights: { [key: string]: number };
 
         if(this.node.weights) {
-            var first: boolean = true;
+            var startWeightIndex = 0;
             weights = {};
 
-            this.node.weights.forEach((w, index) => {
-                weights[this.node.inputs[index]] = w; //store your weights so next layer can compute their responsibility
-                var inActivation = state.inputActivations[this.node.inputs[index]];
+            this.node.inputs.forEach(id => {
+                weights[id] = this.node.weights[startWeightIndex]; //store your weights so next layer can compute their responsibility
+                var inActivation = state.inputActivations[id];
                 
                 inActivation.vals.forEach((input, row) => { //delta with respect to weight (which uses incoming activation at weight)
-                    this.learningError.total[index] += delta.vals[row][0] * inActivation.vals[row][0];
-                    if(first) { this.learningError.totalBias += delta.vals[row][0]; }
+                    if(startWeightIndex === 0) { 
+                        this.learningError.totalBias += delta.vals[row][0]; 
+                    }
+
+                    var weightIndex = startWeightIndex;
+                    input.forEach(feature => {
+                        this.learningError.total[weightIndex++] += delta.vals[row][0] * feature;
+                    });
                 });
 
-                first = false;
+                startWeightIndex += inActivation.vals.length;
             });
         }
 

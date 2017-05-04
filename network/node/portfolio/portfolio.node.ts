@@ -241,7 +241,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
                 error.vals.push([Network.costFunction.delta(input[0], actualActivation.vals[index][0]) * sigPrime]);
                 this.totalCost += Network.costFunction.cost(input[0], actualActivation.vals[index][0]);
                 this.trainingCount++;
-            })
+            });
 
             if(Network.isLearning) {
                 Network.timings.backpropagation += Date.now() - startTime;
