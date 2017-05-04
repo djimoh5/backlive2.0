@@ -13,9 +13,9 @@ import { Node, NodeType } from '../core/service/model/node.model';
 import { Network as NetworkModel } from '../core/service/model/network.model';
 import { LoadNetworkEvent, ExecuteNetworkEvent } from '../app/component/network/network.event';
 
-import { HiddenLayerNode } from './node/hidden-layer.node';
+import { NetworkLayerNode } from './node/layer.node';
 
-import { IDataNode } from './node/data/data.node';
+import { BaseDataNode } from './node/data/data.node';
 import { DataLoaderNode } from './node/data/dataloader.node';
 import { MNISTLoaderNode } from './node/data/mnist-loader.node';
 
@@ -28,10 +28,10 @@ import { ProcessWrapper } from './process-wrapper';
 export class Network {
     network: NetworkModel;
     nodes:  NodeMap<BaseNode<any>> = {};
-    hiddenLayers: HiddenLayerNode[] = [];
+    hiddenLayers: NetworkLayerNode[] = [];
     private networkService: NetworkService;
 
-    dataNode: IDataNode;
+    dataNode: BaseDataNode;
     executionNode: IExecutionNode;
 
     activityState: number = 0;
@@ -62,8 +62,7 @@ export class Network {
             console.log('Database opened');
             this.executionNode = new BacktestExecutionNode();
             this.dataNode = new MNISTLoaderNode(); //new DataLoaderNode();
-
-            AppEventQueue.notify(new InitializeDataEvent(null)); //just for testing
+            this.createNetwork();
         });
     }
 
@@ -82,25 +81,26 @@ export class Network {
         return this.nodes[node._id];
     }
 
-    updateInputNodes(node: Node, inputNodes: { [key: string]: Node }) {
+    updateInputNodes(node: Node, inputNodes: Node[]) {
         if(node.ntype === NodeType.Strategy && this.network.hiddenLayers.length > 0 && this.network.hiddenLayers[0].numNodes > 0) {
-            this.createHiddenLayer(node, inputNodes);
+            this.insertHiddenLayer(node, inputNodes);
         }
         else {
-            for(var key in inputNodes) {
-                var inputNode: BaseNode<any> = this.nodes[key] ? this.nodes[key] : this.loadNode(inputNodes[key]);
+            inputNodes.forEach(input => {
+                var inputNode: BaseNode<any> = this.nodes[input._id] ? this.nodes[input._id] : this.loadNode(input);
                 inputNode.updateOutput(node);
-            }
+            });
         }
 
         this.activity(false);
     }
 
-    createHiddenLayer(outputNode: Node, inputNodes: { [key: string]: Node }) {
+    insertHiddenLayer(outputNode: Node, inputNodes: Node[]) {
         var baseNode = this.nodes[outputNode._id];
         outputNode.inputs = [];
 
-        var hiddenLayer = new HiddenLayerNode(this.network.hiddenLayers[0], inputNodes);
+        var hiddenLayer = new NetworkLayerNode(this.network.hiddenLayers[0].numNodes);
+        hiddenLayer.setInputs(inputNodes);
         hiddenLayer.nodes.forEach(n => {
             outputNode.inputs.push(n._id);
             this.loadNode(n).updateOutput(outputNode);
@@ -127,10 +127,12 @@ export class Network {
         this.hiddenLayers.forEach(layer => { layer.unsubscribe(); });
         this.hiddenLayers = [];
 
-        this.networkService = new NetworkService({ user: { uid: network.uid }, cookies: null });
-        this.networkService.getInputs(network._id).then(nodes => {
-            this.loadNode(nodes[0]);
-        });
+        if(this.network._id) {
+            this.networkService = new NetworkService({ user: { uid: network.uid }, cookies: null });
+            this.networkService.getInputs(network._id).then(nodes => {
+                this.loadNode(nodes[0]);
+            });
+        }
     }
 
     executeNetwork(network: NetworkModel) {
@@ -169,6 +171,28 @@ export class Network {
         Network.isLearning = true;
         Network.timings = new NetworkTimings();
         this.loadNetwork(network);
+    }
+
+    createNetwork() {
+        this.dataNode.load(trainingData => {
+            //console.log(this.trainingData);
+            console.log(trainingData.input.length);
+            console.log(trainingData.output.length, trainingData.output[0]);
+            this.network = new NetworkModel(.5, 50, [100], 1);
+            this.executeNetwork(this.network); //call this first to init and reset network
+            
+            var inputNode = this.dataNode.getNode();
+            var hiddenLayer = new NetworkLayerNode(this.network.hiddenLayers[0].numNodes);
+            hiddenLayer.setInputs([inputNode]);
+
+            var outputLayer = new NetworkLayerNode(trainingData.output[0].length);
+            outputLayer.setInputs(hiddenLayer.nodes);
+
+            this.nodes[inputNode._id] = this.dataNode;
+            outputLayer.nodes.forEach(output => {
+                this.loadNode(output);
+            });
+        });
     }
 
     initProcesses() {

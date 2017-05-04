@@ -145,7 +145,13 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     }
 
     openPositions() {
-        var tkrs: string[] = Stats.sort(this.pastState[this.date].activation, true);
+        var keyVals: { [key: string]: number } = {};
+        var activation = this.pastState[this.date].activation;
+        activation.vals.forEach((input, index) => {
+            keyVals[activation.keys[index]] = input[0];
+        });
+
+        var tkrs: string[] = Stats.sort(keyVals, true);
         var tkrLen = tkrs.length;
         var numPos = Math.min(20, tkrLen);
         
@@ -211,33 +217,31 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         var state = this.pastState[this.prevDate];
 
         if(state.activation && this.numOutputs() === 0) {
-            var actualActivation: Activation = {};
-            var error: Activation = {};
-            var actCnt = 0;
+            var actualActivation = new Activation();
+            var error: Activation = new Activation();
 
             var marketReturn = (this.marketPrices[this.date] - this.marketPrices[this.prevDate]) / this.marketPrices[this.prevDate];
 
-            for(var key in state.activation) {
+            var key: string;
+            for(var i = 0; key = state.activation.keys[i]; i++) {
                 if(this.prices[key] && this.prevPrices[key]) {
-                    actualActivation[key] = ((this.prices[key].price + this.prices[key].dividend) / this.prevPrices[key].price) - marketReturn;
-                    actCnt++;
+                    var alpha = ((this.prices[key].price + this.prices[key].dividend) / this.prevPrices[key].price) - marketReturn;
+                    actualActivation.vals.push([this.sigmoid(alpha)]);
                 }
                 else {
-                    delete state.activation[key];
+                    state.activation.vals.splice(i, 1);
+                    state.activation.keys.splice(i, 1);
+                    i--;
                 }
             }
 
-            //actualActivation = Stats.percentRank(actualActivation, true);
-            for(var k in actualActivation) {
-                actualActivation[k] = this.sigmoid(actualActivation[k]);
-            }
-            var predictedActivation = state.activation;//Stats.percentRank(state.activation, true);
-
-            for(var key in state.activation) {
-                error[key] = Network.costFunction.delta(predictedActivation[key], actualActivation[key]);
-                this.totalCost += Network.costFunction.cost(predictedActivation[key], actualActivation[key]);
+            var predictedActivation = state.activation.vals;
+            predictedActivation.forEach((input, index) => {
+                var sigPrime = input[0] * (1 - input[0]);
+                error.vals.push([Network.costFunction.delta(input[0], actualActivation.vals[index][0]) * sigPrime]);
+                this.totalCost += Network.costFunction.cost(input[0], actualActivation.vals[index][0]);
                 this.trainingCount++;
-            }
+            })
 
             if(Network.isLearning) {
                 Network.timings.backpropagation += Date.now() - startTime;

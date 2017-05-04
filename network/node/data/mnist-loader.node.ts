@@ -1,18 +1,18 @@
 import { 
     ActivateNodeEvent, InitializeDataEvent, ValidateDataEvent,
-    BackpropagateCompleteEvent, EpochCompleteEvent
+    BackpropagateEvent, BackpropagateCompleteEvent, EpochCompleteEvent
 } from '../../event/app.event';
-import { BaseDataNode } from './data.node';
-
-import { Common } from '../../../app/utility/common';
+import { BaseDataNode, TrainingData } from './data.node';
 
 import { Database } from '../../../core/lib/database';
 
 export class MNISTLoaderNode extends BaseDataNode {
-    trainingData: { input: number[][], output: number[] };
-    testData: { input: number[][], output: number[] };
+    trainingData: TrainingData;
+    testData: TrainingData;
     validating: boolean;
     executeStartTime: number;
+
+    currentRecord: number;
 
     constructor() {
         super();
@@ -20,36 +20,52 @@ export class MNISTLoaderNode extends BaseDataNode {
         this.subscribe(InitializeDataEvent, event => this.init());
 
         this.subscribe(BackpropagateCompleteEvent, event => {
-            
+            this.execute();
         });
 
         this.subscribe(ValidateDataEvent, event => {
+            this.currentRecord = 0;
             this.validating = true;
             this.execute();
         });
     }
 
-    init() {
-        this.trainingData = { input: [], output: [] };
-        this.testData = { input: [], output: [] };
+    load(callback: (data: TrainingData) => void) {
+        this.loadHelper('train', (data) => {
+            this.trainingData = data;
+
+            this.loadHelper('test', (data) => {
+                this.testData = data;
+                callback(this.trainingData);
+            });
+        });
+    }
+
+    private loadHelper(dataType: string, callback: (data: TrainingData) => void) {
+        var mnistData = { input: [], output: [] };
         var cnt = 0;
 
-        Database.mongo.collection('train').find({}, (err, cursor) => {
+        Database.mongo.collection(dataType).find({}, (err, cursor) => {
             cursor.each((err, result: {}) => {
                 if (result == null) {
-                    this.execute();
+                    callback(mnistData);
                 }
                 else {
-                    var row = [], index = 1;
+                    var input = [], output = [], index = 1;
 
                     var key = 'x' + index++;
                     while(typeof(result[key]) !== 'undefined') {
-                        row.push(result[key]);
+                        input.push(result[key]);
                         key = 'x' + index++;
                     }
 
-                    this.trainingData.input.push(row);
-                    this.trainingData.output.push(result['y']);
+                    mnistData.input.push(input);
+
+                    for(var i = 0; i < 10; i++) {
+                        output[i] = i == result['y'] ? 1 : 0;
+                    }
+
+                    mnistData.output.push(output);
 
                     if(++cnt % 1000 === 0) {
                         console.log(cnt);
@@ -59,10 +75,21 @@ export class MNISTLoaderNode extends BaseDataNode {
         });
     }
 
+    init() {
+        this.currentRecord = 0;
+        this.execute();
+    }
+
     execute() {
-        //console.log(this.trainingData);
-        console.log(this.trainingData.input.length);
-        console.log(this.trainingData.output.length);
+        var data = this.validating ? this.testData : this.trainingData;
+        var date = this.validating ? (this.currentRecord + this.trainingData.input.length) : this.currentRecord;
+
+        if(this.currentRecord < data.input.length) {
+            this.notify(new ActivateNodeEvent({ vals: [data.input[this.currentRecord++]] }, date));
+        }
+        else {
+            this.notify(new EpochCompleteEvent(this.validating));
+        }
     }
 }
 

@@ -1,42 +1,40 @@
 import { BaseNode, State } from './base.node';
 import { ActivateNodeEvent, BackpropagateEvent } from '../event/app.event';
 
-import { HiddenLayer } from '../../core/service/model/network.model';
 import { Node, NodeType } from '../../core/service/model/node.model';
 
 import { VirtualNodeService } from './basic/virtual-node.service';
 
 import { Common } from '../../app//utility/common';
 
-export class HiddenLayerNode extends BaseNode<Node> {
+export class NetworkLayerNode extends BaseNode<Node> {
     nodes: Node[] = [];
 
-    constructor(private hiddenLayer: HiddenLayer, inputNodes: { [key: string]: Node }) {
+    constructor(numNodes: number) {
         super(null, VirtualNodeService);
 
-        var node = new Node(NodeType.Virtual);
-        node._id = Common.uniqueId();
-        var inputs: string[] = [];
-
-        for(var id in inputNodes) {
-            inputs.push(id);
-        }
-
-        node.inputs = inputs;
+        this.node = new Node(NodeType.Virtual);
+        this.node._id = Common.uniqueId();
 
         //VirtualNodeService.save(node, inputNodes);
         //this.setNode(node);
         
-        for(var i = 0; i < hiddenLayer.numNodes; i++) {
+        for(var i = 0; i < numNodes; i++) {
             var model = new Node(NodeType.Virtual);
             model._id = Common.uniqueId();
             model.name = 'hidden' + (i + 1);
-            model.inputs = inputs;
-
-            VirtualNodeService.save(model, inputNodes);
-            
-            this.nodes.push(model); 
+            this.nodes.push(model);
         }
+    }
+
+    setInputs(nodes: Node[]) {
+        var inputs: string[] = nodes.map(input => { return input._id; });
+        this.node.inputs = inputs;
+
+        this.nodes.forEach(node => {
+            node.inputs = inputs;
+            VirtualNodeService.save(node, nodes);
+        });
     }
 
     receive(event: ActivateNodeEvent) {

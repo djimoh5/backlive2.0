@@ -32,8 +32,17 @@ export class IndicatorNode extends BaseNode<Indicator> {
         else {
             this.calculator.addValue('allCacheKeys', event.data.allCacheKeys);
             var vals: { [key: string]: number } = this.calculator.execute(this.node, event.data.cache);
+            vals = Stats.percentRank(vals);
 
-            this.activate(new ActivateNodeEvent(Stats.percentRank(vals), event.date));
+            var actVals: number[][] = [];
+            var keys: string[] = [];
+
+            for(var key in vals) {
+                actVals.push([vals[key]]);
+                keys.push(key);
+            }
+
+            this.activate(new ActivateNodeEvent({ vals: actVals, keys: keys }, event.date));
         }
 
         Network.timings.indicatorActivation += Date.now() - startTime;

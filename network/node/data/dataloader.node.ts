@@ -2,7 +2,7 @@ import {
     DataEvent, DataSubscriptionEvent, DataFilterEvent, InitializeDataEvent, ValidateDataEvent,
     BackpropagateCompleteEvent, EpochCompleteEvent
 } from '../../event/app.event';
-import { BaseDataNode, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
+import { BaseDataNode, TrainingData, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
 
 import { DataFieldMap, DataCollectionMap } from './field-map';
 import { IndicatorParam, IndicatorParamType, DENORM_PARAM_TYPES } from '../../../core/service/model/indicator.model';
@@ -42,8 +42,6 @@ export class DataLoaderNode extends BaseDataNode {
     constructor() {
         super();
 
-        this.subscribe(InitializeDataEvent, event => this.init());
-
         this.subscribe(DataSubscriptionEvent, event => {
             this.setFields(event.data.params);
         });
@@ -54,6 +52,8 @@ export class DataLoaderNode extends BaseDataNode {
             this.startDate = event.data.startDate;
             this.endDate = event.data.endDate;
         });
+
+        this.subscribe(InitializeDataEvent, event => this.init());
 
         this.subscribe(BackpropagateCompleteEvent, event => {
             if(event.date !== this.backPropDate) {
@@ -67,6 +67,8 @@ export class DataLoaderNode extends BaseDataNode {
             this.execute();
         });
     }
+
+    load(callback: (data: TrainingData) => void) {}
 
     init() {
         this.validating = false;

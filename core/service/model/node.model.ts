@@ -28,11 +28,15 @@ export enum NodeType {
     Portfolio = 12,
 }
 
-export interface Activation {
-    [key: string]: number;
+export class Activation {
+    vals: number[][];
+    keys?: string[];
+    constructor() {
+        this.vals = [];
+    }
 }
 
 export interface ActivationError {
-    error: { [key: string]: number };
+    error: Activation;
     weights?: { [key: string]: number }; //nodeId => weight
 }

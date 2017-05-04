@@ -18,12 +18,7 @@ export class VirtualNodeService extends NodeService<Node> {
         return this.promise;
     }
 
-    static save(node: Node, inputNodes: { [key: string]: Node }) {
-        var nodes: Node[] = [];
-        for(var key in inputNodes) {
-            nodes.push(inputNodes[key]);
-        }
-
+    static save(node: Node, nodes: Node[]) {
         this.inputsByNode[node._id] = nodes;
     }
 

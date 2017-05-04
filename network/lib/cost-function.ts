@@ -23,6 +23,7 @@ export class CrossEntropyCost implements ICostFunction {
         }
         else if(!isFinite(val)) {
             console.log(target, output, val, Math.log(output), Math.log(1 - output));
+            //return 0;
         }
 
         return val;

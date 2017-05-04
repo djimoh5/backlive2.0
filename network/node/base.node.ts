@@ -42,7 +42,14 @@ export abstract class BaseNode<T extends Node> {
         }
         else {
             this.nodeId = Common.uniqueId();
+            if(node) {
+                node._id = this.nodeId;
+            }
         }
+
+        this.subscribe(BackpropagateEvent, event => this.backpropagate(event), 
+            { filter: (event, index) => { return Common.inArray(event.senderId, this.outputs); } }
+        );
     }
 
     setNode(node: T) {
@@ -54,8 +61,8 @@ export abstract class BaseNode<T extends Node> {
 
         if(node.inputs) {
             this.nodeService.getInputs(node._id).then(nodes => {
-                var inputNodes = this.updateInputs(nodes); 
-                if(this.onUpdateInputs) { this.onUpdateInputs(inputNodes); }
+                this.updateInputs(nodes); 
+                if(this.onUpdateInputs) { this.onUpdateInputs(nodes); }
 
                 if(this.numOutputs() > 0) {
                     this.unsubscribe(TrainingDataEvent);
@@ -67,15 +74,9 @@ export abstract class BaseNode<T extends Node> {
         }
         else {
             setTimeout(() => { //have to run on next turn or onUpdateInputs won't be set yet
-                if(this.onUpdateInputs) { this.onUpdateInputs({}); }
+                if(this.onUpdateInputs) { this.onUpdateInputs([]); }
             });
         }
-        
-        this.unsubscribe(BackpropagateEvent);
-        this.subscribe(BackpropagateEvent, 
-            event => this.backpropagate(event), 
-            { filter: (event, index) => { return Common.inArray(event.senderId, this.outputs); } }
-        );
     }
 
     useProcess(process: ProcessWrapper) {
@@ -88,11 +89,6 @@ export abstract class BaseNode<T extends Node> {
     }
 
     updateInputs(nodes: Node[]) {
-        var inputNodes = {};
-        nodes.forEach(n => {
-            inputNodes[n._id] = n;
-        });
-
         this.unsubscribe(ActivateNodeEvent);
         this.subscribe(ActivateNodeEvent,
             event => {
@@ -111,8 +107,6 @@ export abstract class BaseNode<T extends Node> {
             }, 
             { filter: (event, index) => { return Common.inArray(event.senderId, this.node.inputs); } }
         );
-
-        return inputNodes;
     }
 
     updateOutput(node: Node) {
@@ -125,7 +119,7 @@ export abstract class BaseNode<T extends Node> {
         this.outputs = outputs;
     }
 
-    onUpdateInputs: (nodes: { [key: string]: Node }) => void;
+    onUpdateInputs: (nodes: Node[]) => void;
 
     protected abstract receive(event: ActivateNodeEvent);
 
@@ -145,37 +139,24 @@ export abstract class BaseNode<T extends Node> {
                 this.initializeWeights();
             }
 
-            var activation: Activation = {};
-            var first: boolean = true;
-
-            var keys = this.state.inputActivations[this.node.inputs[0]];
+            var activation = new Activation();
+            var weightIndex = 0;
 
             this.node.inputs.forEach((id, i) => {
-                var inActivation = this.state.inputActivations[id];
-                for(var k in keys) {
-                    if(typeof(inActivation[k]) !== 'undefined') {
-                        if(first) {
-                            activation[k] = this.node.bias;
-                            this.learningError.trainingCount++; //# of training data, used to update weights
-                        }
-
-                        activation[k] += this.node.weights[i] * inActivation[k];
-                    }
-                    else {
-                        delete activation[k];
-                        delete keys[k];
-                    }
-                }
-
-                first = false;
+                var inActivation = this.state.inputActivations[id].vals;
+                this.activateMatrix(activation, inActivation, weightIndex);
+                weightIndex += inActivation[0].length;
             });
 
+            this.learningError.trainingCount += activation.vals.length;
+
             if(!useLinear) { //CREATE A SEPARATE CLASS THAT HANDLES VARIOUS ACTIVATION TYPES, E.G. TANH, SIGMOID, REL, LINEAR
-                for(var k in activation) {
-                    activation[k] = this.sigmoid(activation[k]);
-                }
+                activation.vals.forEach(input => {
+                    input[0] = this.sigmoid(input[0] + this.node.bias);
+                });
             }
 
+            activation.keys = this.state.inputActivations[this.node.inputs[0]].keys;
             event = new ActivateNodeEvent(activation, this.state.date);
         }
 
@@ -183,6 +164,19 @@ export abstract class BaseNode<T extends Node> {
         Network.timings.activation += Date.now() - startTime;
         this.notify(event);
         //console.log('node', this.node.name, 'activated', VirtualNodeService.pid);
+    }
+
+    activateMatrix(activation: Activation, inActivation: number[][], startWeightIndex: number) {
+        inActivation.forEach((input, row) => {
+            if(!activation.vals[row]) {
+                activation.vals[row] = [0];
+            }
+
+            var weightIndex = startWeightIndex;
+            input.forEach(val => {
+                activation.vals[row][0] += val * this.node.weights[weightIndex++];
+            });
+        });
     }
 
     persistActivation(event: ActivateNodeEvent) {
@@ -195,7 +189,7 @@ export abstract class BaseNode<T extends Node> {
         var startTime = Date.now();
 
         var state: State = this.pastState[event.date];
-        var delta: Activation = {};
+        var delta = new Activation();
 
         if(event.data.weights) {
             state.activationErrors[event.senderId] = event.data;
@@ -214,15 +208,9 @@ export abstract class BaseNode<T extends Node> {
                 return; 
             }
 
+            var weightIndex = 0;
             for(var id in state.activationErrors) {
-                var activationError = state.activationErrors[id];
-                for(var k in activationError.error) {
-                    var sig = state.activation[k];
-                    var sigPrime = sig * (1 - sig);
-
-                    if(!delta[k]) { delta[k] = 0; }
-                    delta[k] += activationError.weights[this.node._id] * activationError.error[k] * sigPrime;
-                }
+                this.backpropagateMatrix(delta, state.activationErrors[id], state.activation.vals, weightIndex);
             }
         }
         else {
@@ -240,10 +228,10 @@ export abstract class BaseNode<T extends Node> {
                 weights[this.node.inputs[index]] = w; //store your weights so next layer can compute their responsibility
                 var inActivation = state.inputActivations[this.node.inputs[index]];
                 
-                for(var k in delta) { //delta with respect to weight (which uses incoming activation at weight)
-                    this.learningError.total[index] += delta[k] * inActivation[k];
-                    if(first) { this.learningError.totalBias += delta[k]; }
-                }
+                inActivation.vals.forEach((input, row) => { //delta with respect to weight (which uses incoming activation at weight)
+                    this.learningError.total[index] += delta.vals[row][0] * inActivation.vals[row][0];
+                    if(first) { this.learningError.totalBias += delta.vals[row][0]; }
+                });
 
                 first = false;
             });
@@ -254,8 +242,27 @@ export abstract class BaseNode<T extends Node> {
         //console.log('backpropagating node ', this.node.name, VirtualNodeService.pid);
     }
 
+    backpropagateMatrix(delta: Activation, activationError: ActivationError, inActivation: number[][], weightIndex: number) {
+        var errorActivation = activationError.error.vals;
+        errorActivation.forEach((input, index) => {
+            if(!delta.vals[index]) {
+                delta.vals[index] = [0];
+            }
+
+            var sig = inActivation[index][0];
+            var sigPrime = sig * (1 - sig);
+
+            delta.vals[index][0] += errorActivation[index][0] * activationError.weights[this.node._id] * sigPrime;
+        });
+    }
+
     private initializeWeights() {
         var len = this.node.inputs.length;
+
+        if(len === 1 && this.state.inputActivations[this.node.inputs[0]].vals[0].length > 1) {
+            len = this.state.inputActivations[this.node.inputs[0]].vals[0].length;
+        }
+
         if(len > 1) {
             this.node.bias = Stats.randomNormalDist(0, 1);
             this.node.weights = [];
@@ -352,7 +359,7 @@ export enum Normalize {
 
 export class State {
     date: number;
-    activation: Activation = {};
+    activation: Activation = new Activation();
     inputActivations: { [key: string]: Activation } = {}; //nodeId => Activation
     activationErrors: { [key: string]: ActivationError } = {};
 }
