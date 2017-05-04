@@ -29,8 +29,7 @@ export class BasicNode extends BaseNode<Node> {
         if(this.state.activation && this.numOutputs() === 0) {
             var error: Activation = new Activation();
             this.state.activation.vals.forEach((input, index) => {
-                var sigPrime = input[0] * (1 - input[0]);
-                error.vals.push([Network.costFunction.delta(input[0], this.trainingData.output[index][0]) * sigPrime]);
+                error.vals.push([Network.costFunction.delta(input[0], this.trainingData.output[index][0])]);
             });
 
             if(Network.isLearning) {

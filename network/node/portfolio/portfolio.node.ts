@@ -237,8 +237,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
 
             var predictedActivation = state.activation.vals;
             predictedActivation.forEach((input, index) => {
-                var sigPrime = input[0] * (1 - input[0]);
-                error.vals.push([Network.costFunction.delta(input[0], actualActivation.vals[index][0]) * sigPrime]);
+                error.vals.push([Network.costFunction.delta(input[0], actualActivation.vals[index][0])]);
                 this.totalCost += Network.costFunction.cost(input[0], actualActivation.vals[index][0]);
                 this.trainingCount++;
             });
