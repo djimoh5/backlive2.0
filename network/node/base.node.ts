@@ -44,6 +44,7 @@ export abstract class BaseNode<T extends Node> {
             this.nodeId = Common.uniqueId();
             if(node) {
                 node._id = this.nodeId;
+                this.node = node;
             }
         }
 
@@ -85,6 +86,7 @@ export abstract class BaseNode<T extends Node> {
     }
 
     getNode(): Node {
+        console.log('data', this.node);
         return this.node;
     }
 

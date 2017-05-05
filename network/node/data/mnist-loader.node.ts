@@ -44,6 +44,7 @@ export class MNISTLoaderNode extends BaseDataNode {
     private loadHelper(dataType: string, callback: (data: TrainingData) => void) {
         var mnistData = { input: [], output: [] };
         var cnt = 0;
+        var max = 5000;
 
         Database.mongo.collection(dataType).find({}, (err, cursor) => {
             cursor.each((err, result: {}) => {
@@ -51,6 +52,10 @@ export class MNISTLoaderNode extends BaseDataNode {
                     callback(mnistData);
                 }
                 else {
+                    if(max-- < 0) {
+                        return;
+                    }
+                    
                     var input = [], output = [], index = 1;
 
                     var key = 'x' + index++;
