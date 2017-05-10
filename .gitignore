@@ -1,3 +1,4 @@
+build
 node_modules/*
 !node_modules/backlive/
 !node_modules/gulp-inline-ng2-template/

@@ -27,7 +27,9 @@ export class AppEventQueue {
         AppEventQueue.eventQueue.notify(event);
 
         if((!fromClient && event.isSocketEvent) || fromChildProcess) {
-            process.send(event);
+            if(process.send) { //send is null when not running in a child process
+                process.send(event);
+            }
         }
     }
 }

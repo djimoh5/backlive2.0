@@ -10,7 +10,7 @@ import { Common } from '../../app//utility/common';
 export class NetworkLayerNode extends BaseNode<Node> {
     nodes: Node[] = [];
 
-    constructor(numNodes: number) {
+    constructor(numNodes: number, namePrefix: string = 'virtual') {
         super(null, VirtualNodeService);
 
         this.node = new Node(NodeType.Virtual);
@@ -22,7 +22,7 @@ export class NetworkLayerNode extends BaseNode<Node> {
         for(var i = 0; i < numNodes; i++) {
             var model = new Node(NodeType.Virtual);
             model._id = Common.uniqueId();
-            model.name = 'hidden' + (i + 1);
+            model.name = namePrefix + (i + 1);
             this.nodes.push(model);
         }
     }

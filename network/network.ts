@@ -86,7 +86,7 @@ export class Network {
             this.insertHiddenLayer(node, inputNodes);
         }
         else {
-            inputNodes.forEach(input => {
+            inputNodes.forEach(input => {     
                 var inputNode: BaseNode<any> = this.nodes[input._id] ? this.nodes[input._id] : this.loadNode(input);
                 inputNode.updateOutput(node);
             });
@@ -175,21 +175,21 @@ export class Network {
 
     createNetwork() {
         this.dataNode.load(trainingData => {
-            //console.log(this.trainingData);
-            console.log(trainingData.input.length);
-            console.log(trainingData.output.length, trainingData.output[0]);
-            this.network = new NetworkModel(.5, 50, [100], 1);
+            this.network = new NetworkModel(.5, 50, [10], 1);
             this.executeNetwork(this.network); //call this first to init and reset network
             
             var inputNode = this.dataNode.getNode();
-            var hiddenLayer = new NetworkLayerNode(this.network.hiddenLayers[0].numNodes);
+            this.nodes[inputNode._id] = this.dataNode;
+
+            var hiddenLayer = new NetworkLayerNode(this.network.hiddenLayers[0].numNodes, 'hidden');
             hiddenLayer.setInputs([inputNode]);
 
-            var outputLayer = new NetworkLayerNode(trainingData.output[0].length);
+            var outputLayer = new NetworkLayerNode(trainingData.output[0].length, 'output');
             outputLayer.setInputs(hiddenLayer.nodes);
 
-            this.nodes[inputNode._id] = this.dataNode;
+            this.network.inputs = [];
             outputLayer.nodes.forEach(output => {
+                this.network.inputs.push(output._id);
                 this.loadNode(output);
             });
         });
@@ -210,7 +210,10 @@ export class Network {
 
     printNetwork() {
         console.log(this.network);
-        this.print(this.nodes[this.network.inputs[0]], 0);
+
+        this.network.inputs.forEach(id => {
+            this.print(this.nodes[id], 0);
+        });
     }
 
     print<T extends Node>(baseNode: BaseNode<T>, level: number) {
@@ -235,6 +238,18 @@ export class Network {
             console.log('epoch time:', ((Date.now() - this.prevStartTime) / 1000) + 's');
             console.log('epoch timings:', JSON.stringify(Network.timings));
 
+            var totalCost = 0, trainingCount = 0;
+            for(var id in this.nodes) {
+                if(this.nodes[id].totalCost) {
+                    totalCost += this.nodes[id].totalCost;
+                    trainingCount += this.nodes[id].trainingCount;
+                    this.nodes[id].totalCost = 0;
+                    this.nodes[id].trainingCount = 0;
+                }
+            }
+
+            console.log('total cost:', totalCost, 'avg. cost:', totalCost / trainingCount, 'training size:', trainingCount);
+
             //run another epoch
             Network.timings = new NetworkTimings();
             AppEventQueue.notify(new InitializeDataEvent(null));
@@ -243,7 +258,7 @@ export class Network {
             if(!validating) {
                 Network.isLearning = false;
                 Network.timings = new NetworkTimings();
-                AppEventQueue.notify(new ValidateDataEvent(null));
+                //AppEventQueue.notify(new ValidateDataEvent(null));
             }
             else {
                 console.log('validation complete');

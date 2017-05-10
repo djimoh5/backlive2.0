@@ -27,9 +27,6 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     date: number;
     prevDate: number;
 
-    totalCost: number = 0;
-    trainingCount: number = 0;
-
     capital = 50000;
     positions: Position[] = [];
 
@@ -46,15 +43,6 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         });
 
         this.subscribe(DataEvent, event => this.processPrices(event));
-        this.subscribe(EpochCompleteEvent, event => {
-            if(this.trainingCount === 0) {
-                console.log('Error: training count for epoch was 0');
-                throw('training count for epoch was 0');
-            }
-            console.log('total cost:', this.totalCost, 'avg. cost:', this.totalCost / this.trainingCount, 'training size:', this.trainingCount);
-            this.totalCost = 0;
-            this.trainingCount = 0;
-        });
 
         this.notify(new DataSubscriptionEvent({ params: [
             [IndicatorParamType.Ticker, 'price'],
@@ -195,7 +183,8 @@ export class PortfolioNode extends BaseNode<Portfolio> {
                 this.activate(null, false);
             }
 
-            if(this.state.activation) {
+            var state = this.pastState[event.date];
+            if(state.activation) {
                 if(this.prevDate) {
                     this.backpropagate();
                 }

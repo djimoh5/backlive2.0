@@ -23,9 +23,9 @@ export class BaseEvent<T> {
     senderId: string;
     created: number;
     
-    constructor(data: T, date?: number) {
+    constructor(data: T, date: number = null) {
         this.data = data;
-        this.date = date || Date.now();
+        this.date = date !== null ? date : Date.now();
         this.eventName = (<typeof BaseEvent> this.constructor).eventName;
         this.isSocketEvent = (<typeof BaseEvent> this.constructor).isSocketEvent;
 

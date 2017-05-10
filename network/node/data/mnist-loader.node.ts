@@ -1,6 +1,6 @@
 import { 
-    ActivateNodeEvent, InitializeDataEvent, ValidateDataEvent,
-    BackpropagateEvent, BackpropagateCompleteEvent, EpochCompleteEvent
+    ActivateNodeEvent, InitializeDataEvent, ValidateDataEvent, TrainingDataEvent,
+    BackpropagateCompleteEvent, EpochCompleteEvent
 } from '../../event/app.event';
 import { BaseDataNode, TrainingData } from './data.node';
 
@@ -13,6 +13,7 @@ export class MNISTLoaderNode extends BaseDataNode {
     executeStartTime: number;
 
     currentRecord: number;
+    backPropDate: number;
 
     constructor() {
         super();
@@ -20,7 +21,10 @@ export class MNISTLoaderNode extends BaseDataNode {
         this.subscribe(InitializeDataEvent, event => this.init());
 
         this.subscribe(BackpropagateCompleteEvent, event => {
-            this.execute();
+            if(event.date !== this.backPropDate) {
+                this.backPropDate = event.date;
+                this.execute();
+            }
         });
 
         this.subscribe(ValidateDataEvent, event => {
@@ -47,6 +51,7 @@ export class MNISTLoaderNode extends BaseDataNode {
         var max = 5000;
 
         Database.mongo.collection(dataType).find({}, (err, cursor) => {
+            cursor.limit(1000);
             cursor.each((err, result: {}) => {
                 if (result == null) {
                     callback(mnistData);
@@ -55,7 +60,7 @@ export class MNISTLoaderNode extends BaseDataNode {
                     if(max-- < 0) {
                         return;
                     }
-                    
+
                     var input = [], output = [], index = 1;
 
                     var key = 'x' + index++;
@@ -82,6 +87,11 @@ export class MNISTLoaderNode extends BaseDataNode {
 
     init() {
         this.currentRecord = 0;
+
+        if(!this.backPropDate) {
+            this.notify(new TrainingDataEvent(this.trainingData));
+        }
+        
         this.execute();
     }
 
@@ -90,7 +100,7 @@ export class MNISTLoaderNode extends BaseDataNode {
         var date = this.validating ? (this.currentRecord + this.trainingData.input.length) : this.currentRecord;
 
         if(this.currentRecord < data.input.length) {
-            this.notify(new ActivateNodeEvent({ vals: [data.input[this.currentRecord++]] }, date));
+            this.activate(new ActivateNodeEvent({ vals: [data.input[this.currentRecord++]] }, date));
         }
         else {
             this.notify(new EpochCompleteEvent(this.validating));

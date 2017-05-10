@@ -25,11 +25,14 @@ export class BasicNode extends BaseNode<Node> {
     receive(event: ActivateNodeEvent) {
         //console.log(this.node._id, 'Basic node received an event from ', event.senderId);
         this.activate();
+        var state = this.pastState[event.date];
 
-        if(this.state.activation && this.numOutputs() === 0) {
+        if(state && this.numOutputs() === 0) {
             var error: Activation = new Activation();
-            this.state.activation.vals.forEach((input, index) => {
+            state.activation.vals.forEach((input, index) => {
                 error.vals.push([Network.costFunction.delta(input[0], this.trainingData.output[index][0])]);
+                this.totalCost += Network.costFunction.cost(input[0], this.trainingData.output[index][0]);
+                this.trainingCount++;
             });
 
             if(Network.isLearning) {

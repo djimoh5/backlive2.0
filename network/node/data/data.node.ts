@@ -14,6 +14,7 @@ export interface IDataNode {
 export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
     constructor() {
         super(new Node(NodeType.Virtual));
+        this.node.name = 'dataNode';
     }
     
     abstract load(callback: (data: TrainingData) => void);

@@ -27,6 +27,9 @@ export abstract class BaseNode<T extends Node> {
     pastState: { [key: string]: State };
     learningError: LearningError;
 
+    totalCost: number = 0;
+    trainingCount = 0;
+
     private nodeService: NodeService<T>;
 
     process: ProcessWrapper;
@@ -51,14 +54,20 @@ export abstract class BaseNode<T extends Node> {
         this.subscribe(BackpropagateEvent, event => this.backpropagate(event), 
             { filter: (event, index) => { return Common.inArray(event.senderId, this.outputs); } }
         );
+
+        this.clearState();
+    }
+
+    clearState() {
+        this.state = new State();
+        this.pastState = {};
     }
 
     setNode(node: T) {
         node._id = node._id.toString();
         this.node = node;
         this.nodeId = node._id;
-        this.state = new State();
-        this.pastState = {};
+        this.clearState();
 
         if(node.inputs) {
             this.nodeService.getInputs(node._id).then(nodes => {
@@ -86,7 +95,6 @@ export abstract class BaseNode<T extends Node> {
     }
 
     getNode(): Node {
-        console.log('data', this.node);
         return this.node;
     }
 
@@ -96,6 +104,7 @@ export abstract class BaseNode<T extends Node> {
             event => {
                 this.state.date = event.date;
                 this.state.inputActivations[event.senderId] = event.data;
+                delete this.pastState[event.date];
 
                 var duration = Date.now() - event.created;
                 if(!event['time'] || duration > event['time']) {
@@ -103,9 +112,7 @@ export abstract class BaseNode<T extends Node> {
                     Network.timings.event += duration;
                 }
                 
-                setTimeout(() => {
-                    this.receive(event);
-                });              
+                this.receive(event);              
             }, 
             { filter: (event, index) => { return Common.inArray(event.senderId, this.node.inputs); } }
         );
@@ -131,7 +138,6 @@ export abstract class BaseNode<T extends Node> {
         if(!event) {
             for(var i = 0, len = this.node.inputs.length; i < len; i++) {
                 if(!this.state.inputActivations[this.node.inputs[i]]) {
-                    this.state.activation = null;
                     Network.timings.activation += Date.now() - startTime;
                     return; //must first have an activation of all inputs to activate yourself
                 }
@@ -165,7 +171,7 @@ export abstract class BaseNode<T extends Node> {
         this.persistActivation(event);
         Network.timings.activation += Date.now() - startTime;
         this.notify(event);
-        //console.log('node', this.node.name, 'activated', VirtualNodeService.pid);
+        //console.log('node', this.node.name, 'activated');
     }
 
     activateMatrix(activation: Activation, inActivation: number[][], startWeightIndex: number) {
@@ -212,7 +218,7 @@ export abstract class BaseNode<T extends Node> {
 
             var weightIndex = 0;
             for(var id in state.activationErrors) {
-                this.backpropagateMatrix(delta, state.activationErrors[id], state.activation.vals, weightIndex);
+                this.backpropagateMatrix(delta, state.activationErrors[id], state.activation, weightIndex);
             }
         }
         else {
@@ -232,7 +238,7 @@ export abstract class BaseNode<T extends Node> {
                 
                 inActivation.vals.forEach((input, row) => { //delta with respect to weight (which uses incoming activation at weight)
                     if(startWeightIndex === 0) { 
-                        this.learningError.totalBias += delta.vals[row][0]; 
+                        this.learningError.totalBias += delta.vals[row][0];
                     }
 
                     var weightIndex = startWeightIndex;
@@ -250,14 +256,14 @@ export abstract class BaseNode<T extends Node> {
         //console.log('backpropagating node ', this.node.name, VirtualNodeService.pid);
     }
 
-    backpropagateMatrix(delta: Activation, activationError: ActivationError, inActivation: number[][], weightIndex: number) {
+    backpropagateMatrix(delta: Activation, activationError: ActivationError, activation: Activation, weightIndex: number) {
         var errorActivation = activationError.error.vals;
         errorActivation.forEach((input, index) => {
             if(!delta.vals[index]) {
                 delta.vals[index] = [0];
             }
 
-            var sig = inActivation[index][0];
+            var sig = activation.vals[index][0];
             var sigPrime = sig * (1 - sig);
 
             delta.vals[index][0] += errorActivation[index][0] * activationError.weights[this.node._id] * sigPrime;
