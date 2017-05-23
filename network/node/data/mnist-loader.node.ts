@@ -1,6 +1,5 @@
 import { 
-    ActivateNodeEvent, InitializeDataEvent, ValidateDataEvent, TrainingDataEvent,
-    BackpropagateCompleteEvent, EpochCompleteEvent
+    ActivateNodeEvent, InitializeDataEvent, ValidateDataEvent, BackpropagateCompleteEvent, EpochCompleteEvent
 } from '../../event/app.event';
 import { BaseDataNode, TrainingData } from './data.node';
 
@@ -18,7 +17,10 @@ export class MNISTLoaderNode extends BaseDataNode {
     constructor() {
         super();
 
-        this.subscribe(InitializeDataEvent, event => this.init());
+        this.subscribe(InitializeDataEvent, event => {
+            this.backPropDate = null;
+            this.init()
+        });
 
         this.subscribe(BackpropagateCompleteEvent, event => {
             if(event.date !== this.backPropDate) {
@@ -48,24 +50,19 @@ export class MNISTLoaderNode extends BaseDataNode {
     private loadHelper(dataType: string, callback: (data: TrainingData) => void) {
         var mnistData = { input: [], output: [] };
         var cnt = 0;
-        var max = 5000;
 
         Database.mongo.collection(dataType).find({}, (err, cursor) => {
-            cursor.limit(1000);
+            cursor.limit(10000);
             cursor.each((err, result: {}) => {
                 if (result == null) {
                     callback(mnistData);
                 }
                 else {
-                    if(max-- < 0) {
-                        return;
-                    }
-
                     var input = [], output = [], index = 1;
 
                     var key = 'x' + index++;
                     while(typeof(result[key]) !== 'undefined') {
-                        input.push(result[key]);
+                        input.push(result[key] / 255);
                         key = 'x' + index++;
                     }
 
@@ -87,23 +84,24 @@ export class MNISTLoaderNode extends BaseDataNode {
 
     init() {
         this.currentRecord = 0;
-
-        if(!this.backPropDate) {
-            this.notify(new TrainingDataEvent(this.trainingData));
-        }
-        
         this.execute();
     }
 
     execute() {
+        var batchSize: number = 1000;
         var data = this.validating ? this.testData : this.trainingData;
         var date = this.validating ? (this.currentRecord + this.trainingData.input.length) : this.currentRecord;
-
+        
         if(this.currentRecord < data.input.length) {
-            this.activate(new ActivateNodeEvent({ vals: [data.input[this.currentRecord++]] }, date));
+            this.activate(new ActivateNodeEvent({ 
+                input: data.input.slice(this.currentRecord, this.currentRecord + batchSize), 
+                output: data.output.slice(this.currentRecord, this.currentRecord + batchSize) 
+            }, date));
+
+            this.currentRecord += batchSize;
         }
         else {
-            this.notify(new EpochCompleteEvent(this.validating));
+            this.notify(new EpochCompleteEvent(null));
         }
     }
 }

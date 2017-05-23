@@ -53,7 +53,10 @@ export class DataLoaderNode extends BaseDataNode {
             this.endDate = event.data.endDate;
         });
 
-        this.subscribe(InitializeDataEvent, event => this.init());
+        this.subscribe(InitializeDataEvent, event => {
+            this.backPropDate = null;
+            this.init();
+        });
 
         this.subscribe(BackpropagateCompleteEvent, event => {
             if(event.date !== this.backPropDate) {
@@ -126,7 +129,7 @@ export class DataLoaderNode extends BaseDataNode {
 
             if(this.currentDate >= this.validationDate && !this.validating) {
                 Network.timings.data += Date.now() - this.executeStartTime;
-                this.notify(new EpochCompleteEvent(this.validating));
+                this.notify(new EpochCompleteEvent(null));
                 return;
             }
 
@@ -174,7 +177,7 @@ export class DataLoaderNode extends BaseDataNode {
             }
         }
         else {
-            this.notify(new EpochCompleteEvent(this.validating));
+            this.notify(new EpochCompleteEvent(null));
         }
     }
 

@@ -29,14 +29,16 @@ export enum NodeType {
 }
 
 export class Activation {
-    vals: number[][];
+    input: number[][];
+    output: number[][];
     keys?: string[];
     constructor() {
-        this.vals = [];
+        this.input = [];
+        this.output = [];
     }
 }
 
 export interface ActivationError {
     error: Activation;
-    weights?: { [key: string]: number }; //nodeId => weight
+    weights?: { [key: string]: number[] }; //nodeId => weight
 }

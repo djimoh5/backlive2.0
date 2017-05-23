@@ -56,7 +56,7 @@ export class Network {
         AppEventQueue.global();
         AppEventQueue.subscribe(LoadNetworkEvent, this.subscriberName, event => this.loadNetwork(event.data));
         AppEventQueue.subscribe(ExecuteNetworkEvent, this.subscriberName, event => this.executeNetwork(event.data));
-        AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.updateNodeWeights(event.data));
+        AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.updateNodeWeights());
 
         Database.open(() => {
             console.log('Database opened');
@@ -188,9 +188,10 @@ export class Network {
             outputLayer.setInputs(hiddenLayer.nodes);
 
             this.network.inputs = [];
-            outputLayer.nodes.forEach(output => {
+            outputLayer.nodes.forEach((output, index) => {
                 this.network.inputs.push(output._id);
-                this.loadNode(output);
+                var outputNode = this.loadNode(output);
+                outputNode.layerIndex = index;
             });
         });
     }
@@ -228,46 +229,86 @@ export class Network {
         }
     }
 
-    updateNodeWeights(validating: boolean) {
+    updateNodeWeights() {
         ActivateNodeEvent.isSocketEvent = false;
         this.processes.forEach(process => process.clearProcessedEvents());
 
-        if(this.epochCount++ < this.network.epochs) {
+        if(Network.isLearning) {
+            this.epochCount++;
             AppEventQueue.notify(new UpdateNodeWeightsEvent(this.network.learnRate));
             console.log('completed epoch', this.epochCount);
             console.log('epoch time:', ((Date.now() - this.prevStartTime) / 1000) + 's');
             console.log('epoch timings:', JSON.stringify(Network.timings));
 
-            var totalCost = 0, trainingCount = 0;
-            for(var id in this.nodes) {
-                if(this.nodes[id].totalCost) {
-                    totalCost += this.nodes[id].totalCost;
-                    trainingCount += this.nodes[id].trainingCount;
-                    this.nodes[id].totalCost = 0;
-                    this.nodes[id].trainingCount = 0;
-                }
-            }
-
-            console.log('total cost:', totalCost, 'avg. cost:', totalCost / trainingCount, 'training size:', trainingCount);
+            this.calculateCost();
 
             //run another epoch
-            Network.timings = new NetworkTimings();
-            AppEventQueue.notify(new InitializeDataEvent(null));
-        }
-        else {
-            if(!validating) {
-                Network.isLearning = false;
+            if(this.epochCount < this.network.epochs) {
                 Network.timings = new NetworkTimings();
-                //AppEventQueue.notify(new ValidateDataEvent(null));
+                AppEventQueue.notify(new InitializeDataEvent(null));
             }
             else {
-                console.log('validation complete');
-                console.log('total time:', ((Date.now() - this.startTime) / 1000) + 's');
-                console.log(JSON.stringify(Network.timings));
+                Network.isLearning = false;
+                Network.timings = new NetworkTimings();
+                AppEventQueue.notify(new ValidateDataEvent(null));
             }
+        }
+        else {
+            console.log('validation complete');
+            this.calculateCost();
+
+            console.log('total time:', ((Date.now() - this.startTime) / 1000) + 's');
+            console.log(JSON.stringify(Network.timings));
+
+            this.evaluate();
         }
 
         this.prevStartTime = Date.now();
+    }
+
+    private calculateCost() {
+        var totalCost = 0, trainingCount = 0;
+        this.network.inputs.forEach(id => {
+            totalCost += this.nodes[id].totalCost;
+            trainingCount += this.nodes[id].trainingCount;
+            this.nodes[id].totalCost = 0;
+            this.nodes[id].trainingCount = 0;
+        });
+
+        trainingCount = trainingCount / this.network.inputs.length;
+        console.log('total cost:', totalCost, 'avg. cost:', totalCost / trainingCount, 'training size:', trainingCount);
+    }
+
+    private evaluate() {
+        if(this.network.inputs.length > 0) {
+            var first = this.nodes[this.network.inputs[0]];
+            var correct: number = 0, wrong: number = 0;
+            
+            for(var date in first.pastState) {
+                var output = first.pastState[date].activation.output;
+
+                for(var i = 0, len = first.pastState[date].activation.input.length; i < len; i++) {
+                    var maxAct: number = 0, maxIndex: number;;
+                    this.network.inputs.forEach((id, index) => {
+                        var act = this.nodes[this.network.inputs[index]].pastState[date].activation.input[i][0];
+                        if(act > maxAct) {
+                            maxAct = act;
+                            maxIndex = index;
+                        }
+                    });
+
+                    if(output[i][maxIndex] == 1) {
+                        correct++;
+                    }
+                    else {
+                        wrong++;
+                    }
+                }
+            }
+
+            console.log(correct, wrong, correct + wrong);
+            console.log(`Validation accuracies ${correct / wrong * 100}%`);
+        }
     }
 
     private activity(active: boolean) {

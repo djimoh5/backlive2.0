@@ -1,11 +1,11 @@
 import { AppEvent, SocketEvent, BaseEvent } from './base.event';
 
 import { Node, Activation, ActivationError } from '../../core/service/model/node.model';
-import { DataCache, TrainingData } from '../node/data/data.node';
+import { DataCache } from '../node/data/data.node';
 import { IndicatorParam } from '../../core/service/model/indicator.model';
 
 @AppEvent('Event.Network.EpochComplete')
-export class EpochCompleteEvent extends BaseEvent<boolean> {}
+export class EpochCompleteEvent extends BaseEvent<null> {}
 
 @AppEvent('Event.Node.InitProcess')
 export class InitNodeProcessEvent extends BaseEvent<{ node: Node, outputs: string[] }> {}
@@ -30,9 +30,6 @@ export class BackpropagateEvent extends BaseEvent<ActivationError> {}
 export class BackpropagateCompleteEvent extends BaseEvent<null> {}
 
 /* other events */
-
-@AppEvent('Event.TrainingData')
-export class TrainingDataEvent extends BaseEvent<TrainingData> {}
 
 @AppEvent('Event.Data.Initialize')
 export class InitializeDataEvent extends BaseEvent<null> {}

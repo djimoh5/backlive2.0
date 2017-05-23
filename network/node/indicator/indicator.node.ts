@@ -15,7 +15,8 @@ export class IndicatorNode extends BaseNode<Indicator> {
     constructor(node: Indicator) {
         super(node, IndicatorService);
         this.calculator = new Calculator();
-
+        this.preserveState = true;
+        
         this.subscribe(DataEvent, event => this.processData(event));
         this.notify(new DataSubscriptionEvent({ params: this.calculator.getIndicatorParams([node]) }), true);
     }
@@ -42,7 +43,7 @@ export class IndicatorNode extends BaseNode<Indicator> {
                 keys.push(key);
             }
 
-            this.activate(new ActivateNodeEvent({ vals: actVals, keys: keys }, event.date));
+            this.activate(new ActivateNodeEvent({ input: actVals, keys: keys, output: null }, event.date));
         }
 
         Network.timings.indicatorActivation += Date.now() - startTime;

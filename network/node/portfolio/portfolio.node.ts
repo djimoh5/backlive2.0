@@ -1,8 +1,7 @@
 import { BaseNode, MockSession } from '../base.node';
 
 import { 
-    ActivateNodeEvent, BackpropagateCompleteEvent, BackpropagateEvent, 
-    EpochCompleteEvent, DataEvent, DataSubscriptionEvent
+    ActivateNodeEvent, BackpropagateCompleteEvent, BackpropagateEvent, DataEvent, DataSubscriptionEvent
 } from '../../event/app.event';
 
 import { PortfolioService } from '../../../core/service/portfolio.service';
@@ -135,7 +134,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     openPositions() {
         var keyVals: { [key: string]: number } = {};
         var activation = this.pastState[this.date].activation;
-        activation.vals.forEach((input, index) => {
+        activation.input.forEach((input, index) => {
             keyVals[activation.keys[index]] = input[0];
         });
 
@@ -215,19 +214,19 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             for(var i = 0; key = state.activation.keys[i]; i++) {
                 if(this.prices[key] && this.prevPrices[key]) {
                     var alpha = ((this.prices[key].price + this.prices[key].dividend) / this.prevPrices[key].price) - marketReturn;
-                    actualActivation.vals.push([this.sigmoid(alpha)]);
+                    actualActivation.input.push([this.sigmoid(alpha)]);
                 }
                 else {
-                    state.activation.vals.splice(i, 1);
+                    state.activation.input.splice(i, 1);
                     state.activation.keys.splice(i, 1);
                     i--;
                 }
             }
 
-            var predictedActivation = state.activation.vals;
+            var predictedActivation = state.activation.input;
             predictedActivation.forEach((input, index) => {
-                error.vals.push([Network.costFunction.delta(input[0], actualActivation.vals[index][0])]);
-                this.totalCost += Network.costFunction.cost(input[0], actualActivation.vals[index][0]);
+                error.input.push([Network.costFunction.delta(input[0], actualActivation.input[index][0])]);
+                this.totalCost += Network.costFunction.cost(input[0], actualActivation.input[index][0]);
                 this.trainingCount++;
             });
 

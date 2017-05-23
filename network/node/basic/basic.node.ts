@@ -1,25 +1,14 @@
 import { BaseNode } from '../base.node';
-import { ActivateNodeEvent, TrainingDataEvent, BackpropagateEvent, BackpropagateCompleteEvent } from '../../event/app.event';
+import { ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent } from '../../event/app.event';
 
 import { NodeService } from '../../../core/service/node.service';
 import { Node, Activation } from '../../../core/service/model/node.model';
 
 import { Network } from '../../network';
 
-import { TrainingData } from '../data/data.node';
-
 export class BasicNode extends BaseNode<Node> {
-    trainingData: TrainingData;
-
     constructor(private model: Node, nodeService?: typeof NodeService) {
         super(model, nodeService ? nodeService : NodeService);
-        
-        this.subscribe(TrainingDataEvent, event => this.processData(event));
-    }
-
-    processData(event: TrainingDataEvent) {
-        console.log('Node ' + this.nodeId + ' received training data event');
-        this.trainingData = event.data;
     }
 
     receive(event: ActivateNodeEvent) {
@@ -29,9 +18,9 @@ export class BasicNode extends BaseNode<Node> {
 
         if(state && this.numOutputs() === 0) {
             var error: Activation = new Activation();
-            state.activation.vals.forEach((input, index) => {
-                error.vals.push([Network.costFunction.delta(input[0], this.trainingData.output[index][0])]);
-                this.totalCost += Network.costFunction.cost(input[0], this.trainingData.output[index][0]);
+            state.activation.input.forEach((input, index) => {
+                error.input.push([Network.costFunction.delta(input[0], event.data.output[index][this.layerIndex])]);
+                this.totalCost += Network.costFunction.cost(input[0], event.data.output[index][this.layerIndex]);
                 this.trainingCount++;
             });
 
