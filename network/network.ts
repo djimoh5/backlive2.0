@@ -86,9 +86,10 @@ export class Network {
             this.insertHiddenLayer(node, inputNodes);
         }
         else {
-            inputNodes.forEach(input => {     
-                var inputNode: BaseNode<any> = this.nodes[input._id] ? this.nodes[input._id] : this.loadNode(input);
+            inputNodes.forEach((input, index) => {     
+                var inputNode: BaseNode<any> = this.loadNode(input);
                 inputNode.updateOutput(node);
+                inputNode.layerIndex = index;
             });
         }
 
@@ -101,9 +102,11 @@ export class Network {
 
         var hiddenLayer = new NetworkLayerNode(this.network.hiddenLayers[0].numNodes);
         hiddenLayer.setInputs(inputNodes);
-        hiddenLayer.nodes.forEach(n => {
+        hiddenLayer.nodes.forEach((n, index) => {
             outputNode.inputs.push(n._id);
-            this.loadNode(n).updateOutput(outputNode);
+            var node = this.loadNode(n);
+            node.updateOutput(outputNode);
+            node.layerIndex = index;
         });
 
         hiddenLayer.updateOutput(outputNode);
@@ -112,8 +115,9 @@ export class Network {
         baseNode.updateInputs(hiddenLayer.nodes);
     }
 
-    loadNetwork(network: NetworkModel) {
-        this.network = network;
+    resetNetwork() {
+        Network.isLearning = true;
+        Network.timings = new NetworkTimings();
         this.epochCount = 0;
 
         Network.costFunction = CostFunctionFactory.create(this.costFunctionType);
@@ -126,8 +130,19 @@ export class Network {
 
         this.hiddenLayers.forEach(layer => { layer.unsubscribe(); });
         this.hiddenLayers = [];
+    }
 
-        if(this.network._id) {
+    loadNetwork(network: NetworkModel, rootNode: Node = null) {
+        if(!rootNode) {
+            this.resetNetwork();
+        }
+
+        this.network = network;
+
+        if(rootNode) {
+            this.loadNode(rootNode);
+        }
+        else {
             this.networkService = new NetworkService({ user: { uid: network.uid }, cookies: null });
             this.networkService.getInputs(network._id).then(nodes => {
                 this.loadNode(nodes[0]);
@@ -135,7 +150,7 @@ export class Network {
         }
     }
 
-    executeNetwork(network: NetworkModel) {
+    executeNetwork(network: NetworkModel, rootNode: Node = null) {
         this.onIdle = () => {
             this.printNetwork();
 
@@ -159,41 +174,50 @@ export class Network {
                         this.nodes[key].useProcess(this.processes[numProcesses++ % this.maxProcesses]); 
                     }
                 }
+
+                this.prevStartTime = this.startTime;
             }
             else {
                 this.startTime = Date.now();
+                this.prevStartTime = this.startTime;
                 AppEventQueue.notify(new InitializeDataEvent(null));
             }
-
-            this.prevStartTime = this.startTime;
         };
 
-        Network.isLearning = true;
-        Network.timings = new NetworkTimings();
-        this.loadNetwork(network);
+        this.loadNetwork(network, rootNode);
     }
 
     createNetwork() {
         this.dataNode.load(trainingData => {
-            this.network = new NetworkModel(.5, 50, [10], 1);
-            this.executeNetwork(this.network); //call this first to init and reset network
+            this.resetNetwork();
+            this.network = new NetworkModel(3, 30, [30], 1);
             
-            var inputNode = this.dataNode.getNode();
-            this.nodes[inputNode._id] = this.dataNode;
+            this.nodes[this.dataNode.getNode()._id] = this.dataNode;
 
-            var hiddenLayer = new NetworkLayerNode(this.network.hiddenLayers[0].numNodes, 'hidden');
-            hiddenLayer.setInputs([inputNode]);
+            var hiddenLayer = this.createLayer(this.network.hiddenLayers[0].numNodes, this.dataNode, 'hidden');
+            var outputLayer = this.createLayer(trainingData.output[0].length, hiddenLayer, 'output');
 
-            var outputLayer = new NetworkLayerNode(trainingData.output[0].length, 'output');
-            outputLayer.setInputs(hiddenLayer.nodes);
+            this.network.inputs = [outputLayer.getNode()._id];
 
-            this.network.inputs = [];
-            outputLayer.nodes.forEach((output, index) => {
+            this.executeNetwork(this.network, outputLayer.getNode());
+
+            /*outputLayer.nodes.forEach((output, index) => {
                 this.network.inputs.push(output._id);
                 var outputNode = this.loadNode(output);
                 outputNode.layerIndex = index;
-            });
+            });*/
         });
+    }
+
+    private createLayer(numNodes: number, inputLayer: BaseNode<Node>, name?: string) {
+        var layer = new NetworkLayerNode(numNodes, name);
+        layer.setInputs([inputLayer.getNode()]);
+        this.nodes[layer.getNode()._id] = layer;
+        return layer;
+    }
+
+    log(obj: {}) {
+        console.log(JSON.stringify(obj));
     }
 
     initProcesses() {
@@ -212,9 +236,9 @@ export class Network {
     printNetwork() {
         console.log(this.network);
 
-        this.network.inputs.forEach(id => {
+        /*this.network.inputs.forEach(id => {
             this.print(this.nodes[id], 0);
-        });
+        });*/
     }
 
     print<T extends Node>(baseNode: BaseNode<T>, level: number) {
@@ -241,6 +265,7 @@ export class Network {
             console.log('epoch timings:', JSON.stringify(Network.timings));
 
             this.calculateCost();
+            this.prevStartTime = Date.now();
 
             //run another epoch
             if(this.epochCount < this.network.epochs) {
@@ -262,8 +287,6 @@ export class Network {
 
             this.evaluate();
         }
-
-        this.prevStartTime = Date.now();
     }
 
     private calculateCost() {
@@ -288,13 +311,16 @@ export class Network {
                 var output = first.pastState[date].activation.output;
 
                 for(var i = 0, len = first.pastState[date].activation.input.length; i < len; i++) {
-                    var maxAct: number = 0, maxIndex: number;;
-                    this.network.inputs.forEach((id, index) => {
-                        var act = this.nodes[this.network.inputs[index]].pastState[date].activation.input[i][0];
-                        if(act > maxAct) {
-                            maxAct = act;
-                            maxIndex = index;
-                        }
+                    var maxAct: number = 0, maxIndex: number, outputIndex = 0;
+                    this.network.inputs.forEach(id => {
+                        this.nodes[id].pastState[date].activation.input[i].forEach(act => {
+                            if(act > maxAct) {
+                                maxAct = act;
+                                maxIndex = outputIndex;
+                            }
+
+                            outputIndex++;
+                        });
                     });
 
                     if(output[i][maxIndex] == 1) {
@@ -307,7 +333,7 @@ export class Network {
             }
 
             console.log(correct, wrong, correct + wrong);
-            console.log(`Validation accuracies ${correct / wrong * 100}%`);
+            console.log(`Validation accuracies ${correct / (correct + wrong) * 100}%`);
         }
     }
 
@@ -329,11 +355,15 @@ interface NodeMap<T> {
 
 export class NetworkTimings  {
     data: number = 0;
-    event: number = 0; 
+    event: number = 0;
+    bevent: number = 0; 
     activation: number = 0;
     indicatorActivation: number = 0;
     backpropagation: number = 0;
     weight: number = 0;
+    updateWeight: number = 0;
+    resetError: number = 0;
+    cost: number = 0;
 }
 
 process.on('uncaughtException', function (exception) {

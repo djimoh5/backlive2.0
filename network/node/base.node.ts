@@ -28,10 +28,12 @@ export abstract class BaseNode<T extends Node> {
     learningError: LearningError;
     preserveState: boolean;
 
-    layerIndex: number;
     totalCost: number = 0;
     trainingCount = 0;
 
+    layerIndex: number = 0;
+    numNodes: number = 1; //for layers, this number will be > 1
+    
     private nodeService: NodeService<T>;
 
     process: ProcessWrapper;
@@ -99,13 +101,7 @@ export abstract class BaseNode<T extends Node> {
     updateInputs(nodes: Node[]) {
         this.unsubscribe(ActivateNodeEvent);
         this.subscribe(ActivateNodeEvent,
-            event => {
-                this.state.date = event.date;
-                this.state.inputActivations[event.senderId] = event.data;
-                delete this.pastState[event.date];
-                
-                this.receive(event);              
-            }, 
+            event => this.receiveActivation(event), 
             { filter: (event, index) => { return Common.inArray(event.senderId, this.node.inputs); } }
         );
     }
@@ -124,6 +120,19 @@ export abstract class BaseNode<T extends Node> {
 
     protected abstract receive(event: ActivateNodeEvent);
 
+    private receiveActivation(event: ActivateNodeEvent) {
+        var t = Date.now() - event.created;
+        Network.timings.event += t;
+        //console.log(event.senderId, event.created, Date.now());
+        //console.log(this.node.name, this.node._id, t, ' - ', Network.timings.event);
+
+        this.state.date = event.date;
+        this.state.inputActivations[event.senderId] = event.data;
+        delete this.pastState[event.date];
+        
+        this.receive(event);       
+    }
+
     protected activate(event?: ActivateNodeEvent, useLinear: boolean = false) {
         var startTime = Date.now();
 
@@ -140,21 +149,13 @@ export abstract class BaseNode<T extends Node> {
             }
 
             var activation = new Activation();
-            var weightIndex = 0;
 
-            this.node.inputs.forEach(id => {
+            for(var i = 0, id: string; id = this.node.inputs[i]; i++) {
                 var inActivation = this.state.inputActivations[id].input;
-                this.activateMatrix(activation, inActivation, weightIndex);
-                weightIndex += inActivation[0].length;
-            });
+                this.activateMatrix(activation, inActivation, useLinear);
+            }
 
             this.learningError.trainingCount += activation.input.length;
-
-            if(!useLinear) { //CREATE A SEPARATE CLASS THAT HANDLES VARIOUS ACTIVATION TYPES, E.G. TANH, SIGMOID, REL, LINEAR
-                activation.input.forEach(input => {
-                    input[0] = this.sigmoid(input[0] + this.node.bias);
-                });
-            }
 
             activation.output = this.state.inputActivations[this.node.inputs[0]].output;
             activation.keys = this.state.inputActivations[this.node.inputs[0]].keys;
@@ -167,20 +168,20 @@ export abstract class BaseNode<T extends Node> {
         //console.log('node', this.node.name, 'activated');
     }
 
-    activateMatrix(activation: Activation, inActivation: number[][], startWeightIndex: number) {
-        inActivation.forEach((input, row) => {
-            if(!activation.input[row]) {
-                activation.input[row] = [0];
-            }
+    activateMatrix(activation: Activation, inActivation: number[][], useLinear: boolean) {
+        for(var row = 0, input: number[]; input = inActivation[row]; row++) {
+            activation.input[row] = [];
 
-            var weightIndex = startWeightIndex;
-            input.forEach(feature => {
-                activation.input[row][0] += feature * this.node.weights[weightIndex++];
-                if(!Common.isNumber(activation.input[row][0])) {
-                    console.log(activation.input[row][0], weightIndex);
+            for(var nIndex = 0, weights: number[]; weights = this.node.weights[nIndex]; nIndex++) { //loop through each node in layer
+                var actTotal = 0;
+
+                for(var featIndex = 0, len = input.length; featIndex < len; featIndex++) {
+                    actTotal += input[featIndex] * weights[featIndex];
                 }
-            });
-        });
+
+                activation.input[row][nIndex] = useLinear ? actTotal : this.sigmoid(actTotal + this.node.bias[nIndex]);
+            }
+        }
     }
 
     persistActivation(event: ActivateNodeEvent) {
@@ -190,6 +191,7 @@ export abstract class BaseNode<T extends Node> {
     }
 
     protected backpropagate(event: BackpropagateEvent) {
+        Network.timings.bevent += Date.now() - event.created;
         var startTime = Date.now();
 
         var state: State = this.pastState[event.date];
@@ -213,7 +215,7 @@ export abstract class BaseNode<T extends Node> {
             }
 
             for(var id in state.activationErrors) {
-                this.backpropagateMatrix(delta, state.activationErrors[id], state.activation);
+                this.backpropagateMatrix(state, delta, state.activationErrors[id]);
             }
         }
         else {
@@ -221,58 +223,48 @@ export abstract class BaseNode<T extends Node> {
             delta = event.data.error;
         }
 
-        var weights: { [key: string]: number[] };
-
-        if(this.node.weights) {
-            var startWeightIndex = 0;
-            weights = {};
-
-            this.node.inputs.forEach(id => {
-                var inActivation = state.inputActivations[id];
-                weights[id] = this.node.weights.slice(startWeightIndex, startWeightIndex + inActivation.input[0].length); //store your weights so next layer can compute their responsibility
-                
-                inActivation.input.forEach((input, row) => { //delta with respect to weight (which uses incoming activation at weight)
-                    if(startWeightIndex === 0) { 
-                        this.learningError.totalBias += delta.input[row][0];
-                    }
-
-                    var weightIndex = startWeightIndex;
-                    input.forEach(feature => {
-                        this.learningError.total[weightIndex++] += delta.input[row][0] * feature;
-                    });
-                });
-
-                startWeightIndex += inActivation.input[0].length;
-            });
-        }
-
         if(!this.preserveState) {
             delete this.pastState[event.date];
         }
-        
+
         Network.timings.backpropagation += Date.now() - startTime;
-        this.notify(new BackpropagateEvent({ error: delta, weights: weights }, event.date));
+        this.notify(new BackpropagateEvent({ error: delta, weights: this.node.weights }, event.date));
         //console.log('backpropagating node ', this.node.name, VirtualNodeService.pid);
     }
 
-    backpropagateMatrix(delta: Activation, activationError: ActivationError, activation: Activation) {
+    backpropagateMatrix(state: State, delta: Activation, activationError: ActivationError) {
         var inputError = activationError.error.input;
-        inputError.forEach((input, index) => {
-            if(!delta.input[index]) {
-                delta.input[index] = [];
-            }
 
-            activation.input[index].forEach((feature, featIndex) => {
-                if(!delta.input[index][featIndex]) {
-                    delta.input[index][featIndex] = 0;
+        for(var row = 0, input: number[]; input = state.activation.input[row]; row++) { //loop through each input
+            delta.input[row] = [];
+            var inputErrorRow = inputError[row];
+
+            for(var featIndex = 0, len = input.length; featIndex < len; featIndex++) { //loop through each feature (node)
+                var feature = input[featIndex];
+                var sigPrime = feature * (1 - feature);
+                var deltaTotal = 0;
+
+                for(var outputIndex = 0, len = inputErrorRow.length; outputIndex < len; outputIndex++) { //loop through each output error node
+                    deltaTotal += inputErrorRow[outputIndex] * activationError.weights[outputIndex][featIndex] * sigPrime;
                 }
 
-                var sig = feature;
-                var sigPrime = sig * (1 - sig);
+                delta.input[row][featIndex] = deltaTotal;
+                this.calculateWeightError(state, row, featIndex, deltaTotal);
+            }
+        }
+    }
 
-                delta.input[index][0] += inputError[index][0] * activationError.weights[this.node._id][featIndex] * sigPrime;
-            });
-        });
+    calculateWeightError(state: State, row: number, featIndex: number, featDelta: number) {
+        var nodeLearningError = this.learningError.total[featIndex];
+        this.learningError.totalBias[featIndex] += featDelta;
+
+        for(var i = 0, id: string; id = this.node.inputs[i]; i++) {
+            var input = state.inputActivations[id].input[row];
+
+            for(var actIndex = 0, len = input.length; actIndex < len; actIndex++) {
+                nodeLearningError[actIndex] += featDelta * input[actIndex];
+            }
+        }; 
     }
 
     private initializeWeights() {
@@ -283,16 +275,21 @@ export abstract class BaseNode<T extends Node> {
         }
 
         if(len > 1) {
-            this.node.bias = Stats.randomNormalDist(0, 1);
+            this.node.bias = [];
             this.node.weights = [];
-            var cnt = len;
 
-            while(cnt-- > 0) {
-                var weight = Stats.randomNormalDist(0, 1 / Math.sqrt(len));
-                this.node.weights.push(weight);
+            for(var i = 0; i < this.numNodes; i++) {
+                this.node.bias[i] = Stats.randomNormalDist(0, 1);
+                this.node.weights[i] = [];
+                var cnt = len;
+
+                while(cnt-- > 0) {
+                    var weight: number = Stats.randomNormalDist(0, 1 / Math.sqrt(len));
+                    this.node.weights[i].push(weight);
+                }
+
+                this.resetError();
             }
-
-            this.resetError();
         }
     }
 
@@ -300,28 +297,40 @@ export abstract class BaseNode<T extends Node> {
         var startTime = Date.now();
 
         if(this.node.weights) {
-            this.node.weights.forEach((w, index) => {
-                this.node.weights[index] = w - (learningRate * this.learningError.total[index] / this.learningError.trainingCount);
-            });
+            for(var nIndex = 0, weights: number[]; weights = this.node.weights[nIndex]; nIndex++) {
+                for(var wIndex = 0, len = weights.length; wIndex < len; wIndex++) {
+                    var w = weights[wIndex];
+                    weights[wIndex] = w - (learningRate * this.learningError.total[nIndex][wIndex] / this.learningError.trainingCount);
+                }
 
-            this.node.bias = this.node.bias - (learningRate * this.learningError.totalBias / this.learningError.trainingCount);
+                this.node.bias[nIndex] = this.node.bias[nIndex] - (learningRate * this.learningError.totalBias[nIndex] / this.learningError.trainingCount);
+            }
             
             this.resetError();
 
             //console.log(this.node._id, 'weights:', this.node.weights, 'bias:', this.node.bias);
         }
 
-         Network.timings.weight += Date.now() - startTime;
+         Network.timings.updateWeight += Date.now() - startTime;
     }
 
     private resetError() {
+        var startTime = Date.now();
+        
         this.learningError = new LearningError();
 
-        this.node.weights.forEach(w => {
-            this.learningError.total.push(0);
-        });
+        for(var nIndex = 0, weights: number[]; weights = this.node.weights[nIndex]; nIndex++) {
+            this.learningError.totalBias[nIndex] = 0;
+            this.learningError.total[nIndex] = [];
+
+            for(var i = 0, len = weights.length; i < len; i++) {
+                this.learningError.total[nIndex][i] = 0;
+            }
+        }
 
         this.learningError.trainingCount = 0;
+
+        Network.timings.resetError += Date.now() - startTime;
     }
 
     protected sigmoid(x: number, derivative: boolean = false) {
@@ -384,7 +393,7 @@ export class State {
 }
 
 export class LearningError {
-    totalBias: number = 0; 
-    total: number[] = [];
+    totalBias: number[] = []; 
+    total: number[][] = [];
     trainingCount: number = 0;
 }

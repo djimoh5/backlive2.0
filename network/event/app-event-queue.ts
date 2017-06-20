@@ -1,4 +1,4 @@
-import { EventQueue, QueueOperators } from './event-queue';
+import { EventQueue, QueueOperators } from './event-queue-fn';
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from './base.event';
 
 declare var process;

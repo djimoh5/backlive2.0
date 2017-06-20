@@ -17,12 +17,29 @@ export class BasicNode extends BaseNode<Node> {
         var state = this.pastState[event.date];
 
         if(state && this.numOutputs() === 0) {
+            var startTime = Date.now();
             var error: Activation = new Activation();
-            state.activation.input.forEach((input, index) => {
-                error.input.push([Network.costFunction.delta(input[0], event.data.output[index][this.layerIndex])]);
-                this.totalCost += Network.costFunction.cost(input[0], event.data.output[index][this.layerIndex]);
+
+            for(var row = 0, input: number[]; input = state.activation.input[row]; row++) {
+                var outputErrs: number[] = [];
+
+                for(var oIndex = 0, output: number; output = input[oIndex]; oIndex++) {
+                    var delta = Network.costFunction.delta(output, event.data.output[row][oIndex + this.layerIndex]);
+                    outputErrs[oIndex] = delta;
+                    this.totalCost += Network.costFunction.cost(output, event.data.output[row][oIndex + this.layerIndex]);
+
+                    if(Network.isLearning) {
+                        this.calculateWeightError(state, row, oIndex, delta);
+                    }             
+                }
+
+                error.input[row] = outputErrs;
+
+                this.totalCost = this.totalCost / state.activation.input[0].length; //num outputs
                 this.trainingCount++;
-            });
+            }
+
+            Network.timings.cost += Date.now() - startTime;
 
             if(Network.isLearning) {
                 this.backpropagate(new BackpropagateEvent({ error: error }, event.date));

@@ -15,7 +15,7 @@ export class NodeProcessReadyEvent extends BaseEvent<string> {}
 
 /* activation events */
 
-@SocketEvent('Event.Node.Activate')
+@AppEvent('Event.Node.Activate')
 export class ActivateNodeEvent extends BaseEvent<Activation> {}
 
 @AppEvent('Event.Node.UpdateWeights')
