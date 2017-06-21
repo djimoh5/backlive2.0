@@ -19,10 +19,16 @@ var gpu = new GPU();
 
 console['warning'] = function(msg) { console.log(msg); };
 
-var len = 10000000;
+var len = 3;//33554432;
 var A = [], B = [], C = [];
-for(var i = 0; i < len; i++) { A[i] = i; B[i] = i; };
+for(var i = 0; i < len; i++) { 
+    A[i] = new Float32Array(len); B[i] = new Float32Array(len);
+    for(var j = 0; j < len; j++) { 
+        A[i][j] = j; B[i][j] = j;
+    }
+};
 
+var cnt = 0;
 function gpuTest(mode: string) {
     var start = Date.now();
 
@@ -33,12 +39,12 @@ function gpuTest(mode: string) {
         }
         return sum;*/
         return A[this.thread.x] + B[this.thread.x];
-    }, { mode: mode }).dimensions([len]);
+    }, { mode: mode }).dimensions([len, len]);
 
     var D = mat_mult(A, B);
-    //console.log(D[3]);
+    console.log(D);
 
-    console.log(Date.now() - start);
+    console.log(Date.now() - start, cnt);
 }
 
 function cpuTest() {

@@ -16,8 +16,6 @@ import { Stats } from '../lib/stats';
 import { Network } from '../network';
 import { ProcessWrapper } from '../process-wrapper';
 
-declare var process;
-
 export abstract class BaseNode<T extends Node> {
     protected nodeId: string;
     protected node: T;
@@ -83,7 +81,7 @@ export abstract class BaseNode<T extends Node> {
             this.subscribe(UpdateNodeWeightsEvent, event => this.updateWeights(event.data));
         }
         else {
-            setTimeout(() => { //have to run on next turn or onUpdateInputs won't be set yet
+            setImmediate(() => { //have to run on next turn or onUpdateInputs won't be set yet
                 if(this.onUpdateInputs) { this.onUpdateInputs([]); }
             });
         }
@@ -261,8 +259,8 @@ export abstract class BaseNode<T extends Node> {
         for(var i = 0, id: string; id = this.node.inputs[i]; i++) {
             var input = state.inputActivations[id].input[row];
 
-            for(var actIndex = 0, len = input.length; actIndex < len; actIndex++) {
-                nodeLearningError[actIndex] += featDelta * input[actIndex];
+            for(var wIndex = 0, len = input.length; wIndex < len; wIndex++) {
+                nodeLearningError[wIndex] += featDelta * input[wIndex];
             }
         }; 
     }
@@ -281,11 +279,11 @@ export abstract class BaseNode<T extends Node> {
             for(var i = 0; i < this.numNodes; i++) {
                 this.node.bias[i] = Stats.randomNormalDist(0, 1);
                 this.node.weights[i] = [];
-                var cnt = len;
+                var wIndex = 0;
 
-                while(cnt-- > 0) {
+                while(wIndex < len) {
                     var weight: number = Stats.randomNormalDist(0, 1 / Math.sqrt(len));
-                    this.node.weights[i].push(weight);
+                    this.node.weights[i][wIndex++] = weight;
                 }
 
                 this.resetError();
@@ -299,8 +297,7 @@ export abstract class BaseNode<T extends Node> {
         if(this.node.weights) {
             for(var nIndex = 0, weights: number[]; weights = this.node.weights[nIndex]; nIndex++) {
                 for(var wIndex = 0, len = weights.length; wIndex < len; wIndex++) {
-                    var w = weights[wIndex];
-                    weights[wIndex] = w - (learningRate * this.learningError.total[nIndex][wIndex] / this.learningError.trainingCount);
+                    weights[wIndex] = weights[wIndex] - (learningRate * this.learningError.total[nIndex][wIndex] / this.learningError.trainingCount);
                 }
 
                 this.node.bias[nIndex] = this.node.bias[nIndex] - (learningRate * this.learningError.totalBias[nIndex] / this.learningError.trainingCount);

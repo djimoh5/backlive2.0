@@ -39,7 +39,7 @@ export class Network {
 
     subscriberName: string = 'network';
 
-    costFunctionType: CostFunctionType =  CostFunctionType.Quadratic;
+    costFunctionType: CostFunctionType =  CostFunctionType.CrossEntropy;
     static costFunction: ICostFunction;
     static isLearning: boolean = true;
     epochCount: number = 0;
@@ -190,7 +190,7 @@ export class Network {
     createNetwork() {
         this.dataNode.load(trainingData => {
             this.resetNetwork();
-            this.network = new NetworkModel(3, 30, [30], 1);
+            this.network = new NetworkModel(.5, 30, [30], 1);
             
             this.nodes[this.dataNode.getNode()._id] = this.dataNode;
 
@@ -333,7 +333,7 @@ export class Network {
             }
 
             console.log(correct, wrong, correct + wrong);
-            console.log(`Validation accuracies ${correct / (correct + wrong) * 100}%`);
+            console.log(`Validation accuracy ${correct / (correct + wrong) * 100}%`);
         }
     }
 

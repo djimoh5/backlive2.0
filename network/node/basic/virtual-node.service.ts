@@ -10,7 +10,7 @@ export class VirtualNodeService extends NodeService<Node> {
     }
 
     getInputs(nodeId: string) {
-        setTimeout(() => {
+        setImmediate(() => {
             var inputs = VirtualNodeService.inputsByNode[nodeId];
             this.done(inputs ? inputs : []);
         });

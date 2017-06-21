@@ -24,9 +24,10 @@ export class BasicNode extends BaseNode<Node> {
                 var outputErrs: number[] = [];
 
                 for(var oIndex = 0, output: number; output = input[oIndex]; oIndex++) {
-                    var delta = Network.costFunction.delta(output, event.data.output[row][oIndex + this.layerIndex]);
+                    var expected = event.data.output[row][oIndex];
+                    var delta = Network.costFunction.delta(output, expected);
                     outputErrs[oIndex] = delta;
-                    this.totalCost += Network.costFunction.cost(output, event.data.output[row][oIndex + this.layerIndex]);
+                    this.totalCost += Network.costFunction.cost(output, expected);
 
                     if(Network.isLearning) {
                         this.calculateWeightError(state, row, oIndex, delta);

@@ -25,9 +25,7 @@ export class MNISTLoaderNode extends BaseDataNode {
         this.subscribe(BackpropagateCompleteEvent, event => {
             if(event.date !== this.backPropDate) {
                 this.backPropDate = event.date;
-                setTimeout(() => {
-                    this.execute();
-                });
+                this.execute();
             }
         });
 
@@ -76,7 +74,7 @@ export class MNISTLoaderNode extends BaseDataNode {
 
                     mnistData.output.push(output);
 
-                    if(++cnt % 1000 === 0) {
+                    if(++cnt % 5000 === 0) {
                         console.log(cnt);
                     }
                 }
@@ -96,7 +94,7 @@ export class MNISTLoaderNode extends BaseDataNode {
         
         if(this.currentRecord < data.input.length) {
             if(this.currentRecord > 0) {
-                this.notify(new UpdateNodeWeightsEvent(3));
+                this.notify(new UpdateNodeWeightsEvent(.5));
             }
 
             var input = data.input.slice(this.currentRecord, this.currentRecord + batchSize);

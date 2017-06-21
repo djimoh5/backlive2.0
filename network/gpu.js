@@ -6,8 +6,10 @@ var D = new Int32Array(4);
 SIMD.Int32x4.store1(D, 0, c)*/
 //console.log(D);
 
-var len = 10000000;
-var a = [], b = [], c = [];
+//node --harmony_simd gpu.js simd
+
+var len = 33554432;
+var a = new Float32Array(len), b = new Float32Array(len), c = new Float32Array(len);
 for(var i = 0; i < len; i++) { a[i] = i; b[i] = i; };
 
 //CPU
@@ -30,9 +32,9 @@ function cpu() {
 }
 
 function simd() {
-    var A = new Int32Array(len);
-    var B = new Int32Array(len);
-    var C = new Int32Array(len);
+    var A = new Float32Array(len);
+    var B = new Float32Array(len);
+    var C = new Float32Array(len);
 
     //SIMD
     var start = Date.now();

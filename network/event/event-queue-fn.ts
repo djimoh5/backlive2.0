@@ -1,5 +1,8 @@
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from './base.event';
 
+declare var setImmediate; 
+if(typeof(setImmediate) === 'undefined') { setImmediate = setTimeout; console.log('setImmediate not defined, using setTimeout'); }
+
 export class EventQueue {
     protected events: { [key: string]: { [key: string]: Activator<BaseEvent<any>>[] } } = {};
 
@@ -46,7 +49,7 @@ export class EventQueue {
 
         if (this.events[eventName]) {
             //console.log('before timeout', event.senderId, event.created, Date.now());
-            //setTimeout(() => {
+            setImmediate(() => {
                 //console.log('after timeout', event.senderId, event.created, Date.now());
                 var cnt = 0, scnt = 0;
 
@@ -64,7 +67,7 @@ export class EventQueue {
                 if (cnt == 0) {
                     //console.log('EVENT: ' + eventName + ' has no subscribers');
                 }
-            //});
+            });
         }
         else {
             console.log('EVENT: ' + eventName + ' has no subscribers');

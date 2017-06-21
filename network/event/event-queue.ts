@@ -8,6 +8,9 @@ import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/share';
 
+declare var setImmediate; 
+if(typeof(setImmediate) === 'undefined') { setImmediate = setTimeout; console.log('setImmediate not defined, using setTimeout'); }
+
 export class EventQueue {
     protected events: { [key: string]: Observable<BaseEvent<any>> } = {};
     protected activators: { [key: string]: Subject<BaseEvent<any>> } = {};
@@ -85,7 +88,7 @@ export class EventQueue {
         var eventName = event.eventName;
 
         if (this.activators[eventName]) {
-            setTimeout(() => {
+            setImmediate(() => {
                 //console.log('EVENT: ' + eventName + ' fired');// with data', event.data);
                 this.activators[eventName].next(event);
             });
