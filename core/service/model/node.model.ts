@@ -5,8 +5,8 @@ export class Node {
     ntype: NodeType;
 
     inputs: string[];
-    weights: number[];
-    bias: number;
+    weights: number[][];
+    bias: number[];
     
     created: number;
     modified; number;
@@ -40,5 +40,5 @@ export class Activation {
 
 export interface ActivationError {
     error: Activation;
-    weights?: { [key: string]: number[] }; //nodeId => weight
+    weights?: number[][];
 }
