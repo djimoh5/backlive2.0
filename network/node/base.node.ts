@@ -168,7 +168,7 @@ export abstract class BaseNode<T extends Node> {
 
     activateMatrix(activation: Activation, inActivation: number[][], useLinear: boolean) {
         for(var row = 0, input: number[]; input = inActivation[row]; row++) {
-            activation.input[row] = [];
+            var actInput: number[] = [];
 
             for(var nIndex = 0, weights: number[]; weights = this.node.weights[nIndex]; nIndex++) { //loop through each node in layer
                 var actTotal = 0;
@@ -177,8 +177,10 @@ export abstract class BaseNode<T extends Node> {
                     actTotal += input[featIndex] * weights[featIndex];
                 }
 
-                activation.input[row][nIndex] = useLinear ? actTotal : this.sigmoid(actTotal + this.node.bias[nIndex]);
+                actInput[nIndex] = useLinear ? actTotal : this.sigmoid(actTotal + this.node.bias[nIndex]);
             }
+
+            activation.input[row] = actInput;
         }
     }
 
@@ -234,7 +236,7 @@ export abstract class BaseNode<T extends Node> {
         var inputError = activationError.error.input;
 
         for(var row = 0, input: number[]; input = state.activation.input[row]; row++) { //loop through each input
-            delta.input[row] = [];
+            var delatInput: number[] = [];
             var inputErrorRow = inputError[row];
 
             for(var featIndex = 0, len = input.length; featIndex < len; featIndex++) { //loop through each feature (node)
@@ -246,9 +248,11 @@ export abstract class BaseNode<T extends Node> {
                     deltaTotal += inputErrorRow[outputIndex] * activationError.weights[outputIndex][featIndex] * sigPrime;
                 }
 
-                delta.input[row][featIndex] = deltaTotal;
+                delatInput[featIndex] = deltaTotal;
                 this.calculateWeightError(state, row, featIndex, deltaTotal);
             }
+
+            delta.input[row] = delatInput;
         }
     }
 
