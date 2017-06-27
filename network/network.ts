@@ -310,17 +310,19 @@ export class Network {
             for(var date in first.pastState) {
                 var output = first.pastState[date].activation.output;
 
-                for(var i = 0, len = first.pastState[date].activation.input.length; i < len; i++) {
+                for(var i = 0, len = first.pastState[date].activation.rows(); i < len; i++) {
                     var maxAct: number = 0, maxIndex: number, outputIndex = 0;
                     this.network.inputs.forEach(id => {
-                        this.nodes[id].pastState[date].activation.input[i].forEach(act => {
+                        var activation = this.nodes[id].pastState[date].activation;
+                        for(var j = 0; j < activation.columns(); j++) {
+                            var act = activation.get(i, j);
                             if(act > maxAct) {
                                 maxAct = act;
                                 maxIndex = outputIndex;
                             }
 
                             outputIndex++;
-                        });
+                        }
                     });
 
                     if(output[i][maxIndex] == 1) {

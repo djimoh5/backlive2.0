@@ -43,7 +43,7 @@ export class IndicatorNode extends BaseNode<Indicator> {
                 keys.push(key);
             }
 
-            this.activate(new ActivateNodeEvent({ input: actVals, keys: keys, output: null }, event.date));
+            //this.activate(new ActivateNodeEvent({ input: actVals, keys: keys, output: null }, event.date));
         }
 
         Network.timings.indicatorActivation += Date.now() - startTime;

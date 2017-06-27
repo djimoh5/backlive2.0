@@ -31,7 +31,7 @@ void Activate(const Nan::FunctionCallbackInfo<v8::Value>& info) {
             }
 
             //std::printf("%f\n", actTotal);
-            activation[row*nodeLen + nIndex] = actTotal;//1 / (1 + exp(-(actTotal + (*bias)[nIndex])));
+            activation[row*nodeLen + nIndex] = 1 / (1 + exp(-(actTotal + (*bias)[nIndex])));
             //activation[row*nodeLen + nIndex] = useLinear ? actTotal : Sigmoid(actTotal + (*bias)[nIndex]);
         }
     }

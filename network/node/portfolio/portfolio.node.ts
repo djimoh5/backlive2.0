@@ -134,9 +134,9 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     openPositions() {
         var keyVals: { [key: string]: number } = {};
         var activation = this.pastState[this.date].activation;
-        activation.input.forEach((input, index) => {
+        /*activation.input.forEach((input, index) => {
             keyVals[activation.keys[index]] = input[0];
-        });
+        });*/
 
         var tkrs: string[] = Stats.sort(keyVals, true);
         var tkrLen = tkrs.length;
@@ -205,8 +205,8 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         var state = this.pastState[this.prevDate];
 
         if(state.activation && this.numOutputs() === 0) {
-            var actualActivation = new Activation();
-            var error: Activation = new Activation();
+            //var actualActivation = new Activation();
+            //var error: Activation = new Activation();
 
             var marketReturn = (this.marketPrices[this.date] - this.marketPrices[this.prevDate]) / this.marketPrices[this.prevDate];
 
@@ -214,25 +214,25 @@ export class PortfolioNode extends BaseNode<Portfolio> {
             for(var i = 0; key = state.activation.keys[i]; i++) {
                 if(this.prices[key] && this.prevPrices[key]) {
                     var alpha = ((this.prices[key].price + this.prices[key].dividend) / this.prevPrices[key].price) - marketReturn;
-                    actualActivation.input.push([this.sigmoid(alpha)]);
+                    //actualActivation.input.push([this.sigmoid(alpha)]);
                 }
                 else {
-                    state.activation.input.splice(i, 1);
+                    //state.activation.input.splice(i, 1);
                     state.activation.keys.splice(i, 1);
                     i--;
                 }
             }
 
-            var predictedActivation = state.activation.input;
+            /*var predictedActivation = state.activation.input;
             predictedActivation.forEach((input, index) => {
                 error.input.push([Network.costFunction.delta(input[0], actualActivation.input[index][0])]);
                 this.totalCost += Network.costFunction.cost(input[0], actualActivation.input[index][0]);
                 this.trainingCount++;
-            });
+            });*/
 
             if(Network.isLearning) {
                 Network.timings.backpropagation += Date.now() - startTime;
-                super.backpropagate(new BackpropagateEvent({ error: error }, this.prevDate));
+                //super.backpropagate(new BackpropagateEvent({ error: error }, this.prevDate));
             }
             else {
                 //console.log('prediction:', predictedActivation);

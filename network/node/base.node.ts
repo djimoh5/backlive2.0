@@ -16,6 +16,8 @@ import { Stats } from '../lib/stats';
 import { Network } from '../network';
 import { ProcessWrapper } from '../process-wrapper';
 
+var aoA = require('../add-ons/build/Release/activate');
+
 export abstract class BaseNode<T extends Node> {
     protected nodeId: string;
     protected node: T;
@@ -146,14 +148,13 @@ export abstract class BaseNode<T extends Node> {
                 this.initializeWeights();
             }
 
-            var activation = new Activation();
+            var activation = new Activation([this.state.inputActivations[this.node.inputs[0]].rows(), this.numNodes]);
 
             for(var i = 0, id: string; id = this.node.inputs[i]; i++) {
-                var inActivation = this.state.inputActivations[id].input;
-                this.activateMatrix(activation, inActivation, useLinear);
+                this.activateMatrix(activation, this.state.inputActivations[id], useLinear);
             }
 
-            this.learningError.trainingCount += activation.input.length;
+            this.learningError.trainingCount += activation.rows();
 
             activation.output = this.state.inputActivations[this.node.inputs[0]].output;
             activation.keys = this.state.inputActivations[this.node.inputs[0]].keys;
@@ -166,22 +167,21 @@ export abstract class BaseNode<T extends Node> {
         //console.log('node', this.node.name, 'activated');
     }
 
-    activateMatrix(activation: Activation, inActivation: number[][], useLinear: boolean) {
-        for(var row = 0, input: number[]; input = inActivation[row]; row++) {
-            var actInput: number[] = [];
+    activateMatrix(activation: Activation, inActivation: Activation, useLinear: boolean) {
+        aoA.activate(Buffer.from(activation.data().buffer), inActivation.data(), this.node.weights, this.node.bias, this.numNodes, inActivation.columns(), true);
+        /*var featLen = inActivation.columns();
 
-            for(var nIndex = 0, weights: number[]; weights = this.node.weights[nIndex]; nIndex++) { //loop through each node in layer
+        for(var row = 0, len = inActivation.rows(); row < len; row++) {
+            for(var nIndex = 0; nIndex < this.numNodes; nIndex++) { //loop through each node in layer
                 var actTotal = 0;
 
-                for(var featIndex = 0, len = input.length; featIndex < len; featIndex++) {
-                    actTotal += input[featIndex] * weights[featIndex];
+                for(var featIndex = 0, len = featLen; featIndex < len; featIndex++) {
+                    actTotal += inActivation.get(row, featIndex) * this.node.weights[nIndex*featLen + featIndex];
                 }
 
-                actInput[nIndex] = useLinear ? actTotal : this.sigmoid(actTotal + this.node.bias[nIndex]);
+                activation.set(row, nIndex, useLinear ? actTotal : this.sigmoid(actTotal + this.node.bias[nIndex]));
             }
-
-            activation.input[row] = actInput;
-        }
+        }*/
     }
 
     persistActivation(event: ActivateNodeEvent) {
@@ -195,7 +195,7 @@ export abstract class BaseNode<T extends Node> {
         var startTime = Date.now();
 
         var state: State = this.pastState[event.date];
-        var delta = new Activation();
+        var delta: Activation;
 
         if(event.data.weights) {
             state.activationErrors[event.senderId] = event.data;
@@ -213,6 +213,8 @@ export abstract class BaseNode<T extends Node> {
                 this.notify(new BackpropagateCompleteEvent(null, event.date));
                 return; 
             }
+
+            delta = new Activation([state.activation.rows(), state.activation.columns()]);
 
             for(var id in state.activationErrors) {
                 this.backpropagateMatrix(state, delta, state.activationErrors[id]);
@@ -233,26 +235,23 @@ export abstract class BaseNode<T extends Node> {
     }
 
     backpropagateMatrix(state: State, delta: Activation, activationError: ActivationError) {
-        var inputError = activationError.error.input;
+        var outputError = activationError.error;
+        var featLen = state.activation.columns();
+        var outputLen = outputError.columns();
 
-        for(var row = 0, input: number[]; input = state.activation.input[row]; row++) { //loop through each input
-            var delatInput: number[] = [];
-            var inputErrorRow = inputError[row];
-
-            for(var featIndex = 0, len = input.length; featIndex < len; featIndex++) { //loop through each feature (node)
-                var feature = input[featIndex];
+        for(var row = 0, len = state.activation.rows(); row < len; row++) { //loop through each input
+            for(var featIndex = 0; featIndex < featLen; featIndex++) { //loop through each feature (node)
+                var feature = state.activation.get(row, featIndex);
                 var sigPrime = feature * (1 - feature);
                 var deltaTotal = 0;
 
-                for(var outputIndex = 0, len = inputErrorRow.length; outputIndex < len; outputIndex++) { //loop through each output error node
-                    deltaTotal += inputErrorRow[outputIndex] * activationError.weights[outputIndex][featIndex] * sigPrime;
+                for(var oIndex = 0; oIndex < outputLen; oIndex++) { //loop through each output error node
+                    deltaTotal += outputError.get(row, oIndex) * activationError.weights[oIndex*featLen + featIndex] * sigPrime;
                 }
 
-                delatInput[featIndex] = deltaTotal;
+                delta.set(row, featIndex, deltaTotal);
                 this.calculateWeightError(state, row, featIndex, deltaTotal);
             }
-
-            delta.input[row] = delatInput;
         }
     }
 
@@ -261,10 +260,10 @@ export abstract class BaseNode<T extends Node> {
         this.learningError.totalBias[featIndex] += featDelta;
 
         for(var i = 0, id: string; id = this.node.inputs[i]; i++) {
-            var input = state.inputActivations[id].input[row];
+            var inActivation = state.inputActivations[id];
 
-            for(var wIndex = 0, len = input.length; wIndex < len; wIndex++) {
-                nodeLearningError[wIndex] += featDelta * input[wIndex];
+            for(var wIndex = 0, len = inActivation.columns(); wIndex < len; wIndex++) {
+                nodeLearningError[wIndex] += featDelta * inActivation.get(row, wIndex);
             }
         }; 
     }
@@ -272,22 +271,20 @@ export abstract class BaseNode<T extends Node> {
     private initializeWeights() {
         var len = this.node.inputs.length;
 
-        if(len === 1 && this.state.inputActivations[this.node.inputs[0]].input[0].length > 1) {
-            len = this.state.inputActivations[this.node.inputs[0]].input[0].length;
+        if(len === 1 && this.state.inputActivations[this.node.inputs[0]].columns() > 1) {
+            len = this.state.inputActivations[this.node.inputs[0]].columns();
         }
 
         if(len > 1) {
-            this.node.bias = [];
-            this.node.weights = [];
+            this.node.bias = new Float32Array(this.numNodes);
+            this.node.weights = new Float32Array(this.numNodes * len);
 
             for(var i = 0; i < this.numNodes; i++) {
                 this.node.bias[i] = Stats.randomNormalDist(0, 1);
-                this.node.weights[i] = [];
-                var wIndex = 0;
 
+                var wIndex = 0;
                 while(wIndex < len) {
-                    var weight: number = Stats.randomNormalDist(0, 1 / Math.sqrt(len));
-                    this.node.weights[i][wIndex++] = weight;
+                    this.node.weights[i*len + wIndex++] = Stats.randomNormalDist(0, 1 / Math.sqrt(len));
                 }
 
                 this.resetError();
@@ -299,9 +296,11 @@ export abstract class BaseNode<T extends Node> {
         var startTime = Date.now();
 
         if(this.node.weights) {
-            for(var nIndex = 0, weights: number[]; weights = this.node.weights[nIndex]; nIndex++) {
-                for(var wIndex = 0, len = weights.length; wIndex < len; wIndex++) {
-                    weights[wIndex] = weights[wIndex] - (learningRate * this.learningError.total[nIndex][wIndex] / this.learningError.trainingCount);
+            var wlen = this.node.weights.length / this.numNodes;
+
+            for(var nIndex = 0; nIndex < this.numNodes; nIndex++) {
+                for(var wIndex = 0; wIndex < wlen; wIndex++) {
+                    this.node.weights[nIndex*wlen + wIndex] = this.node.weights[nIndex*wlen + wIndex] - (learningRate * this.learningError.total[nIndex][wIndex] / this.learningError.trainingCount);
                 }
 
                 this.node.bias[nIndex] = this.node.bias[nIndex] - (learningRate * this.learningError.totalBias[nIndex] / this.learningError.trainingCount);
@@ -319,12 +318,13 @@ export abstract class BaseNode<T extends Node> {
         var startTime = Date.now();
         
         this.learningError = new LearningError();
+        var wlen = this.node.weights.length / this.numNodes;
 
-        for(var nIndex = 0, weights: number[]; weights = this.node.weights[nIndex]; nIndex++) {
+        for(var nIndex = 0; nIndex < this.numNodes; nIndex++) {
             this.learningError.totalBias[nIndex] = 0;
             this.learningError.total[nIndex] = [];
 
-            for(var i = 0, len = weights.length; i < len; i++) {
+            for(var i = 0, len = wlen; i < len; i++) {
                 this.learningError.total[nIndex][i] = 0;
             }
         }
@@ -388,7 +388,7 @@ export enum Normalize {
 
 export class State {
     date: number;
-    activation: Activation = new Activation();
+    activation: Activation;
     inputActivations: { [key: string]: Activation } = {}; //nodeId => Activation
     activationErrors: { [key: string]: ActivationError } = {};
 }

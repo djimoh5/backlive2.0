@@ -25,6 +25,6 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
 }
 
 export interface TrainingData {
-    input: number[][]; 
+    input: number[]; //[][] 
     output: number[][];
 }

@@ -4,20 +4,12 @@ require('./globals.js');
 
 import { Network } from './network';
 
-//new Network();
+new Network();
 
-/*var ffi = require('ffi');
-
-var libm = ffi.Librar('libm', {  
-    'pow': [ 'double', [ 'double', 'double' ] ]
-});
-
-console.log(libm.pow(4, 2)); */
-
-var aoM = require('./add-ons/build/Release/matrix');
+/*var aoM = require('./add-ons/build/Release/matrix');
 var aoA = require('./add-ons/build/Release/activate');
 
-/*** activation ***/
+// activation
 var activation = new Float32Array(3000); //100x30
 var inActivation = new Float32Array(72800); //100x728
 var nodeWeights = new Float32Array(21840); //30x728
@@ -58,8 +50,8 @@ function jsActivate() {
     console.log('run time:', Date.now() - start);
 }
 
-/*** general loop ***/
-/*var len = 2184000;
+// general loop
+var len = 2184000;
 var a = new Float32Array(len);
 var b = new Float32Array(len);
 var c = new Float32Array(len);
@@ -84,6 +76,6 @@ function jsMatrix() {
 
     console.log('run time:', Date.now() - start);
     //return c;
-}*/
+}
 
-activate();
+jsActivate();*/
