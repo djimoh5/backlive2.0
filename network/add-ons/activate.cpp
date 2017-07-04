@@ -136,6 +136,25 @@ void WeightError(float* totalError, float* totalBiasError, Nan::TypedArrayConten
     }
 }
 
+void UpdateWeights(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+    const double learningRate = info[0]->NumberValue();
+    const int trainingCount = info[1]->IntegerValue();
+    const int numNodes = info[2]->IntegerValue();
+    const int wlen = info[3]->IntegerValue();
+    float* weights = (float*) node::Buffer::Data(info[4]->ToObject());
+    float* bias = (float*) node::Buffer::Data(info[5]->ToObject());
+    float* totalError = (float*) node::Buffer::Data(info[6]->ToObject());
+    float* totalBiasError = (float*) node::Buffer::Data(info[7]->ToObject());
+
+    for(size_t nIndex = 0; nIndex < numNodes; nIndex++) {
+        for(size_t wIndex = 0; wIndex < wlen; wIndex++) {
+            weights[nIndex*wlen + wIndex] = weights[nIndex*wlen + wIndex] - (learningRate * totalError[nIndex*wlen + wIndex] / trainingCount);
+        }
+
+        bias[nIndex] -= learningRate * totalBiasError[nIndex] / trainingCount;
+    }
+}
+
 float Sigmoid(float x) {
     return Sigmoid(x, false);
 }
@@ -149,6 +168,7 @@ void Init(v8::Local<v8::Object> exports) {
     exports->Set(Nan::New("activate").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Activate)->GetFunction());
     exports->Set(Nan::New("outputDelta").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(OutputDelta)->GetFunction());
     exports->Set(Nan::New("backpropagate").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Backpropagate)->GetFunction());
+    exports->Set(Nan::New("updateWeights").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(UpdateWeights)->GetFunction());
 }
 
 NODE_MODULE(activate, Init)

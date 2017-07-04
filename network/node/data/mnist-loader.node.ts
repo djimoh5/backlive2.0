@@ -14,7 +14,8 @@ export class MNISTLoaderNode extends BaseDataNode {
 
     currentRecord: number;
     backPropDate: number;
-    numFeatures = 784;
+    numFeatures: number = 784;
+    numClasses: number = 10;
 
     constructor() {
         super();
@@ -54,14 +55,14 @@ export class MNISTLoaderNode extends BaseDataNode {
         var cnt = 0;
 
         Database.mongo.collection(dataType).find({}, (err, cursor) => {
-            cursor.limit(30000);
+            cursor.limit(10000);
             cursor.each((err, result: {}) => {
                 if (result == null) {
                     callback(mnistData);
                 }
                 else {
                     //var input = [], output = [], index = 1;
-                    var output = [], index = 1;
+                    var index = 1;
 
                     var key = 'x' + index++;
                     while(typeof(result[key]) !== 'undefined') {
@@ -69,13 +70,9 @@ export class MNISTLoaderNode extends BaseDataNode {
                         key = 'x' + index++;
                     }
 
-                    //mnistData.input.push(input);
-
                     for(var i = 0; i < 10; i++) {
-                        output[i] = i == result['y'] ? 1 : 0;
+                        mnistData.output.push(i == result['y'] ? 1 : 0);
                     }
-
-                    mnistData.output.push(output);
 
                     if(++cnt % 5000 === 0) {
                         console.log(cnt);
@@ -101,11 +98,10 @@ export class MNISTLoaderNode extends BaseDataNode {
             }
 
             var input = data.input.slice(this.currentRecord * this.numFeatures,  (this.currentRecord + batchSize) * this.numFeatures);
-            var output = data.output.slice(this.currentRecord, this.currentRecord + batchSize);
+            var output = data.output.slice(this.currentRecord * this.numClasses, (this.currentRecord + batchSize) * this.numClasses);
             this.currentRecord += batchSize;
             
-            var activation = new Activation([batchSize, this.numFeatures], null, input);
-            activation.output = output;
+            var activation = new Activation([batchSize, this.numFeatures], input, [batchSize, this.numClasses], output);
             this.activate(new ActivateNodeEvent(activation, date));
         }
         else {

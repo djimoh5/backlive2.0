@@ -195,7 +195,7 @@ export class Network {
             this.nodes[this.dataNode.getNode()._id] = this.dataNode;
 
             //var hiddenLayer = this.createLayer(this.network.hiddenLayers[0].numNodes, this.dataNode, 'hidden');
-            var outputLayer = this.createLayer(trainingData.output[0].length, this.dataNode, 'output');
+            var outputLayer = this.createLayer(10, this.dataNode, 'output');
 
             this.network.inputs = [outputLayer.getNode()._id];
 
@@ -309,13 +309,14 @@ export class Network {
             
             for(var date in first.pastState) {
                 var output = first.pastState[date].activation.output;
+                var numColumns = first.pastState[date].activation.columns();
 
-                for(var i = 0, len = first.pastState[date].activation.rows(); i < len; i++) {
+                for(var row = 0, len = first.pastState[date].activation.rows(); row < len; row++) {
                     var maxAct: number = 0, maxIndex: number, outputIndex = 0;
                     this.network.inputs.forEach(id => {
                         var activation = this.nodes[id].pastState[date].activation;
-                        for(var j = 0; j < activation.columns(); j++) {
-                            var act = activation.get(i, j);
+                        for(var j = 0; j < numColumns; j++) {
+                            var act = activation.get(row, j);
                             if(act > maxAct) {
                                 maxAct = act;
                                 maxIndex = outputIndex;
@@ -325,7 +326,7 @@ export class Network {
                         }
                     });
 
-                    if(output[i][maxIndex] == 1) {
+                    if(output[row*numColumns + maxIndex] == 1) {
                         correct++;
                     }
                     else {

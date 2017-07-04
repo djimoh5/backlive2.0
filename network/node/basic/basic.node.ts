@@ -6,6 +6,8 @@ import { Node, Activation } from '../../../core/service/model/node.model';
 
 import { Network } from '../../network';
 
+var aoA = require('../../add-ons/build/Release/activate');
+
 export class BasicNode extends BaseNode<Node> {
     constructor(private model: Node, nodeService?: typeof NodeService) {
         super(model, nodeService ? nodeService : NodeService);
@@ -18,31 +20,35 @@ export class BasicNode extends BaseNode<Node> {
 
         if(state && this.numOutputs() === 0) {
             var startTime = Date.now();
-            var error: Activation = new Activation([state.activation.rows(), state.activation.columns()]);
+            var delta: Activation = new Activation([state.activation.rows(), state.activation.columns()]);
 
-            for(var row = 0, len = state.activation.rows(); row < len; row++) {
-                for(var oIndex = 0, olen = state.activation.columns(); oIndex < olen; oIndex++) {
+            var totalCost = aoA.outputDelta(Buffer.from(delta.data().buffer), state.activation.data(), event.data.output, 
+                state.activation.rows(), Buffer.from(this.learningError.total.buffer), Buffer.from(this.learningError.totalBias.buffer), 
+                state.inputActivations[this.node.inputs[0]].data());
+            
+            this.totalCost += totalCost;
+            /*for(var row = 0, len = state.activation.rows(); row < len; row++) {
+                for(var oIndex = 0, outputLen = state.activation.columns(); oIndex < outputLen; oIndex++) {
                     var output = state.activation.get(row, oIndex);
-                    var expected = event.data.output[row][oIndex];
-                    
-                    var delta = Network.costFunction.delta(output, expected);
+                    var expected = event.data.output[row*outputLen + oIndex];
+
+                    var deltaVal = Network.costFunction.delta(output, expected);
                     this.totalCost += Network.costFunction.cost(output, expected);
 
-                    error.set(row, oIndex, delta);
+                    delta.set(row, oIndex, deltaVal);
                     
                     if(Network.isLearning) {
-                        this.calculateWeightError(state, row, oIndex, delta);
+                        this.calculateWeightError(state, row, oIndex, deltaVal);
                     }             
                 }
+            }*/
 
-                this.totalCost = this.totalCost / state.activation.columns();
-                this.trainingCount++;
-            }
+            this.trainingCount += state.activation.rows();
             
             Network.timings.cost += Date.now() - startTime;
 
             if(Network.isLearning) {
-                this.backpropagate(new BackpropagateEvent({ error: error }, event.date));
+                this.backpropagate(new BackpropagateEvent({ error: delta }, event.date));
             }
             else {
                 this.notify(new BackpropagateCompleteEvent(null, event.date));

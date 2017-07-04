@@ -168,14 +168,14 @@ export abstract class BaseNode<T extends Node> {
     }
 
     activateMatrix(activation: Activation, inActivation: Activation, useLinear: boolean) {
-        aoA.activate(Buffer.from(activation.data().buffer), inActivation.data(), this.node.weights, this.node.bias, this.numNodes, inActivation.columns(), true);
+        aoA.activate(Buffer.from(activation.data().buffer), inActivation.data(), this.node.weights, this.node.bias, inActivation.rows());
         /*var featLen = inActivation.columns();
 
         for(var row = 0, len = inActivation.rows(); row < len; row++) {
             for(var nIndex = 0; nIndex < this.numNodes; nIndex++) { //loop through each node in layer
                 var actTotal = 0;
 
-                for(var featIndex = 0, len = featLen; featIndex < len; featIndex++) {
+                for(var featIndex = 0; featIndex < featLen; featIndex++) {
                     actTotal += inActivation.get(row, featIndex) * this.node.weights[nIndex*featLen + featIndex];
                 }
 
@@ -217,7 +217,7 @@ export abstract class BaseNode<T extends Node> {
             delta = new Activation([state.activation.rows(), state.activation.columns()]);
 
             for(var id in state.activationErrors) {
-                this.backpropagateMatrix(state, delta, state.activationErrors[id]);
+                this.backpropagateMatrix(delta, state, state.activationErrors[id]);
             }
         }
         else {
@@ -234,8 +234,11 @@ export abstract class BaseNode<T extends Node> {
         //console.log('backpropagating node ', this.node.name, VirtualNodeService.pid);
     }
 
-    backpropagateMatrix(state: State, delta: Activation, activationError: ActivationError) {
-        var outputError = activationError.error;
+    backpropagateMatrix(delta: Activation, state: State, activationError: ActivationError) {
+        aoA.backpropagate(Buffer.from(delta.data().buffer), state.activation, activationError.error, activationError.weights,
+            state.activation.rows(), Buffer.from(this.learningError.total.buffer), Buffer.from(this.learningError.totalBias.buffer),
+            state.inputActivations[this.node.inputs[0]].data());
+        /*var outputError = activationError.error;
         var featLen = state.activation.columns();
         var outputLen = outputError.columns();
 
@@ -252,21 +255,20 @@ export abstract class BaseNode<T extends Node> {
                 delta.set(row, featIndex, deltaTotal);
                 this.calculateWeightError(state, row, featIndex, deltaTotal);
             }
-        }
+        }*/
     }
 
-    calculateWeightError(state: State, row: number, featIndex: number, featDelta: number) {
-        var nodeLearningError = this.learningError.total[featIndex];
+    /*calculateWeightError(state: State, row: number, featIndex: number, featDelta: number) {
         this.learningError.totalBias[featIndex] += featDelta;
 
         for(var i = 0, id: string; id = this.node.inputs[i]; i++) {
             var inActivation = state.inputActivations[id];
 
-            for(var wIndex = 0, len = inActivation.columns(); wIndex < len; wIndex++) {
-                nodeLearningError[wIndex] += featDelta * inActivation.get(row, wIndex);
+            for(var wIndex = 0, weightLen = inActivation.columns(); wIndex < weightLen; wIndex++) {
+                this.learningError.total[featIndex*weightLen + wIndex] += featDelta * inActivation.get(row, wIndex);
             }
         }; 
-    }
+    }*/
 
     private initializeWeights() {
         var len = this.node.inputs.length;
@@ -296,14 +298,19 @@ export abstract class BaseNode<T extends Node> {
         var startTime = Date.now();
 
         if(this.node.weights) {
+            /*var wlen = this.node.weights.length / this.numNodes;
+            aoA.updateWeights(learningRate, this.learningError.trainingCount, this.numNodes, wlen, Buffer.from(this.node.weights.buffer), 
+                Buffer.from(this.node.bias.buffer), Buffer.from(this.learningError.total.buffer), Buffer.from(this.learningError.totalBias.buffer));
+            this.resetError();*/
+
             var wlen = this.node.weights.length / this.numNodes;
 
             for(var nIndex = 0; nIndex < this.numNodes; nIndex++) {
                 for(var wIndex = 0; wIndex < wlen; wIndex++) {
-                    this.node.weights[nIndex*wlen + wIndex] = this.node.weights[nIndex*wlen + wIndex] - (learningRate * this.learningError.total[nIndex][wIndex] / this.learningError.trainingCount);
+                    this.node.weights[nIndex*wlen + wIndex] = this.node.weights[nIndex*wlen + wIndex] - (learningRate * this.learningError.get(nIndex, wIndex) / this.learningError.trainingCount);
                 }
 
-                this.node.bias[nIndex] = this.node.bias[nIndex] - (learningRate * this.learningError.totalBias[nIndex] / this.learningError.trainingCount);
+                this.node.bias[nIndex] -= learningRate * this.learningError.totalBias[nIndex] / this.learningError.trainingCount;
             }
             
             this.resetError();
@@ -311,26 +318,12 @@ export abstract class BaseNode<T extends Node> {
             //console.log(this.node._id, 'weights:', this.node.weights, 'bias:', this.node.bias);
         }
 
-         Network.timings.updateWeight += Date.now() - startTime;
+        Network.timings.updateWeight += Date.now() - startTime;
     }
 
     private resetError() {
         var startTime = Date.now();
-        
-        this.learningError = new LearningError();
-        var wlen = this.node.weights.length / this.numNodes;
-
-        for(var nIndex = 0; nIndex < this.numNodes; nIndex++) {
-            this.learningError.totalBias[nIndex] = 0;
-            this.learningError.total[nIndex] = [];
-
-            for(var i = 0, len = wlen; i < len; i++) {
-                this.learningError.total[nIndex][i] = 0;
-            }
-        }
-
-        this.learningError.trainingCount = 0;
-
+        this.learningError = new LearningError([this.numNodes, this.node.weights.length / this.numNodes]);
         Network.timings.resetError += Date.now() - startTime;
     }
 
@@ -394,7 +387,16 @@ export class State {
 }
 
 export class LearningError {
-    totalBias: number[] = []; 
-    total: number[][] = [];
+    total: Float32Array; //[][];
+    totalBias: Float32Array; //[]; 
     trainingCount: number = 0;
+
+    constructor(private dimensions: [number, number]) {
+        this.total = new Float32Array(dimensions[0] * dimensions[1]);
+        this.totalBias = new Float32Array(dimensions[0]);
+    }
+
+    get(row: number, col: number) {
+        return this.total[row*this.dimensions[1] + col];
+    }
 }
