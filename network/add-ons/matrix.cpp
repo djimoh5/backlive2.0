@@ -40,4 +40,4 @@ void Init(v8::Local<v8::Object> exports) {
     exports->Set(Nan::New("matrix").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Matrix)->GetFunction());
 }
 
-NODE_MODULE(pow, Init)
+NODE_MODULE(matrix, Init)
