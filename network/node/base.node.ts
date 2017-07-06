@@ -235,7 +235,7 @@ export abstract class BaseNode<T extends Node> {
     }
 
     backpropagateMatrix(delta: Activation, state: State, activationError: ActivationError) {
-        aoA.backpropagate(Buffer.from(delta.data().buffer), state.activation, activationError.error, activationError.weights,
+        aoA.backpropagate(Buffer.from(delta.data().buffer), state.activation.data(), activationError.error.data(), activationError.weights,
             state.activation.rows(), Buffer.from(this.learningError.total.buffer), Buffer.from(this.learningError.totalBias.buffer),
             state.inputActivations[this.node.inputs[0]].data());
         /*var outputError = activationError.error;
@@ -246,14 +246,14 @@ export abstract class BaseNode<T extends Node> {
             for(var featIndex = 0; featIndex < featLen; featIndex++) { //loop through each feature (node)
                 var feature = state.activation.get(row, featIndex);
                 var sigPrime = feature * (1 - feature);
-                var deltaTotal = 0;
+                var deltaVal = 0;
 
                 for(var oIndex = 0; oIndex < outputLen; oIndex++) { //loop through each output error node
-                    deltaTotal += outputError.get(row, oIndex) * activationError.weights[oIndex*featLen + featIndex] * sigPrime;
+                    deltaVal += outputError.get(row, oIndex) * activationError.weights[oIndex*featLen + featIndex] * sigPrime;
                 }
 
-                delta.set(row, featIndex, deltaTotal);
-                this.calculateWeightError(state, row, featIndex, deltaTotal);
+                delta.set(row, featIndex, deltaVal);
+                this.calculateWeightError(state, row, featIndex, deltaVal);
             }
         }*/
     }
@@ -298,12 +298,12 @@ export abstract class BaseNode<T extends Node> {
         var startTime = Date.now();
 
         if(this.node.weights) {
-            /*var wlen = this.node.weights.length / this.numNodes;
-            aoA.updateWeights(learningRate, this.learningError.trainingCount, this.numNodes, wlen, Buffer.from(this.node.weights.buffer), 
-                Buffer.from(this.node.bias.buffer), Buffer.from(this.learningError.total.buffer), Buffer.from(this.learningError.totalBias.buffer));
-            this.resetError();*/
-
             var wlen = this.node.weights.length / this.numNodes;
+            aoA.updateWeights(learningRate, this.learningError.trainingCount, this.numNodes, wlen, Buffer.from(this.node.weights.buffer), 
+                Buffer.from(this.node.bias.buffer), this.learningError.total, this.learningError.totalBias);
+            this.resetError();
+
+            /*var wlen = this.node.weights.length / this.numNodes;
 
             for(var nIndex = 0; nIndex < this.numNodes; nIndex++) {
                 for(var wIndex = 0; wIndex < wlen; wIndex++) {
@@ -313,7 +313,7 @@ export abstract class BaseNode<T extends Node> {
                 this.node.bias[nIndex] -= learningRate * this.learningError.totalBias[nIndex] / this.learningError.trainingCount;
             }
             
-            this.resetError();
+            this.resetError();*/
 
             //console.log(this.node._id, 'weights:', this.node.weights, 'bias:', this.node.bias);
         }

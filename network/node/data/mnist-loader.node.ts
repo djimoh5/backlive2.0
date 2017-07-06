@@ -51,11 +51,14 @@ export class MNISTLoaderNode extends BaseDataNode {
     }
 
     private loadHelper(dataType: string, callback: (data: TrainingData) => void) {
-        var mnistData = { input: [], output: [] };
+        var limit = dataType === 'test' ? 10000 : 60000;
+        var mnistData = { input: new Float32Array(this.numFeatures * limit), output: new Float32Array(this.numClasses * limit) };
         var cnt = 0;
+        var xInd = 0;
+        var yInd = 0;
 
         Database.mongo.collection(dataType).find({}, (err, cursor) => {
-            cursor.limit(10000);
+            cursor.limit(limit);
             cursor.each((err, result: {}) => {
                 if (result == null) {
                     callback(mnistData);
@@ -66,12 +69,12 @@ export class MNISTLoaderNode extends BaseDataNode {
 
                     var key = 'x' + index++;
                     while(typeof(result[key]) !== 'undefined') {
-                        mnistData.input.push(result[key] / 255);
+                        mnistData.input[xInd++] = result[key] / 255;
                         key = 'x' + index++;
                     }
 
                     for(var i = 0; i < 10; i++) {
-                        mnistData.output.push(i == result['y'] ? 1 : 0);
+                        mnistData.output[yInd++] = i == result['y'] ? 1 : 0;
                     }
 
                     if(++cnt % 5000 === 0) {
@@ -97,8 +100,8 @@ export class MNISTLoaderNode extends BaseDataNode {
                 this.notify(new UpdateNodeWeightsEvent(.5));
             }
 
-            var input = data.input.slice(this.currentRecord * this.numFeatures,  (this.currentRecord + batchSize) * this.numFeatures);
-            var output = data.output.slice(this.currentRecord * this.numClasses, (this.currentRecord + batchSize) * this.numClasses);
+            var input = (<Float32Array>data.input).subarray(this.currentRecord * this.numFeatures,  (this.currentRecord + batchSize) * this.numFeatures);
+            var output = (<Float32Array>data.output).subarray(this.currentRecord * this.numClasses, (this.currentRecord + batchSize) * this.numClasses);
             this.currentRecord += batchSize;
             
             var activation = new Activation([batchSize, this.numFeatures], input, [batchSize, this.numClasses], output);

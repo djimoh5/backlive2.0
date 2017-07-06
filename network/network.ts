@@ -190,12 +190,12 @@ export class Network {
     createNetwork() {
         this.dataNode.load(trainingData => {
             this.resetNetwork();
-            this.network = new NetworkModel(.5, 2, [30], 1);
+            this.network = new NetworkModel(.5, 30, [30], 1);
             
             this.nodes[this.dataNode.getNode()._id] = this.dataNode;
 
-            //var hiddenLayer = this.createLayer(this.network.hiddenLayers[0].numNodes, this.dataNode, 'hidden');
-            var outputLayer = this.createLayer(10, this.dataNode, 'output');
+            var hiddenLayer = this.createLayer(this.network.hiddenLayers[0].numNodes, this.dataNode, 'hidden');
+            var outputLayer = this.createLayer(10, hiddenLayer, 'output');
 
             this.network.inputs = [outputLayer.getNode()._id];
 
