@@ -1,8 +1,10 @@
 import { BaseNode } from '../base.node';
-import { DataEvent, DataSubscriptionEvent, ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent } from '../../event/app.event';
+import { DataEvent, DataSubscriptionEvent, DataFeatureEvent, ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent } from '../../event/app.event';
 
 import { IndicatorService } from '../../../core/service/indicator.service';
 import { Indicator } from '../../../core/service/model/indicator.model';
+
+import { Activation } from '../../../core/service/model/node.model';
 
 import { Calculator } from './calculator';
 import { Stats } from '../../lib/stats';
@@ -18,7 +20,7 @@ export class IndicatorNode extends BaseNode<Indicator> {
         this.preserveState = true;
         
         this.subscribe(DataEvent, event => this.processData(event));
-        this.notify(new DataSubscriptionEvent({ params: this.calculator.getIndicatorParams([node]) }), true);
+        this.notify(new DataSubscriptionEvent({ params: this.calculator.getIndicatorParams([node]), isFeature: true }), true);
     }
     
     receive(event: ActivateNodeEvent) {}
@@ -35,15 +37,18 @@ export class IndicatorNode extends BaseNode<Indicator> {
             var vals: { [key: string]: number } = this.calculator.execute(this.node, event.data.cache);
             vals = Stats.percentRank(vals);
 
-            var actVals: number[][] = [];
+            this.notify(new DataFeatureEvent(vals));
+            /*var actVals: number[] = [];
             var keys: string[] = [];
 
             for(var key in vals) {
-                actVals.push([vals[key]]);
+                actVals.push(vals[key]);
                 keys.push(key);
             }
 
-            //this.activate(new ActivateNodeEvent({ input: actVals, keys: keys, output: null }, event.date));
+            var activation = new Activation([actVals.length, 1], actVals);
+            activation.keys = keys;
+            this.activate(new ActivateNodeEvent(activation, event.date));*/
         }
 
         Network.timings.indicatorActivation += Date.now() - startTime;

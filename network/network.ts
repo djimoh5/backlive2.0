@@ -6,7 +6,7 @@ import { VirtualNodeService } from './node/basic/virtual-node.service';
 import { AppEventQueue } from './event/app-event-queue';
 import { Database } from '../core/lib/database';
 
-import { NodeProcessReadyEvent, InitializeDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent, ValidateDataEvent, ActivateNodeEvent } from './event/app.event';
+import { NodeProcessReadyEvent, TrainDataEvent, EpochCompleteEvent, UpdateNodeWeightsEvent, ValidateDataEvent, ActivateNodeEvent } from './event/app.event';
 
 import { NodeConfig } from './node/node.config';
 import { Node, NodeType } from '../core/service/model/node.model';
@@ -26,7 +26,10 @@ import { ICostFunction, CostFunctionType, CostFunctionFactory } from './lib/cost
 import { ProcessWrapper } from './process-wrapper';
 
 export class Network {
-    network: NetworkModel;
+    static network: NetworkModel;
+    get network(): NetworkModel { return Network.network; };
+    set network(network: NetworkModel) { Network.network = network; };
+
     nodes:  NodeMap<BaseNode<any>> = {};
     hiddenLayers: NetworkLayerNode[] = [];
     private networkService: NetworkService;
@@ -62,7 +65,7 @@ export class Network {
             console.log('Database opened');
             this.executionNode = new BacktestExecutionNode();
             this.dataNode = new MNISTLoaderNode(); //new DataLoaderNode();
-            this.createNetwork();
+            this.create(.5, 30, [100], 5);
         });
     }
 
@@ -164,7 +167,7 @@ export class Network {
                     console.log('process for node', event.data, 'ready');
                     if(--pendingProcesses === 0) {
                         this.startTime = Date.now();
-                        AppEventQueue.notify(new InitializeDataEvent(null));
+                        AppEventQueue.notify(new TrainDataEvent(null));
                     }
                 });
 
@@ -180,22 +183,26 @@ export class Network {
             else {
                 this.startTime = Date.now();
                 this.prevStartTime = this.startTime;
-                AppEventQueue.notify(new InitializeDataEvent(null));
+                AppEventQueue.notify(new TrainDataEvent(null));
             }
         };
 
         this.loadNetwork(network, rootNode);
     }
 
-    createNetwork() {
-        this.dataNode.load(trainingData => {
-            this.resetNetwork();
-            this.network = new NetworkModel(.5, 30, [30], 1);
-            
-            this.nodes[this.dataNode.getNode()._id] = this.dataNode;
+    create(learningRate: number, numEpochs: number, hiddenLayers: number[], regParam: number) {
+        this.resetNetwork();
+        this.network = new NetworkModel(learningRate, numEpochs, hiddenLayers, regParam);
 
-            var hiddenLayer = this.createLayer(this.network.hiddenLayers[0].numNodes, this.dataNode, 'hidden');
-            var outputLayer = this.createLayer(10, hiddenLayer, 'output');
+        this.dataNode.load(trainingData => {
+            this.nodes[this.dataNode.getNode()._id] = this.dataNode;
+            var inputLayer: BaseNode<Node> = this.dataNode;
+
+            hiddenLayers.forEach((numNodes, index) => {
+                inputLayer = this.createLayer(numNodes, inputLayer, 'hidden' + index);
+            }); 
+            
+            var outputLayer = this.createLayer(this.dataNode.classSize, inputLayer, 'output');
 
             this.network.inputs = [outputLayer.getNode()._id];
 
@@ -259,7 +266,7 @@ export class Network {
 
         if(Network.isLearning) {
             this.epochCount++;
-            AppEventQueue.notify(new UpdateNodeWeightsEvent(this.network.learnRate));
+            AppEventQueue.notify(new UpdateNodeWeightsEvent(null));
             console.log('completed epoch', this.epochCount);
             console.log('epoch time:', ((Date.now() - this.prevStartTime) / 1000) + 's');
             console.log('epoch timings:', JSON.stringify(Network.timings));
@@ -270,7 +277,7 @@ export class Network {
             //run another epoch
             if(this.epochCount < this.network.epochs) {
                 Network.timings = new NetworkTimings();
-                AppEventQueue.notify(new InitializeDataEvent(null));
+                AppEventQueue.notify(new TrainDataEvent(null));
             }
             else {
                 Network.isLearning = false;
@@ -299,7 +306,7 @@ export class Network {
         });
 
         trainingCount = trainingCount / this.network.inputs.length;
-        console.log('total cost:', totalCost, 'avg. cost:', totalCost / trainingCount, 'training size:', trainingCount);
+        console.log('total cost:', totalCost, 'cost:', totalCost / trainingCount, 'training size:', trainingCount);
     }
 
     private evaluate() {

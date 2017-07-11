@@ -1,4 +1,7 @@
-import { DataEvent, DataSubscriptionEvent, DataFilterEvent, DataFeatureEvent } from '../../event/app.event';
+import { 
+    DataEvent, DataSubscriptionEvent, DataFilterEvent, TrainDataEvent, ValidateDataEvent,
+    BackpropagateCompleteEvent, EpochCompleteEvent
+} from '../../event/app.event';
 import { BaseDataNode, TrainingData, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
 
 import { DataFieldMap, DataCollectionMap } from './field-map';
@@ -17,9 +20,9 @@ export class DataLoaderNode extends BaseDataNode {
     endDate: number;
     filterEvent: DataFilterEvent;
 
-    features: { [key: string]: number }[];
     validationDate: number;
     currentDate: number;
+    backPropDate: number;
 
     nonTickerTypes: IndicatorParamType[] = [IndicatorParamType.Macro];
 
@@ -32,16 +35,14 @@ export class DataLoaderNode extends BaseDataNode {
     datesCache: number[] = [];
     weeks: number[] = [];
 
+    validating: boolean;
+
     executeStartTime: number;
 
     constructor() {
-        super(0, 1);
+        super(1,1);
 
         this.subscribe(DataSubscriptionEvent, event => {
-            if(event.data.isFeature) {
-                this.numFeatures++;
-            }
-            
             this.setFields(event.data.params);
         });
 
@@ -52,118 +53,89 @@ export class DataLoaderNode extends BaseDataNode {
             this.endDate = event.data.endDate;
         });
 
-        this.subscribe(DataFeatureEvent, event => {
-            this.features.push(event.data);
-            if(this.features.length === this.numFeatures) {
-                this.buildTrainingData();
+        this.subscribe(TrainDataEvent, event => {
+            this.backPropDate = null;
+            this.init();
+        });
+
+        this.subscribe(BackpropagateCompleteEvent, event => {
+            if(event.date !== this.backPropDate) {
+                this.backPropDate = event.date;
+                this.nextTick();
             }
+        });
+
+        this.subscribe(ValidateDataEvent, event => {
+            this.validating = true;
+            this.execute();
         });
     }
 
-    buildTrainingData() {
-        //this.trainingData = { input: new Float32Array(this.numFeatures * limit), output: new Float32Array(this.numClasses * limit) };
-        var vals: number[] = [];
-        var keys = this.validating ? this.testDataKeys : this.trainingDataKeys;
+    load(callback: (data: TrainingData) => void) {}
 
-        for(var key in this.features[0]) {
-            var validKey: boolean = true;
-            var tmpVals: number[] = [this.features[0][key]];
-
-            for(var i = 1, feature: { [key: string]: number }; feature = this.features[i]; i++) {
-                if(feature.hasOwnProperty(key)) {
-                    tmpVals.push(feature[key]);
-                }
-                else {
-                    validKey = false;
-                    break;
-                }
-            }
-
-            if(validKey) {
-                vals = vals.concat(tmpVals);
-                keys.push(key);
-            }
-        }
-
-        var newInput: Float32Array;
-        var data = this.validating ? this.testData : this.trainingData;
-
-        if(data.input) {
-            newInput = new Float32Array(data.input.length + vals.length);
-            newInput.set(data.input);
-            newInput.set(vals, data.input.length);
-        }
-        else {
-            newInput = new Float32Array(vals);
-        }
-
-        data.input = newInput;
-        this.features = [];
-    }
-
-    load(callback: (data: TrainingData) => void) {
+    init() {
+        this.validating = false;
         var startTime = Date.now();
 
-        this.features = [];
-        this.trainingData = { input: null, output: null };
-        this.testData = { input: null, output: null };
-        this.trainingDataKeys = [];
-        this.testDataKeys = [];
+        if(this.datesCache.length > 0) {
+            this.dates = this.datesCache.slice(0);
+            Network.timings.data += Date.now() - startTime;
+            this.nextTick();
+        }
+        else {
+            Database.mongo.collection('file_date', (err, collection) => {
+                collection.find({ wk: 1 }).sort({ date: 1 }).toArray((err, results) => {
+                    if (err) {
+                        console.log('Error selecting data: ' + err.message);
+                        return;
+                    } else {
+                        var prevDate;
+                        for (var i = 0, cnt = results.length; i < cnt; i++) {
+                            if (!results[i].hide) {
+                                var date = parseInt(results[i].date.toString());
 
-        Database.mongo.collection('file_date', (err, collection) => {
-            collection.find({ wk: 1 }).sort({ date: 1 }).toArray((err, results) => {
-                if (err) {
-                    console.log('Error selecting data: ' + err.message);
-                    return;
-                } else {
-                    var prevDate;
-                    for (var i = 0, cnt = results.length; i < cnt; i++) {
-                        if (!results[i].hide) {
-                            var date = parseInt(results[i].date.toString());
+                                if(date >= 20070101 && date <= 20170108) {
+                                    if(prevDate && date <= prevDate) {
+                                        console.log("Error: Duplicate network dates fired " + date);
+                                        throw("Duplicate network dates fired " + date);
+                                    }
 
-                            if(date >= 20070101 && date <= 20170108) {
-                                if(prevDate && date <= prevDate) {
-                                    console.log("Error: Duplicate network dates fired " + date);
-                                    throw("Duplicate network dates fired " + date);
+                                    this.dates.push(date);
+                                    this.datesCache.push(date);
+                                    this.weeks.push(results[i].wk);
+                                    prevDate = date;
                                 }
-
-                                this.dates.push(date);
-                                this.datesCache.push(date);
-                                this.weeks.push(results[i].wk);
-                                prevDate = date;
                             }
                         }
+
+                        this.validationDate = 20120108;
                     }
 
-                    this.validationDate = 20120108;
-                }
-
-                Network.timings.data += Date.now() - startTime;
-                callback(null);
+                    Network.timings.data += Date.now() - startTime;
+                    this.nextTick();
+                });
             });
-        });
+        }
     }
 
-    train() {
-        this.dates = this.datesCache.slice(0);
-        super.train();
-    }
-
-    nextBatch() {
+    private nextTick() {
         this.currentDate = this.dates.splice(0, 1)[0];
+        this.execute();
+    }
 
+    execute() {
         if(this.currentDate) {
             this.executeStartTime = Date.now();
 
             if(this.currentDate >= this.validationDate && !this.validating) {
                 Network.timings.data += Date.now() - this.executeStartTime;
-                super.nextBatch();
+                this.notify(new EpochCompleteEvent(null));
                 return;
             }
 
             if(this.dataCache[this.currentDate]) {
                 Network.timings.data += Date.now() - this.executeStartTime;
-                super.nextBatch();
+                this.notify(new DataEvent({ cache: this.dataCache[this.currentDate], allCacheKeys: null }, this.currentDate));
             }
             else {
                 this.data = {};
@@ -205,7 +177,7 @@ export class DataLoaderNode extends BaseDataNode {
             }
         }
         else {
-            super.nextBatch();
+            this.notify(new EpochCompleteEvent(null));
         }
     }
 
@@ -346,7 +318,7 @@ export class DataLoaderNode extends BaseDataNode {
         }
     }
 
-    private getTickerFilter() {
+    getTickerFilter() {
         var filter: { [key: string]: any } = null;
         if(this.filterEvent) {
             filter = {};

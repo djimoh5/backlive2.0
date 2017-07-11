@@ -31,7 +31,7 @@ export enum NodeType {
 export class Activation {
     private input: Float32Array; //[][]
     output: Float32Array; //[][]
-    keys?: string[];
+    keys: string[];
     numRows: number;
 
     constructor(private dimensions: [number, number], inputArr?: number[] | Float32Array, private outputDimensions?: [number, number], outputArr?: number[] | Float32Array) {

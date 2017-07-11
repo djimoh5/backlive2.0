@@ -19,7 +19,7 @@ export class NodeProcessReadyEvent extends BaseEvent<string> {}
 export class ActivateNodeEvent extends BaseEvent<Activation> {}
 
 @AppEvent('Event.Node.UpdateWeights')
-export class UpdateNodeWeightsEvent extends BaseEvent<number> {} //learningRate
+export class UpdateNodeWeightsEvent extends BaseEvent<null> {} //learningRate
 
 /* back propagation events */
 
@@ -32,7 +32,7 @@ export class BackpropagateCompleteEvent extends BaseEvent<null> {}
 /* other events */
 
 @AppEvent('Event.Data.Initialize')
-export class InitializeDataEvent extends BaseEvent<null> {}
+export class TrainDataEvent extends BaseEvent<number> {}
 
 @AppEvent('Event.Data.Validate')
 export class ValidateDataEvent extends BaseEvent<null> {}
@@ -41,7 +41,10 @@ export class ValidateDataEvent extends BaseEvent<null> {}
 export class DataEvent extends BaseEvent<{ cache: DataCache, allCacheKeys?: string[] | number[] }> {}
 
 @AppEvent('Event.Data.Subscription')
-export class DataSubscriptionEvent extends BaseEvent<{ params: IndicatorParam[] }> {}
+export class DataSubscriptionEvent extends BaseEvent<{ params: IndicatorParam[], isFeature?: boolean }> {}
+
+@AppEvent('Event.Data.FeatureEvent')
+export class DataFeatureEvent extends BaseEvent<{ [key: string]: number }> {}
 
 @AppEvent('Event.Data.Filter')
 export class DataFilterEvent extends BaseEvent<{ 

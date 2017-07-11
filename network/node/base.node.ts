@@ -80,7 +80,7 @@ export abstract class BaseNode<T extends Node> {
             });
 
             this.unsubscribe(UpdateNodeWeightsEvent);
-            this.subscribe(UpdateNodeWeightsEvent, event => this.updateWeights(event.data));
+            this.subscribe(UpdateNodeWeightsEvent, event => this.updateWeights());
         }
         else {
             setImmediate(() => { //have to run on next turn or onUpdateInputs won't be set yet
@@ -294,13 +294,13 @@ export abstract class BaseNode<T extends Node> {
         }
     }
 
-    updateWeights(learningRate: number) {
+    updateWeights() {
         var startTime = Date.now();
 
         if(this.node.weights) {
             var wlen = this.node.weights.length / this.numNodes;
-            aoA.updateWeights(learningRate, this.learningError.trainingCount, this.numNodes, wlen, Buffer.from(this.node.weights.buffer), 
-                Buffer.from(this.node.bias.buffer), this.learningError.total, this.learningError.totalBias);
+            aoA.updateWeights(Network.network.learnRate, this.learningError.trainingCount, this.numNodes, wlen, Buffer.from(this.node.weights.buffer), 
+                Buffer.from(this.node.bias.buffer), this.learningError.total, this.learningError.totalBias, Network.network.learnRate);
             this.resetError();
 
             /*var wlen = this.node.weights.length / this.numNodes;
