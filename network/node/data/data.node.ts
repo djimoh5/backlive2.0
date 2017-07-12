@@ -29,9 +29,10 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
     batchSize: number;
     backPropDate: number;
 
-    get classSize(): number { return this.numClasses; }
+    get numFeatures(): number { return this._numFeatures; }
+    get numClasses(): number { return this._numClasses; }
     
-    constructor(protected numFeatures: number, protected numClasses: number) {
+    constructor(protected _numFeatures: number, protected _numClasses: number) {
         super(new Node(NodeType.Virtual));
         this.node.name = 'dataNode';
 
@@ -58,8 +59,8 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
     }
 
     setDimensions(numFeatures: number, numClasses: number) {
-        this.numFeatures = numFeatures;
-        this.numClasses = numClasses;
+        this._numFeatures = numFeatures;
+        this._numClasses = numClasses;
     }
     
     abstract load(callback: (data: TrainingData) => void);

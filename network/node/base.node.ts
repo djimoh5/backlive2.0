@@ -75,8 +75,8 @@ export abstract class BaseNode<T extends Node> {
 
         if(node.inputs) {
             this.nodeService.getInputs(node._id).then(nodes => {
-                this.updateInputs(nodes); 
-                if(this.onUpdateInputs) { this.onUpdateInputs(nodes); }
+                this.subscribeInputs(nodes); 
+                if(this.onNodeLoaded) { this.onNodeLoaded(nodes); }
             });
 
             this.unsubscribe(UpdateNodeWeightsEvent);
@@ -84,7 +84,7 @@ export abstract class BaseNode<T extends Node> {
         }
         else {
             setImmediate(() => { //have to run on next turn or onUpdateInputs won't be set yet
-                if(this.onUpdateInputs) { this.onUpdateInputs([]); }
+                if(this.onNodeLoaded) { this.onNodeLoaded([]); }
             });
         }
     }
@@ -98,7 +98,11 @@ export abstract class BaseNode<T extends Node> {
         return this.node;
     }
 
-    updateInputs(nodes: Node[]) {
+    getOutputs(): string[] {
+        return this.outputs;
+    }
+
+    subscribeInputs(nodes: Node[]) {
         this.unsubscribe(ActivateNodeEvent);
         this.subscribe(ActivateNodeEvent,
             event => this.receiveActivation(event), 
@@ -116,7 +120,7 @@ export abstract class BaseNode<T extends Node> {
         this.outputs = outputs;
     }
 
-    onUpdateInputs: (nodes: Node[]) => void;
+    onNodeLoaded: (nodes: Node[]) => void;
 
     protected abstract receive(event: ActivateNodeEvent);
 
@@ -300,7 +304,7 @@ export abstract class BaseNode<T extends Node> {
         if(this.node.weights) {
             var wlen = this.node.weights.length / this.numNodes;
             aoA.updateWeights(Network.network.learnRate, this.learningError.trainingCount, this.numNodes, wlen, Buffer.from(this.node.weights.buffer), 
-                Buffer.from(this.node.bias.buffer), this.learningError.total, this.learningError.totalBias, Network.network.learnRate);
+                Buffer.from(this.node.bias.buffer), this.learningError.total, this.learningError.totalBias, Network.network.regParam ? Network.network.regParam : 0);
             this.resetError();
 
             /*var wlen = this.node.weights.length / this.numNodes;

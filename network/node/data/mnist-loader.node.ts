@@ -10,7 +10,7 @@ export class MNISTLoaderNode extends BaseDataNode {
         this.loadHelper('train', (data) => {
             this.trainingData = data;
 
-            this.loadHelper('test', (data) => {
+            this.loadHelper('test1', (data) => {
                 this.testData = data;
                 callback(this.trainingData);
             });
@@ -18,7 +18,7 @@ export class MNISTLoaderNode extends BaseDataNode {
     }
 
     private loadHelper(dataType: string, callback: (data: TrainingData) => void) {
-        var limit = dataType === 'test' ? 10000 : 60000;
+        var limit = dataType === 'train' ? 60000 : 10000;
         var mnistData = { input: new Float32Array(this.numFeatures * limit), output: new Float32Array(this.numClasses * limit) };
         var cnt = 0;
         var xInd = 0;

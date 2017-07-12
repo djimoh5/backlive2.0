@@ -33,3 +33,5 @@ export class AppEventQueue {
         }
     }
 }
+
+AppEventQueue.global();

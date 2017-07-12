@@ -21,11 +21,7 @@ export class StrategyNode extends BaseNode<Strategy> {
 
     receive(event: ActivateNodeEvent) {
         //console.log('Strategy received an event', event.senderId);
-        if(this.numOutputs() === 1) { //one portfolio is output so just pass through value, as this strategy is the REAL output
-            this.activate(null, false);
-        }
-        else {
-            this.activate();
-        }
+        //for now just pass through activation to portfolios
+        this.activate(event);
     }
 }

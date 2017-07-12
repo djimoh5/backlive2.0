@@ -39,7 +39,7 @@ export class DataLoaderNode extends BaseDataNode {
 
         this.subscribe(DataSubscriptionEvent, event => {
             if(event.data.isFeature) {
-                this.numFeatures++;
+                this._numFeatures++;
             }
             
             this.setFields(event.data.params);

@@ -16,11 +16,8 @@ import { LoadNetworkEvent, ExecuteNetworkEvent } from '../app/component/network/
 import { NetworkLayerNode } from './node/layer.node';
 
 import { BaseDataNode } from './node/data/data.node';
-import { DataLoaderNode } from './node/data/dataloader.node';
-import { MNISTLoaderNode } from './node/data/mnist-loader.node';
 
 import { IExecutionNode } from './node/execution/execution.node';
-import { BacktestExecutionNode } from './node/execution/backtest-execution.node';
 
 import { ICostFunction, CostFunctionType, CostFunctionFactory } from './lib/cost-function';
 import { ProcessWrapper } from './process-wrapper';
@@ -31,11 +28,9 @@ export class Network {
     set network(network: NetworkModel) { Network.network = network; };
 
     nodes:  NodeMap<BaseNode<any>> = {};
-    hiddenLayers: NetworkLayerNode[] = [];
     private networkService: NetworkService;
 
-    dataNode: BaseDataNode;
-    executionNode: IExecutionNode;
+    outputLayer: NetworkLayerNode;
 
     activityState: number = 0;
     onIdle: () => void;
@@ -55,19 +50,20 @@ export class Network {
 
     static timings: NetworkTimings;
 
-    constructor() {
-        AppEventQueue.global();
+    constructor(private dataNode: BaseDataNode, private executionNode?: IExecutionNode) {
         AppEventQueue.subscribe(LoadNetworkEvent, this.subscriberName, event => this.loadNetwork(event.data));
         AppEventQueue.subscribe(ExecuteNetworkEvent, this.subscriberName, event => this.executeNetwork(event.data));
         AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.updateNodeWeights());
 
         Database.open(() => {
             console.log('Database opened');
-            this.executionNode = new BacktestExecutionNode();
-            this.dataNode = new MNISTLoaderNode(); //new DataLoaderNode();
-            this.create(.5, 30, [100], 5);
+            if(this.onReady) {
+                this.onReady();
+            }
         });
     }
+
+    onReady: () => void;
 
     loadNode(node: Node) {
         this.activity(true);
@@ -79,43 +75,27 @@ export class Network {
             this.nodes[node._id].setNode(node);
         }
 
-        this.nodes[node._id].onUpdateInputs = (inputNodes) => this.updateInputNodes(node, inputNodes);
+        this.nodes[node._id].onNodeLoaded = (inputNodes) => this.updateInputNodes(node, inputNodes);
 
         return this.nodes[node._id];
     }
 
     updateInputNodes(node: Node, inputNodes: Node[]) {
-        if(node.ntype === NodeType.Strategy && this.network.hiddenLayers.length > 0 && this.network.hiddenLayers[0].numNodes > 0) {
-            this.insertHiddenLayer(node, inputNodes);
-        }
-        else {
+        if(inputNodes.length) {
             inputNodes.forEach((input, index) => {     
                 var inputNode: BaseNode<any> = this.loadNode(input);
                 inputNode.updateOutput(node);
                 inputNode.layerIndex = index;
             });
         }
+        else {
+            if(node.ntype !== NodeType.Virtual) {
+                var featureOutput = this.nodes[this.nodes[node._id].getOutputs()[0]];
+                featureOutput.getNode().inputs = [this.outputLayer.getNode()._id];
+            }
+        }
 
         this.activity(false);
-    }
-
-    insertHiddenLayer(outputNode: Node, inputNodes: Node[]) {
-        var baseNode = this.nodes[outputNode._id];
-        outputNode.inputs = [];
-
-        var hiddenLayer = new NetworkLayerNode(this.network.hiddenLayers[0].numNodes);
-        hiddenLayer.setInputs(inputNodes);
-        hiddenLayer.nodes.forEach((n, index) => {
-            outputNode.inputs.push(n._id);
-            var node = this.loadNode(n);
-            node.updateOutput(outputNode);
-            node.layerIndex = index;
-        });
-
-        hiddenLayer.updateOutput(outputNode);
-        this.hiddenLayers.push(hiddenLayer);
-
-        baseNode.updateInputs(hiddenLayer.nodes);
     }
 
     resetNetwork() {
@@ -130,16 +110,9 @@ export class Network {
             this.nodes[id].unsubscribe();
             delete this.nodes[id];
         }
-
-        this.hiddenLayers.forEach(layer => { layer.unsubscribe(); });
-        this.hiddenLayers = [];
     }
 
     loadNetwork(network: NetworkModel, rootNode: Node = null) {
-        if(!rootNode) {
-            this.resetNetwork();
-        }
-
         this.network = network;
 
         if(rootNode) {
@@ -154,66 +127,42 @@ export class Network {
     }
 
     executeNetwork(network: NetworkModel, rootNode: Node = null) {
-        this.onIdle = () => {
-            this.printNetwork();
-
-            if(this.multiProcess) {
-                this.initProcesses();
-                var pendingProcesses = 0;
-                var numProcesses = 0;
-
-                AppEventQueue.unsubscribe(this.subscriberName, NodeProcessReadyEvent);
-                AppEventQueue.subscribe(NodeProcessReadyEvent, this.subscriberName, event => {
-                    console.log('process for node', event.data, 'ready');
-                    if(--pendingProcesses === 0) {
-                        this.startTime = Date.now();
-                        AppEventQueue.notify(new TrainDataEvent(null));
-                    }
-                });
-
-                for(var key in this.nodes) {
-                    if(this.nodes[key].numOutputs() > 0) {
-                        pendingProcesses++;
-                        this.nodes[key].useProcess(this.processes[numProcesses++ % this.maxProcesses]); 
-                    }
-                }
-
-                this.prevStartTime = this.startTime;
-            }
-            else {
-                this.startTime = Date.now();
-                this.prevStartTime = this.startTime;
-                AppEventQueue.notify(new TrainDataEvent(null));
-            }
-        };
-
-        this.loadNetwork(network, rootNode);
-    }
-
-    create(learningRate: number, numEpochs: number, hiddenLayers: number[], regParam: number) {
         this.resetNetwork();
-        this.network = new NetworkModel(learningRate, numEpochs, hiddenLayers, regParam);
 
         this.dataNode.load(trainingData => {
             this.nodes[this.dataNode.getNode()._id] = this.dataNode;
             var inputLayer: BaseNode<Node> = this.dataNode;
 
-            hiddenLayers.forEach((numNodes, index) => {
+            network.hiddenLayers.forEach((numNodes, index) => {
                 inputLayer = this.createLayer(numNodes, inputLayer, 'hidden' + index);
             }); 
             
-            var outputLayer = this.createLayer(this.dataNode.classSize, inputLayer, 'output');
+            this.outputLayer = this.createLayer(this.dataNode.numClasses, inputLayer, 'output');
 
-            this.network.inputs = [outputLayer.getNode()._id];
-
-            this.executeNetwork(this.network, outputLayer.getNode());
-
-            /*outputLayer.nodes.forEach((output, index) => {
-                this.network.inputs.push(output._id);
-                var outputNode = this.loadNode(output);
-                outputNode.layerIndex = index;
-            });*/
+            this.loadNetwork(network, this.outputLayer.getNode());
+            if(network.inputs) {
+                this.loadNetwork(this.network);
+            }
         });
+
+        this.onIdle = () => {
+            this.printNetwork();
+
+            if(this.multiProcess) {
+                this.initProcesses();
+                this.prevStartTime = this.startTime;
+            }
+            else {
+                this.startTime = Date.now();
+                this.prevStartTime = this.startTime;
+                AppEventQueue.notify(new TrainDataEvent(this.network.batchSize));
+            }
+        };
+    }
+
+    create(learningRate: number, numEpochs: number, batchSize: number, regParam: number, hiddenLayers: number[]) {
+        this.network = new NetworkModel(learningRate, numEpochs, batchSize, regParam, hiddenLayers);
+        this.executeNetwork(this.network);
     }
 
     private createLayer(numNodes: number, inputLayer: BaseNode<Node>, name?: string) {
@@ -221,43 +170,6 @@ export class Network {
         layer.setInputs([inputLayer.getNode()]);
         this.nodes[layer.getNode()._id] = layer;
         return layer;
-    }
-
-    log(obj: {}) {
-        console.log(JSON.stringify(obj));
-    }
-
-    initProcesses() {
-        this.processes.forEach(process => {
-            process.kill();
-        });
-
-        this.maxProcesses = require('os').cpus().length;
-        this.processes = [];
-                
-        for(var i = 0; i < this.maxProcesses; i++) {
-            this.processes[i] = new ProcessWrapper();
-        }
-    }
-
-    printNetwork() {
-        console.log(this.network);
-
-        /*this.network.inputs.forEach(id => {
-            this.print(this.nodes[id], 0);
-        });*/
-    }
-
-    print<T extends Node>(baseNode: BaseNode<T>, level: number) {
-        level++;
-        var node = baseNode.getNode();
-        console.log(level, " - ", node._id, node.weights);
-
-        if(node.inputs) {
-            node.inputs.forEach(nid => {
-                this.print(this.nodes[nid], level);
-            });
-        }
     }
 
     updateNodeWeights() {
@@ -277,7 +189,7 @@ export class Network {
             //run another epoch
             if(this.epochCount < this.network.epochs) {
                 Network.timings = new NetworkTimings();
-                AppEventQueue.notify(new TrainDataEvent(null));
+                AppEventQueue.notify(new TrainDataEvent(this.network.batchSize));
             }
             else {
                 Network.isLearning = false;
@@ -297,53 +209,107 @@ export class Network {
     }
 
     private calculateCost() {
-        var totalCost = 0, trainingCount = 0;
-        this.network.inputs.forEach(id => {
-            totalCost += this.nodes[id].totalCost;
-            trainingCount += this.nodes[id].trainingCount;
-            this.nodes[id].totalCost = 0;
-            this.nodes[id].trainingCount = 0;
-        });
+        var totalCost = this.outputLayer.totalCost;
+        var trainingCount = this.outputLayer.trainingCount;
+        this.outputLayer.totalCost = 0;
+        this.outputLayer.trainingCount = 0;
 
-        trainingCount = trainingCount / this.network.inputs.length;
         console.log('total cost:', totalCost, 'cost:', totalCost / trainingCount, 'training size:', trainingCount);
     }
 
     private evaluate() {
-        if(this.network.inputs.length > 0) {
-            var first = this.nodes[this.network.inputs[0]];
-            var correct: number = 0, wrong: number = 0;
-            
-            for(var date in first.pastState) {
-                var output = first.pastState[date].activation.output;
-                var numColumns = first.pastState[date].activation.columns();
+        var correct: number = 0, wrong: number = 0;
+        var pastState = this.outputLayer.pastState;
+        
+        for(var date in pastState) {
+            var output = pastState[date].activation.output;
+            var numColumns = pastState[date].activation.columns();
 
-                for(var row = 0, len = first.pastState[date].activation.rows(); row < len; row++) {
-                    var maxAct: number = 0, maxIndex: number, outputIndex = 0;
-                    this.network.inputs.forEach(id => {
-                        var activation = this.nodes[id].pastState[date].activation;
-                        for(var j = 0; j < numColumns; j++) {
-                            var act = activation.get(row, j);
-                            if(act > maxAct) {
-                                maxAct = act;
-                                maxIndex = outputIndex;
-                            }
+            for(var row = 0, len = pastState[date].activation.rows(); row < len; row++) {
+                var maxAct: number = 0, maxIndex: number, outputIndex = 0;
+                var activation = pastState[date].activation;
 
-                            outputIndex++;
-                        }
-                    });
-
-                    if(output[row*numColumns + maxIndex] == 1) {
-                        correct++;
+                for(var j = 0; j < numColumns; j++) {
+                    var act = activation.get(row, j);
+                    if(act > maxAct) {
+                        maxAct = act;
+                        maxIndex = outputIndex;
                     }
-                    else {
-                        wrong++;
-                    }
+
+                    outputIndex++;
+                }
+
+                if(output[row*numColumns + maxIndex] == 1) {
+                    correct++;
+                }
+                else {
+                    wrong++;
                 }
             }
+        }
 
-            console.log(correct, wrong, correct + wrong);
-            console.log(`Validation accuracy ${correct / (correct + wrong) * 100}%`);
+        console.log(correct, wrong, correct + wrong);
+        console.log(`Validation accuracy ${correct / (correct + wrong) * 100}%`);
+
+        if(!this.network.inputs) {
+            process.exit(0);
+        }
+    }
+
+    initProcesses() {
+        this.processes.forEach(process => {
+            process.kill();
+        });
+
+        this.maxProcesses = require('os').cpus().length;
+        this.processes = [];
+                
+        for(var i = 0; i < this.maxProcesses; i++) {
+            this.processes[i] = new ProcessWrapper();
+        }
+
+        var pendingProcesses = 0;
+        var numProcesses = 0;
+
+        AppEventQueue.unsubscribe(this.subscriberName, NodeProcessReadyEvent);
+        AppEventQueue.subscribe(NodeProcessReadyEvent, this.subscriberName, event => {
+            console.log('process for node', event.data, 'ready');
+            if(--pendingProcesses === 0) {
+                this.startTime = Date.now();
+                AppEventQueue.notify(new TrainDataEvent(this.network.batchSize));
+            }
+        });
+
+        for(var key in this.nodes) {
+            if(this.nodes[key].numOutputs() > 0) {
+                pendingProcesses++;
+                this.nodes[key].useProcess(this.processes[numProcesses++ % this.maxProcesses]); 
+            }
+        }
+    }
+
+    printNetwork() {
+        console.log(this.network);
+
+        if(this.network.inputs) {
+            this.network.inputs.forEach(id => {
+                this.print(this.nodes[id], 0);
+            });
+        }
+        else {
+            this.print(this.outputLayer, 0);
+        }
+    }
+
+    print<T extends Node>(baseNode: BaseNode<T>, level: number) {
+        level++;
+        var node = baseNode.getNode();
+        console.log(level, " - ", node._id, baseNode.numNodes, node.weights);
+
+        if(node.inputs) {
+            node.inputs.forEach(nid => {
+                this.print(this.nodes[nid], level);
+            });
         }
     }
 
@@ -356,6 +322,10 @@ export class Network {
             this.onIdle();
             this.onIdle = null;
         }
+    }
+
+    log(obj: {}) {
+        console.log(JSON.stringify(obj));
     }
 }
 
