@@ -171,9 +171,10 @@ void UpdateWeights(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     Nan::TypedArrayContents<float> totalBiasError(info[7]);
     const double regParamLambda = info[8]->NumberValue();
 
+    float regParam = 1;//regParamLambda == 0 ? 1 : (1 - learningRate*(regParamLambda/60000));
+
     for(size_t nIndex = 0; nIndex < numNodes; nIndex++) {
         for(size_t wIndex = 0; wIndex < wlen; wIndex++) {
-            float regParam = (1 - learningRate*(regParamLambda/trainingCount));
             weights[nIndex*wlen + wIndex] = regParam * weights[nIndex*wlen + wIndex] - (learningRate * (*totalError)[nIndex*wlen + wIndex] / trainingCount);
         }
 
