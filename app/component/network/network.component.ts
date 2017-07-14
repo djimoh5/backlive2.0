@@ -8,7 +8,7 @@ import { AppService, UserService, NetworkService, BasicNodeService, LookupServic
 
 import { Route } from 'backlive/routes';
 import { Network, Portfolio, Node, NodeType } from 'backlive/service/model';
-import { NodeChangeEvent, ActivateNodeEvent, ExecuteStrategyEvent, ExecuteNetworkEvent, LoadNetworkEvent, RedrawNetworkEvent } from 'backlive/event';
+import { NodeChangeEvent, ActivateNodeEvent, ExecuteStrategyEvent, ExecuteNetworkEvent, LoadNetworkEvent, RedrawNodeEvent } from 'backlive/event';
 
 import { PlatformUI } from 'backlive/utility/ui';
 
@@ -85,9 +85,9 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                 this.loadNetwork(n);
             }
             else {
-                var network = new Network(.5, 50, [3], null);
-                this.networkService.update(network).then(network => {
-                    this.loadNode(network);
+                var network = new Network(.5, 50, 100, null, [5]);
+                this.networkService.update(network).then(network => {                  
+                    this.loadNetwork(network);
                 });
             }
 
@@ -118,7 +118,14 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
 
     loadNode<T extends Node>(node: Node) {
         node['activating'] = node['activated'] = false;
-        this.nodes.push(node);
+
+        var index = this.nodes.findIndex(n => { return n._id === node._id; });
+        if(index >= 0) {
+            this.nodes[index] = node;
+        }
+        else {
+            this.nodes.push(node);
+        }
     }
 
     onLoadInputs(node: Node, inputNodes: Node[]) {
@@ -134,8 +141,6 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         if(inputNode._id) {
             this.onNodeChange(inputNode);
         }
-        
-        this.positionNodes();
     }
 
     onNodeChange(node: Node) {
@@ -144,7 +149,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
                 if(!this.tmpInputMap[key].node.inputs) {
                     this.tmpInputMap[key].node.inputs = [];
                 }
-                
+
                 this.tmpInputMap[key].node.inputs.push(node._id);
                 this.appService.notify(new NodeChangeEvent(this.tmpInputMap[key].node));
                 delete this.tmpInputMap[key];
@@ -205,8 +210,10 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     }
 
     positionNodes(animating: boolean = false) {
-        this.setCanvas();
-        this.appService.notify(new RedrawNetworkEvent(this.network));
+        if(this.network && this.network.inputs) {
+            this.setCanvas();
+            this.appService.notify(new RedrawNodeEvent(this.network.inputs[0]));
+        }
     }
 
     setCanvas() {

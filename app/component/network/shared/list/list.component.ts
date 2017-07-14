@@ -31,7 +31,7 @@ export class NetworkListComponent extends BaseComponent implements OnInit {
     }
 
     newNode() {
-        var network = new Network(.5, 50, [3], null);
+        var network = new Network(.5, 50, 100, null, [5]);
         this.networkService.update(network).then(network => {
             this.nodes.push(network);
             this.selectNode(network);

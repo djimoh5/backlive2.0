@@ -10,7 +10,7 @@ export class AppEventQueue {
         AppEventQueue.eventQueue = new EventQueue();
 
         process.on('message', (event: BaseEvent<any>) => {
-            //console.log('network - from parent process', event);
+            console.log('network - from parent process', event);
             AppEventQueue.notify(event, true);
         });
     }

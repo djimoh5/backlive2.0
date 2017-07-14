@@ -31,14 +31,16 @@ export class PortfolioComponent extends NodeComponent<Portfolio> implements OnIn
     }
 
     update() {
-        console.log('updating portfolio');
         this.portfolioService.update(this.portfolio).then(portfolio => {
             if(portfolio._id) {
                 if(!this.portfolio._id) { //new portfolio
+                    this.portfolio._id = portfolio._id;
                     this.addStrategy();
                 }
+                else {
+                    this.portfolio._id = portfolio._id;
+                }
 
-                this.portfolio._id = portfolio._id;
                 this.nodeChange.emit(this.portfolio);
             }
         });

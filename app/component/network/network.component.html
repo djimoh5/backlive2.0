@@ -1,4 +1,4 @@
-<div [animate]="pageAnimation" *ngIf="eventLoop" class="network">
+<div [animate]="pageAnimation" *ngIf="network" class="network">
     <svg>
         <ng-template ngFor let-node [ngForOf]="nodes" let-i="index">
             <ng-template [ngIf]="node.line">
@@ -22,7 +22,7 @@
         </div>
         <div class="param">
             <label>Hidden Nodes</label>
-            <input type="text"[(ngModel)]="network.hiddenLayers[0].numNodes" class="form-control" (blur)="update()" />
+            <input type="text"[(ngModel)]="network.hiddenLayers[0]" class="form-control" (blur)="update()" />
         </div>
     </div>
     <ng-container *ngFor="let node of nodes; let i = index">

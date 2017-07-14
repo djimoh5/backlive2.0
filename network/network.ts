@@ -51,7 +51,7 @@ export class Network {
     static timings: NetworkTimings;
 
     constructor(private dataNode: BaseDataNode, private executionNode?: IExecutionNode) {
-        AppEventQueue.subscribe(LoadNetworkEvent, this.subscriberName, event => this.loadNetwork(event.data));
+        //AppEventQueue.subscribe(LoadNetworkEvent, this.subscriberName, event => this.loadNetwork(event.data));
         AppEventQueue.subscribe(ExecuteNetworkEvent, this.subscriberName, event => this.executeNetwork(event.data));
         AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.updateNodeWeights());
 
@@ -297,6 +297,7 @@ export class Network {
             });
         }
         else {
+            console.log(this.outputLayer);
             this.print(this.outputLayer, 0);
         }
     }

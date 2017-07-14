@@ -83,10 +83,9 @@ export class BaseController {
     
     private hasKeys(obj) {
         for(var key in obj) {
-            if(obj.hasOwnProperty(key)) {
-                return true;
-            }
-            
+            //if(obj && obj.hasOwnProperty(key)) {
+                //return true;
+            //}
         }
     }
 

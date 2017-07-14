@@ -9,4 +9,4 @@ export class LoadNetworkEvent extends BaseEvent<Network> {}
 export class ExecuteNetworkEvent extends BaseEvent<Network> {}
 
 @SocketEvent('Event.Network.Redraw')
-export class RedrawNetworkEvent extends BaseEvent<Network> {}
+export class RedrawNodeEvent extends BaseEvent<string> {}

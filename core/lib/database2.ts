@@ -1,10 +1,8 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import { Config } from '../config';
 var MongoClient = require('mongodb').MongoClient;
 
 export class Database {
-    //private static IP: string = '127.0.0.1';
+    //private static IP: string = '23.23.204.60';
     private static IP: string = '23.23.204.60';
 
     static mongo: Mongo = null;

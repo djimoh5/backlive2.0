@@ -6,7 +6,7 @@ import { AppService } from 'backlive/service';
 import { NodeService } from '../../service/node.service';
 
 import { Node, NodeType } from 'backlive/service/model';
-import { OpenFooterModalEvent, CloseModalEvent, RedrawNetworkEvent } from 'backlive/event';
+import { OpenFooterModalEvent, CloseFooterModalEvent, RedrawNodeEvent } from 'backlive/event';
 import { NodeChangeEvent, RemoveNodeEvent } from './node.event';
 
 import { NetworkComponent } from '../network/network.component';
@@ -43,7 +43,7 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
             this.update();
             
             if(this.node.inputs && this.node.inputs.length !== this.inputs.length) {
-                this.getInputs();
+                this.getInputs(true);
             }
         }, { filter: (event, index) => { return event.data._id === this.node._id; } });
 
@@ -51,7 +51,9 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
             this.onInputRemoved(event.data);
         }, { filter: (event, index) => { return this.inputs.indexOf(event.data) >= 0; } });
 
-        this.subscribeEvent(RedrawNetworkEvent, event => this.redraw());
+        this.subscribeEvent(RedrawNodeEvent, event => this.redraw(), { 
+            filter: (event, index) => { return this.node._id === event.data; } 
+        });
     }
 
     abstract update()
@@ -113,7 +115,7 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
                 select: (node: Node) => {
                     this.newInput(node);
                     if(node._id) {
-                        this.appService.notify(new CloseModalEvent(null));
+                        this.appService.notify(new CloseFooterModalEvent(null));
                     }
                 }
             }
@@ -156,6 +158,7 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
                 }
 
                 this.setNodeLine(node);
+                this.appService.notify(new RedrawNodeEvent(node._id));
             });
         }
     }

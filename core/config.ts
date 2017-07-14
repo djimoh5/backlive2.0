@@ -1,3 +1,5 @@
+declare var __dirname: any;
+
 export class Config {
     /*** directories ***/
     static BASE_DIR = __dirname + '/..';
@@ -9,7 +11,7 @@ export class Config {
     static DIR_JS = './js/';
 
     /*** databases ***/
-    static MONGO_DB = 'mnist'; //btif
+    static MONGO_DB = 'btif';
     static MONGO_PRICING_DB = 'pricing';
     
     /*** email ***/
