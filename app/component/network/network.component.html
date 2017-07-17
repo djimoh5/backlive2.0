@@ -9,7 +9,7 @@
     </svg>
     <div class="hyper-params clearfix">
         <div class="param">
-            <label>Learning Rate</label>
+            <label>Learn Rate</label>
             <input type="text" [(ngModel)]="network.learnRate" class="form-control" (blur)="update()" />
         </div>
         <div class="param">
@@ -17,11 +17,15 @@
             <input type="text" [(ngModel)]="network.epochs" class="form-control" (blur)="update()" />
         </div>
         <div class="param">
+            <label>Batch Size</label>
+            <input type="text" [(ngModel)]="network.batchSize" class="form-control" (blur)="update()" />
+        </div>
+        <div class="param">
             <label>Reg. Param</label>
             <input type="text" [(ngModel)]="network.regParam" class="form-control" (blur)="update()" />
         </div>
         <div class="param">
-            <label>Hidden Nodes</label>
+            <label>Hid Nodes</label>
             <input type="text"[(ngModel)]="network.hiddenLayers[0]" class="form-control" (blur)="update()" />
         </div>
     </div>

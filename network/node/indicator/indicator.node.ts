@@ -37,7 +37,7 @@ export class IndicatorNode extends BaseNode<Indicator> {
             var vals: { [key: string]: number } = this.calculator.execute(this.node, event.data.cache);
             vals = Stats.percentRank(vals);
 
-            this.notify(new DataFeatureEvent(vals));
+            this.notify(new DataFeatureEvent(vals, event.date));
             /*var actVals: number[] = [];
             var keys: string[] = [];
 
@@ -52,26 +52,5 @@ export class IndicatorNode extends BaseNode<Indicator> {
         }
 
         Network.timings.indicatorActivation += Date.now() - startTime;
-    }
-
-    protected backpropagate(event: BackpropagateEvent) {
-        var startTime = Date.now();
-        
-        var state = this.pastState[event.date];
-
-        if(event.data.weights) {
-            state.activationErrors[event.senderId] = event.data;
-
-            for(var i = 0, len = this.outputs.length; i < len; i++) {
-                if(!state.activationErrors[this.outputs[i]]) {
-                    Network.timings.backpropagation += Date.now() - startTime;
-                    return; //must have backpropagation error from all your outputs to backpropagate yourself
-                }
-            }
-            
-            Network.timings.backpropagation += Date.now() - startTime;
-            this.notify(new BackpropagateCompleteEvent(null, event.date));
-            return;
-        }
     }
 }

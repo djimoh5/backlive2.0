@@ -46,6 +46,9 @@ export class DataSubscriptionEvent extends BaseEvent<{ params: IndicatorParam[],
 @AppEvent('Event.Data.FeatureEvent')
 export class DataFeatureEvent extends BaseEvent<{ [key: string]: number }> {}
 
+@AppEvent('Event.Data.FeatureOutEvent')
+export class DataFeatureOutEvent extends BaseEvent<{ [key: string]: number[] }> {}
+
 @AppEvent('Event.Data.Filter')
 export class DataFilterEvent extends BaseEvent<{ 
     startDate: number, 

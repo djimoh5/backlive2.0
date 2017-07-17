@@ -20,6 +20,8 @@ import { Common } from 'backlive/utility';
 })
 export class StrategyComponent extends NodeComponent<Strategy> implements OnInit {
     @Input() strategy: Strategy;
+
+    executeOnSave: boolean;
     
     constructor(appService: AppService, private strategyService: StrategyService,  private elementRef: ElementRef) {
         super(appService, strategyService);
@@ -35,6 +37,11 @@ export class StrategyComponent extends NodeComponent<Strategy> implements OnInit
                 if(strategy._id) {
                     this.strategy._id = strategy._id;
                     this.nodeChange.emit(this.strategy);
+
+                    if(this.executeOnSave) {
+                        this.executeStrategy();
+                        this.executeOnSave = null;
+                    }
                 }
             });
         }
@@ -74,7 +81,13 @@ export class StrategyComponent extends NodeComponent<Strategy> implements OnInit
     }
 
     executeStrategy() {
-        this.appService.notify(new ExecuteStrategyEvent(this.strategy));
+        if(this.strategy.filter) {
+            this.appService.notify(new ExecuteStrategyEvent(this.strategy));
+        }
+        else {
+            this.executeOnSave = true;
+            this.onEdit();
+        }
     }
     
     getElement() {

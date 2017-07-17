@@ -77,6 +77,8 @@ export abstract class BaseNode<T extends Node> {
             this.nodeService.getInputs(node._id).then(nodes => {
                 this.subscribeInputs(nodes); 
                 if(this.onNodeLoaded) { this.onNodeLoaded(nodes); }
+            }).catch(err => {
+              throw err;
             });
 
             this.unsubscribe(UpdateNodeWeightsEvent);

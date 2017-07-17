@@ -1,8 +1,6 @@
 import { BaseNode, MockSession } from '../base.node';
 
-import { 
-    ActivateNodeEvent, BackpropagateCompleteEvent, BackpropagateEvent, DataEvent, DataSubscriptionEvent
-} from '../../event/app.event';
+import { ActivateNodeEvent, DataEvent, DataFeatureOutEvent, DataSubscriptionEvent } from '../../event/app.event';
 
 import { PortfolioService } from '../../../core/service/portfolio.service';
 import { PricingService } from '../../../core/service/pricing.service';
@@ -10,7 +8,6 @@ import { PricingService } from '../../../core/service/pricing.service';
 import { DataResult } from '../data/data.node';
 
 import { Portfolio } from '../../../core/service/model/portfolio.model';
-import { Activation } from '../../../core/service/model/node.model';
 import { IndicatorParamType } from '../../../core/service/model/indicator.model';
 
 import { Stats } from '../../lib/stats';
@@ -72,6 +69,13 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         this.prices = {};
         this.prevDate = this.date;
         this.date = date;
+        
+        var marketReturn: number = null;
+        var outputs: { [key: string]: number[] } = {};
+
+        if(this.prevDate) {
+            marketReturn = (this.marketPrices[this.date] - this.marketPrices[this.prevDate]) / this.marketPrices[this.prevDate];
+        }
 
         if(this.pricesCache[date]) {
             this.prices = this.pricesCache[date];
@@ -95,6 +99,19 @@ export class PortfolioNode extends BaseNode<Portfolio> {
                         if(tkr.dvp && this.prevDate < tkr.dvx && tkr.dvt == 'Cash') {
                             this.prices[tkr.ticker].dividend = tkr.dvp;
                         }
+
+                        if(this.prevPrices[tkr.ticker]) {
+                            var alpha = (((this.prices[tkr.ticker].price + this.prices[tkr.ticker].dividend) - this.prevPrices[tkr.ticker].price) / this.prevPrices[tkr.ticker].price) - marketReturn;
+                            if(alpha > .002) {
+                                outputs[tkr.ticker] = [1, 0, 0];
+                            }
+                            else if(alpha < -.002) {
+                                outputs[tkr.ticker] = [0, 0, 1];
+                            }
+                            else {
+                                outputs[tkr.ticker] = [0, 1, 0];
+                            }
+                        }
                     }
                 }
             };
@@ -103,6 +120,13 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         }
 
         Network.timings.activation += Date.now() - startTime;
+
+        if(this.prevDate) {
+            this.notify(new DataFeatureOutEvent(outputs, this.prevDate));
+        }
+        else {
+            this.notify(new DataFeatureOutEvent(null, this.date));
+        }
     }
 
     trade() {
@@ -184,62 +208,11 @@ export class PortfolioNode extends BaseNode<Portfolio> {
 
             var state = this.pastState[event.date];
             if(state.activation) {
-                if(this.prevDate) {
-                    this.backpropagate();
-                }
-                else {
-                    this.notify(new BackpropagateCompleteEvent(null));
-                }
-
                 this.trade();
             }
         }
         else {
             this.activate();
-        }
-    }
-
-    backpropagate() {
-        var startTime = Date.now();
-        
-        var state = this.pastState[this.prevDate];
-
-        if(state.activation && this.numOutputs() === 0) {
-            //var actualActivation = new Activation();
-            //var error: Activation = new Activation();
-
-            var marketReturn = (this.marketPrices[this.date] - this.marketPrices[this.prevDate]) / this.marketPrices[this.prevDate];
-
-            var key: string;
-            for(var i = 0; key = state.activation.keys[i]; i++) {
-                if(this.prices[key] && this.prevPrices[key]) {
-                    var alpha = ((this.prices[key].price + this.prices[key].dividend) / this.prevPrices[key].price) - marketReturn;
-                    //actualActivation.input.push([this.sigmoid(alpha)]);
-                }
-                else {
-                    //state.activation.input.splice(i, 1);
-                    state.activation.keys.splice(i, 1);
-                    i--;
-                }
-            }
-
-            /*var predictedActivation = state.activation.input;
-            predictedActivation.forEach((input, index) => {
-                error.input.push([Network.costFunction.delta(input[0], actualActivation.input[index][0])]);
-                this.totalCost += Network.costFunction.cost(input[0], actualActivation.input[index][0]);
-                this.trainingCount++;
-            });*/
-
-            if(Network.isLearning) {
-                Network.timings.backpropagation += Date.now() - startTime;
-                //super.backpropagate(new BackpropagateEvent({ error: error }, this.prevDate));
-            }
-            else {
-                //console.log('prediction:', predictedActivation);
-                //console.log('actual:', actualActivation);
-                
-                this.notify(new BackpropagateCompleteEvent(null, this.prevDate));
-            }
         }
     }
 }

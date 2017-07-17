@@ -53,7 +53,7 @@ export class Network {
     constructor(private dataNode: BaseDataNode, private executionNode?: IExecutionNode) {
         //AppEventQueue.subscribe(LoadNetworkEvent, this.subscriberName, event => this.loadNetwork(event.data));
         AppEventQueue.subscribe(ExecuteNetworkEvent, this.subscriberName, event => this.executeNetwork(event.data));
-        AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.updateNodeWeights());
+        AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.onEpochComplete());
 
         Database.open(() => {
             console.log('Database opened');
@@ -67,7 +67,7 @@ export class Network {
 
     loadNode(node: Node) {
         this.activity(true);
-
+   
         if(!this.nodes[node._id]) {
             this.nodes[node._id] = new (NodeConfig.node(node.ntype))(node);
         }
@@ -82,7 +82,7 @@ export class Network {
 
     updateInputNodes(node: Node, inputNodes: Node[]) {
         if(inputNodes.length) {
-            inputNodes.forEach((input, index) => {     
+            inputNodes.forEach((input, index) => {    
                 var inputNode: BaseNode<any> = this.loadNode(input);
                 inputNode.updateOutput(node);
                 inputNode.layerIndex = index;
@@ -119,9 +119,12 @@ export class Network {
             this.loadNode(rootNode);
         }
         else {
+            this.activity(true);
+
             this.networkService = new NetworkService({ user: { uid: network.uid }, cookies: null });
             this.networkService.getInputs(network._id).then(nodes => {
                 this.loadNode(nodes[0]);
+                this.activity(false);
             });
         }
     }
@@ -141,7 +144,7 @@ export class Network {
 
             this.loadNetwork(network, this.outputLayer.getNode());
             if(network.inputs) {
-                this.loadNetwork(this.network);
+                this.loadNetwork(network);
             }
         });
 
@@ -172,7 +175,7 @@ export class Network {
         return layer;
     }
 
-    updateNodeWeights() {
+    onEpochComplete() {
         ActivateNodeEvent.isSocketEvent = false;
         this.processes.forEach(process => process.clearProcessedEvents());
 
@@ -289,7 +292,7 @@ export class Network {
     }
 
     printNetwork() {
-        console.log(this.network);
+        //console.log(this.network);
 
         if(this.network.inputs) {
             this.network.inputs.forEach(id => {
@@ -297,7 +300,6 @@ export class Network {
             });
         }
         else {
-            console.log(this.outputLayer);
             this.print(this.outputLayer, 0);
         }
     }

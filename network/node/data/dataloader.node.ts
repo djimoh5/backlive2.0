@@ -1,4 +1,4 @@
-import { DataEvent, DataSubscriptionEvent, DataFilterEvent, DataFeatureEvent } from '../../event/app.event';
+import { DataEvent, DataSubscriptionEvent, DataFilterEvent, DataFeatureEvent, DataFeatureOutEvent } from '../../event/app.event';
 import { BaseDataNode, TrainingData, DataCache, DataResult, DateDataResult, ParamValues } from './data.node';
 
 import { DataFieldMap, DataCollectionMap } from './field-map';
@@ -17,14 +17,15 @@ export class DataLoaderNode extends BaseDataNode {
     endDate: number;
     filterEvent: DataFilterEvent;
 
-    features: { [key: string]: number }[];
+    features: { [key: number]: { [key: string]: number }[] }; //date => tkr => features
+    featuresOut: { [key: number]: { [key: string]: number[] } }; //date => tkr => output
+
     validationDate: number;
     currentDate: number;
 
     nonTickerTypes: IndicatorParamType[] = [IndicatorParamType.Macro];
 
     data: DataCache;
-    dataCache: { [key: number]: DataCache } = {};
     allCacheKeys: string[] | number[];
     numFieldTypes: number;
 
@@ -32,16 +33,17 @@ export class DataLoaderNode extends BaseDataNode {
     datesCache: number[] = [];
     weeks: number[] = [];
 
+    loaded: boolean;
     executeStartTime: number;
 
     constructor() {
-        super(0, 1);
+        super(0, 3); //TODO: this needs to be dynamic, prob by updating load to actually load the data
 
         this.subscribe(DataSubscriptionEvent, event => {
             if(event.data.isFeature) {
                 this._numFeatures++;
             }
-            
+
             this.setFields(event.data.params);
         });
 
@@ -53,58 +55,22 @@ export class DataLoaderNode extends BaseDataNode {
         });
 
         this.subscribe(DataFeatureEvent, event => {
-            this.features.push(event.data);
-            if(this.features.length === this.numFeatures) {
-                this.buildTrainingData();
-            }
+            this.features[event.date].push(event.data);
+            this.buildTrainingData(event.date);
         });
-    }
 
-    buildTrainingData() {
-        //this.trainingData = { input: new Float32Array(this.numFeatures * limit), output: new Float32Array(this.numClasses * limit) };
-        var vals: number[] = [];
-        var keys = this.validating ? this.testDataKeys : this.trainingDataKeys;
-
-        for(var key in this.features[0]) {
-            var validKey: boolean = true;
-            var tmpVals: number[] = [this.features[0][key]];
-
-            for(var i = 1, feature: { [key: string]: number }; feature = this.features[i]; i++) {
-                if(feature.hasOwnProperty(key)) {
-                    tmpVals.push(feature[key]);
-                }
-                else {
-                    validKey = false;
-                    break;
-                }
-            }
-
-            if(validKey) {
-                vals = vals.concat(tmpVals);
-                keys.push(key);
-            }
-        }
-
-        var newInput: Float32Array;
-        var data = this.validating ? this.testData : this.trainingData;
-
-        if(data.input) {
-            newInput = new Float32Array(data.input.length + vals.length);
-            newInput.set(data.input);
-            newInput.set(vals, data.input.length);
-        }
-        else {
-            newInput = new Float32Array(vals);
-        }
-
-        data.input = newInput;
-        this.features = [];
+        this.subscribe(DataFeatureOutEvent, event => {
+            this.featuresOut[event.date] = event.data;
+            this.buildTrainingData(event.date);
+        });
     }
 
     load(callback: (data: TrainingData) => void) {
         var startTime = Date.now();
 
-        this.features = [];
+        this.features = {};
+        this.featuresOut = {};
+
         this.trainingData = { input: null, output: null };
         this.testData = { input: null, output: null };
         this.trainingDataKeys = [];
@@ -121,7 +87,7 @@ export class DataLoaderNode extends BaseDataNode {
                         if (!results[i].hide) {
                             var date = parseInt(results[i].date.toString());
 
-                            if(date >= 20070101 && date <= 20170108) {
+                            if(date >= 20150101 && date <= 20170108) {
                                 if(prevDate && date <= prevDate) {
                                     console.log("Error: Duplicate network dates fired " + date);
                                     throw("Duplicate network dates fired " + date);
@@ -135,7 +101,7 @@ export class DataLoaderNode extends BaseDataNode {
                         }
                     }
 
-                    this.validationDate = 20120108;
+                    this.validationDate = 20160108;
                 }
 
                 Network.timings.data += Date.now() - startTime;
@@ -145,67 +111,125 @@ export class DataLoaderNode extends BaseDataNode {
     }
 
     train() {
-        this.dates = this.datesCache.slice(0);
-        super.train();
+        if(this.loaded) {
+            super.train();
+        }
+        else {
+            this.dates = this.datesCache.slice(0);
+            this.loadNextTick();
+            this.loaded = true;
+        }
     }
 
-    nextBatch() {
-        this.currentDate = this.dates.splice(0, 1)[0];
+    private buildTrainingData(date: number) {
+        if(this.features[date].length === this.numFeatures && typeof(this.featuresOut[date]) !== 'undefined') {
+            if(this.featuresOut[date] !== null) {
+                var vals: number[] = [];
+                var valsOut: number[] = [];
+                var keys = this.currentDate < this.validationDate ? this.trainingDataKeys : this.testDataKeys;
 
-        if(this.currentDate) {
-            this.executeStartTime = Date.now();
+                for(var key in this.featuresOut[date]) {
+                    this._numClasses = this.featuresOut[date][key].length;
 
-            if(this.currentDate >= this.validationDate && !this.validating) {
-                Network.timings.data += Date.now() - this.executeStartTime;
-                super.nextBatch();
-                return;
-            }
+                    var validKey: boolean = true;
+                    var tmpVals: number[] = [];
 
-            if(this.dataCache[this.currentDate]) {
-                Network.timings.data += Date.now() - this.executeStartTime;
-                super.nextBatch();
-            }
-            else {
-                this.data = {};
-                this.allCacheKeys = [];
-                this.numFieldTypes = 0;
-                this.ticker = null;
+                    for(var i = 0, feature: { [key: string]: number }; feature = this.features[date][i]; i++) {
+                        if(feature.hasOwnProperty(key)) {
+                            tmpVals.push(feature[key]);
+                        }
+                        else {
+                            validKey = false;
+                            break;
+                        }
+                    }
 
-                console.log(this.currentDate);
-
-                for (var type in this.fields) {
-                    this.numFieldTypes++;
+                    if(validKey) {
+                        vals = vals.concat(tmpVals);
+                        valsOut = valsOut.concat(this.featuresOut[date][key]);
+                        keys.push(key);
+                    }
                 }
 
-                if(this.fields[IndicatorParamType.Ticker]) {
-                    //get tickers first so we can filter other tables
-                    this.loadData(IndicatorParamType.Ticker, this.getTickerFilter(), data => {
-                        this.ticker = [];
-                        var exclADRs = this.filterEvent && this.filterEvent.data.adr === 0;
-                     
-                        for(var tkr in data) {
-                            if(!exclADRs || data[tkr]['adr'] !== 1) {
-                                this.ticker.push(tkr);
-                            }
-                        }
+                var inputs: Float32Array, outputs: Float32Array;
+                var data = this.currentDate < this.validationDate ? this.trainingData : this.testData;
 
-                        for (var type in this.fields) {
-                            var t = parseInt(type);
-                            if(t !== IndicatorParamType.Ticker) {
-                                this.loadData(t);
-                            }
-                        }
-                    });
+                if(data.input) {
+                    inputs = this.appendFloat32Array(<Float32Array>data.input, vals);
+                    outputs = this.appendFloat32Array(<Float32Array>data.output, valsOut);
                 }
                 else {
-                    for (var type in this.fields) {
-                        this.loadData(parseInt(type));
+                    inputs = new Float32Array(vals);
+                    outputs = new Float32Array(valsOut);
+                }
+
+                data.input = inputs;
+                data.output = outputs;
+                delete this.features[date];
+                delete this.featuresOut[date];
+                console.log(date, data.input.length, data.output.length);
+            }
+
+            this.loadNextTick();
+        }
+    }
+
+    private appendFloat32Array(floatArr: Float32Array, arr: number[]) {
+        var appended: Float32Array = new Float32Array(floatArr.length + arr.length);
+        appended.set(floatArr);
+        appended.set(arr, floatArr.length);
+        return appended;
+    }
+
+    private loadNextTick() {
+        if(this.dates.length) {
+            this.executeStartTime = Date.now();
+            
+            this.currentDate = this.dates.splice(0, 1)[0];
+            console.log('loading tick', this.currentDate);
+
+            this.features[this.currentDate] = [];
+
+            this.data = {};
+            this.allCacheKeys = [];
+            this.numFieldTypes = 0;
+            this.ticker = null;
+
+            for (var type in this.fields) {
+                this.numFieldTypes++;
+            }
+
+            if(this.fields[IndicatorParamType.Ticker]) {
+                //get tickers first so we can filter other tables
+                this.loadData(IndicatorParamType.Ticker, this.getTickerFilter(), data => {
+                    this.ticker = [];
+                    var exclADRs = this.filterEvent && this.filterEvent.data.adr === 0;
+                    
+                    for(var tkr in data) {
+                        if(!exclADRs || data[tkr]['adr'] !== 1) {
+                            this.ticker.push(tkr);
+                        }
                     }
+
+                    for (var type in this.fields) {
+                        var t = parseInt(type);
+                        if(t !== IndicatorParamType.Ticker) {
+                            this.loadData(t);
+                        }
+                    }
+                });
+            }
+            else {
+                for (var type in this.fields) {
+                    this.loadData(parseInt(type));
                 }
             }
         }
         else {
-            super.nextBatch();
+            //console.log(this.trainingData);
+            //console.log(this.testData);
+            console.log('data loaded successfully');
+            this.nextBatch();
         }
     }
 
@@ -242,7 +266,6 @@ export class DataLoaderNode extends BaseDataNode {
             
             if (--this.numFieldTypes == 0) {
                 Network.timings.data += Date.now() - this.executeStartTime;
-                this.dataCache[this.currentDate] = this.data;
                 this.notify(new DataEvent({ cache: this.data, allCacheKeys: this.allCacheKeys }, this.currentDate));
             }
         }, filter);

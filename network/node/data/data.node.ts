@@ -72,7 +72,7 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
     nextBatch(date?: number) {
         var data = this.validating ? this.testData : this.trainingData;
         date = date || (this.validating ? (this.currentRecord + this.trainingData.input.length) : this.currentRecord);
-        
+
         if(this.currentRecord < (data.input.length / this.numFeatures)) {
             if(this.currentRecord > 0) {
                 this.notify(new UpdateNodeWeightsEvent(null));
@@ -88,9 +88,11 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
             }
 
             this.currentRecord += this.batchSize;
+            console.log(data.input.length, this.currentRecord)
             this.activate(new ActivateNodeEvent(activation, date));
         }
         else {
+            console.log(data.input.length / this.numFeatures)
             this.notify(new EpochCompleteEvent(null));
         }
     }
