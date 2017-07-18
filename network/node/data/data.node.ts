@@ -78,10 +78,13 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
                 this.notify(new UpdateNodeWeightsEvent(null));
             }
 
-            var input = (<Float32Array>data.input).subarray(this.currentRecord * this.numFeatures,  (this.currentRecord + this.batchSize) * this.numFeatures);
-            var output = (<Float32Array>data.output).subarray(this.currentRecord * this.numClasses, (this.currentRecord + this.batchSize) * this.numClasses);
+            var end = (this.currentRecord + this.batchSize) * this.numFeatures;
+            var input = (<Float32Array>data.input).subarray(this.currentRecord * this.numFeatures,  end < data.input.length ? end : data.input.length);
+
+            end = (this.currentRecord + this.batchSize) * this.numClasses;
+            var output = (<Float32Array>data.output).subarray(this.currentRecord * this.numClasses, end < data.output.length ? end : data.output.length);
             
-            var activation = new Activation([this.batchSize, this.numFeatures], input, [this.batchSize, this.numClasses], output);
+            var activation = new Activation([input.length / this.numFeatures, this.numFeatures], input, [output.length / this.numClasses, this.numClasses], output);
             
             if(this.trainingDataKeys) {
                 activation.keys = (this.validating ? this.testDataKeys : this.trainingDataKeys).slice(this.currentRecord, this.currentRecord + this.batchSize);

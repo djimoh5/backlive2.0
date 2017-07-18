@@ -10,7 +10,7 @@ export class MNISTLoaderNode extends BaseDataNode {
         this.loadHelper('train', (data) => {
             this.trainingData = data;
 
-            this.loadHelper('test1', (data) => {
+            this.loadHelper('test', (data) => {
                 this.testData = data;
                 callback(this.trainingData);
             });
