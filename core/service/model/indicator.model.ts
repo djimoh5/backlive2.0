@@ -12,7 +12,7 @@ export class Indicator extends Node {
     vars: (IndicatorParam | IndicatorParamGroup)[] = [];
     ops: Operator[] = [];
     
-    aggrType: string = 'val';
+    aggrType: AggregationType = AggregationType.Value;
     aggrSpan: number = 6;
     aggrPeriod: AggregationPeriod = AggregationPeriod.Months;
     
@@ -35,7 +35,7 @@ export class Indicator extends Node {
 }
 
 export class SportsIndicator extends Indicator {
-    aggrType: string = 'avg';
+    aggrType: AggregationType = AggregationType.Average;
     aggrSpan: number = 5;
     aggrSpanOpp: number = 0;
     valType: number = 1;

@@ -4,8 +4,8 @@ import { Config } from '../config';
 var MongoClient = require('mongodb').MongoClient;
 
 export class Database {
-    //private static IP: string = '127.0.0.1';
-    private static IP: string = '23.23.204.60';
+    private static IP: string = '127.0.0.1';
+    //private static IP: string = '34.230.238.122';
 
     static mongo: Mongo = null;
     static mongoPricing: Mongo = null;

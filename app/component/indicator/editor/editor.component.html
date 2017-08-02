@@ -29,7 +29,7 @@
                     <option [value]="AggregationType.PercentChange">% Change</option>
                     <option *ngIf="indicator.env !== 'sports'" [value]="AggregationType.GeometricAverage">Geom. Avg.</option>
                 </select>
-                <div [class.hidden]="indicator.aggrType === 'val'" class="inline">
+                <div [class.hidden]="indicator.aggrType == AggregationType.Value" class="inline">
                     <span *ngIf="indicator.env != 'sports' || indicator.aggrSpanType == 1">
                         <span class="last">last</span> <input [(ngModel)]="indicator.aggrSpan" type="text" class="form-control aggr-span" />
                     </span>

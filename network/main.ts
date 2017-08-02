@@ -7,7 +7,10 @@ import { DataLoaderNode } from './node/data/dataloader.node';
 import { MNISTLoaderNode } from './node/data/mnist-loader.node';
 import { BacktestExecutionNode } from './node/execution/backtest-execution.node';
 
-var network = new Network(new DataLoaderNode(), new BacktestExecutionNode());
+var network = new Network(new MNISTLoaderNode(), new BacktestExecutionNode());
 network.onReady = () => {
-    //network.create(.5, 30, 100, 0, [30]);
-};
+    network.create(.5, 30, 100, 0, []);
+}
+
+//var tf = require('nodejs-tensorflow');
+//console.log(tf.version())

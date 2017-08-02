@@ -87,7 +87,7 @@ export class DataLoaderNode extends BaseDataNode {
                         if (!results[i].hide) {
                             var date = parseInt(results[i].date.toString());
 
-                            if(date >= 20150101 && date <= 20170108) {
+                            if(date >= 20120101 && date <= 20170108) {
                                 if(prevDate && date <= prevDate) {
                                     console.log("Error: Duplicate network dates fired " + date);
                                     throw("Duplicate network dates fired " + date);

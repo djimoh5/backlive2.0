@@ -14,6 +14,7 @@ import { Network as NetworkModel } from '../core/service/model/network.model';
 import { LoadNetworkEvent, ExecuteNetworkEvent } from '../app/component/network/network.event';
 
 import { NetworkLayerNode } from './node/layer.node';
+import { TensorFlowNode } from './node/tensorflow/tensorflow.node';
 
 import { BaseDataNode } from './node/data/data.node';
 
@@ -136,11 +137,13 @@ export class Network {
             this.nodes[this.dataNode.getNode()._id] = this.dataNode;
             var inputLayer: BaseNode<Node> = this.dataNode;
 
-            network.hiddenLayers.forEach((numNodes, index) => {
-                inputLayer = this.createLayer(numNodes, inputLayer, 'hidden' + index);
+            this.outputLayer = this.createLayer(TensorFlowNode, 1, inputLayer, 'tensorflow');
+
+            /*network.hiddenLayers.forEach((numNodes, index) => {
+                inputLayer = this.createLayer(NetworkLayerNode, numNodes, inputLayer, 'hidden' + index);
             }); 
             
-            this.outputLayer = this.createLayer(this.dataNode.numClasses, inputLayer, 'output');
+            this.outputLayer = this.createLayer(NetworkLayerNode, this.dataNode.numClasses, inputLayer, 'output');*/
 
             this.loadNetwork(network, this.outputLayer.getNode());
             if(network.inputs) {
@@ -168,8 +171,8 @@ export class Network {
         this.executeNetwork(this.network);
     }
 
-    private createLayer(numNodes: number, inputLayer: BaseNode<Node>, name?: string) {
-        var layer = new NetworkLayerNode(numNodes, name);
+    private createLayer(layerType: typeof NetworkLayerNode, numNodes: number, inputLayer: BaseNode<Node>, name?: string) {
+        var layer = new layerType(numNodes, name);
         layer.setInputs([inputLayer.getNode()]);
         this.nodes[layer.getNode()._id] = layer;
         return layer;

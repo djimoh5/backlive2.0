@@ -132,7 +132,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     trade() {
         if(!Network.isLearning) {
             this.closePositions();
-            this.openPositions();
+            //this.openPositions();
         }
     }
 
