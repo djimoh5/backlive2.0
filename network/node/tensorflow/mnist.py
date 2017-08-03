@@ -1,9 +1,6 @@
 #from tensorflow.examples.tutorials.mnist import input_data
 #mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
-#batch = mnist.train.next_batch(100)
-#print(batch)
-
 import sys, json, numpy as np
 import time
 
@@ -13,16 +10,17 @@ sess = tf.InteractiveSession()
 print('boom')
 startTime = time.time()
 
+#np_input = mnist.train.images
+#np_output = mnist.train.labels
+
 input = sys.stdin.readline()
 output = sys.stdin.readline()
 
-numInputs = 10000
-np_input = np.array(json.loads(input)).reshape((numInputs, 784))
-np_output = np.array(json.loads(output)).reshape((numInputs, 10))
+np_input = np.array(json.loads(input)).reshape((-1, 784))
+np_output = np.array(json.loads(output)).reshape((-1, 10))
 #tf_input = tf.constant(np_input, dtype=tf.float32, shape=[1000, 784])
 #tf_output = tf.constant(np_output, dtype=tf.float32, shape=[1000, 10])
 
-#x = tf.reshape(data, [-1,728,1,1])
 #print(tf_input.eval())
 #print(tf_output.eval())
 
@@ -46,21 +44,29 @@ cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_
 
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 
+numInputs = len(np_input) #or np_input.shape[0]
+print(numInputs)
 batchSize = 100
 loops = int(numInputs / batchSize)
-epochs = 30
+epochs = 2
+
+def shuffle(a, b):
+    assert len(a) == len(b)
+    p = np.random.permutation(len(a))
+    return a[p], b[p]
 
 for _ in range(loops * epochs):
-    #batch = mnist.train.next_batch(100)
-    #print(batch)
-    #shuff = tf.random_shuffle(x)
-    #batch = tf.slice(shuff, [0, 0], [100, 728])
-    start = (_ % batchSize) * batchSize
-    train_step.run(feed_dict={x: np_input[start:batchSize:1], y_: np_output[start:batchSize:1]})
+    start = (_ % loops) * batchSize
+    end = start + batchSize
 
     if start == 0:
+        np_input, np_output = shuffle(np_input, np_output)
+        print('epochs left: {}'.format(epochs))
         epochs = epochs - 1
-        print(epochs)
+
+    train_step.run(feed_dict={x: np_input[start:end:1], y_: np_output[start:end:1]})
+    #batch = mnist.train.next_batch(100)
+    #train_step.run(feed_dict={x: batch[0], y_: batch[1]})
 
 correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
 
@@ -69,4 +75,5 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 print(time.time() - startTime)
 
 print(accuracy.eval(feed_dict={x: np_input, y_: np_output}))
+#print(accuracy.eval(feed_dict={x: mnist.test.images, y_: mnist.test.labels}))
 
