@@ -2,37 +2,65 @@
 
 import { Node } from '../../../core/service/model/node.model';
 import { NetworkLayerNode } from '../layer.node';
+import { Activation } from '../../../core/service/model/node.model';
 
 import { ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent, UpdateNodeWeightsEvent } from '../../event/app.event';
 
 export class TensorFlowNode extends NetworkLayerNode {
+    trainData: Activation;
+    testData: Activation;
+
+    python: any;
+
     constructor(numNodes: number) {
         super(numNodes, 'tensorflow');
     }
 
     receive(event: ActivateNodeEvent) {
-        console.log('i\'m here bitches', event.data.data().length);
-        var input = Array.prototype.slice.call(event.data.data());
-        var output = Array.prototype.slice.call(event.data.output);
+        if(!this.trainData) {
+            this.trainData = event.data;
+            console.log('train:', this.trainData.rows());
+        }
+        else if(!this.testData) {
+            this.testData = event.data;
+            console.log('test:', this.testData.rows());
+            this.run();
+        }
+    }
 
-        var spawn = require('child_process').spawn,
-            py = spawn('python', ['./mnist.py']);
+    private run() {
+        console.log('running tensorflow...');
 
-        py.stdout.on('data', function(data) {
+        if(!this.python) {
+            var spawn = require('child_process').spawn;
+            this.python = spawn('python', ['./mnist.py']);
+        }
+
+        this.python.stdout.on('data', function(data) {
             console.log('yo yo network')
             console.log(data.toString());
         });
 
-        py.stderr.on('data', function(data) {
+        this.python.stderr.on('data', function(data) {
             console.log(data.toString());
         });
 
-        py.stdout.on('end', function() {});
+        this.python.stdout.on('end', function() {});
+
+        this.send(this.trainData);
+        this.send(this.testData);
+    }
+
+    private send(data: Activation) {
+        var input = Array.prototype.slice.call(data.data());
+        var output = Array.prototype.slice.call(data.output);
 
         var inputStr = JSON.stringify(input) + '\n';
         var outputStr = JSON.stringify(output) + '\n';
-        py.stdin.write(inputStr);
-        py.stdin.write(outputStr);
-        //py.stdin.end();
+
+        console.log('start send');
+        this.python.stdin.write(inputStr);
+        this.python.stdin.write(outputStr);
+        console.log('end send');
     }
 }

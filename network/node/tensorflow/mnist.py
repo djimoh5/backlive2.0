@@ -13,17 +13,23 @@ startTime = time.time()
 #np_input = mnist.train.images
 #np_output = mnist.train.labels
 
-input = sys.stdin.readline()
-output = sys.stdin.readline()
+# read input data
+line = sys.stdin.readline()
+np_input = np.array(json.loads(line)).reshape((-1, 784))
 
-np_input = np.array(json.loads(input)).reshape((-1, 784))
-np_output = np.array(json.loads(output)).reshape((-1, 10))
-#tf_input = tf.constant(np_input, dtype=tf.float32, shape=[1000, 784])
-#tf_output = tf.constant(np_output, dtype=tf.float32, shape=[1000, 10])
+line = sys.stdin.readline()
+np_output = np.array(json.loads(line)).reshape((-1, 10))
 
-#print(tf_input.eval())
-#print(tf_output.eval())
+line = sys.stdin.readline()
+np_input_test = np.array(json.loads(line)).reshape((-1, 784))
 
+line = sys.stdin.readline()
+np_output_test = np.array(json.loads(line)).reshape((-1, 10))
+
+#print('{}, {}'.format(len(np_input), len(np_output))
+#print('{}, {}'.format(len(np_input_test), len(np_output_test))
+
+# build graph
 x = tf.placeholder(tf.float32, shape=[None, 784])
 y_ = tf.placeholder(tf.float32, shape=[None, 10])
 
@@ -45,10 +51,9 @@ cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 
 numInputs = len(np_input) #or np_input.shape[0]
-print(numInputs)
 batchSize = 100
 loops = int(numInputs / batchSize)
-epochs = 2
+epochs = 30
 
 def shuffle(a, b):
     assert len(a) == len(b)
@@ -74,6 +79,6 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 print(time.time() - startTime)
 
-print(accuracy.eval(feed_dict={x: np_input, y_: np_output}))
+print(accuracy.eval(feed_dict={x: np_input_test, y_: np_output_test}))
 #print(accuracy.eval(feed_dict={x: mnist.test.images, y_: mnist.test.labels}))
 

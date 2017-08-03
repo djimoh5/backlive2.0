@@ -32,7 +32,6 @@ export class Activation {
     private input: Float32Array; //[][]
     output: Float32Array; //[][]
     keys: string[];
-    numRows: number;
 
     constructor(private dimensions: [number, number], inputArr?: number[] | Float32Array, private outputDimensions?: [number, number], outputArr?: number[] | Float32Array) {
         this.input = inputArr ? (inputArr instanceof Float32Array ? inputArr : new Float32Array(inputArr)) : new Float32Array(dimensions[0] * dimensions[1]);

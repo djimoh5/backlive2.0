@@ -70,13 +70,20 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
     }
 
     nextBatch(date?: number) {
-        var data = this.testData;
         var activation = new Activation(
-            [data.input.length / this._numFeatures, this._numFeatures], data.input, 
-            [data.output.length / this.numClasses, this.numClasses], data.output
+            [this.trainingData.input.length / this._numFeatures, this._numFeatures], this.trainingData.input, 
+            [this.trainingData.output.length / this.numClasses, this.numClasses], this.trainingData.output
         );
 
         this.activate(new ActivateNodeEvent(activation, date));
+
+        activation = new Activation(
+            [this.testData.input.length / this._numFeatures, this._numFeatures], this.testData.input, 
+            [this.testData.output.length / this.numClasses, this.numClasses], this.testData.output
+        );
+
+        this.activate(new ActivateNodeEvent(activation, date));
+        
         /*var data = this.validating ? this.testData : this.trainingData;
         date = date || (this.validating ? (this.currentRecord + this.trainingData.input.length) : this.currentRecord);
 
