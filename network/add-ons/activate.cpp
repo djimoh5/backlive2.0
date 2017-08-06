@@ -6,12 +6,54 @@
 #include <iostream>
 #include <nan.h>
 #include <stdexcept>
+#include "Python.h"
 
 float Sigmoid(float x);
 float Sigmoid(float x, bool derivative);
 float CostFunctionCost(float output, float target);
 float CostFunctionDelta(float output, float target);
 void WeightError(float* totalError, float* totalBiasError, Nan::TypedArrayContents<float>& inActivation, size_t row, size_t featIndex, float featDelta, float featDelta1, float featDelta2, float featDelta3, size_t inputLen, size_t weightLen);
+wchar_t* CharToWChar(char* orig);
+
+wchar_t* CharToWChar(char* orig) {
+    size_t origsize = strlen(orig) + 1;
+    const size_t newsize = 100;
+    size_t convertedChars = 0;
+    wchar_t wcstring[newsize];
+    mbstowcs_s(&convertedChars, wcstring, origsize, orig, _TRUNCATE);
+    wcscat_s(wcstring, L" (wchar_t *)");
+    return wcstring;
+}
+
+void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+    float* activation = (float*) node::Buffer::Data(info[0]->ToObject());
+
+    int argc;
+    wchar_t* argv[1];
+
+    argc = 1;
+    argv[0] = CharToWChar("mnist.py");
+
+    Py_SetProgramName(argv[0]);
+    Py_Initialize();
+    PySys_SetArgv(argc, argv);
+    PyRun_SimpleString("print('Hello World 1')");
+
+    PyObject *obj = Py_BuildValue("s", "./python/mnist.py");
+    FILE *file = _Py_fopen_obj(obj, "r+");
+    if(file != NULL) {
+        PyRun_SimpleFile(file, "./python/mnist.py");
+    }
+    else {
+        std::printf("Error: file is null\n");
+    }
+
+    //File* file = fopen("../node/tensorflow/mnist.py", "r");
+    //PyRun_SimpleFile(file, "../node/tensorflow/mnist.py");
+    PyRun_SimpleString("print('Hello World 2')");
+
+    Py_Finalize();
+}
 
 void Activate(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     float* activation = (float*) node::Buffer::Data(info[0]->ToObject());
@@ -252,7 +294,8 @@ float CostFunctionDelta(float output, float target) {
     return output - target;
 }
 
-void Init(v8::Local<v8::Object> exports) {  
+void Init(v8::Local<v8::Object> exports) {
+    exports->Set(Nan::New("tensorflow").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Tensorflow)->GetFunction());
     exports->Set(Nan::New("activate").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Activate)->GetFunction());
     exports->Set(Nan::New("outputDelta").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(OutputDelta)->GetFunction());
     exports->Set(Nan::New("backpropagate").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Backpropagate)->GetFunction());

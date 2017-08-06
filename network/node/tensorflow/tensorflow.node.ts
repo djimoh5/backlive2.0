@@ -6,6 +6,8 @@ import { Activation } from '../../../core/service/model/node.model';
 
 import { ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent, UpdateNodeWeightsEvent } from '../../event/app.event';
 
+var aoA = require('../../add-ons/build/Release/activate');
+
 export class TensorFlowNode extends NetworkLayerNode {
     trainData: Activation;
     testData: Activation;
@@ -31,9 +33,9 @@ export class TensorFlowNode extends NetworkLayerNode {
     private run() {
         console.log('running tensorflow...');
 
-        if(!this.python) {
+        /*if(!this.python) {
             var spawn = require('child_process').spawn;
-            this.python = spawn('python', ['./mnist.py']);
+            this.python = spawn('python', ['../../add-ons/python/mnist.py']);
         }
 
         this.python.stdout.on('data', function(data) {
@@ -45,22 +47,25 @@ export class TensorFlowNode extends NetworkLayerNode {
             console.log(data.toString());
         });
 
-        this.python.stdout.on('end', function() {});
+        this.python.stdout.on('end', function() {});*/
 
         this.send(this.trainData);
-        this.send(this.testData);
+        //this.send(this.testData);
     }
 
     private send(data: Activation) {
-        var input = Array.prototype.slice.call(data.data());
-        var output = Array.prototype.slice.call(data.output);
+        //var input = Array.prototype.slice.call(data.data());
+        //var output = Array.prototype.slice.call(data.output);
 
-        var inputStr = JSON.stringify(input) + '\n';
-        var outputStr = JSON.stringify(output) + '\n';
+        //var inputStr = JSON.stringify(input) + '\n';
+        //var outputStr = JSON.stringify(output) + '\n';
 
-        console.log('start send');
-        this.python.stdin.write(inputStr);
-        this.python.stdin.write(outputStr);
-        console.log('end send');
+        console.time('send')
+        var buffer = Buffer.from(data.data().buffer);
+        console.log(buffer.length)
+        //this.python.stdin.write(buffer);
+        aoA.tensorflow(buffer);
+        //this.python.stdin.write(Buffer.from(data.output.buffer));
+        console.timeEnd('send');
     }
 }
