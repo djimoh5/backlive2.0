@@ -1,4 +1,5 @@
 // activate.cpp
+
 #include <cmath>
 #include <ctime>
 #include <cstdio>
@@ -6,14 +7,21 @@
 #include <iostream>
 #include <nan.h>
 #include <stdexcept>
+
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "Python.h"
+#include <numpy/arrayobject.h>
+
+using namespace std;
 
 float Sigmoid(float x);
 float Sigmoid(float x, bool derivative);
 float CostFunctionCost(float output, float target);
 float CostFunctionDelta(float output, float target);
 void WeightError(float* totalError, float* totalBiasError, Nan::TypedArrayContents<float>& inActivation, size_t row, size_t featIndex, float featDelta, float featDelta1, float featDelta2, float featDelta3, size_t inputLen, size_t weightLen);
+
 wchar_t* CharToWChar(char* orig);
+int importArray();
 
 wchar_t* CharToWChar(char* orig) {
     size_t origsize = strlen(orig) + 1;
@@ -25,34 +33,114 @@ wchar_t* CharToWChar(char* orig) {
     return wcstring;
 }
 
+int importArray() {
+    import_array();
+}
+
 void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     float* activation = (float*) node::Buffer::Data(info[0]->ToObject());
+    //Nan::TypedArrayContents<float> activation(info[0]);
+    const int rows = info[1]->IntegerValue();
+    const int cols = info[2]->IntegerValue();
+    std::printf("activation: %f %d %d\n ", activation[155], rows, cols);
 
-    int argc;
-    wchar_t* argv[1];
+    npy_intp dims[2] = { rows, cols };
+    int nd = 2;
 
-    argc = 1;
-    argv[0] = CharToWChar("mnist.py");
+    std::exception_ptr eptr;
 
-    Py_SetProgramName(argv[0]);
-    Py_Initialize();
-    PySys_SetArgv(argc, argv);
-    PyRun_SimpleString("print('Hello World 1')");
+    try {
+        Py_Initialize();
+        importArray();
+        //PyInit_activate();
 
-    PyObject *obj = Py_BuildValue("s", "./python/mnist.py");
-    FILE *file = _Py_fopen_obj(obj, "r+");
-    if(file != NULL) {
-        PyRun_SimpleFile(file, "./python/mnist.py");
+        //PyArray_SimpleNew(nd, dims, NPY_FLOAT);
+        //PyArrayObject *alpha = (PyArrayObject*) PyArray_FromDims(nd, dims, NPY_FLOAT);
+        PyObject* npArr = PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT32, activation);
+
+        PyObject *sys = PyImport_ImportModule("sys");
+        PyObject *path = PyObject_GetAttrString(sys, "path");
+		PyList_Append(path, PyUnicode_FromString((char*)"."));
+        PyList_Append(path, PyUnicode_FromString((char*)"./python"));
+
+        PyRun_SimpleString("import os\nprint(os.getcwd())");
+
+        PyObject* pModuleString = PyUnicode_FromString((char*)"mnist");
+        PyObject* pModule = PyImport_Import(pModuleString);
+        Py_DECREF(pModuleString);
+
+        if (!pModule) {
+            cout << "module cannot be imported" << endl;
+            PyErr_Print();
+            return;
+        }
+        
+        PyObject* pFunction = PyObject_GetAttrString(pModule, (char*)"run");
+
+        if (!pFunction || !PyCallable_Check(pFunction)) 
+        {
+            cout << "not callable" << endl;
+            PyErr_Print();
+            Py_DECREF(pModule);
+            return;
+        }
+
+        PyObject *pArgs = PyTuple_New(1);
+        PyTuple_SetItem(pArgs, 0, npArr);
+        PyObject *pReturn = PyObject_CallObject(pFunction, pArgs);
+        Py_DECREF(pArgs);
+
+        printf("Result of call: %ld\n", PyLong_AsLong(pReturn));
+        //printf("Result of call: %f\n", PyFloat_AsDouble(pReturn));
+        Py_DECREF(pReturn);
+        Py_XDECREF(pFunction);
+        Py_DECREF(pModule);
+        
+        //Py_INCREF(npArr);
+
+        /*int argc;
+        wchar_t* argv[1];
+
+        argc = 1;
+        argv[0] = CharToWChar("mnist");
+
+        Py_SetProgramName(argv[0]);
+        PySys_SetArgv(argc, argv);
+        PyRun_SimpleString("print('Hello World 1')");
+
+        PyObject *obj = Py_BuildValue("s", "./python/mnist.py");
+        FILE *file = _Py_fopen_obj(obj, "r+");
+        if(file != NULL) {
+            PyRun_SimpleFile(file, "./python/mnist.py");
+        }
+        else {
+            std::printf("Error: file is null\n");
+        }*/
+
+        //File* file = fopen("../node/tensorflow/mnist.py", "r");
+        //PyRun_SimpleFile(file, "../node/tensorflow/mnist.py");
+        //PyRun_SimpleString("print('Hello World 2')");
+
+        //Py_DECREF(npArr);
+        //Py_Finalize(); crashes program
     }
-    else {
-        std::printf("Error: file is null\n");
+    catch(const std::runtime_error& re)
+    {
+        std::cerr << "Runtime error: " << re.what() << std::endl;
     }
-
-    //File* file = fopen("../node/tensorflow/mnist.py", "r");
-    //PyRun_SimpleFile(file, "../node/tensorflow/mnist.py");
-    PyRun_SimpleString("print('Hello World 2')");
-
-    Py_Finalize();
+    catch(const std::exception& ex)
+    {
+        std::cerr << "Error occurred: " << ex.what() << std::endl;
+    }
+    catch(std::string &ex)
+    {
+        std::cerr << "String errors: " << ex << std::endl;
+    }
+    /*catch(...)
+    {
+        eptr = std::current_exception(); // capture
+        std::cerr << "Unknown exception occurred." << std::endl;
+    }*/
 }
 
 void Activate(const Nan::FunctionCallbackInfo<v8::Value>& info) {

@@ -16,7 +16,7 @@ import { Stats } from '../lib/stats';
 import { Network } from '../network';
 import { ProcessWrapper } from '../process-wrapper';
 
-var aoA = require('../add-ons/build/Release/activate');
+var aoA = require('../add-ons/build/Debug/activate');
 
 export abstract class BaseNode<T extends Node> {
     protected nodeId: string;

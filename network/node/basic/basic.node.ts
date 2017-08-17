@@ -6,7 +6,7 @@ import { Node, Activation } from '../../../core/service/model/node.model';
 
 import { Network } from '../../network';
 
-var aoA = require('../../add-ons/build/Release/activate');
+var aoA = require('../../add-ons/build/Debug/activate');
 
 export class BasicNode extends BaseNode<Node> {
     constructor(private model: Node, nodeService?: typeof NodeService) {

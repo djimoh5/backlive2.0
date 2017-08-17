@@ -6,7 +6,7 @@ import { Activation } from '../../../core/service/model/node.model';
 
 import { ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent, UpdateNodeWeightsEvent } from '../../event/app.event';
 
-var aoA = require('../../add-ons/build/Release/activate');
+var aoA = require('../../add-ons/build/Debug/activate');
 
 export class TensorFlowNode extends NetworkLayerNode {
     trainData: Activation;
@@ -64,7 +64,11 @@ export class TensorFlowNode extends NetworkLayerNode {
         var buffer = Buffer.from(data.data().buffer);
         console.log(buffer.length)
         //this.python.stdin.write(buffer);
-        aoA.tensorflow(buffer);
+        try {
+            aoA.tensorflow(buffer, data.rows(), data.columns());
+        } catch(e) {
+            console.log(e);
+        }
         //this.python.stdin.write(Buffer.from(data.output.buffer));
         console.timeEnd('send');
     }

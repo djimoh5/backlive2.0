@@ -1,0 +1,5 @@
+call print(np.get_include()) in a .py script to get numpy headers location
+copy over numpy to main includes folder:
+e.g.
+cp "C:\Users\dejij\AppData\Local\Programs\Python\Python35\Lib\site-packages\numpy\core\include\numpy" 
+"C:\Users\dejij\AppData\Local\Programs\Python\Python35\include"

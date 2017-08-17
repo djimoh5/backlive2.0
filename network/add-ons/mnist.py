@@ -15,6 +15,7 @@
 #startTime = time.time()
 
 def run(a):
+    print(a[0][155])
     return len(a)
 
 '''
