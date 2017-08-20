@@ -38,44 +38,74 @@ int importArray() {
 }
 
 void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-    float* activation = (float*) node::Buffer::Data(info[0]->ToObject());
-    //Nan::TypedArrayContents<float> activation(info[0]);
-    const int rows = info[1]->IntegerValue();
-    const int cols = info[2]->IntegerValue();
-    std::printf("activation: %f %d %d\n ", activation[155], rows, cols);
+    float* trainData = (float*) node::Buffer::Data(info[0]->ToObject());
+    float* trainLblData = (float*) node::Buffer::Data(info[1]->ToObject());
+    const int trainRows = info[2]->IntegerValue();
+    const int trainCols = info[3]->IntegerValue();
 
-    npy_intp dims[2] = { rows, cols };
+    float* testData = (float*) node::Buffer::Data(info[4]->ToObject());
+    float* testLblData = (float*) node::Buffer::Data(info[5]->ToObject());
+    const int testRows = info[6]->IntegerValue();
+    const int testCols = info[7]->IntegerValue();
+
+    const int numClasses = info[8]->IntegerValue();
+
+    std::printf("train data: %f %d %d\n ", trainData[155], trainRows, trainCols);
+    std::printf("train lbl data: %f %d %d\n ", trainLblData[155], trainRows, numClasses);
+    std::printf("test data: %f %d %d\n ", testData[155], testRows, testCols);
+    std::printf("test lbl data: %f %d %d\n ", testLblData[155], testRows, numClasses);
+
+    npy_intp trainDims[2] = { trainRows, trainCols };
+    npy_intp trainLblDims[2] = { trainRows, numClasses };
+    npy_intp testDims[2] = { testRows, testCols };
+    npy_intp testLblDims[2] = { testRows, numClasses };
     int nd = 2;
 
     std::exception_ptr eptr;
 
     try {
-        Py_Initialize();
-        importArray();
-        //PyInit_activate();
+        //initialize python
+        wchar_t* argv[1];
+        argv[0] = CharToWChar("mnist");
 
-        //PyArray_SimpleNew(nd, dims, NPY_FLOAT);
-        //PyArrayObject *alpha = (PyArrayObject*) PyArray_FromDims(nd, dims, NPY_FLOAT);
-        PyObject* npArr = PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT32, activation);
+        Py_Initialize();
+        Py_SetProgramName(argv[0]);
+        PySys_SetArgv(1, argv);
 
         PyObject *sys = PyImport_ImportModule("sys");
         PyObject *path = PyObject_GetAttrString(sys, "path");
 		PyList_Append(path, PyUnicode_FromString((char*)"."));
-        PyList_Append(path, PyUnicode_FromString((char*)"./python"));
+        PyRun_SimpleString("import sys\nprint(sys.path)");
+        //PyRun_SimpleString("import tensorflow as tf\nprint(tf.__version__)\n");
 
-        PyRun_SimpleString("import os\nprint(os.getcwd())");
-
+        //load python neural network module
         PyObject* pModuleString = PyUnicode_FromString((char*)"mnist");
         PyObject* pModule = PyImport_Import(pModuleString);
         Py_DECREF(pModuleString);
+
+        cout << "imported module" << endl;
 
         if (!pModule) {
             cout << "module cannot be imported" << endl;
             PyErr_Print();
             return;
         }
-        
+
+        //import numpy and convert input buffer to numpy array
+        importArray();
+
+        cout << "imported numpy" << endl;
+
+        PyObject* npTrain = PyArray_SimpleNewFromData(nd, trainDims, NPY_FLOAT32, trainData);
+        PyObject* npTrainLbl = PyArray_SimpleNewFromData(nd, trainLblDims, NPY_FLOAT32, trainLblData);
+        PyObject* npTest = PyArray_SimpleNewFromData(nd, testDims, NPY_FLOAT32, testData);
+        PyObject* npTestLbl = PyArray_SimpleNewFromData(nd, testLblDims, NPY_FLOAT32, testLblData);
+
+        cout << "converted pointers to numpy arrays" << endl;
+
+        //run neural nertwork
         PyObject* pFunction = PyObject_GetAttrString(pModule, (char*)"run");
+        cout << "get function" << endl;
 
         if (!pFunction || !PyCallable_Check(pFunction)) 
         {
@@ -85,8 +115,16 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
             return;
         }
 
-        PyObject *pArgs = PyTuple_New(1);
-        PyTuple_SetItem(pArgs, 0, npArr);
+        cout << "building function args" << endl;
+
+        PyObject *pArgs = PyTuple_New(4);
+        PyTuple_SetItem(pArgs, 0, npTrain);
+        PyTuple_SetItem(pArgs, 1, npTrainLbl);
+        PyTuple_SetItem(pArgs, 2, npTest);
+        PyTuple_SetItem(pArgs, 3, npTestLbl);
+
+        cout << "function args set" << endl;
+
         PyObject *pReturn = PyObject_CallObject(pFunction, pArgs);
         Py_DECREF(pArgs);
 
@@ -96,18 +134,7 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         Py_XDECREF(pFunction);
         Py_DECREF(pModule);
         
-        //Py_INCREF(npArr);
-
-        /*int argc;
-        wchar_t* argv[1];
-
-        argc = 1;
-        argv[0] = CharToWChar("mnist");
-
-        Py_SetProgramName(argv[0]);
-        PySys_SetArgv(argc, argv);
-        PyRun_SimpleString("print('Hello World 1')");
-
+        /*PyRun_SimpleString("print('Hello World 1')");
         PyObject *obj = Py_BuildValue("s", "./python/mnist.py");
         FILE *file = _Py_fopen_obj(obj, "r+");
         if(file != NULL) {
@@ -116,10 +143,6 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         else {
             std::printf("Error: file is null\n");
         }*/
-
-        //File* file = fopen("../node/tensorflow/mnist.py", "r");
-        //PyRun_SimpleFile(file, "../node/tensorflow/mnist.py");
-        //PyRun_SimpleString("print('Hello World 2')");
 
         //Py_DECREF(npArr);
         //Py_Finalize(); crashes program
@@ -136,11 +159,13 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     {
         std::cerr << "String errors: " << ex << std::endl;
     }
-    /*catch(...)
+    catch(...)
     {
         eptr = std::current_exception(); // capture
         std::cerr << "Unknown exception occurred." << std::endl;
-    }*/
+        PyErr_Occurred();
+        PyErr_Print();
+    }
 }
 
 void Activate(const Nan::FunctionCallbackInfo<v8::Value>& info) {

@@ -12,8 +12,6 @@ export class TensorFlowNode extends NetworkLayerNode {
     trainData: Activation;
     testData: Activation;
 
-    python: any;
-
     constructor(numNodes: number) {
         super(numNodes, 'tensorflow');
     }
@@ -32,44 +30,27 @@ export class TensorFlowNode extends NetworkLayerNode {
 
     private run() {
         console.log('running tensorflow...');
-
-        /*if(!this.python) {
-            var spawn = require('child_process').spawn;
-            this.python = spawn('python', ['../../add-ons/python/mnist.py']);
-        }
-
-        this.python.stdout.on('data', function(data) {
-            console.log('yo yo network')
-            console.log(data.toString());
-        });
-
-        this.python.stderr.on('data', function(data) {
-            console.log(data.toString());
-        });
-
-        this.python.stdout.on('end', function() {});*/
-
-        this.send(this.trainData);
-        //this.send(this.testData);
+        this.send();
     }
 
-    private send(data: Activation) {
-        //var input = Array.prototype.slice.call(data.data());
-        //var output = Array.prototype.slice.call(data.output);
-
-        //var inputStr = JSON.stringify(input) + '\n';
-        //var outputStr = JSON.stringify(output) + '\n';
-
+    private send() {
         console.time('send')
-        var buffer = Buffer.from(data.data().buffer);
-        console.log(buffer.length)
-        //this.python.stdin.write(buffer);
+        var trainBuffer = Buffer.from(this.trainData.data().buffer);
+        var trainLblBuffer = Buffer.from(this.trainData.output.buffer);
+        var testBuffer = Buffer.from(this.testData.data().buffer);
+        var testLblBuffer = Buffer.from(this.testData.output.buffer);
+
+        var numClasses = this.trainData.output.length / this.trainData.rows();
+
         try {
-            aoA.tensorflow(buffer, data.rows(), data.columns());
+            aoA.tensorflow(
+                trainBuffer, trainLblBuffer, this.trainData.rows(), this.trainData.columns(),
+                testBuffer, testLblBuffer, this.testData.rows(), this.testData.columns(), numClasses
+            );
         } catch(e) {
             console.log(e);
         }
-        //this.python.stdin.write(Buffer.from(data.output.buffer));
+
         console.timeEnd('send');
     }
 }

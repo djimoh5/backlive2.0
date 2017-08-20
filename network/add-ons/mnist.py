@@ -1,107 +1,80 @@
 #from tensorflow.examples.tutorials.mnist import input_data
 #mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
-#import sys, json, numpy as np
-#import time
-#import ctypes
+import sys, json, numpy as np
+import time
 
 #print(np.get_include())
 
-#import tensorflow as tf
-#sess = tf.InteractiveSession()
+import tensorflow as tf
+print(tf.__version__)
+sess = tf.InteractiveSession()
 
-#print('boom')
-#print(len(sys.argv[0]))
-#startTime = time.time()
+print('boom')
+startTime = time.time()
 
-def run(a):
-    print(a[0][155])
-    return len(a)
+def run(np_input, np_output, np_input_test, np_output_test):
+    print(np_input[0][155])
+    print(np_input_test[0][155])
 
-'''
-np_input = mnist.train.images
-np_output = mnist.train.labels
-np_input_test = mnist.test.images
-np_output_test = mnist.test.labels
+    print(np_input.shape)
+    print(np_output.shape)
+    print(np_input_test.shape)
+    print(np_output_test.shape)
 
-# read input data
+    '''
+    # build graph
+    x = tf.placeholder(tf.float32, shape=[None, 784])
+    y_ = tf.placeholder(tf.float32, shape=[None, 10])
 
-#line = sys.stdin.buffer.readline()
-#print(len(line))
+    Wh = tf.Variable(tf.random_normal([784, 10], stddev=.035), name="h_weights")
+    bh = tf.Variable(tf.random_normal([10], stddev=1.0), name="h_bias")
 
-#line = sys.stdin.buffer.readline()
-#print(len(line))
+    #Wo = tf.Variable(tf.random_normal([30, 10], stddev=.32), name="o_weights")
+    #bo = tf.Variable(tf.random_normal([10], stddev=1.0), name="o_bias")
 
-#for _ in range(len(line)):
-#    print(line[_])
+    sess.run(tf.global_variables_initializer())
 
-#arr = np.frombuffer(line, dtype=np.float32)
-#print(len(arr))
+    y = tf.matmul(x,Wh) + bh
 
-np_input = np.array(json.loads(line)).reshape((-1, 784))
+    #hx = tf.sigmoid(tf.matmul(x,Wh) + bh)
+    #y = tf.matmul(hx,Wo) + bo
 
-line = sys.stdin.readline()
-np_output = np.array(json.loads(line)).reshape((-1, 10))
+    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
 
-line = sys.stdin.readline()
-np_input_test = np.array(json.loads(line)).reshape((-1, 784))
+    train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 
-line = sys.stdin.readline()
-np_output_test = np.array(json.loads(line)).reshape((-1, 10))
-'''
+    numInputs = len(np_input) #or np_input.shape[0]
+    batchSize = 100
+    loops = int(numInputs / batchSize) #TODO: convert to Math.ceil so we don't lose last set of values
+    epochs = 2
 
-#print('{}, {}'.format(len(np_input), len(np_output))
-#print('{}, {}'.format(len(np_input_test), len(np_output_test))
+    def shuffle(a, b):
+        assert len(a) == len(b)
+        p = np.random.permutation(len(a))
+        return a[p], b[p]
 
-# build graph
-'''
-x = tf.placeholder(tf.float32, shape=[None, 784])
-y_ = tf.placeholder(tf.float32, shape=[None, 10])
+    for _ in range(loops * epochs):
+        start = (_ % loops) * batchSize
+        end = start + batchSize
+        end = end if end < numInputs else numInputs
 
-Wh = tf.Variable(tf.random_normal([784, 10], stddev=.035), name="h_weights")
-bh = tf.Variable(tf.random_normal([10], stddev=1.0), name="h_bias")
+        if start == 0:
+            np_input, np_output = shuffle(np_input, np_output)
+            print('epochs left: {}'.format(epochs))
+            epochs = epochs - 1
 
-#Wo = tf.Variable(tf.random_normal([30, 10], stddev=.32), name="o_weights")
-#bo = tf.Variable(tf.random_normal([10], stddev=1.0), name="o_bias")
+        train_step.run(feed_dict={x: np_input[start:end:1], y_: np_output[start:end:1]})
 
-sess.run(tf.global_variables_initializer())
+    correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
 
-y = tf.matmul(x,Wh) + bh
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-#hx = tf.sigmoid(tf.matmul(x,Wh) + bh)
-#y = tf.matmul(hx,Wo) + bo
+    print(time.time() - startTime)
 
-cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
+    print(accuracy.eval(feed_dict={x: np_input_test, y_: np_output_test}))
+    '''
 
-train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
+    return 1
 
-numInputs = len(np_input) #or np_input.shape[0]
-batchSize = 100
-loops = int(numInputs / batchSize) #TODO: convert to Math.ceil so we don't lose last set of values
-epochs = 2
-
-def shuffle(a, b):
-    assert len(a) == len(b)
-    p = np.random.permutation(len(a))
-    return a[p], b[p]
-
-for _ in range(loops * epochs):
-    start = (_ % loops) * batchSize
-    end = start + batchSize
-    end = end if end < numInputs else numInputs
-
-    if start == 0:
-        np_input, np_output = shuffle(np_input, np_output)
-        print('epochs left: {}'.format(epochs))
-        epochs = epochs - 1
-
-    train_step.run(feed_dict={x: np_input[start:end:1], y_: np_output[start:end:1]})
-
-correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
-
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
-print(time.time() - startTime)
-
-print(accuracy.eval(feed_dict={x: np_input_test, y_: np_output_test}))
-'''
+#run(mnist.train.images, mnist.train.labels, mnist.test.images, mnist.test.labels)
