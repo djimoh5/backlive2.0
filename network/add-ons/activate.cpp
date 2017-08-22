@@ -75,9 +75,8 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         PyObject *sys = PyImport_ImportModule("sys");
         PyObject *path = PyObject_GetAttrString(sys, "path");
 		PyList_Append(path, PyUnicode_FromString((char*)"."));
-        PyRun_SimpleString("import sys\nprint(sys.path)");
-        //PyRun_SimpleString("import tensorflow as tf\nprint(tf.__version__)\n");
-
+        //PyRun_SimpleString("import sys\nprint(sys.path)");
+        
         //load python neural network module
         PyObject* pModuleString = PyUnicode_FromString((char*)"mnist");
         PyObject* pModule = PyImport_Import(pModuleString);
@@ -105,7 +104,7 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
         //run neural nertwork
         PyObject* pFunction = PyObject_GetAttrString(pModule, (char*)"run");
-        cout << "get function" << endl;
+        cout << "loaded run function" << endl;
 
         if (!pFunction || !PyCallable_Check(pFunction)) 
         {
@@ -134,17 +133,6 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         Py_XDECREF(pFunction);
         Py_DECREF(pModule);
         
-        /*PyRun_SimpleString("print('Hello World 1')");
-        PyObject *obj = Py_BuildValue("s", "./python/mnist.py");
-        FILE *file = _Py_fopen_obj(obj, "r+");
-        if(file != NULL) {
-            PyRun_SimpleFile(file, "./python/mnist.py");
-        }
-        else {
-            std::printf("Error: file is null\n");
-        }*/
-
-        //Py_DECREF(npArr);
         //Py_Finalize(); crashes program
     }
     catch(const std::runtime_error& re)
@@ -162,7 +150,7 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     catch(...)
     {
         eptr = std::current_exception(); // capture
-        std::cerr << "Unknown exception occurred." << std::endl;
+        std::cerr << "Unknown exception occurred.\n" << std::endl;
         PyErr_Occurred();
         PyErr_Print();
     }
