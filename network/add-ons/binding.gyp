@@ -1,8 +1,8 @@
 {
     "targets": [
         {
-            "target_name": "activate",
-            "sources": ["activate.cpp"],
+            "target_name": "tensorflow",
+            "sources": ["tensorflow.cpp"],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
                 "C:\Users\dejij\AppData\Local\Programs\Python\Python35\include"

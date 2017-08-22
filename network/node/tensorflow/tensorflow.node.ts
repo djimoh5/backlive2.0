@@ -6,7 +6,7 @@ import { Activation } from '../../../core/service/model/node.model';
 
 import { ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent, UpdateNodeWeightsEvent } from '../../event/app.event';
 
-var aoA = require('../../add-ons/build/Debug/activate');
+var addOn = require('../../add-ons/build/Release/tensorflow');
 
 export class TensorFlowNode extends NetworkLayerNode {
     trainData: Activation;
@@ -43,7 +43,7 @@ export class TensorFlowNode extends NetworkLayerNode {
         var numClasses = this.trainData.output.length / this.trainData.rows();
 
         try {
-            aoA.tensorflow(
+            addOn.tensorflow(
                 trainBuffer, trainLblBuffer, this.trainData.rows(), this.trainData.columns(),
                 testBuffer, testLblBuffer, this.testData.rows(), this.testData.columns(), numClasses
             );

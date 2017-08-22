@@ -28,19 +28,19 @@ def run(np_input, np_output, np_input_test, np_output_test):
         y_ = tf.placeholder(tf.float32, shape=[None, 10])
         print("tensorflow graph defined")
 
-        Wh = tf.Variable(tf.random_normal([784, 10], stddev=.035), name="h_weights")
-        bh = tf.Variable(tf.random_normal([10], stddev=1.0), name="h_bias")
-        #Wo = tf.Variable(tf.random_normal([30, 10], stddev=.32), name="o_weights")
-        #bo = tf.Variable(tf.random_normal([10], stddev=1.0), name="o_bias")
+        Wh = tf.Variable(tf.random_normal([784, 100], stddev=.035), name="h_weights")
+        bh = tf.Variable(tf.random_normal([100], stddev=1.0), name="h_bias")
+        Wo = tf.Variable(tf.random_normal([100, 10], stddev=.32), name="o_weights")
+        bo = tf.Variable(tf.random_normal([10], stddev=1.0), name="o_bias")
 
         print("tensorflow graph defined")
         sess.run(tf.global_variables_initializer())
         print("tensorflow graph defined")
 
-        y = tf.matmul(x,Wh) + bh
+        #y = tf.matmul(x,Wh) + bh
 
-        #hx = tf.sigmoid(tf.matmul(x,Wh) + bh)
-        #y = tf.matmul(hx,Wo) + bo
+        hx = tf.sigmoid(tf.matmul(x,Wh) + bh)
+        y = tf.matmul(hx,Wo) + bo
 
         print("tensorflow graph defined")
 
@@ -51,7 +51,7 @@ def run(np_input, np_output, np_input_test, np_output_test):
         numInputs = len(np_input) #or np_input.shape[0]
         batchSize = 100
         loops = math.ceil(numInputs / batchSize)
-        epochs = 2
+        epochs = 30
 
         def shuffle(a, b):
             assert len(a) == len(b)
