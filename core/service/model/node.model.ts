@@ -30,12 +30,12 @@ export enum NodeType {
 
 export class Activation {
     private input: Float32Array; //[][]
-    output: Float32Array; //[][]
+    labels: Float32Array; //[][]
     keys: string[];
 
     constructor(private dimensions: [number, number], inputArr?: number[] | Float32Array, private outputDimensions?: [number, number], outputArr?: number[] | Float32Array) {
         this.input = inputArr ? (inputArr instanceof Float32Array ? inputArr : new Float32Array(inputArr)) : new Float32Array(dimensions[0] * dimensions[1]);
-        this.output = outputDimensions ? (outputArr ? (outputArr instanceof Float32Array ? outputArr : new Float32Array(outputArr)) : new Float32Array(outputDimensions[0] * outputDimensions[1])) : null;
+        this.labels = outputDimensions ? (outputArr ? (outputArr instanceof Float32Array ? outputArr : new Float32Array(outputArr)) : new Float32Array(outputDimensions[0] * outputDimensions[1])) : null;
     }
 
     get(row: number, col: number) {

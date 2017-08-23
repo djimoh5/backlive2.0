@@ -22,7 +22,7 @@ export class BasicNode extends BaseNode<Node> {
             var startTime = Date.now();
             var delta: Activation = new Activation([state.activation.rows(), state.activation.columns()]);
 
-            var totalCost = aoA.outputDelta(Buffer.from(delta.data().buffer), state.activation.data(), event.data.output, 
+            var totalCost = aoA.outputDelta(Buffer.from(delta.data().buffer), state.activation.data(), event.data.labels, 
                 state.activation.rows(), Buffer.from(this.learningError.total.buffer), Buffer.from(this.learningError.totalBias.buffer), 
                 state.inputActivations[this.node.inputs[0]].data());
             
@@ -30,7 +30,7 @@ export class BasicNode extends BaseNode<Node> {
             /*for(var row = 0, len = state.activation.rows(); row < len; row++) {
                 for(var oIndex = 0, outputLen = state.activation.columns(); oIndex < outputLen; oIndex++) {
                     var output = state.activation.get(row, oIndex);
-                    var expected = event.data.output[row*outputLen + oIndex];
+                    var expected = event.data.labels[row*outputLen + oIndex];
 
                     var deltaVal = Network.costFunction.delta(output, expected);
                     this.totalCost += Network.costFunction.cost(output, expected);

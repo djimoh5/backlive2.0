@@ -3,6 +3,7 @@
 import { Node } from '../../../core/service/model/node.model';
 import { NetworkLayerNode } from '../layer.node';
 import { Activation } from '../../../core/service/model/node.model';
+import { Network } from '../../network';
 
 import { ActivateNodeEvent, BackpropagateEvent, BackpropagateCompleteEvent, UpdateNodeWeightsEvent } from '../../event/app.event';
 
@@ -36,16 +37,22 @@ export class TensorFlowNode extends NetworkLayerNode {
     private send() {
         console.time('send')
         var trainBuffer = Buffer.from(this.trainData.data().buffer);
-        var trainLblBuffer = Buffer.from(this.trainData.output.buffer);
+        var trainLblBuffer = Buffer.from(this.trainData.labels.buffer);
         var testBuffer = Buffer.from(this.testData.data().buffer);
-        var testLblBuffer = Buffer.from(this.testData.output.buffer);
+        var testLblBuffer = Buffer.from(this.testData.labels.buffer);
 
-        var numClasses = this.trainData.output.length / this.trainData.rows();
+        var numClasses = this.trainData.labels.length / this.trainData.rows();
 
         try {
             addOn.tensorflow(
-                trainBuffer, trainLblBuffer, this.trainData.rows(), this.trainData.columns(),
-                testBuffer, testLblBuffer, this.testData.rows(), this.testData.columns(), numClasses
+                trainBuffer, trainLblBuffer, this.trainData.rows(),
+                testBuffer, testLblBuffer, this.testData.rows(), 
+                this.trainData.columns(), numClasses,
+                Network.network.learnRate,
+                Network.network.epochs,
+                Network.network.batchSize,
+                Network.network.regParam,
+                Buffer.from(new Int32Array(Network.network.hiddenLayers).buffer)
             );
         } catch(e) {
             console.log(e);

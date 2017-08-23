@@ -32,27 +32,37 @@ int importArray() {
 }
 
 void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-    float* trainData = (float*) node::Buffer::Data(info[0]->ToObject());
-    float* trainLblData = (float*) node::Buffer::Data(info[1]->ToObject());
-    const int trainRows = info[2]->IntegerValue();
-    const int trainCols = info[3]->IntegerValue();
+    int index = 0;
 
-    float* testData = (float*) node::Buffer::Data(info[4]->ToObject());
-    float* testLblData = (float*) node::Buffer::Data(info[5]->ToObject());
-    const int testRows = info[6]->IntegerValue();
-    const int testCols = info[7]->IntegerValue();
+    float* trainData = (float*) node::Buffer::Data(info[index++]->ToObject());
+    float* trainLblData = (float*) node::Buffer::Data(info[index++]->ToObject());
+    const int trainRows = info[index++]->IntegerValue();
 
-    const int numClasses = info[8]->IntegerValue();
+    float* testData = (float*) node::Buffer::Data(info[index++]->ToObject());
+    float* testLblData = (float*) node::Buffer::Data(info[index++]->ToObject());
+    const int testRows = info[index++]->IntegerValue();
 
-    std::printf("train data: %f %d %d\n ", trainData[155], trainRows, trainCols);
-    std::printf("train lbl data: %f %d %d\n ", trainLblData[155], trainRows, numClasses);
-    std::printf("test data: %f %d %d\n ", testData[155], testRows, testCols);
-    std::printf("test lbl data: %f %d %d\n ", testLblData[155], testRows, numClasses);
+    const int numFeatures = info[index++]->IntegerValue();
+    const int numClasses = info[index++]->IntegerValue();
 
-    npy_intp trainDims[2] = { trainRows, trainCols };
+    const double learningRate = info[index++]->NumberValue();
+    const double epochs = info[index++]->IntegerValue();
+    const double batchSize = info[index++]->IntegerValue();
+    const double regParam = info[index++]->NumberValue();
+    int* hiddenLayers = (int*) node::Buffer::Data(info[index]->ToObject());
+    size_t hiddenLen = node::Buffer::Length(info[index++]->ToObject()) / sizeof(int);
+
+    std::printf("train data: %d %d\n ", trainRows, numFeatures);
+    std::printf("train lbl data: %d %d\n ", trainRows, numClasses);
+    std::printf("test data: %d %d\n ", testRows, numFeatures);
+    std::printf("test lbl data: %d %d\n ", testRows, numClasses);
+    std::printf("network params: %f %f %f %f %d\n ", learningRate, epochs, batchSize, regParam, hiddenLen);
+
+    npy_intp trainDims[2] = { trainRows, numFeatures };
     npy_intp trainLblDims[2] = { trainRows, numClasses };
-    npy_intp testDims[2] = { testRows, testCols };
+    npy_intp testDims[2] = { testRows, numFeatures };
     npy_intp testLblDims[2] = { testRows, numClasses };
+    npy_intp hiddenDims[1] = { hiddenLen };
     int nd = 2;
 
     std::exception_ptr eptr;
@@ -93,6 +103,7 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         PyObject* npTrainLbl = PyArray_SimpleNewFromData(nd, trainLblDims, NPY_FLOAT32, trainLblData);
         PyObject* npTest = PyArray_SimpleNewFromData(nd, testDims, NPY_FLOAT32, testData);
         PyObject* npTestLbl = PyArray_SimpleNewFromData(nd, testLblDims, NPY_FLOAT32, testLblData);
+        PyObject* npHiddenLayers = PyArray_SimpleNewFromData(1, hiddenDims, NPY_INT32, hiddenLayers);
 
         cout << "converted pointers to numpy arrays" << endl;
 
@@ -109,13 +120,19 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         }
 
         cout << "building function args" << endl;
+        index = 0;
 
-        PyObject *pArgs = PyTuple_New(4);
-        PyTuple_SetItem(pArgs, 0, npTrain);
-        PyTuple_SetItem(pArgs, 1, npTrainLbl);
-        PyTuple_SetItem(pArgs, 2, npTest);
-        PyTuple_SetItem(pArgs, 3, npTestLbl);
-
+        PyObject *pArgs = PyTuple_New(9);
+        PyTuple_SetItem(pArgs, index++, npTrain);
+        PyTuple_SetItem(pArgs, index++, npTrainLbl);
+        PyTuple_SetItem(pArgs, index++, npTest);
+        PyTuple_SetItem(pArgs, index++, npTestLbl);
+        PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(learningRate));
+        PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(epochs));
+        PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(batchSize));
+        PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(regParam));
+        PyTuple_SetItem(pArgs, index++, npHiddenLayers);
+        
         cout << "function args set" << endl;
 
         PyObject *pReturn = PyObject_CallObject(pFunction, pArgs);

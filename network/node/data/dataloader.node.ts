@@ -71,8 +71,8 @@ export class DataLoaderNode extends BaseDataNode {
         this.features = {};
         this.featuresOut = {};
 
-        this.trainingData = { input: null, output: null };
-        this.testData = { input: null, output: null };
+        this.trainingData = { input: null, labels: null };
+        this.testData = { input: null, labels: null };
         this.trainingDataKeys = [];
         this.testDataKeys = [];
 
@@ -156,7 +156,7 @@ export class DataLoaderNode extends BaseDataNode {
 
                 if(data.input) {
                     inputs = this.appendFloat32Array(<Float32Array>data.input, vals);
-                    outputs = this.appendFloat32Array(<Float32Array>data.output, valsOut);
+                    outputs = this.appendFloat32Array(<Float32Array>data.labels, valsOut);
                 }
                 else {
                     inputs = new Float32Array(vals);
@@ -164,10 +164,10 @@ export class DataLoaderNode extends BaseDataNode {
                 }
 
                 data.input = inputs;
-                data.output = outputs;
+                data.labels = outputs;
                 delete this.features[date];
                 delete this.featuresOut[date];
-                console.log(date, data.input.length, data.output.length);
+                console.log(date, data.input.length, data.labels.length);
             }
 
             this.loadNextTick();

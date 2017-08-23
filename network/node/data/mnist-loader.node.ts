@@ -19,7 +19,7 @@ export class MNISTLoaderNode extends BaseDataNode {
 
     private loadHelper(dataType: string, callback: (data: TrainingData) => void) {
         var limit = dataType === 'train' ? 60000 : 10000;
-        var mnistData = { input: new Float32Array(this.numFeatures * limit), output: new Float32Array(this.numClasses * limit) };
+        var mnistData = { input: new Float32Array(this.numFeatures * limit), labels: new Float32Array(this.numClasses * limit) };
         var cnt = 0;
         var xInd = 0;
         var yInd = 0;
@@ -41,7 +41,7 @@ export class MNISTLoaderNode extends BaseDataNode {
                     }
 
                     for(var i = 0; i < 10; i++) {
-                        mnistData.output[yInd++] = i == result['y'] ? 1 : 0;
+                        mnistData.labels[yInd++] = i == result['y'] ? 1 : 0;
                     }
 
                     if(++cnt % 5000 === 0) {

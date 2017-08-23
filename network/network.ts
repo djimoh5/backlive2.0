@@ -166,8 +166,8 @@ export class Network {
         };
     }
 
-    create(learningRate: number, numEpochs: number, batchSize: number, regParam: number, hiddenLayers: number[]) {
-        this.network = new NetworkModel(learningRate, numEpochs, batchSize, regParam, hiddenLayers);
+    create(learningRate: number, epochs: number, batchSize: number, regParam: number, hiddenLayers: number[]) {
+        this.network = new NetworkModel(learningRate, epochs, batchSize, regParam, hiddenLayers);
         this.executeNetwork(this.network);
     }
 
@@ -228,7 +228,7 @@ export class Network {
         var pastState = this.outputLayer.pastState;
         
         for(var date in pastState) {
-            var output = pastState[date].activation.output;
+            var output = pastState[date].activation.labels;
             var numColumns = pastState[date].activation.columns();
 
             for(var row = 0, len = pastState[date].activation.rows(); row < len; row++) {

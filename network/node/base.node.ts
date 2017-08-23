@@ -162,7 +162,7 @@ export abstract class BaseNode<T extends Node> {
 
             this.learningError.trainingCount += activation.rows();
 
-            activation.output = this.state.inputActivations[this.node.inputs[0]].output;
+            activation.labels = this.state.inputActivations[this.node.inputs[0]].labels;
             activation.keys = this.state.inputActivations[this.node.inputs[0]].keys;
             event = new ActivateNodeEvent(activation, this.state.date);
         }

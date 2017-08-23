@@ -72,14 +72,14 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
     nextBatch(date?: number) {
         var activation = new Activation(
             [this.trainingData.input.length / this._numFeatures, this._numFeatures], this.trainingData.input, 
-            [this.trainingData.output.length / this.numClasses, this.numClasses], this.trainingData.output
+            [this.trainingData.labels.length / this.numClasses, this.numClasses], this.trainingData.labels
         );
 
         this.activate(new ActivateNodeEvent(activation, date));
 
         activation = new Activation(
             [this.testData.input.length / this._numFeatures, this._numFeatures], this.testData.input, 
-            [this.testData.output.length / this.numClasses, this.numClasses], this.testData.output
+            [this.testData.labels.length / this.numClasses, this.numClasses], this.testData.labels
         );
 
         this.activate(new ActivateNodeEvent(activation, date));
@@ -96,7 +96,7 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
             var input = (<Float32Array>data.input).subarray(this.currentRecord * this.numFeatures,  end < data.input.length ? end : data.input.length);
 
             end = (this.currentRecord + this.batchSize) * this.numClasses;
-            var output = (<Float32Array>data.output).subarray(this.currentRecord * this.numClasses, end < data.output.length ? end : data.output.length);
+            var output = (<Float32Array>data.labels).subarray(this.currentRecord * this.numClasses, end < data.labels.length ? end : data.labels.length);
             
             var activation = new Activation([input.length / this.numFeatures, this.numFeatures], input, [output.length / this.numClasses, this.numClasses], output);
             
@@ -119,5 +119,5 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
 
 export interface TrainingData {
     input: number[] | Float32Array; //[][]
-    output: number[] | Float32Array; //[][]
+    labels: number[] | Float32Array; //[][]
 }
