@@ -4,22 +4,19 @@ import { Config } from '../config';
 var MongoClient = require('mongodb').MongoClient;
 
 export class Database {
-    private static IP: string = '127.0.0.1';
-    //private static IP: string = '34.230.238.122';
-
     static mongo: Mongo = null;
     static mongoPricing: Mongo = null;
 
     static ObjectID = require('mongodb').ObjectID;
 
     static open(callback) {
-        MongoClient.connect('mongodb://' + Database.IP + ':27017/' + Config.MONGO_DB, { w: 1 }, function (err, db) {
+        MongoClient.connect('mongodb://' + Config.MONGO_IP + ':27017/' + Config.MONGO_DB, { w: 1 }, function (err, db) {
             if (err) {
                 console.log('Error occurred connecting to DB', Config.MONGO_DB, err);
             } else {
                 Database.mongo = db;
                 
-                MongoClient.connect('mongodb://' + Database.IP + ':27017/' + Config.MONGO_PRICING_DB, { w: 1 }, function (err, dbPricing) {
+                MongoClient.connect('mongodb://' + Config.MONGO_IP + ':27017/' + Config.MONGO_PRICING_DB, { w: 1 }, function (err, dbPricing) {
                     if (err) {
                         console.log('Error occurred connecting to DB', Config.MONGO_PRICING_DB, err);
                     } else {

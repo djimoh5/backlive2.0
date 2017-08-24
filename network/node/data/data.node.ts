@@ -10,6 +10,10 @@ export declare type DataResult = { [key: string]: ParamValues };
 export declare type DateDataResult = { [key: number]: { [key: string]: ParamValues } };
 export declare type DataCache = { [key: number]: DataResult }; //number = IndicatorParamType
 
+import { Database } from '../../../core/lib/database';
+
+import { Network } from '../../network';
+
 export interface IDataNode {
     load(callback: (data: TrainingData) => void); //load any data from an external source, e.g. db, csv, api call
     train(); //starts training from beginnning of data set
@@ -115,6 +119,19 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
     }
 
     receive() {};
+
+    protected cacheData(id: string, date: number, input: number[], lbls: number[], keys?: string[]) {
+        var cache = { id: id, date: date, input: input, lbls: lbls, keys: keys, numFeat: this.numFeatures, numCls: this.numClasses };
+        var collection = Database.mongo.collection('nn_data_cache');
+        collection.remove({ id: Network.network._id, date: date }, function (err) {
+            collection.insert(cache, function (err) { console.log('inserted ' + date); });
+        });
+    }
+
+    protected loadFromCache(id: string, date: number, callback: (err, result) => void) {
+        var collection = Database.mongo.collection('nn_data_cache');
+        collection.findOne({ id: id, date: date }, callback);
+    }
 }
 
 export interface TrainingData {

@@ -1,6 +1,6 @@
 import { BaseNode, MockSession } from '../base.node';
 
-import { ActivateNodeEvent, DataEvent, DataFeatureOutEvent, DataSubscriptionEvent } from '../../event/app.event';
+import { ActivateNodeEvent, DataEvent, DataFeatureLabelEvent, DataSubscriptionEvent } from '../../event/app.event';
 
 import { PortfolioService } from '../../../core/service/portfolio.service';
 import { PricingService } from '../../../core/service/pricing.service';
@@ -71,7 +71,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         this.date = date;
         
         var marketReturn: number = null;
-        var outputs: { [key: string]: number[] } = {};
+        var labels: { [key: string]: number[] } = {};
 
         if(this.prevDate) {
             marketReturn = (this.marketPrices[this.date] - this.marketPrices[this.prevDate]) / this.marketPrices[this.prevDate];
@@ -103,13 +103,13 @@ export class PortfolioNode extends BaseNode<Portfolio> {
                         if(this.prevPrices[tkr.ticker]) {
                             var alpha = (((this.prices[tkr.ticker].price + this.prices[tkr.ticker].dividend) - this.prevPrices[tkr.ticker].price) / this.prevPrices[tkr.ticker].price) - marketReturn;
                             if(alpha > .002) {
-                                outputs[tkr.ticker] = [1, 0, 0];
+                                labels[tkr.ticker] = [1, 0, 0];
                             }
                             else if(alpha < -.002) {
-                                outputs[tkr.ticker] = [0, 0, 1];
+                                labels[tkr.ticker] = [0, 0, 1];
                             }
                             else {
-                                outputs[tkr.ticker] = [0, 1, 0];
+                                labels[tkr.ticker] = [0, 1, 0];
                             }
                         }
                     }
@@ -122,10 +122,10 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         Network.timings.activation += Date.now() - startTime;
 
         if(this.prevDate) {
-            this.notify(new DataFeatureOutEvent(outputs, this.prevDate));
+            this.notify(new DataFeatureLabelEvent(labels, this.prevDate));
         }
         else {
-            this.notify(new DataFeatureOutEvent(null, this.date));
+            this.notify(new DataFeatureLabelEvent(null, this.date));
         }
     }
 
