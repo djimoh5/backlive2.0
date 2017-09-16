@@ -5,3 +5,4 @@ network/node_modules/*
 !node_modules/gulp-inline-ng2-template/
 *.gz
 *.pyc
+nn

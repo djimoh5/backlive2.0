@@ -17,13 +17,14 @@ import { Network } from '../../network';
 
 export class PortfolioNode extends BaseNode<Portfolio> {
     pricingService: PricingService;
-    prices: { [key: string]: { price: number, mktcap: number, dividend: number } };
-    pricesCache: { [key: number]: { [key: string]: { price: number, mktcap: number, dividend: number } } } = {};
-    prevPrices: { [key: string]: { price: number, mktcap: number } };
-    date: number;
-    prevDate: number;
+    prices: Prices;
+    pricesCache: { [key: number]: Prices } = {};
 
-    capital = 50000;
+    date: number;
+    dates: number[] = [];
+
+    capital: number = 50000;
+    tradingFreq: number = 1; //# of periods
     positions: Position[] = [];
 
     marketPrices: { [key: number]: number } = {};
@@ -65,64 +66,92 @@ export class PortfolioNode extends BaseNode<Portfolio> {
         //console.log('portfolio computing actual output for ', date);
         var startTime = Date.now();
 
-        this.prevPrices = this.prices;
-        this.prices = {};
-        this.prevDate = this.date;
         this.date = date;
+        this.dates.push(date);
+        var prevDate = this.dates[this.dates.length - this.tradingFreq - 1];
         
+        this.prices = {};
+        var prevPrices: Prices;
+
         var marketReturn: number = null;
         var labels: { [key: string]: number[] } = {};
 
-        if(this.prevDate) {
-            marketReturn = (this.marketPrices[this.date] - this.marketPrices[this.prevDate]) / this.marketPrices[this.prevDate];
+        if(prevDate) {
+            marketReturn = (this.marketPrices[this.date] - this.marketPrices[prevDate]) / this.marketPrices[prevDate];
+            prevPrices = this.pricesCache[prevDate];
+            //console.log('return: ', marketReturn, prevDate, ' - ', this.date);
         }
 
         if(this.pricesCache[date]) {
             this.prices = this.pricesCache[date];
         }
         else {
-            var prevDateObj: Date = Common.parseDate(this.prevDate);
+            var prevDateObj: Date = Common.parseDate(prevDate);
+            var rets: { tkr: string, ret: number }[] = [];
+
             for(var key in data) {
                 var tkr: Ticker = <Ticker>data[key];
                 if(tkr.price) {
                     this.prices[tkr.ticker] = { price: tkr.price, mktcap: tkr.mktcap, dividend: 0 };
 
-                    if(this.prevPrices) {
+                    if(prevPrices) {
                         //splits
                         if(tkr.split_date && tkr.split_fact && prevDateObj < tkr.split_date) {
-                            if(this.prevPrices[tkr.ticker]) {
-                                this.prevPrices[tkr.ticker].price = this.prevPrices[tkr.ticker].price / tkr.split_fact;
+                            if(prevPrices[tkr.ticker]) {
+                                prevPrices[tkr.ticker].price = prevPrices[tkr.ticker].price / tkr.split_fact;
                             }
                         }
 
                         //dividends
-                        if(tkr.dvp && this.prevDate < tkr.dvx && tkr.dvt == 'Cash') {
+                        if(tkr.dvp && prevDate < tkr.dvx && tkr.dvt == 'Cash') {
                             this.prices[tkr.ticker].dividend = tkr.dvp;
                         }
 
-                        if(this.prevPrices[tkr.ticker]) {
-                            var alpha = (((this.prices[tkr.ticker].price + this.prices[tkr.ticker].dividend) - this.prevPrices[tkr.ticker].price) / this.prevPrices[tkr.ticker].price) - marketReturn;
-                            if(alpha > .002) {
+                        if(prevPrices[tkr.ticker]) {
+                            var ret = (((this.prices[tkr.ticker].price + this.prices[tkr.ticker].dividend) - prevPrices[tkr.ticker].price) / prevPrices[tkr.ticker].price);// - marketReturn;
+                            rets.push({ tkr: tkr.ticker, ret: ret });
+                            
+                            /*if(alpha > .02) {
                                 labels[tkr.ticker] = [1, 0, 0];
                             }
-                            else if(alpha < -.002) {
+                            else if(alpha < -.02) {
                                 labels[tkr.ticker] = [0, 0, 1];
                             }
                             else {
                                 labels[tkr.ticker] = [0, 1, 0];
-                            }
+                            }*/
+                            //labels[tkr.ticker] = [ret]; //linear activation
+                            labels[tkr.ticker] = [1 / (1 + Math.exp(-ret))]; //sigmoid activation
+                            //console.log(tkr.ticker, labels[tkr.ticker]);
                         }
                     }
                 }
             };
+
+            /*var len = rets.length;
+            var numCls = 5;
+            var tile = Math.ceil(len / numCls);
+            Common.sort(rets, 'ret')
+
+            for(var i = 0; i < len; i++) {
+                var t = rets[i];
+                var index = Math.floor(i / tile);
+                if(index >= numCls) {
+                    throw `out of range for number of classes ${i} - ${numCls}`;
+                }
+
+                labels[t.tkr] = [0, 0, 0, 0, 0];
+                labels[t.tkr][index] = 1;
+                //console.log(t.tkr, t.ret, labels[t.tkr]);
+            }*/
 
             this.pricesCache[date] = this.prices;
         }
 
         Network.timings.activation += Date.now() - startTime;
 
-        if(this.prevDate) {
-            this.notify(new DataFeatureLabelEvent(labels, this.prevDate));
+        if(prevDate) {
+            this.notify(new DataFeatureLabelEvent(labels, prevDate));
         }
         else {
             this.notify(new DataFeatureLabelEvent(null, this.date));
@@ -138,7 +167,8 @@ export class PortfolioNode extends BaseNode<Portfolio> {
 
     closePositions() {
         this.positions.forEach(position => {
-            var price = this.prevPrices[position.ticker].price;
+            var prevDate = this.dates[this.dates.length - this.tradingFreq - 1];
+            var price = this.pricesCache[prevDate][position.ticker].price;
             var ret = 0;
 
             if(this.prices[position.ticker]) {
@@ -233,4 +263,8 @@ class Position {
     ticker: string;
     price: number;
     shares: number;
+}
+
+interface Prices {
+    [key: string]: { price: number, mktcap: number, dividend: number }
 }

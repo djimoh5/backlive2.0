@@ -52,8 +52,8 @@ export class ServerSocket {
                 return;
             }
             else {
-                this.emitTickerLastPrice(this.io.sockets);
-                console.log('broadcasting stock ticker');
+                //this.emitTickerLastPrice(this.io.sockets);
+                //console.log('broadcasting stock ticker');
             }
         }, 60000);
     }

@@ -11,7 +11,7 @@ export class Config {
     static DIR_JS = './js/';
 
     /*** databases ***/
-    static MONGO_IP = '34.230.238.122'; //127.0.0.1 //34.230.238.122
+    static MONGO_IP = '127.0.0.1'; //127.0.0.1 //34.230.238.122
     static MONGO_DB = Config.MONGO_IP === '127.0.0.1' ? 'mnist' : 'btif';
     static MONGO_PRICING_DB = 'pricing';
     

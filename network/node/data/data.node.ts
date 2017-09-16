@@ -122,14 +122,14 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
 
     protected cacheData(id: string, date: number, input: number[], lbls: number[], keys?: string[]) {
         var cache = { id: id, date: date, input: input, lbls: lbls, keys: keys, numFeat: this.numFeatures, numCls: this.numClasses };
-        var collection = Database.mongo.collection('nn_data_cache');
+        var collection = Database.cache.collection('nn_data_cache');
         collection.remove({ id: Network.network._id, date: date }, function (err) {
-            collection.insert(cache, function (err) { console.log('inserted ' + date); });
+            collection.insert(cache, function (err) {});
         });
     }
 
     protected loadFromCache(id: string, date: number, callback: (err, result) => void) {
-        var collection = Database.mongo.collection('nn_data_cache');
+        var collection = Database.cache.collection('nn_data_cache');
         collection.findOne({ id: id, date: date }, callback);
     }
 }

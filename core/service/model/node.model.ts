@@ -25,7 +25,7 @@ export enum NodeType {
     Basic = 2,
     Indicator = 10,
     Strategy = 11,
-    Portfolio = 12,
+    Portfolio = 12
 }
 
 export class Activation {

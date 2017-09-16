@@ -91,6 +91,7 @@ export class Network {
         }
         else {
             if(node.ntype !== NodeType.Virtual) {
+                console.log(node)
                 var featureOutput = this.nodes[this.nodes[node._id].getOutputs()[0]];
                 featureOutput.getNode().inputs = [this.outputLayer.getNode()._id];
             }
@@ -138,7 +139,7 @@ export class Network {
             var inputLayer: BaseNode<Node> = this.dataNode;
 
             this.outputLayer = this.createLayer(TensorFlowNode, 1, inputLayer, 'tensorflow');
-
+            console.log('created tensorflow node');
             /*network.hiddenLayers.forEach((numNodes, index) => {
                 inputLayer = this.createLayer(NetworkLayerNode, numNodes, inputLayer, 'hidden' + index);
             }); 
@@ -299,11 +300,11 @@ export class Network {
 
         if(this.network.inputs) {
             this.network.inputs.forEach(id => {
-                this.print(this.nodes[id], 0);
+                //this.print(this.nodes[id], 0);
             });
         }
         else {
-            this.print(this.outputLayer, 0);
+           //this.print(this.outputLayer, 0);
         }
     }
 

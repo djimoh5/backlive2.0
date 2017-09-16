@@ -40,7 +40,7 @@ export class DataLoaderNode extends BaseDataNode {
     executeStartTime: number;
 
     constructor() {
-        super(0, 3); //TODO: this needs to be dynamic, prob by updating load to actually load the data
+        super(0, 1); //TODO: this needs to be dynamic, prob by updating load to actually load the data
 
         this.subscribe(DataSubscriptionEvent, event => {
             if(event.data.isFeature) {
@@ -51,7 +51,6 @@ export class DataLoaderNode extends BaseDataNode {
         });
 
         this.subscribe(DataFilterEvent, event => {
-            console.log('updating data filters', event.data);
             this.filterEvent = event;
             this.startDate = event.data.startDate;
             this.endDate = event.data.endDate;
@@ -83,7 +82,7 @@ export class DataLoaderNode extends BaseDataNode {
         this.testDataKeys = [];
 
         Database.mongo.collection('file_date', (err, collection) => {
-            collection.find().sort({ date: 1 }).toArray((err, results) => {
+            collection.find({ wk: 1 }).sort({ date: 1 }).toArray((err, results) => {
                 if (err) {
                     console.log('Error selecting data: ' + err.message);
                     return;
@@ -158,44 +157,28 @@ export class DataLoaderNode extends BaseDataNode {
                     }
                 }
 
+                console.log('Date:', this.currentDate, 'Records:', vals.length);
                 this.persistData(date, vals, valsLbl, keys);
             }
-
+            
             this.loadNextTick();
         }
     }
 
     private persistData(date: number, vals: number[], valsLbl: number[], keys: string[], isFromCache: boolean = false) {
-        //var inputs: Float32Array, labels: Float32Array;
-        //var data = this.currentDate < this.validationDate ? this.trainingData : this.testData;
-
         if(this.currentDate < this.validationDate) {
-            //data = this.trainingData;
             this.tmpTrainingData.input.push.apply(this.tmpTrainingData.input, vals);
             this.tmpTrainingData.labels.push.apply(this.tmpTrainingData.labels, valsLbl);
             this.trainingDataKeys.push.apply(this.trainingDataKeys, keys);
         }
         else {
-            //data = this.testData;
             this.tmpTestData.input.push.apply(this.tmpTestData.input, vals);
             this.tmpTestData.labels.push.apply(this.tmpTestData.labels, valsLbl);
             this.testDataKeys.push.apply(this.testDataKeys, keys);
         }
 
-        /*if(data.input) {
-            inputs = this.appendFloat32Array(<Float32Array>data.input, vals);
-            labels = this.appendFloat32Array(<Float32Array>data.labels, valsLbl);
-        }
-        else {
-            inputs = new Float32Array(vals);
-            labels = new Float32Array(valsLbl);
-        }
-
-        data.input = inputs;
-        data.labels = labels;*/
         delete this.features[date];
         delete this.featuresLbl[date];
-        console.log(date, this.tmpTrainingData.input.length, this.tmpTrainingData.labels.length);
 
         if(!isFromCache) {
             this.cacheData(Network.network._id, date, vals, valsLbl, keys);
@@ -212,24 +195,18 @@ export class DataLoaderNode extends BaseDataNode {
         console.log(this.testData.input.length, this.testData.labels.length);
     }
 
-    private appendFloat32Array(floatArr: Float32Array, arr: number[]) {
-        var appended: Float32Array = new Float32Array(floatArr.length + arr.length);
-        appended.set(floatArr);
-        appended.set(arr, floatArr.length);
-        return appended;
-    }
-
     private loadNextTick() {
         if(this.dates.length) {
             this.executeStartTime = Date.now();
             
             this.currentDate = this.dates.splice(0, 1)[0];
-            console.log('loading tick', this.currentDate);
+            //console.log('loading tick', this.currentDate);
 
             this.loadFromCache(Network.network._id, this.currentDate, (err, result) => {
                 if(result) {
                     this._numFeatures = result.numFeat;
                     this._numClasses = result.numCls;
+                    console.log('Date:', this.currentDate, 'Records:', result.input.length);
                     this.persistData(result.date, result.input, result.lbls, result.keys, true);
                     this.loadNextTick();
                 }

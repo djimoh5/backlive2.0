@@ -6,6 +6,7 @@ var MongoClient = require('mongodb').MongoClient;
 export class Database {
     static mongo: Mongo = null;
     static mongoPricing: Mongo = null;
+    static cache: Mongo = null;
 
     static ObjectID = require('mongodb').ObjectID;
 
@@ -21,7 +22,15 @@ export class Database {
                         console.log('Error occurred connecting to DB', Config.MONGO_PRICING_DB, err);
                     } else {
                         Database.mongoPricing = dbPricing;
-                        callback();
+
+                        MongoClient.connect('mongodb://127.0.0.1:27017/' + Config.MONGO_DB, { w: 1 }, function (err, dbLocal) {
+                            if (err) {
+                                console.log('Error occurred connecting to local DB', Config.MONGO_DB, err);
+                            } else {
+                                Database.cache = dbLocal;
+                                callback();
+                            }
+                        });
                     }
                 });
             }

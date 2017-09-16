@@ -42,6 +42,7 @@ export class TensorFlowNode extends NetworkLayerNode {
         var testLblBuffer = Buffer.from(this.testData.labels.buffer);
 
         var numClasses = this.trainData.labels.length / this.trainData.rows();
+        console.log('tensorflow python');
 
         try {
             addOn.tensorflow(
