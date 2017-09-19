@@ -14,7 +14,6 @@ export class BasicNode extends BaseNode<Node> {
     }
 
     receive(event: ActivateNodeEvent) {
-        //console.log(this.node._id, 'Basic node received an event from ', event.senderId);
         this.activate();
         var state = this.pastState[event.date];
 

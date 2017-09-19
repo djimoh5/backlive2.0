@@ -24,7 +24,6 @@ export class EventQueue {
             throw('The event does not have a name. Please remember to annotate your event with @AppEvent.');    
         }
         
-        //console.log(eventType.eventName, 'subscribed to by ' + subscriberId);
         var eventName = eventType.eventName;
         var observable: Observable<T>;
         
@@ -89,7 +88,6 @@ export class EventQueue {
 
         if (this.activators[eventName]) {
             setImmediate(() => {
-                //console.log('EVENT: ' + eventName + ' fired');// with data', event.data);
                 this.activators[eventName].next(event);
             });
         }

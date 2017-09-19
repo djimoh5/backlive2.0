@@ -91,27 +91,12 @@ export class Network {
         }
         else {
             if(node.ntype !== NodeType.Virtual) {
-                console.log(node)
                 var featureOutput = this.nodes[this.nodes[node._id].getOutputs()[0]];
                 featureOutput.getNode().inputs = [this.outputLayer.getNode()._id];
             }
         }
 
         this.activity(false);
-    }
-
-    resetNetwork() {
-        Network.isLearning = true;
-        Network.timings = new NetworkTimings();
-        this.epochCount = 0;
-
-        Network.costFunction = CostFunctionFactory.create(this.costFunctionType);
-        VirtualNodeService.reset();
-
-        for(var id in this.nodes) {
-            this.nodes[id].unsubscribe();
-            delete this.nodes[id];
-        }
     }
 
     loadNetwork(network: NetworkModel, rootNode: Node = null) {
@@ -148,7 +133,7 @@ export class Network {
 
             this.loadNetwork(network, this.outputLayer.getNode());
             if(network.inputs) {
-                this.loadNetwork(network);
+                this.loadNetwork(network); //load custom nodes, e.g. indicators, strategy
             }
         });
 
@@ -179,6 +164,22 @@ export class Network {
         return layer;
     }
 
+    resetNetwork() {
+        Network.isLearning = true;
+        Network.timings = new NetworkTimings();
+        this.epochCount = 0;
+
+        Network.costFunction = CostFunctionFactory.create(this.costFunctionType);
+        VirtualNodeService.reset();
+
+        for(var id in this.nodes) {
+            if(id !== this.dataNode.getNode()._id) {
+                this.nodes[id].unsubscribe();
+                delete this.nodes[id];
+            }
+        }
+    }
+
     onEpochComplete() {
         ActivateNodeEvent.isSocketEvent = false;
         this.processes.forEach(process => process.clearProcessedEvents());
@@ -205,7 +206,6 @@ export class Network {
             }
         }
         else {
-            console.log('validation complete');
             this.calculateCost();
 
             console.log('total time:', ((Date.now() - this.startTime) / 1000) + 's');

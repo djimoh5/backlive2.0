@@ -254,7 +254,6 @@ export class DataLoaderNode extends BaseDataNode {
 
                         cursor.each(function (err, result: ParamValues) {
                             if (result == null) {
-                                //console.log('Table Time', tables[type], (new Date()).getTime() - st);
                                 callback(vals, type);
                             }
                             else {

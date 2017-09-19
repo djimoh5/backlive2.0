@@ -11,7 +11,7 @@ import { Database } from '../../../core/lib/database';
 import { Network } from '../../network';
 
 export class DataLoaderNode extends BaseDataNode {
-    fields: Fields = {};
+    fields: Fields;
     ticker: string | string[];
     startDate: number;
     endDate: number;
@@ -32,9 +32,9 @@ export class DataLoaderNode extends BaseDataNode {
     allCacheKeys: string[] | number[];
     numFieldTypes: number;
 
-    dates: number[] = [];
-    datesCache: number[] = [];
-    weeks: number[] = [];
+    dates: number[];
+    datesCache: number[];
+    weeks: number[];
 
     loaded: boolean;
     executeStartTime: number;
@@ -68,6 +68,9 @@ export class DataLoaderNode extends BaseDataNode {
     }
 
     load(callback: (data: TrainingData) => void) {
+        this.loaded = false;
+        this.fields = {};
+
         var startTime = Date.now();
 
         this.features = {};
@@ -88,6 +91,10 @@ export class DataLoaderNode extends BaseDataNode {
                     return;
                 } else {
                     var prevDate;
+                    this.dates = [];
+                    this.datesCache = [];
+                    this.weeks = [];
+
                     for (var i = 0, cnt = results.length; i < cnt; i++) {
                         if (!results[i].hide) {
                             var date = parseInt(results[i].date.toString());

@@ -129,8 +129,6 @@ export abstract class BaseNode<T extends Node> {
     private receiveActivation(event: ActivateNodeEvent) {
         var t = Date.now() - event.created;
         Network.timings.event += t;
-        //console.log(event.senderId, event.created, Date.now());
-        //console.log(this.node.name, this.node._id, t, ' - ', Network.timings.event);
 
         this.state.date = event.date;
         this.state.inputActivations[event.senderId] = event.data;
@@ -170,7 +168,6 @@ export abstract class BaseNode<T extends Node> {
         this.persistActivation(event);
         Network.timings.activation += Date.now() - startTime;
         this.notify(event);
-        //console.log('node', this.node.name, 'activated');
     }
 
     activateMatrix(activation: Activation, inActivation: Activation, useLinear: boolean) {
@@ -237,7 +234,6 @@ export abstract class BaseNode<T extends Node> {
 
         Network.timings.backpropagation += Date.now() - startTime;
         this.notify(new BackpropagateEvent({ error: delta, weights: this.node.weights }, event.date));
-        //console.log('backpropagating node ', this.node.name, VirtualNodeService.pid);
     }
 
     backpropagateMatrix(delta: Activation, state: State, activationError: ActivationError) {
@@ -320,8 +316,6 @@ export abstract class BaseNode<T extends Node> {
             }
             
             this.resetError();*/
-
-            //console.log(this.node._id, 'weights:', this.node.weights, 'bias:', this.node.bias);
         }
 
         Network.timings.updateWeight += Date.now() - startTime;

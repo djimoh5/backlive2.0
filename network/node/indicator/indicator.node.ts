@@ -35,7 +35,7 @@ export class IndicatorNode extends BaseNode<Indicator> {
         else {
             this.calculator.addValue('allCacheKeys', event.data.allCacheKeys);
             var vals: { [key: string]: number } = this.calculator.execute(this.node, event.data.cache);
-            vals = Stats.percentRank(vals);
+            vals = Stats.zScore(vals); //Stats.percentRank(vals);
 
             this.notify(new DataFeatureEvent(vals, event.date));
             /*var actVals: number[] = [];

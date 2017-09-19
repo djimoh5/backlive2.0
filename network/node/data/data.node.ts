@@ -109,11 +109,9 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
             }
 
             this.currentRecord += this.batchSize;
-            //console.log(data.input.length, this.currentRecord)
             this.activate(new ActivateNodeEvent(activation, date));
         }
         else {
-            //console.log(data.input.length / this.numFeatures)
             this.notify(new EpochCompleteEvent(null));
         }*/
     }

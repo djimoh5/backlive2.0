@@ -49,14 +49,15 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     const double epochs = info[index++]->IntegerValue();
     const double batchSize = info[index++]->IntegerValue();
     const double regParam = info[index++]->NumberValue();
+    const double costFunctionType = info[index++]->IntegerValue();
     int* hiddenLayers = (int*) node::Buffer::Data(info[index]->ToObject());
     size_t hiddenLen = node::Buffer::Length(info[index++]->ToObject()) / sizeof(int);
-
+    
     std::printf("train data: %d %d\n ", trainRows, numFeatures);
     std::printf("train lbl data: %d %d\n ", trainRows, numClasses);
     std::printf("test data: %d %d\n ", testRows, numFeatures);
     std::printf("test lbl data: %d %d\n ", testRows, numClasses);
-    std::printf("network params: %f %f %f %f %d\n ", learningRate, epochs, batchSize, regParam, hiddenLen);
+    std::printf("network params: %f %f %f %f %f %d\n ", learningRate, epochs, batchSize, regParam, costFunctionType, hiddenLen);
 
     npy_intp trainDims[2] = { trainRows, numFeatures };
     npy_intp trainLblDims[2] = { trainRows, numClasses };
@@ -122,7 +123,7 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         cout << "building function args" << endl;
         index = 0;
 
-        PyObject *pArgs = PyTuple_New(9);
+        PyObject *pArgs = PyTuple_New(10);
         PyTuple_SetItem(pArgs, index++, npTrain);
         PyTuple_SetItem(pArgs, index++, npTrainLbl);
         PyTuple_SetItem(pArgs, index++, npTest);
@@ -131,6 +132,7 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(epochs));
         PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(batchSize));
         PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(regParam));
+        PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(costFunctionType));
         PyTuple_SetItem(pArgs, index++, npHiddenLayers);
         
         cout << "function args set" << endl;
@@ -144,7 +146,7 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         Py_XDECREF(pFunction);
         Py_DECREF(pModule);
         
-        //Py_Finalize(); crashes program
+        Py_Finalize(); //crashes program
     }
     catch(const std::runtime_error& re)
     {

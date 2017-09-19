@@ -10,6 +10,6 @@ Database.open(() => {
     var serverSocket =  new ServerSocket(server.getServer());
 
     // init network
-    var proc: ChildProcess = require('child_process').fork('./network/main.ts');  
+    var proc: ChildProcess = require('child_process').fork('./network/main.ts');
     serverSocket.registerProcess(proc);
 });

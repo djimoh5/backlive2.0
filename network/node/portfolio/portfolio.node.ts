@@ -63,7 +63,6 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     }
 
     setPrices(date: number, data: DataResult) {
-        //console.log('portfolio computing actual output for ', date);
         var startTime = Date.now();
 
         this.date = date;
@@ -121,7 +120,8 @@ export class PortfolioNode extends BaseNode<Portfolio> {
                                 labels[tkr.ticker] = [0, 1, 0];
                             }*/
                             //labels[tkr.ticker] = [ret]; //linear activation
-                            labels[tkr.ticker] = [1 / (1 + Math.exp(-ret))]; //sigmoid activation
+                            labels[tkr.ticker] = [ret > 0 ? 1 : 0, ret > 0 ? 0 : 1]; //classification
+                            //labels[tkr.ticker] = [1 / (1 + Math.exp(-ret))]; //sigmoid activation
                             //console.log(tkr.ticker, labels[tkr.ticker]);
                         }
                     }

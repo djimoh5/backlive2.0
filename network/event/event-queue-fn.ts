@@ -48,9 +48,7 @@ export class EventQueue {
         var eventName = event.eventName;
 
         if (this.events[eventName]) {
-            //console.log('before timeout', event.senderId, event.created, Date.now());
             setImmediate(() => {
-                //console.log('after timeout', event.senderId, event.created, Date.now());
                 var cnt = 0, scnt = 0;
 
                 for (var subscriberId in this.events[eventName]) {
@@ -63,7 +61,6 @@ export class EventQueue {
                     });
                 }
 
-                //console.log(eventName, cnt, scnt)
                 if (cnt == 0) {
                     //console.log('EVENT: ' + eventName + ' has no subscribers');
                 }

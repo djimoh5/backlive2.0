@@ -1,3 +1,5 @@
+/// <reference path="../../typings/index.d.ts" />
+
 var jStat = require("../../js/jstat.min.js").jStat;
 
 export class Stats {
@@ -7,9 +9,27 @@ export class Stats {
         var arr: string[] = Stats.sort(vals, sortDesc);
         var len = arr.length;
 
-        arr.forEach((key, index) => {
-            newVals[key] = (len - index) / len;
-        });
+        for(var i = 0; i < len; i++) {
+            newVals[arr[i]] = (len - i) / len;
+        }
+
+        return newVals;
+    }
+
+    static zScore(vals: { [key: string]: number }) {
+        var valArr: number[] = [];
+        var newVals: { [key: string]: number } = {};
+
+        for(var key in vals) {
+            valArr.push(vals[key]);
+        }
+
+        var stdev = jStat.stdev(valArr);
+        var mean = jStat.mean(valArr);
+
+        for(var key in vals) {
+            newVals[key] = (vals[key] - mean) / stdev;
+        }
 
         return newVals;
     }

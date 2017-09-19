@@ -14,13 +14,13 @@ print('python neural network started')
 startTime = time.time()
 
 class Network:
-    def __init__(self, learningRate, epochs, batchSize, regParam, hiddenLayers, costFunctionType):
+    def __init__(self, learningRate, epochs, batchSize, regParam, costFunctionType, hiddenLayers):
         self.learningRate = learningRate
         self.epochs = int(epochs)
         self.batchSize = int(batchSize)
         self.regParam = regParam
+        self.costFunctionType = int(costFunctionType)
         self.hiddenLayers = hiddenLayers
-        self.costFunctionType = costFunctionType
 
 def shuffle(a, b):
     assert len(a) == len(b)
@@ -29,7 +29,6 @@ def shuffle(a, b):
 
 def variable_summaries(var):
     """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
-    '''
     with tf.name_scope('summaries'):
       mean = tf.reduce_mean(var)
       tf.summary.scalar('mean', mean)
@@ -38,7 +37,6 @@ def variable_summaries(var):
       #tf.summary.scalar('max', tf.reduce_max(var))
       #tf.summary.scalar('min', tf.reduce_min(var))
       tf.summary.histogram('histogram', var)
-    '''
 
 def get_cost_function(y_, y):
     if network.costFunctionType == 1:
@@ -87,10 +85,10 @@ def create_layer(input_layer, num_nodes, name, is_output_layer=None):
 
     return layer
 
-def run(np_input, np_labels, np_input_test, np_labels_test, learningRate, epochs, batchSize, regParam, hiddenLayers, costFunctionType=1):
+def run(np_input, np_labels, np_input_test, np_labels_test, learningRate, epochs, batchSize, regParam, costFunctionType, hiddenLayers):
     global network
-    network = Network(learningRate, epochs, batchSize, regParam, hiddenLayers, costFunctionType)
-    print("{0} {1} {2} {3} {4} {5}".format(network.learningRate, network.epochs, network.batchSize, network.regParam, network.hiddenLayers, network.costFunctionType))
+    network = Network(learningRate, epochs, batchSize, regParam, costFunctionType, hiddenLayers)
+    print("{0} {1} {2} {3} {4} {5}".format(network.learningRate, network.epochs, network.batchSize, network.regParam, network.costFunctionType, network.hiddenLayers))
 
     num_feat = np_input.shape[1]
     num_cls = np_labels.shape[1]
@@ -111,6 +109,9 @@ def run(np_input, np_labels, np_input_test, np_labels_test, learningRate, epochs
 
         with tf.name_scope("input"):
             variable_summaries(x)
+
+        with tf.name_scope("labels"):
+            variable_summaries(y_)
 
         input_layer = x
 
@@ -153,7 +154,7 @@ def run(np_input, np_labels, np_input_test, np_labels_test, learningRate, epochs
 
             #train_step.run(feed_dict={x: np_input[start:end:1], y_: np_labels[start:end:1]})
 
-            if i % 1000 == 0:
+            if i % 100 == 0:
                 summary, acc = sess.run([merged, accuracy], feed_dict={x: np_input_test, y_: np_labels_test})
                 print('Accuracy at step ' + str(i) + ': ' + str(acc))
                 test_writer.add_summary(summary, i)
