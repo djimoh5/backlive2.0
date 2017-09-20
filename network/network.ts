@@ -114,6 +114,8 @@ export class Network {
                 this.activity(false);
             });
         }
+        
+        console.log('loading network');
     }
 
     executeNetwork(network: NetworkModel, rootNode: Node = null) {
@@ -149,6 +151,8 @@ export class Network {
                 this.prevStartTime = this.startTime;
                 AppEventQueue.notify(new TrainDataEvent(this.network.batchSize));
             }
+
+            console.log('executing network');
         };
     }
 

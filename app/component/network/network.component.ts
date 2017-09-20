@@ -99,6 +99,11 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         this.networkService.update(this.network);
     }
 
+    updateHiddenLayers(str: string) {
+        this.network.hiddenLayers = str.split(',').map(s => { return parseInt(s); });
+        this.update();
+    }
+
     loadNetwork(network: Network) {
         this.network = network;
         this.nodes = [];

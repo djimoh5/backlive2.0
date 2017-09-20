@@ -19,6 +19,8 @@ export class DataLoaderNode extends BaseDataNode {
 
     features: { [key: number]: { [key: string]: number }[] }; //date => tkr => features
     featuresLbl: { [key: number]: { [key: string]: number[] } }; //date => tkr => output
+    featuresIndex: { [key: number]: { [key: string]: number } }; //date => feature _id => index
+    featuresSort: string[]; //feature _id
 
     tmpTrainingData: { input: number[], labels: number[] };
     tmpTestData: { input: number[], labels: number[] };
@@ -45,6 +47,7 @@ export class DataLoaderNode extends BaseDataNode {
         this.subscribe(DataSubscriptionEvent, event => {
             if(event.data.isFeature) {
                 this._numFeatures++;
+                this.featuresSort.push(event.senderId);
             }
 
             this.setFields(event.data.params);
@@ -57,6 +60,7 @@ export class DataLoaderNode extends BaseDataNode {
         });
 
         this.subscribe(DataFeatureEvent, event => {
+            this.featuresIndex[event.date][event.senderId] = this.features[event.date].length;
             this.features[event.date].push(event.data);
             this.buildTrainingData(event.date);
         });
@@ -73,8 +77,11 @@ export class DataLoaderNode extends BaseDataNode {
 
         var startTime = Date.now();
 
+        this._numFeatures = 0;
         this.features = {};
         this.featuresLbl = {};
+        this.featuresIndex = {};
+        this.featuresSort = [];
 
         this.trainingData = { input: null, labels: null };
         this.testData = { input: null, labels: null };
@@ -99,7 +106,7 @@ export class DataLoaderNode extends BaseDataNode {
                         if (!results[i].hide) {
                             var date = parseInt(results[i].date.toString());
 
-                            if(date >= 20120101 && date <= 20170108) {
+                            if(date >= 20050101 && date <= 20170108) {
                                 if(prevDate && date <= prevDate) {
                                     console.log("Error: Duplicate network dates fired " + date);
                                     throw("Duplicate network dates fired " + date);
@@ -113,7 +120,7 @@ export class DataLoaderNode extends BaseDataNode {
                         }
                     }
 
-                    this.validationDate = 20160108;
+                    this.validationDate = 20150108;
                 }
 
                 Network.timings.data += Date.now() - startTime;
@@ -147,7 +154,8 @@ export class DataLoaderNode extends BaseDataNode {
                     var validKey: boolean = true;
                     var tmpVals: number[] = [];
 
-                    for(var i = 0, feature: { [key: string]: number }; feature = this.features[date][i]; i++) {
+                    for(var i = 0, len = this.featuresSort.length; i < len; i++) {
+                        var feature = this.features[date][this.featuresIndex[date][this.featuresSort[i]]];
                         if(feature.hasOwnProperty(key)) {
                             tmpVals.push(feature[key]);
                         }
@@ -186,6 +194,7 @@ export class DataLoaderNode extends BaseDataNode {
 
         delete this.features[date];
         delete this.featuresLbl[date];
+        delete this.featuresIndex[date];
 
         if(!isFromCache) {
             this.cacheData(Network.network._id, date, vals, valsLbl, keys);
@@ -219,6 +228,7 @@ export class DataLoaderNode extends BaseDataNode {
                 }
                 else {
                     this.features[this.currentDate] = [];
+                    this.featuresIndex[this.currentDate] = {};
 
                     this.data = {};
                     this.allCacheKeys = [];
@@ -406,7 +416,9 @@ export class DataLoaderNode extends BaseDataNode {
     private getTickerFilter() {
         var filter: { [key: string]: any } = null;
         if(this.filterEvent) {
-            filter = {};
+            filter = { ticker: { 
+                $nin: ['SP500', 'SCT_01', 'SCT_02', 'SCT_03', 'SCT_04', 'SCT_05', 'SCT_06', 'SCT_07', 'SCT_08', 'SCT_09', 'SCT_10', 'SCT_11', 'SCT_12']
+            }};
             var data = this.filterEvent.data;
 
             if(data.exchange) {

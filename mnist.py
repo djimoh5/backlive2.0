@@ -166,7 +166,10 @@ def run(np_input, np_labels, np_input_test, np_labels_test, learningRate, epochs
 
         #print(accuracy.eval(feed_dict={x: np_input_test, y_: np_labels_test}))
         summary, acc = sess.run([merged, accuracy], feed_dict={x: np_input_test, y_: np_labels_test})
-        print('Accuracy: ' + str(acc))
+        print('Test Accuracy: ' + str(acc))
+
+        summary, acc = sess.run([merged, accuracy], feed_dict={x: np_input, y_: np_labels})
+        print('Train Accuracy: ' + str(acc))
         #test_writer.add_summary(summary, 0)
 
         return 1

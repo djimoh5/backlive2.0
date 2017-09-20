@@ -26,7 +26,7 @@
         </div>
         <div class="param">
             <label>Hid Nodes</label>
-            <input type="text"[(ngModel)]="network.hiddenLayers[0]" class="form-control" (blur)="update()" />
+            <input type="text" [value]="network.hiddenLayers.join(',')" class="form-control" (blur)="updateHiddenLayers($event.target.value)" />
         </div>
     </div>
     <ng-container *ngFor="let node of nodes; let i = index">

@@ -35,6 +35,11 @@ export class IndicatorNode extends BaseNode<Indicator> {
         else {
             this.calculator.addValue('allCacheKeys', event.data.allCacheKeys);
             var vals: { [key: string]: number } = this.calculator.execute(this.node, event.data.cache);
+
+            /*console.log(this.node.name, this.node._id);
+            if(this.node.name === 'Up Revisions Yr')
+                Stats.sort(vals).forEach(key => console.log(key, vals[key]));*/
+
             vals = Stats.zScore(vals); //Stats.percentRank(vals);
 
             this.notify(new DataFeatureEvent(vals, event.date));

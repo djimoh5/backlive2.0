@@ -31,6 +31,30 @@ export class Stats {
             newVals[key] = (vals[key] - mean) / stdev;
         }
 
+        //console.log(mean, stdev);
+        return newVals;
+    }
+
+    static scaleMinMax(vals: { [key: string]: number }) {
+        var newVals: { [key: string]: number } = {};
+        var max: number = null, min: number = null;
+
+        for(var key in vals) {
+            if(max === null || vals[key] > max) {
+                max = vals[key];
+            }
+            
+            if(min === null || vals[key] < min) {
+                min = vals[key];
+            }
+        }
+
+        var range = max - min;
+
+        for(var key in vals) {
+            newVals[key] = (vals[key] - min) / range;
+        }
+
         return newVals;
     }
 
