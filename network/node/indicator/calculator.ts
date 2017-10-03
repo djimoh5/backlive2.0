@@ -158,16 +158,27 @@ export class Calculator {
     }
 
     isValueExcluded(indicator: Indicator, val: number) {
+        var excluded = false;
+
         if(indicator.exclType != ExclusionType.None) {
-            switch(indicator.exclOp) {
-                case Conditional.LessThanOrEqual: return val <= indicator.excl;
-                case Conditional.LessThan: return val < indicator.excl;
-                case Conditional.GreaterThanOrEqual: return val >= indicator.excl;
-                case Conditional.GreaterThan: return val > indicator.excl;
-            }
+            var excl = this.valueExcluded(indicator.exclOp1, val, indicator.excl1) ||
+                this.valueExcluded(indicator.exclOp2, val, indicator.excl2)
+
+            return excl;
         }
 
         return false;
+    }
+
+    private valueExcluded(op: Conditional, value, excludeVal)
+    {
+        switch(op) {
+            case Conditional.LessThanOrEqual: return value <= excludeVal;
+            case Conditional.LessThan: return value < excludeVal;
+            case Conditional.GreaterThanOrEqual: return value >= excludeVal;
+            case Conditional.GreaterThan: return value > excludeVal;
+            default: return false;
+        }
     }
 
     addValue(key: string, val: any) {

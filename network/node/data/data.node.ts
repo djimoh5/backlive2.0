@@ -23,7 +23,7 @@ export interface IDataNode {
 export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
     trainingData: TrainingData;
     trainingDataKeys: string[];
-    testData: TrainingData;
+    //testData: TrainingData;
     testDataKeys: string[];
     
     validating: boolean;
@@ -81,13 +81,6 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
 
         this.activate(new ActivateNodeEvent(activation, date));
 
-        activation = new Activation(
-            [this.testData.input.length / this._numFeatures, this._numFeatures], this.testData.input, 
-            [this.testData.labels.length / this.numClasses, this.numClasses], this.testData.labels
-        );
-
-        this.activate(new ActivateNodeEvent(activation, date));
-        
         /*var data = this.validating ? this.testData : this.trainingData;
         date = date || (this.validating ? (this.currentRecord + this.trainingData.input.length) : this.currentRecord);
 
@@ -129,6 +122,13 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
     protected loadFromCache(id: string, date: number, callback: (err, result) => void) {
         var collection = Database.cache.collection('nn_data_cache');
         collection.findOne({ id: id, date: date }, callback);
+    }
+
+    protected appendFloat32Array(floatArr1: Float32Array, floatArr2: Float32Array) {
+        var appended: Float32Array = new Float32Array(floatArr1.length + floatArr2.length);
+        appended.set(floatArr1);
+        appended.set(floatArr2, floatArr1.length);
+        return appended;
     }
 }
 

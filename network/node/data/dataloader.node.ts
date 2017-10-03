@@ -13,8 +13,8 @@ import { Network } from '../../network';
 export class DataLoaderNode extends BaseDataNode {
     fields: Fields;
     ticker: string | string[];
-    startDate: number;
-    endDate: number;
+    startDate: number = 20120101;
+    endDate: number = 20170108;
     filterEvent: DataFilterEvent;
 
     features: { [key: number]: { [key: string]: number }[] }; //date => tkr => features
@@ -23,9 +23,7 @@ export class DataLoaderNode extends BaseDataNode {
     featuresSort: string[]; //feature _id
 
     tmpTrainingData: { input: number[], labels: number[] };
-    tmpTestData: { input: number[], labels: number[] };
     
-    validationDate: number;
     currentDate: number;
 
     nonTickerTypes: IndicatorParamType[] = [IndicatorParamType.Macro];
@@ -55,8 +53,9 @@ export class DataLoaderNode extends BaseDataNode {
 
         this.subscribe(DataFilterEvent, event => {
             this.filterEvent = event;
-            this.startDate = event.data.startDate;
-            this.endDate = event.data.endDate;
+            //this.startDate = event.data.startDate;
+            //this.endDate = event.data.endDate;
+            console.log(event.data, this.startDate, this.endDate)
         });
 
         this.subscribe(DataFeatureEvent, event => {
@@ -84,15 +83,12 @@ export class DataLoaderNode extends BaseDataNode {
         this.featuresSort = [];
 
         this.trainingData = { input: null, labels: null };
-        this.testData = { input: null, labels: null };
 
         this.tmpTrainingData = { input: [], labels: [] };
-        this.tmpTestData = { input: [], labels: [] };
         this.trainingDataKeys = [];
-        this.testDataKeys = [];
 
         Database.mongo.collection('file_date', (err, collection) => {
-            collection.find({ wk: 1 }).sort({ date: 1 }).toArray((err, results) => {
+            collection.find({}).sort({ date: 1 }).toArray((err, results) => {
                 if (err) {
                     console.log('Error selecting data: ' + err.message);
                     return;
@@ -106,7 +102,7 @@ export class DataLoaderNode extends BaseDataNode {
                         if (!results[i].hide) {
                             var date = parseInt(results[i].date.toString());
 
-                            if(date >= 20050101 && date <= 20170108) {
+                            if(date >= this.startDate && date <= this.endDate) {
                                 if(prevDate && date <= prevDate) {
                                     console.log("Error: Duplicate network dates fired " + date);
                                     throw("Duplicate network dates fired " + date);
@@ -119,10 +115,9 @@ export class DataLoaderNode extends BaseDataNode {
                             }
                         }
                     }
-
-                    this.validationDate = 20150108;
                 }
 
+                console.log(this.dates);
                 Network.timings.data += Date.now() - startTime;
                 callback(null);
             });
@@ -181,16 +176,9 @@ export class DataLoaderNode extends BaseDataNode {
     }
 
     private persistData(date: number, vals: number[], valsLbl: number[], keys: string[], isFromCache: boolean = false) {
-        if(this.currentDate < this.validationDate) {
-            this.tmpTrainingData.input.push.apply(this.tmpTrainingData.input, vals);
-            this.tmpTrainingData.labels.push.apply(this.tmpTrainingData.labels, valsLbl);
-            this.trainingDataKeys.push.apply(this.trainingDataKeys, keys);
-        }
-        else {
-            this.tmpTestData.input.push.apply(this.tmpTestData.input, vals);
-            this.tmpTestData.labels.push.apply(this.tmpTestData.labels, valsLbl);
-            this.testDataKeys.push.apply(this.testDataKeys, keys);
-        }
+        this.tmpTrainingData.input.push.apply(this.tmpTrainingData.input, vals);
+        this.tmpTrainingData.labels.push.apply(this.tmpTrainingData.labels, valsLbl);
+        this.trainingDataKeys.push.apply(this.trainingDataKeys, keys);
 
         delete this.features[date];
         delete this.featuresLbl[date];
@@ -204,11 +192,8 @@ export class DataLoaderNode extends BaseDataNode {
     private convertTmpData() {
         this.trainingData.input = new Float32Array(this.tmpTrainingData.input);
         this.trainingData.labels = new Float32Array(this.tmpTrainingData.labels);
-        this.testData.input = new Float32Array(this.tmpTestData.input);
-        this.testData.labels = new Float32Array(this.tmpTestData.labels);
-        this.tmpTrainingData = this.tmpTestData = null;
+        this.tmpTrainingData = null;
         console.log(this.trainingData.input.length, this.trainingData.labels.length);
-        console.log(this.testData.input.length, this.testData.labels.length);
     }
 
     private loadNextTick() {
@@ -270,7 +255,6 @@ export class DataLoaderNode extends BaseDataNode {
         else {
             this.convertTmpData();
             //console.log(this.trainingData);
-            //console.log(this.testData);
             console.log('data loaded successfully');
             console.timeEnd('dataloader-time');
             this.nextBatch();

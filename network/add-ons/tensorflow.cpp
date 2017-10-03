@@ -38,12 +38,9 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     float* trainLblData = (float*) node::Buffer::Data(info[index++]->ToObject());
     const int trainRows = info[index++]->IntegerValue();
 
-    float* testData = (float*) node::Buffer::Data(info[index++]->ToObject());
-    float* testLblData = (float*) node::Buffer::Data(info[index++]->ToObject());
-    const int testRows = info[index++]->IntegerValue();
-
     const int numFeatures = info[index++]->IntegerValue();
     const int numClasses = info[index++]->IntegerValue();
+    const double percentTestData = info[index++]->NumberValue();
 
     const double learningRate = info[index++]->NumberValue();
     const double epochs = info[index++]->IntegerValue();
@@ -53,16 +50,11 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     int* hiddenLayers = (int*) node::Buffer::Data(info[index]->ToObject());
     size_t hiddenLen = node::Buffer::Length(info[index++]->ToObject()) / sizeof(int);
     
-    std::printf("train data: %d %d\n ", trainRows, numFeatures);
-    std::printf("train lbl data: %d %d\n ", trainRows, numClasses);
-    std::printf("test data: %d %d\n ", testRows, numFeatures);
-    std::printf("test lbl data: %d %d\n ", testRows, numClasses);
+    std::printf("train data: %d %d %d %f\n ", trainRows, numFeatures, numClasses, percentTestData);
     std::printf("network params: %f %f %f %f %f %d\n ", learningRate, epochs, batchSize, regParam, costFunctionType, hiddenLen);
 
     npy_intp trainDims[2] = { trainRows, numFeatures };
     npy_intp trainLblDims[2] = { trainRows, numClasses };
-    npy_intp testDims[2] = { testRows, numFeatures };
-    npy_intp testLblDims[2] = { testRows, numClasses };
     npy_intp hiddenDims[1] = { hiddenLen };
     int nd = 2;
 
@@ -102,8 +94,6 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
         PyObject* npTrain = PyArray_SimpleNewFromData(nd, trainDims, NPY_FLOAT32, trainData);
         PyObject* npTrainLbl = PyArray_SimpleNewFromData(nd, trainLblDims, NPY_FLOAT32, trainLblData);
-        PyObject* npTest = PyArray_SimpleNewFromData(nd, testDims, NPY_FLOAT32, testData);
-        PyObject* npTestLbl = PyArray_SimpleNewFromData(nd, testLblDims, NPY_FLOAT32, testLblData);
         PyObject* npHiddenLayers = PyArray_SimpleNewFromData(1, hiddenDims, NPY_INT32, hiddenLayers);
 
         cout << "converted pointers to numpy arrays" << endl;
@@ -123,11 +113,10 @@ void Tensorflow(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         cout << "building function args" << endl;
         index = 0;
 
-        PyObject *pArgs = PyTuple_New(10);
+        PyObject *pArgs = PyTuple_New(9);
         PyTuple_SetItem(pArgs, index++, npTrain);
         PyTuple_SetItem(pArgs, index++, npTrainLbl);
-        PyTuple_SetItem(pArgs, index++, npTest);
-        PyTuple_SetItem(pArgs, index++, npTestLbl);
+        PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(percentTestData));
         PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(learningRate));
         PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(epochs));
         PyTuple_SetItem(pArgs, index++, PyFloat_FromDouble(batchSize));

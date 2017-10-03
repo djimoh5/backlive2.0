@@ -24,7 +24,7 @@ export class PortfolioNode extends BaseNode<Portfolio> {
     dates: number[] = [];
 
     capital: number = 50000;
-    tradingFreq: number = 1; //# of periods
+    tradingFreq: number = 4; //# of periods
     positions: Position[] = [];
 
     marketPrices: { [key: number]: number } = {};

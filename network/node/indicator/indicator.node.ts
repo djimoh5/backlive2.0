@@ -40,7 +40,7 @@ export class IndicatorNode extends BaseNode<Indicator> {
             if(this.node.name === 'Up Revisions Yr')
                 Stats.sort(vals).forEach(key => console.log(key, vals[key]));*/
 
-            vals = Stats.zScore(vals); //Stats.percentRank(vals);
+            //vals = Stats.zScore(vals); //Stats.percentRank(vals);
 
             this.notify(new DataFeatureEvent(vals, event.date));
             /*var actVals: number[] = [];

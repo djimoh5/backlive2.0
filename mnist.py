@@ -29,6 +29,7 @@ def shuffle(a, b):
 
 def variable_summaries(var):
     """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
+    '''
     with tf.name_scope('summaries'):
       mean = tf.reduce_mean(var)
       tf.summary.scalar('mean', mean)
@@ -37,6 +38,7 @@ def variable_summaries(var):
       #tf.summary.scalar('max', tf.reduce_max(var))
       #tf.summary.scalar('min', tf.reduce_min(var))
       tf.summary.histogram('histogram', var)
+    '''
 
 def get_cost_function(y_, y):
     if network.costFunctionType == 1:
@@ -85,15 +87,33 @@ def create_layer(input_layer, num_nodes, name, is_output_layer=None):
 
     return layer
 
-def run(np_input, np_labels, np_input_test, np_labels_test, learningRate, epochs, batchSize, regParam, costFunctionType, hiddenLayers):
+def normalize(a):
+    print("normalizing training data")
+    a = (a - a.mean(axis=0)) / a.std(axis=0)
+    return a
+
+def run(np_input, np_labels, percentTestData, learningRate, epochs, batchSize, regParam, costFunctionType, hiddenLayers, normalizeInput=True):
     global network
     network = Network(learningRate, epochs, batchSize, regParam, costFunctionType, hiddenLayers)
+    print(percentTestData)
     print("{0} {1} {2} {3} {4} {5}".format(network.learningRate, network.epochs, network.batchSize, network.regParam, network.costFunctionType, network.hiddenLayers))
 
     num_feat = np_input.shape[1]
     num_cls = np_labels.shape[1]
 
     try:
+        if normalizeInput:
+            np_input = normalize(np_input)
+
+        numInputs = len(np_input)
+        cutoff = math.floor(numInputs * (1 - percentTestData))
+        print("{0}, {1}", numInputs, cutoff)
+
+        np_input_test = np_input[cutoff:numInputs:1]
+        np_labels_test = np_labels[cutoff:numInputs:1]
+        np_input = np_input[0:cutoff:1]
+        np_labels = np_labels[0:cutoff:1]
+
         print(np_input.shape)
         print(np_labels.shape)
         print(np_input_test.shape)
@@ -129,10 +149,6 @@ def run(np_input, np_labels, np_input_test, np_labels_test, learningRate, epochs
 
         train_step = tf.train.GradientDescentOptimizer(network.learningRate).minimize(cost_function)
 
-        numInputs = len(np_input) #or np_input.shape[0]
-        loops = math.ceil(numInputs / batchSize)
-        epochs = network.epochs
-
         with tf.name_scope('accuracy'):
             accuracy = get_accuracy_function(y_, y)
             tf.summary.scalar('accuracy', accuracy)
@@ -141,6 +157,10 @@ def run(np_input, np_labels, np_input_test, np_labels_test, learningRate, epochs
         train_writer = tf.summary.FileWriter('./nn/train', sess.graph)
         test_writer = tf.summary.FileWriter('./nn/test')
         tf.global_variables_initializer().run()
+
+        numInputs = len(np_input) #or np_input.shape[0]
+        loops = math.ceil(numInputs / batchSize)
+        epochs = network.epochs
 
         for i in range(loops * epochs):
             start = (i % loops) * network.batchSize
@@ -153,14 +173,15 @@ def run(np_input, np_labels, np_input_test, np_labels_test, learningRate, epochs
                 epochs = epochs - 1
 
             #train_step.run(feed_dict={x: np_input[start:end:1], y_: np_labels[start:end:1]})
-
-            if i % 100 == 0:
+            '''
+            if i == 0 or i % 100 == 0:
                 summary, acc = sess.run([merged, accuracy], feed_dict={x: np_input_test, y_: np_labels_test})
                 print('Accuracy at step ' + str(i) + ': ' + str(acc))
                 test_writer.add_summary(summary, i)
             else:
-                summary, _ = sess.run([merged, train_step], feed_dict={x: np_input[start:end:1], y_: np_labels[start:end:1]})
-                train_writer.add_summary(summary, i)
+            '''
+            summary, _ = sess.run([merged, train_step], feed_dict={x: np_input[start:end:1], y_: np_labels[start:end:1]})
+            train_writer.add_summary(summary, i)
 
         print('time: ' + str(time.time() - startTime))
 
@@ -185,7 +206,7 @@ def run(np_input, np_labels, np_input_test, np_labels_test, learningRate, epochs
 
 def run_mnist():
     print('running mnist')
-    run(mnist.train.images, mnist.train.labels, mnist.test.images, mnist.test.labels, .5, 30, 100, 0, [100], 1)
+    run(np.concatenate((mnist.train.images, mnist.test.images)), np.concatenate((mnist.train.labels, mnist.test.labels)), .2, .5, 30, 100, 0, 1, [100], False)
     return 1
 
 #run_mnist()

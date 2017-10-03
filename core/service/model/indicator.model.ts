@@ -17,8 +17,11 @@ export class Indicator extends Node {
     aggrPeriod: AggregationPeriod = AggregationPeriod.Months;
     
     exclType: ExclusionType = ExclusionType.None;
-    exclOp: Conditional = Conditional.LessThanOrEqual;
-    excl: number = null;
+    exclOp1: Conditional = Conditional.LessThanOrEqual;
+    excl1: number = null;
+    exclOp2: Conditional = Conditional.LessThanOrEqual;
+    excl2: number = null;
+
     rankIndustry: booleanInt = 0;
     
     //exp: number = 100;
@@ -80,6 +83,7 @@ export enum Operator {
 }
 
 export enum Conditional {
+    None = 0,
     LessThanOrEqual = 1,
     LessThan = 2,
     GreaterThanOrEqual = 3,

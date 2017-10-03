@@ -14,7 +14,7 @@
                     <option value="100,102">player</option>
                 </select>
             </div>
-            <div class="aggr col-xs-12 col-md-4">
+            <!--<div class="aggr col-xs-12 col-md-4">
                 Transform Value
                 <ui-icon type="question" tooltip="Choose 'No Transform' to use exact value from above calculation. Or choose to average, sum, % change etc. the value over a specified time period."></ui-icon>
                 <br/>
@@ -52,7 +52,7 @@
                         </select>
                     </ng-template>
                 </div>
-            </div>
+            </div>-->
             <div *ngIf="indicator.env !== 'sports'" class="col-xs-6 col-md-4">
                 Rank By <ui-icon type="question" tooltip="Rank all stocks together or rank each sector separately"></ui-icon>
                 <br/>
@@ -97,23 +97,42 @@
                     ]">
                 </radio-button>
             </div>
+            <div class="aggr col-xs-6 col-md-4">
+                History
+                <ui-icon type="question" tooltip="Choose 'No Transform' to use exact value from above calculation. Or choose to average, sum, % change etc. the value over a specified time period."></ui-icon>
+                <br/>
+                <input [(ngModel)]="indicator.aggrSpan" type="text" class="form-control aggr-span" />
+                <select [(ngModel)]="indicator.aggrSpanType" class="form-control">
+                    <option value="1">days</option>
+                    <option value="2">months</option>
+                    <option value="3">years</option>
+                </select>
+            </div>
             <div class="exclude col-xs-6 col-md-4">
                 <span>Exclude If</span> <ui-icon type="question" tooltip="Filter out stocks whose value for this indicator do not pass this rule."></ui-icon>
                 <br/>
-                <radio-button [(value)]="indicator.exclType" 
-                    [options]="[
-                        { value: 0, title: 'N/A' }, 
-                        { value: 1, title: 'value' },
-                        { value: 2, title: 'percent rank' }
-                    ]">
-                </radio-button>
-                <select [(ngModel)]="indicator.exclOp" [class.hidden]="indicator.exclType === 0" class="form-control">
+                <input [(ngModel)]="indicator.excl2" [class.hidden]="indicator.exclType == 0 || indicator.exclOp2 == 0" type="text" class="form-control" placeholder="value" />
+                <select [(ngModel)]="indicator.exclOp2" [class.hidden]="indicator.exclType == 0" class="form-control">
+                    <option value="0">N/A</option>
                     <option value="1">&lt;=</option>
                     <option value="2">&lt;</option>
                     <option value="3">&gt;=</option>
                     <option value="4">&gt;</option>
                 </select>
-                <input [(ngModel)]="indicator.excl" [class.hidden]="indicator.exclType === 0" type="text" class="form-control" placeholder="value" />
+                <radio-button [(value)]="indicator.exclType" 
+                    [options]="[
+                        { value: 0, title: 'N/A' }, 
+                        { value: 1, title: 'value' }
+                    ]">
+                </radio-button>
+                <select [(ngModel)]="indicator.exclOp1" [class.hidden]="indicator.exclType == 0" class="form-control">
+                    <option value="0">N/A</option>
+                    <option value="1">&lt;=</option>
+                    <option value="2">&lt;</option>
+                    <option value="3">&gt;=</option>
+                    <option value="4">&gt;</option>
+                </select>
+                <input [(ngModel)]="indicator.excl1" [class.hidden]="indicator.exclType == 0 || indicator.exclOp1 == 0" class="form-control" placeholder="value" />
             </div>
             <div *ngIf="indicator.env != 'sports'" class="col-xs-6 col-md-3 hide">
                 <span>

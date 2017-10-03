@@ -1,7 +1,7 @@
 import { Node, NodeType } from './node.model';
 
 export class Network extends Node {
-    constructor(public learnRate: number, public epochs: number, public batchSize: number, public regParam: number, public hiddenLayers: number[], public costFunctionType: CostFunctionType = 1) {
+    constructor(public learnRate: number, public epochs: number, public batchSize: number, public regParam: number, public hiddenLayers: number[], public costFunctionType: CostFunctionType = 1, public percentTestData = .2) {
         super(NodeType.Network);
     }
 }

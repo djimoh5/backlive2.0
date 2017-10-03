@@ -51,7 +51,10 @@ export class IndicatorComponent extends NodeComponent<Indicator> implements OnIn
                 indicator: this.indicator
             },
             onModalClose: () => {
-                this.inputToNumber(this.indicator, 'excl');
+                this.inputToNumber(this.indicator, 'excl1');
+                this.inputToNumber(this.indicator, 'excl2');
+                this.inputToNumber(this.indicator, 'exclOp1');
+                this.inputToNumber(this.indicator, 'exclOp2');
                 this.update();
             }
         }));
