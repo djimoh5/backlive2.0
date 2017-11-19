@@ -1,0 +1,50 @@
+@import "~styles/plugins/mixins.less";
+@import "~styles/themes/colors.less";
+@import "~styles/themes/text.less";
+
+
+.section {
+    margin-bottom: 25px;
+    input {
+        width: 70px;
+        height: 34px;
+        display: inline-block;
+
+        &.init-capt {
+            width: 120px;
+        }
+    }
+    ui-icon {
+        color: @text-light;
+    }
+}
+.page-header {
+    ui-icon {
+        margin-right: 5px;
+        position: relative;
+        top: 1px;
+        color: @brand-primary;
+    }
+}
+
+.mktcap {
+    input {
+        width: 80px;
+        &:first-child {
+            margin-right: 5px;
+        }
+        &:last-child {
+            margin-left: 5px;
+        }
+    }
+}
+
+.portfolio-settings {
+    .row {
+        padding: 0 10px;
+        > div {
+            display: inline-block;
+            margin: 0 10px 20px 10px;
+        }
+    }
+}

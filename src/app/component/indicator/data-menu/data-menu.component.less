@@ -1,0 +1,44 @@
+@import "~styles/plugins/mixins.less";
+@import "~styles/themes/colors.less";
+@import "~styles/themes/text.less";
+
+.menu {
+    .clearfix;
+    .border-default;
+    .border-radius(5px);
+    .border-top-radius(0);
+    margin-bottom: 15px;
+}
+.pod {
+    margin: 3px;
+}
+.left-col {
+    width: 225px;
+    float: left;
+    .border-default;
+    .category {
+        padding: 7px 12px;
+        border-bottom: 1px solid @border-default;
+        &.active, &:hover {
+            background: @gray-light;
+        }
+    }
+}
+.right-col {
+    float: left;
+    width: ~"calc(100% - 225px)";
+    .field {
+        padding: 7px 12px;
+        border-bottom: 1px solid @border-default;
+        .clearfix;
+        .title {
+            float: left;
+        }
+        .definition {
+            float: right;
+        }
+        &.active, &:hover {
+            background: @gray-lighter;
+        }
+    }
+}

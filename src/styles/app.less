@@ -1,0 +1,104 @@
+@import "~styles/plugins/mixins.less";
+@import "~styles/themes/colors.less";
+@import "~styles/themes/ui.less";
+
+.static { position:static !important; }
+.fixed { position:fixed !important; }
+.relative { position:relative !important; }
+.absolute { position:absolute !important; }
+.inline { display:inline; }
+ul {
+    list-style-type: none;
+}
+a {
+	.transition(color linear 0.2s);
+	&:hover {
+		.transition(color linear 0.2s);
+	}
+}
+h1, h2 {
+    color: @white;
+    font-weight: 700;
+}
+h3, h4, h5 {
+    font-weight: 600;
+}
+
+html, body {
+    height: 100%; 
+}
+
+body {
+    background: #f5f5f5; overflow-x:hidden;
+    background: url(../assets/images/background/earth.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+
+    .opacity(99);
+    -webkit-font-smoothing: antialiased;
+    /*letter-spacing:.5px;*/
+    font-family: "proxima-nova";
+    padding-bottom: 60px;
+}
+.navbar {
+    min-height:40px;
+}
+
+#mainContainer {
+    margin-top:50px;
+    /*.main {
+        padding: 20px;
+        &.nav-visible {
+            margin-left:50px;
+        }
+    }*/
+}
+
+header-control {
+    .navbar-static-top {
+        .pod;
+        min-height:30px;
+        .border-top-radius(0);
+        li {
+            float:left;
+            a {
+                padding-top:5px;
+                padding-bottom:5px;
+            }
+        }
+    }
+}
+
+footer {
+    position:fixed !important;
+    bottom: 0;
+    width:100%;
+    background: transparent;
+    cursor:pointer;
+    z-index:2000;
+    &.fullscreen {
+        margin-left:0px !important;
+        z-index:1998;
+        .container {
+            width:100%;
+        }
+    }
+}
+
+.page-header {
+    padding-bottom: 0px;
+    margin-top: 15px;
+}
+
+.clearfix {
+    .clearfix();
+}
+.pod {
+    .pod();
+}
+
+.inline {
+    display: inline-block;
+}

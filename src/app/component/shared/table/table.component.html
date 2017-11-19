@@ -1,0 +1,78 @@
+<div *ngIf="showSearch" class="col-md-6 table-search">
+    <search-box (search)="searchRows($event)" [ngStyle]="searchBoxStyle" placeholder="Search..."></search-box>
+</div>
+
+<div class="table-container" [class.table-can-scroll]="isScrollable" [class.has-active-filter]="hasActiveFilterFlag">
+    <table #table *ngIf="!isDataTable()" class="table table-striped tablesorter align-{{align}}" [class.table-scrollable]="isScrollable">
+        <ng-content></ng-content>
+    </table>
+    <table #table class="table table-striped tablesorter align-{{align}}" [class.table-scrollable]="isScrollable" *ngIf="isDataTable() && !isMobileView">
+        <thead>
+            <tr>
+                <th *ngFor="let tableColumn of tableRows[0].columns; let j = index" [class.hidden]="isColumnHidden(j)">
+                    <div class="th-table">
+                        <div class="th-tablerow">
+                            <div class="th-tablecell name">{{tableColumn.name}}</div>
+                            <div *ngIf="tableColumn.filterable" class="th-tablecell filter">
+                                <dropdown-menu class="data-filter" (click)="filterClick($event, tableColumn.name)" title="" size="small" [class.active-data-filter]="isActiveFilter(tableColumn.name)" [class.empty-data-filter]="!isPopulatedFilter(tableColumn.name)" [activeFilter]="false" [autoClose]="false" icon="filter">
+                                    <!--<filter-menu [filters]="filters" [selectedName]="selectedTableColumnName" [isDataFilter]="true" (onChange)="filterData($event)"></filter-menu>-->
+                                </dropdown-menu>
+                            </div>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+             <tr *ngFor="let tableRow of tableRows; let i = index" [class.hidden]="tableRow.hidden" [class.active]="isActive(tableRow)" [class.inactive]="isInactive(tableRow)">
+                <td *ngFor="let tableColumn of tableRow.columns; let j = index" [ngSwitch]="tableColumn.type" class="{{tableColumn.class}}" [class.hidden]="isColumnHidden(j)" [class.clickable]="tableColumn.clickable" (click)="cellClicked(tableRow, tableColumn, i, j, $event)">
+                    <ng-template [ngSwitchCase]="TableColumnType.Icon">
+                        <ui-icon *ngIf="tableColumn.value.icon" [type]="tableColumn.value.icon" [tooltip]="tableColumn.value.tooltip" [class.icon-small]="tableColumn.value.iconSmall" class="icon-left"></ui-icon>
+                        <span *ngIf="!tableColumn.value.route" [innerHtml]="tableColumn.value.text"></span>
+                        <a class="link" *ngIf="tableColumn.value.route" [innerHtml]="tableColumn.value.text" [navigate]="[tableColumn.value.route, tableColumn.value.params]"  [class.link-alert]="tableColumn.value.alert"></a>
+                        <ui-icon *ngIf="tableColumn.value.iconRight" [type]="tableColumn.value.iconRight" [tooltip]="tableColumn.value.tooltip" [class.icon-small]="tableColumn.value.iconSmall"></ui-icon>
+                    </ng-template>
+                    <a *ngSwitchCase="TableColumnType.Link" class="link" [navigate]="[tableColumn.value.route, tableColumn.value.params]">{{tableColumn.value.text}}</a>
+                    <a *ngSwitchCase="TableColumnType.ExternalLink" class="link" (click)="open(tableColumn.value.route, tableColumn.value.params)">{{tableColumn.value.text}}</a>
+                    <ui-button *ngSwitchCase="TableColumnType.Button" [type]="tableColumn.value.type">{{tableColumn.value.text}}</ui-button>
+                    <check-box *ngSwitchCase="TableColumnType.Checkbox" [(checked)]="tableColumn.value"></check-box>
+                    <input *ngSwitchCase="TableColumnType.Date" [(datepicker)]="tableColumn.value" (datepickerChange)="cellChanged(tableRow, tableColumn, i, j)" />
+                    <input *ngSwitchCase="TableColumnType.Input" [inputFormat]="tableColumn.typeParam" type="text" class="form-control" [(ngModel)]="tableColumn.value" (blur)="cellChanged(tableRow, tableColumn, i, j)" />
+                    <span *ngSwitchDefault [innerHtml]="tableColumn.value"></span>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot *ngIf="tableRows[0].footerColumns?.length > 0">
+            <tr>
+                <th *ngFor="let tableColumn of tableRows[0].footerColumns; let j = index" [class.hidden]="isColumnHidden(j)" >{{tableColumn.value}}</th>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <table class="table table-striped tablesorter align-left mobile-table" *ngIf="isDataTable() && isMobileView">
+        <tbody>
+            <tr *ngFor="let tableRow of tableRows; let i = index" [class.hidden]="tableRow.hidden" [class.active]="isActive(tableRow)">               
+                <td *ngFor="let tableColumn of tableRow.columns; let j = index" [class.hidden]="isColumnHidden(j)" [class.clickable]="tableColumn.clickable" (click)="cellClicked(tableRow, tableColumn, i, j, $event)">
+                    <div class="row table-cell">
+                        <div class="cell-header col-xs-4">{{tableColumn.name}}</div>
+                        <div class="cell-text col-xs-8" [ngSwitch]="tableColumn.type">
+                            <span *ngSwitchCase="TableColumnType.Icon">
+                                <ui-icon *ngIf="tableColumn.value.icon" [type]="tableColumn.value.icon" [tooltip]="tableColumn.value.tooltip" [class.icon-small]="tableColumn.value.iconSmall"></ui-icon>
+                                <span *ngIf="!tableColumn.value.route" [innerHtml]="tableColumn.value.text"></span>
+                                <a *ngIf="tableColumn.value.route" [innerHtml]="tableColumn.value.text" [navigate]="[tableColumn.value.route, tableColumn.value.params]" [class.link-alert]="tableColumn.value.alert"></a>
+                                <ui-icon *ngIf="tableColumn.value.iconRight" [type]="tableColumn.value.iconRight" [tooltip]="tableColumn.value.tooltip" [class.icon-small]="tableColumn.value.iconSmall"></ui-icon>
+                            </span>
+                            <a *ngSwitchCase="TableColumnType.Link" class="link" [navigate]="[tableColumn.value.route, tableColumn.value.params]">{{tableColumn.value.text}}</a>
+                            <a *ngSwitchCase="TableColumnType.ExternalLink" class="link" (click)="open(tableColumn.value.route, tableColumn.value.params)">{{tableColumn.value.text}}</a>
+                            <ui-button *ngSwitch="TableColumnType.Button" [type]="tableColumn.value.type">{{tableColumn.value.text}}</ui-button>
+                            <check-box *ngSwitch="TableColumnType.Checkbox" [(checked)]="tableColumn.value"></check-box>
+                            <input *ngSwitch="TableColumnType.Date" [(datepicker)]="tableColumn.value" (datepickerChange)="cellChanged(tableRow, tableColumn, i, j)" />
+                            <input *ngSwitch="TableColumnType.Input" [inputFormat]="tableColumn.typeParam" type="text" class="form-control" [(ngModel)]="tableColumn.value" (blur)="cellChanged(tableRow, tableColumn, i, j)" />
+                            <span *ngSwitchDefault [innerHtml]="tableColumn.value"></span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

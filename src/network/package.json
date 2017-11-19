@@ -1,0 +1,18 @@
+{
+  "name": "net-live",
+  "version": "2.0.0",
+  "angular-cli": {},
+  "description": "net-live",
+  "author": "Deji Jimoh <deji.jimoh@backlivelabs.com>",
+  "dependencies": {
+    "ffi": "^2.2.0",
+    "gl": "^4.0.3",
+    "jsdom": "3.1.2",
+    "mandrill-api": ">= 0.0.1",
+    "mongodb": ">= 0.0.1",
+    "nan": "^2.6.2",
+    "node-uuid": ">= 0.0.1",
+    "underscore": "^1.8.3",
+    "webmonkeys": "^1.6.1"
+  }
+}

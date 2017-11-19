@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
+    <title>BackLive - Today's Top Stock Backtester</title>
+	<meta name="description" content="BackLive - Predictive financial backtesting, stock market research, automated trading" />
+	<meta name="keywords" content="backtesting automated trading fundamental analysis" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script type="text/javascript" src="//use.typekit.net/pwz7lxr.js"></script>
+	<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    
+    <link rel="stylesheet" href="home/css/jquery/jquery.mobile.transitions.css">
+	<link rel="stylesheet" media="screen" type="text/css" href="home/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" media="screen" type="text/css" href="home/css/screen.css?v=1">
+    <!--<link rel="stylesheet/less" media="screen" type="text/css" href="home/css/screen.less">
+    <script src="home/js/less-1.6.3.min.js"></script>-->
+    
+  <script src="home/js/common.js" type="text/javascript"></script>
+  
+  <script type="text/javascript">
+	BASE_URL = 'home/';
+  </script>
+    
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        
+        ga('create', 'UA-55147488-1', 'auto');
+        ga('require', 'displayfeatures');
+        ga('send', 'pageview');
+    </script>
+    
+    <!-- start Mixpanel --><script type="text/javascript">(function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+    for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);
+    mixpanel.init("911726e70b0df55a134a763fd79e76ef");</script><!-- end Mixpanel -->
+</head>
+<body>
+    
+<div data-role="page" id="index">
+    <div class="header clearfix" style="height:2000px">
+        <div id="chart"></div>
+    	<div class="container">
+    		<nav class="navbar" role="navigation">
+    		  <div class="navbar-header">
+    		    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#live-menu">
+    		      <span class="sr-only">Toggle navigation</span>
+    		      <span class="icon-bar"></span>
+    		      <span class="icon-bar"></span>
+    		      <span class="icon-bar"></span>
+    		    </button>
+    		    <a class="navbar-brand" href="./">BackLive</a>
+    		  </div>
+    		  <div class="collapse navbar-collapse" id="live-menu">
+    		    <ul class="nav navbar-nav navbar-right">
+    		      <!--<li><a href="#company" data-transition="flow">Company</a></li>-->
+    		      <li class="register-nav">
+    		        <a class="btn btn-show-register dropdown-toggle" href="#" style="width:280px">30 Day Free-Trial</a>
+                    <ul class="dropdown-menu register-menu">
+                        <li>
+                            <div class="login-form clearfix">
+                                <div class="form-group">
+                                    <label>Username</label>
+                			        <input id="txt_reg_uname" type="text" class="form-control" name="name" maxlength="20" autocorrect="off">
+                		        </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                    		        <input id="txt_reg_email" type="text" class="form-control" name="name" maxlength="150" autocorrect="off">
+                		        </div>
+                		        <div class="form-group">
+                                    <label>Password</label>
+                    		        <input id="txt_reg_pword" type="password" class="form-control" name="name" maxlength="20" autocorrect="off">
+                		        </div>
+                		        <div class="error-msg">username or password incorrect</div>
+                		        <div class="form-group accept-terms">
+                		            <input type="checkbox" data-role="none" /> I accept the <a href="/terms.html" target="_blank">Terms of Service</a>
+                		        </div>
+                                <div class="form-group">
+                    		        <button class="btn-register btn pull-right" onclick="Home.register()">Register</button>
+                		        </div>
+                            </div>
+                        </li>
+                    </ul> 
+    		      </li>
+    		      <li>
+    		        <a class="btn-signin dropdown-toggle" href="#">Sign In</a>
+                    <ul class="dropdown-menu sign-in-menu">
+                        <li>
+                            <div class="login-form clearfix">
+                                <div class="form-group">
+                                    <label>Username</label>
+                			        <input id="txt_uname" type="text" class="form-control" name="name" maxlength="20" autocorrect="off">
+                		        </div>
+                                <div class="form-group">
+                                    <label>Password</label>
+                    		        <input id="txt_pword" type="password" class="form-control" name="name" maxlength="20" autocorrect="off">
+                		        </div>
+                		        <div class="error-msg">username or password incorrect</div>
+                                <div class="form-group">
+                    		        <button class="btn-login btn pull-right" onclick="Home.login()">Sign In</button>
+                		        </div>
+                		        <div class="form-group">
+                		            <a href="javascript:Home.forgotPassword()" target="_blank">forgot password?</a>
+                		        </div>
+                            </div>
+                        </li>
+                    </ul> 
+    		      </li>
+    		      <li><a href="#pricing" data-transition="flip" onclick="Home.pageView('pricing')">Pricing</a></li>
+    		      <li class="hide"><a href="http://blog.backlive.io/" target="_blank">Blog</a></li>
+    		      <li class="hide"><a class="btn-invite" href="#invite" data-transition="flip" onclick="Home.pageView('invite')">Request an Invite</a></li>
+    		      <li><a href="javascript:Home.showContactUs()" onclick="Home.pageView('contactus')">Contact Us</a></li>
+    		    </ul>
+    		  </div><!-- // navbar-collapse -->
+    		</nav>
+            <div class="intro-text">
+    		    <h1>Today's top stock backtester</h1>
+    		    <a class="btn hide" href="javascript:Home.learnMore()" data-transition="slide">Learn More</a>
+            	<div class="screenshot-container clearfix">
+            	    <div class="left">
+            	        <div class="text">
+            	            <h3>Research &amp; Analysis</h3>
+            	            <p>Cutting-edge ratio building and charting</p>
+            	        </div>
+            	        <div class="inner"><img src="home/assets/images/portfolio.png" /></div>
+            	    </div>
+            	    <div class="middle">
+            	        <div class="text">
+            	            <h3>Strategy Backtesting</h3>
+            	            <p>Complete customization. Test any fundamental, technical or economic strategy.</p>
+            	        </div>
+            	        <div class="inner">
+            	            <img src="home/assets/images/backtest_googl.png" />
+            	            <div class="overlay" onclick="Home.playVideo()">
+            	                <img src="home/assets/images/video_play_overlay.png" />
+            	            </div>
+            	       </div>
+            	    </div>
+            	    <div class="right">
+            	        <div class="text">
+            	            <h3>Automated Execution</h3>
+            	            <p>Automated portfolio trading and analysis</p>
+            	        </div>
+            	        <div class="inner"><img src="home/assets/images/trader_sxi.png" /></div>
+            	    </div>
+            	</div>
+            	<div class="features-container">
+            		<div class="feature">
+            			<span class="icon"><img src="home/assets/images/portfolio_sm.png" /></span>
+            			<h3>Research &amp; Analysis</h3>
+            			<p>Cutting-edge ratio building tools, screeners and comparative charting.</p>
+            		</div><!-- // feature -->
+            		<div class="feature">
+            			<span class="icon"><img src="home/assets/images/backtest_googl_sm.png" /></span>
+            			<h3>Backtesting</h3>
+            			<p>Complete customization. Test any fundamental, technical or economic strategy.</p>
+            		</div><!-- // feature -->
+            		<div class="feature">
+            			<span class="icon"><img src="home/assets/images/trader_sxi_sm.png" /></span>
+            			<h3>Automated Execution</h3>
+            			<p>Automated portfolio trading and analysis.</p>
+            		</div><!-- // feature -->
+            	</div><!-- // features-container -->
+            </div>
+            <div class="ie" style="display:none">
+                <div class="warning">
+                    <h4>BackLive is not supported on this browser. We strive to provide you with the most seamless user experience possible by taking advantage 
+                    of the best the web and HTML 5 technology has to offer.<br/><br/>Therefore to register/login, please enjoy the BackLive experience using 
+                    the latest versions of <br/>Google Chrome (most recommended), Firefox, or Safari browsers.</h4>
+                </div>
+            </div>
+    	</div><!-- // container -->
+    </div>
+    <div class="get-started hide">
+    	<div class="container">
+    		<h5>try BackLive <em>free for 30 days</em></h5>
+    		<a class="btn btn-try" href="#invite">Get Started Now!</a>
+    	</div><!-- // container -->
+    </div><!-- // get-started -->
+    <div class="container">
+        <div class="partners clearfix">
+            <div class="partners-container">
+                <div class="barrons">
+                    <h3>As featured in...</h3>
+                    <a href="http://online.barrons.com/articles/two-websites-that-test-stock-trading-ideas-1419655594" target="_blank">
+                        <img src="home/assets/images/barrons.png" />
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="partners clearfix">
+            <div class="partners-container">
+                <div class="pull-left ib-logo">
+                    <h3>&nbsp;Approved IB Trading Platform</h3>
+                    <a href="http://www.interactivebrokers.com" target="_blank">
+                        <img src="home/assets/images/ib-logo.png" />
+                    </a>
+                </div>
+                <div class="pull-left ib-text">
+                    Interactive Brokers (IB) is a low cost provider of trade execution and clearing services for
+                    individuals, advisors, prop trading groups, brokers and hedge funds. IB's premier technology
+                    provides direct access to stocks, options, futures, forex, bonds and funds on over 100 markets 
+                    worldwide from a single IB Universal account.<br/><br/>
+                    Member NYSE, FINRA, SIPC. Visit <a href="http://www.interactivebrokers.com" target="_blank">www.interactivebrokers.com</a> for more information.
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+    	<div class="container">
+    		<div class="links">
+    			<a href="#company" onclick="Home.pageView('company')">About Us</a>
+    			<a href="/faq.html" onclick="Home.pageView('faq')">FAQ</a>
+    			<a href="javascript:Home.showContactUs()" onclick="Home.pageView('contactus')">Contact Us</a>
+    			<a href="/terms.html" onclick="Home.pageView('terms')">Terms of Service</a>
+    			<a href="/privacy.html" onclick="Home.pageView('privacy')">Privacy Policy</a>
+    		</div><!-- // nav-wrap -->
+    		<p class="copyright">&copy; 2015 BackLive Labs LLC. All Rights Reserved.</p>
+    		<img src="home/assets/images/logo-sm-gray.png" />
+    	</div><!-- // container -->
+    </footer>
+</div><!-- // page_index -->
+
+<script src="home/js/jquery/jquery-1.11.0.min.js"></script>
+<script src="https://code.jquery.com/mobile/1.4.1/jquery.mobile-1.4.1.min.js"></script>
+
+<!-- page invite -->
+<div data-role="page" id="invite">
+    <div class="exit-invite"><a href="#index" data-transition="flip" data-direction="reverse">&times;</a></div>
+    <div class="invite-content">
+    	<div class="logo"><a href="./">BackLive</a></div>
+    	<h1>Request an invite</h1>
+    	<p>We are currently in Beta and welcome valuable feedback from experienced investors like yourself. 
+            Fill out the form and we'll reach out to you shortly.</p>
+        <div class="main-form">
+        	<div class="form-group">
+        		<label class="control-label">Name</label>
+            <input type="text" class="form-control" name="name" placeholder="first and last name">
+        	</div><!-- // form-group -->
+        	<div class="form-group">
+        		<label class="control-label">Email</label>
+            <input type="text" class="form-control" name="email" placeholder="email address">
+        	</div><!-- // form-group -->
+        	<div class="form-group">
+        		<label class="control-label">Company</label>
+            <input type="text" class="form-control" name="company" placeholder="name of your company or fund">
+        	</div><!-- // form-group -->
+        	<div class="form-group">
+        		<label class="control-label">Tell us more about yourself, trading experience, and investment style</label>
+        		<textarea rows="3" class="form-control"></textarea>
+        	</div><!-- // form-group -->
+        	<button class="btn btn-req-invite" onclick="Home.requestInvite()">Go</button>
+        </div>
+        <div class="thankyou hide">
+            <h3>Thank you for requesting an invite to BackLive.<br/>Look out for an email with more to follow soon!</h3>
+        </div>
+    </div><!-- // invite-content -->
+</div>
+
+<!-- page company -->
+<div data-role="page" id="company">
+    <div class="exit-invite"><a href="#index" data-transition="flow" data-direction="reverse">&times;</a></div>
+    <div class="company-content">
+        <div class="logo"><a href="./">BackLive</a></div>
+        <h3>The Platform</h3>
+        <p>
+            BackLive is a web-based platform for sophisticated retail and professional investors that facilitates the backtesting, 
+            analysis, and execution of complex stock market trading strategies. Current access to state-of-the art stock strategy implementation 
+            requires either an in-house team of programmers or software that is often too costly, in-flexible, or cumbersome to use. 
+            BackLive remedies this situation by providing online access to sophisticated tools that obscure the complexities 
+            involved with building and validating superior trading strategies.
+        </p>
+        <h3>BackLive Team</h3>
+        
+        <h4>Deji Jimoh – Founder / Chief Technology Officer</h4>
+        <p>Deji Jimoh is a software development specialist with extensive experience in building applications that analyze and manage vast amounts 
+        of data. Combining this expertise with an intense passion for finance and fundamental analysis naturally led to developing his own algorithms and 
+        trading strategies, a system now called BackLive. For the past several years, Mr. Jimoh served as the VP of Product Development at Blueye Creative, where he 
+        led a team in developing Blueye’s proprietary mobile/web media and analytics Hub Platform.  Mr. Jimoh has also previously served as a lead developer 
+        at Edward Don &amp; Company, and was responsible for the development and maintenance of an e-Commerce website that generates over $120M in annual sales.</p>
+
+        <h4>Eli Drucker – Chief Operating Officer</h4>
+        <p>Mr. Drucker has been trading equities and mutual funds since his days at Carnegie Mellon University from which he graduated with a B.S. in Policy 
+        and Management.  Mr. Drucker became interested in BackLive software when he saw a demonstration of an early Beta version.  As an entrepreneur and 
+        professional commodities trader, Mr. Drucker has also started his own commodities trading companies and is currently Managing Partner at Orion Energy 
+        Logistics, LLC, which focuses on developing crude oil energy assets in the domestic United States.  A Crude Oil Trader at numerous major trading 
+        companies before starting his own, Mr. Drucker gained deep experience in various securities and trading platforms, which makes him exceptionally suited 
+        to help manage a financial software company.</p>
+        
+        <h4>Craig Nehamen – Advisor</h4>
+        <p>Craig Nehamen is a veteran marketing director with a passion for finance and technology.  Craig received an MBA in Marketing and Finance from the 
+        prestigious Kellogg School of Management at Northwestern University.  For the past several years, Craig has served as the Director of Marketing 
+        Operations at Westlake Financial Services, a national technology-based financial lending service.  At Westlake Financial, Craig also runs the client 
+        service team and has come to believe that without great customer service, all falls down.  Craig cares to make every BackLive customer heard, advised 
+        and supported.</p>
+        
+        <h4>Matt Johnson – Product Design</h4>
+        <p>Matt Johnson is a seasoned software designer, with years of industry experience.  Mr. Johnson has served as the VP of Design and Strategy for 
+        Blueye Creative, and worked with Mr. Jimoh in developing the mobile/web media and analytics Hub Platform.  Prior to his work at Blueye, Mr. Johnson 
+        served as the Senior Designer for New York-based Only Media, GiantRealm, Inc., and served as the Lead Designer &amp; Strategist for WeGame.com, a 
+        venture capitalist funded enterprise. Matt Johnson’s keen eye for design aesthetics and intense attention to the usability of user facing apps, 
+        is crucial to the task of simplifying the often complex usage of financial software.</p>
+        <h3>Our Philosophy</h3>
+        <p>
+            Individuals across all walks of life frequently make false assumptions that lead to inaccurate and often costly predictions of future 
+            outcomes. BackLive’s philosophy is to let the data speak first. By creating virtual test environments that strive to replicate as 
+            closely as possible the conditions and parameters of a past period, BackLive provides valuable insights that inform 
+            intelligent decision making in the future.
+        </p>
+        <p>
+            In the stock market, even when investors do have access to all the data necessary to make informed decisions, they are often 
+            misled as to what factors truly drive superior returns, unaware that some of these factors may change over time, or lack the tools 
+            to explore their own ideas. BackLive’s mission is to provide investors with the power to quickly separate weak strategies from those 
+            that are likely to be profitable, without the need for a team of analysts or programmers. When an “expert” on a financial TV network 
+            or blog touts a stock because it ranks high on any given metric, BackLive’s goal is to answer the question, “how would a strategy of 
+            selecting stocks based on this metric actually have performed?”
+        </p>
+    </div><!-- // invite-content -->
+</div>
+
+
+<!-- page screenshots -->
+<div data-role="page" id="screenshot">
+    <div class="exit-invite"><a href="#index" data-transition="slide" data-direction="reverse">&times;</a></div>
+    <div class="hide">
+        <img src="home/assets/images/backtest_googl.png" />
+        <img src="home/assets/images/portfolio.png" />
+        <img src="home/assets/images/research_aapl.png" />
+    </div>
+</div>
+
+<!-- page pricing -->
+<div data-role="page" id="pricing">
+    <div class="exit-invite"><a href="#index" data-transition="flip" data-direction="reverse">&times;</a></div>
+    <div class="pricing-content">
+    	<div class="logo"><a href="./">BackLive</a></div>
+    	<div class="border-container">
+        	<div class="table-container">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>PLAN DETAILS</th>
+                            <th>FREE</th>
+                            <th>SILVER</th>
+                            <th>GOLD</th>
+                            <th>ENTERPRISE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="price">
+                            <td>Price per Month</td>
+                            <td>$0</td>
+                            <td><img src="../assets/images/red_price.png" /><span>$49.99</span></td>
+                            <td><img src="../assets/images/red_price.png" /><span>$199.99</span></td>
+                            <td><a href="javascript:Home.showContactUs()">call us</a></td>
+                        </tr>
+                        <tr class="price">
+                            <td>Launch Promo Price</td>
+                            <td>$0</td>
+                            <td>$29.99</td>
+                            <td>$99.99</td>
+                            <td><a href="javascript:Home.showContactUs()">call us</a></td>
+                        </tr>
+                        <tr>
+                            <td>Charting &amp; Research</td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Portfolio Management</td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Custom Indicators</td>
+                            <td>3 Total</td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Screener</td>
+                            <td>5 / Month</td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Backtesting</td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Forward-testing</td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Trade Execution</td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Automated Trading</td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Dedicated Server</td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Enterprise Solutions</td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-remove-circle"></span></td>
+                            <td><span class="glyphicon glyphicon-check"></span></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td colspan="4" align="center">
+                                <button class="btn btn-try" onclick="Home.showRegister()">Start 30 Day Free-Trial</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="hide">Enterprise solution? <a href="javascript:Home.showContactUs()">Contact us</a> 
+                for custom pricing or call us at (818) 570-1394</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- page footer -->
+<div id="contactus_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        	<div class="modal-header">
+        	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        	    <h4 id="modal-title">BackLive <span style="margin-left:20px;font-size:16px;">(818) 570-1394</span>
+        	</div>
+        	<div class="modal-body">
+        	    <div class="error"></div>
+        	    <div id="mandrill-email-form">
+        	        <div class="form-group"><input type="text" class="form-control" name="email" placeholder="your email address" /></div>
+                	<div class="form-group"><input type="text" class="form-control" name="name" placeholder="your full name" /></div>
+                	<div class="form-group"><textarea name="msg" class="form-control" placeholder="message"></textarea></div>
+                	<button type="submit" class="btn btn-primary" onclick="Home.sendContactUs()">send message</button>
+                </div>
+        	</div>
+        	<div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<div id="video_modal" class="modal fade">
+    <div class="modal-dialog">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <div class="modal-content"></div>
+    </div>
+</div>
+	
+<script src="home/js/highcharts/highstock.js" type="text/javascript"></script>
+<script src="home/js/bootstrap/bootstrap.min.js"></script>
+<script src="home/js/home.js?v=1"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        Home.init();
+        window.onerror = function(msg, url, line) {
+            mixpanel.track('js_error', { msg:msg, url:url, line:line });
+    	};
+    });
+</script>
+
+</body>
+</html>
+

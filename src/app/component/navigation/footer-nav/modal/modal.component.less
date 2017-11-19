@@ -1,0 +1,35 @@
+@import "~styles/themes/colors.less";
+@import "~styles/plugins/mixins.less";
+
+.modal-container {
+    height: 0px;
+    overflow: hidden;
+    background: @white;
+    .transition(height 1s ease-out);
+
+    &.open {
+        overflow-y: auto;
+        margin-bottom: 10px;
+        padding: 12px 20px 20px 20px;
+    }
+    .header {
+        margin-bottom: 20px;
+        h3 {
+            float: left;
+            margin-bottom: 11px;
+        }
+        button {
+            font-size: 3em;
+            position: relative;
+            margin-top: -5px;
+        }
+        border-bottom: 1px solid @border-default;
+        input {
+            width: 200px;
+            display: inline-block;
+            margin-left: 10px;
+            position: relative;
+            top: -4px;
+        }
+    }
+}

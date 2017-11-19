@@ -1,0 +1,43 @@
+@import "~styles/plugins/mixins.less";
+@import "~styles/themes/colors.less";
+
+h3 {
+    color: @white;
+    margin-bottom: 25px;
+}
+.header {
+    h3 {
+        float: left;
+        margin-top: 0;
+    }
+}
+.date-controls {
+    float: right;
+    margin-top: -2px;
+    input {
+        width: 83px;
+        height: 30px;
+        position: relative;
+        top: 1px;
+        display: inline-block;
+    }
+}
+
+.strategies, .backtests {
+    margin-bottom: 10px;
+    .clearfix;
+    .strategy {
+        .pod {
+            padding: 2px 10px;
+            cursor: pointer;
+            .background-transparent;
+            &:hover {
+                color: @text-primary;
+            }
+        }
+        .name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+    }
+}

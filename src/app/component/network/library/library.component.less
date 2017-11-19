@@ -1,0 +1,38 @@
+@import "~styles/plugins/mixins.less";
+@import "~styles/themes/colors.less";
+@import "~styles/themes/text.less";
+
+.tabs {
+    .clearfix;
+}
+tab-link {
+    .tab {
+        border-bottom: 2px solid @brand-primary;
+        .border-top-radius(5px);
+        padding: 10px 15px;
+        width: 48%;
+        margin: 0 1%;
+        float: left;
+    }
+    &.active .tab {
+        background: @gray-lighter;
+    }
+}
+
+.content {
+    margin-top: 10px;
+    padding: 15px;
+    .pod;
+    border-top:none;
+}
+
+.node {
+    padding: 5px 12px;
+    &:hover {
+        background: lighten(@brand-secondary, 30%);
+    }
+}
+
+.add-new {
+    color: @brand-warning;
+}
