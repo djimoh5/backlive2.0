@@ -4,19 +4,22 @@ import { NavigationSharedModule } from '../navigation/shared/shared.module';
 
 import { StrategyModule } from '../strategy/strategy.module';
 import { IndicatorModule } from '../indicator/indicator.module';
+import { PortfolioModule } from '../portfolio/portfolio.module';
 
 import { NetworkComponent } from './network.component';
 
-import { PortfolioComponent } from '../portfolio/portfolio.component';
+
 import { LibraryComponent } from './library/library.component';
 
 import { networkRouting } from './network.routing';
 
 @NgModule({
     declarations: [
-        NetworkComponent, PortfolioComponent, LibraryComponent
+        NetworkComponent, LibraryComponent
     ],
-    imports: [SharedModule, NavigationSharedModule, StrategyModule, IndicatorModule, networkRouting],
+    imports: [
+        SharedModule, NavigationSharedModule, StrategyModule, IndicatorModule, PortfolioModule, networkRouting
+    ],
     entryComponents: [LibraryComponent]
     
 })

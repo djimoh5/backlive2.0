@@ -7,8 +7,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 var importedModules: any[] = [CommonModule, FormsModule, ReactiveFormsModule];
 
 /* shared components */
-import { BaseComponent } from './base.component';
-import { PageComponent } from './page.component';
 import { ModalComponent } from './modal/modal.component';
 import { SearchBarComponent } from './search-bar/search-bar.component';
 import { AccordionComponent, AccordionGroupComponent } from './accordion/accordion.component';
@@ -18,7 +16,7 @@ import { TableComponent } from './table/table.component';
 import { SplitViewComponent } from './split-view/split-view.component';
 import { AudioComponent } from './audio/audio.component';
 
-var sharedComponents = [BaseComponent, PageComponent, ModalComponent, SearchBarComponent, AccordionComponent, AccordionGroupComponent,
+var sharedComponents = [ModalComponent, SearchBarComponent, AccordionComponent, AccordionGroupComponent,
     TabComponent, TabContentComponent, TabViewComponent, FilterMenuComponent, TableComponent, SplitViewComponent, AudioComponent];
 
 /* UI components */
@@ -52,15 +50,15 @@ var uiComponents = [
 /* directives */
 import {
     AnimateDirective, JIsotopeDirective, DatePickerDirective, AutoCompleterDirective, FileUploaderDirective, TooltipDirective, ReadMoreDirective, SearchBoxDirective,
-    InputFormatDirective, FocusDirective, NavigateDirective
+    InputFormatDirective, FocusDirective, NavigateDirective, AutogrowDirective
 } from 'backlive/directive';
 
 var directives = [AnimateDirective, JIsotopeDirective, DatePickerDirective, AutoCompleterDirective, FileUploaderDirective, TooltipDirective, ReadMoreDirective, SearchBoxDirective,
-    InputFormatDirective, NavigateDirective, FocusDirective];
+    InputFormatDirective, NavigateDirective, FocusDirective, AutogrowDirective];
 
 /* pipes */
-import { FormatDatePipe, SortByPipe } from 'backlive/pipe';
-var pipes = [FormatDatePipe, SortByPipe];
+import { FormatDatePipe, FormatNumberPipe, PaginatePipe, SortByPipe } from 'backlive/pipe';
+var pipes = [FormatDatePipe, FormatNumberPipe, PaginatePipe, SortByPipe];
 
 @NgModule({
     declarations: [...pipes, ...directives, ...uiComponents, ...sharedComponents],

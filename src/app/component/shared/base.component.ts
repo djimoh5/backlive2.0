@@ -1,8 +1,7 @@
-import { Component, OnDestroy } from '@angular/core';
+import { OnDestroy } from '@angular/core';
 import { AppService, RouteParamsCallback } from 'backlive/service';
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback, QueueOperators } from 'backlive/network/event';
 
-@Component({ template: `` })
 export class BaseComponent implements OnDestroy  {
     appService: AppService;
     componentId: number;

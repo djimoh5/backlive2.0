@@ -13,7 +13,7 @@ import { IndicatorParam, IndicatorParamGroup, IndicatorParamTransform } from 'ba
 })
 export class  IndicatorParamComponent extends BaseComponent implements OnInit {
     @Input() isRoot: boolean;
-    @Input() param: (IndicatorParam | IndicatorParamGroup);
+    @Input() param: IndicatorParam | IndicatorParamGroup;
 
     @Output() remove: EventEmitter<null> = new EventEmitter<null>();
     @Output() group: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -118,5 +118,9 @@ export class  IndicatorParamComponent extends BaseComponent implements OnInit {
     resetGrouping() {
         this.isGrouping = false;
         this.groupStartIndex = null;
+    }
+
+    getVars(param: IndicatorParam | IndicatorParamGroup) {
+        return (<IndicatorParamGroup>param).vars;
     }
 }

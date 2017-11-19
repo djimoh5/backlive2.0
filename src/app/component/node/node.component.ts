@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Output, EventEmitter } from '@angular/core';
 import { BaseComponent } from '../shared/base.component';
 import { LibraryComponent } from '../network/library/library.component';
 
@@ -15,10 +15,6 @@ import { Common } from 'backlive/utility';
 
 declare var d3;
 
-@Component({
-    selector: 'backlive-node',
-    template: ``
-})
 export abstract class NodeComponent<T extends Node> extends BaseComponent {
     @Output() nodeChange: EventEmitter<Node> = new EventEmitter<Node>();
     @Output() loadInputs: EventEmitter<Node[]> = new EventEmitter<Node[]>();

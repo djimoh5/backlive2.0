@@ -5,7 +5,7 @@ import { BaseComponent } from 'backlive/component/shared';
 import { Common } from 'backlive/utility';
 
 import { AppService, IndicatorService } from 'backlive/service';
-import { Indicator, IndicatorParam, IndicatorParamType, Operator, AggregationType } from 'backlive/service/model';
+import { Indicator, SportsIndicator, IndicatorParam, IndicatorParamType, Operator, AggregationType } from 'backlive/service/model';
 
 import { CloseFooterModalEvent } from 'backlive/event';
 
@@ -16,6 +16,7 @@ import { CloseFooterModalEvent } from 'backlive/event';
 })
 export class IndicatorEditorComponent extends BaseComponent implements OnInit, AfterViewInit {
     @Input() indicator: Indicator;
+    @Input() sportsIndicator: Indicator;
     dataSearchKey: string;
     searchKey: string;
     searchKeyCode: SearchKeyCode;

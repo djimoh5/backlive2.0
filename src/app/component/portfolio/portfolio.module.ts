@@ -10,6 +10,7 @@ import { portfolioRouting } from './portfolio.routing';
     declarations: [
         PortfolioComponent
     ],
-    imports: [SharedModule, PortfolioSharedModule, portfolioRouting]
+    imports: [SharedModule, PortfolioSharedModule, portfolioRouting],
+    exports: [PortfolioComponent]
 })
 export class PortfolioModule {}

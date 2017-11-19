@@ -9,7 +9,7 @@
         <!-- value transforms and sort options -->
         <div class="row" *ngIf="hasParams()">
             <div class="aggr col-xs-12 col-md-4" *ngIf="indicator.env === 'sports'">
-                <select [(ngModel)]="indicator.exclIndTypes" (change)="clearEquation()" class="form-control">
+                <select [(ngModel)]="sportsIndicator.exclIndTypes" (change)="clearEquation()" class="form-control">
                     <option value="101">team</option>
                     <option value="100,102">player</option>
                 </select>
@@ -75,7 +75,7 @@
                     ]">
                 </radio-button>
             </div>
-            <div *ngIf="indicator.env == 'sports'" ng-show="indicator.exclIndTypes == '100,102'" class="col-xs-6 col-md-3">
+            <div *ngIf="indicator.env == 'sports'" ng-show="sportsIndicator.exclIndTypes == '100,102'" class="col-xs-6 col-md-3">
                 Player <ui-icon type="question" tooltip="Should value be for team, their opponent, difference or sum of team and their opponent"></ui-icon>
                 <br/>
                 <select [(ngModel)]="indicator.playerSort" class="form-control">
@@ -159,5 +159,5 @@
     </div>
 
     <!-- data menu -->
-    <backlive-indicator-data-menu [searchKey]="dataSearchKey" [searchKeyCode]="searchKeyCode" [excludedTypes]="indicator.exclIndTypes" (select)="onSelectParam($event)"></backlive-indicator-data-menu>
+    <backlive-indicator-data-menu [searchKey]="dataSearchKey" [searchKeyCode]="searchKeyCode" [excludedTypes]="sportsIndicator.exclIndTypes" (select)="onSelectParam($event)"></backlive-indicator-data-menu>
 </div>

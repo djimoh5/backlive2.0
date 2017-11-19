@@ -10,7 +10,6 @@ import {Cache, Common} from 'backlive/utility';
 
 import { PageLoadingEvent, ReloadAppEvent, OpenModalEvent, MessageBarEvent } from 'backlive/event';
 
-@Injectable()
 export class BaseService {
     protected apiService: ApiService;
     protected appService: AppService;

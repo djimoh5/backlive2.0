@@ -6,7 +6,6 @@ import { AnimationType } from 'backlive/directive';
 import { AppService } from 'backlive/service';
 import { SlidingNavVisibleEvent, PageLoadingEvent } from 'backlive/event';
 
-@Component({ template: `` })
 export class PageComponent extends BaseComponent {
     pageAnimation: string;
     defaultAnimation: string;
