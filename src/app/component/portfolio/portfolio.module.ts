@@ -4,13 +4,11 @@ import { PortfolioSharedModule } from './shared/shared.module';
 
 import { PortfolioComponent } from './portfolio.component';
 
-import { portfolioRouting } from './portfolio.routing';
-
 @NgModule({
     declarations: [
         PortfolioComponent
     ],
-    imports: [SharedModule, PortfolioSharedModule, portfolioRouting],
+    imports: [SharedModule, PortfolioSharedModule],
     exports: [PortfolioComponent]
 })
 export class PortfolioModule {}

@@ -5,7 +5,7 @@ var path = require("path");
 export class HomeController extends BaseController {
 	@Get('')
 	index(req, res) {
-		var baseDir = path.resolve(__dirname, '../../');
+		var baseDir = path.resolve(__dirname, '../../../');
 
 		if(req.session.user && req.session.user.token) {
 			res.sendFile(baseDir + '/dist/index.html');

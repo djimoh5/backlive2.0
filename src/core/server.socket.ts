@@ -9,7 +9,7 @@ export class ServerSocket {
     clientEventQueueId: string = 'clientEventQueue';
     serverEventQueueId: string = 'serverEventQueue';
     private io: SocketIO.Server;
-    private tickerService: any;
+    private tickerService: TickerService;
 
     processes: ChildProcess[] = [];
 
@@ -35,7 +35,7 @@ export class ServerSocket {
                 //io.sockets.emit('user disconnected');
             });*/
 
-            this.emitTickerLastPrice(socket);
+            //this.emitTickerLastPrice(socket);
         });
         
         this.initBroadcasts();
@@ -59,7 +59,7 @@ export class ServerSocket {
     }
 
     private emitTickerLastPrice(socket: SocketIO.Socket | SocketIO.Namespace, ticker?: string) {
-        this.tickerService.getLastPrice().done((price) => {
+        this.tickerService.getLastPrice().then(price => {
             this.emit(socket, new TickerLastPriceEvent(price));
         }); 
     }

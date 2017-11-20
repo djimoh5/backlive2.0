@@ -44,11 +44,10 @@ export class Server {
     }
 
     private initStatic() {
-        this.app.use('/dist', express.static('dist'));
-        this.app.use('/app', express.static('app'));
+        this.app.use('/dist', express.static('../dist'));
+        this.app.use('/src/styles/plugins', express.static('styles/plugins'));
+        this.app.use('/src/styles/fonts', express.static('styles/fonts'));
         this.app.use('/network', express.static('network'));
-        this.app.use('/core/service/model', express.static('core/service/model'));
-        this.app.use('/app-design', express.static('app-design'));
         this.app.use('/node_modules', express.static('node_modules'));
 
         this.app.use('/home', express.static('home'));

@@ -9,7 +9,7 @@ import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/share';
 
 declare var setImmediate; 
-if(typeof(setImmediate) === 'undefined') { setImmediate = setTimeout; console.log('setImmediate not defined, using setTimeout'); }
+if(typeof(setImmediate) === 'undefined') { var setImmediate: any = setTimeout; console.log('setImmediate not defined, using setTimeout'); }
 
 export class EventQueue {
     protected events: { [key: string]: Observable<BaseEvent<any>> } = {};

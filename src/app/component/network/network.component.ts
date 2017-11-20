@@ -70,7 +70,11 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
             id =  Cache.get('strategyId', 'pref');
         }
 
+        console.log('nodes', this.nodes);
+
         this.networkService.list().then(networks => {
+            console.log('nodesjj', this.nodes);
+            
             if(networks.length > 0) {
                 var n: Network;
                 if(id) {

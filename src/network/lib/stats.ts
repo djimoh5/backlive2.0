@@ -1,4 +1,4 @@
-var jStat = require("../../js/jstat.min.js").jStat;
+var jStat = require("../../scripts/jstat.min.js").jStat;
 
 export class Stats {
     static percentRank(vals: { [key: string]: number }, sortDesc: boolean = false) {

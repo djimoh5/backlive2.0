@@ -1,7 +1,7 @@
 import { BaseEvent, TypeOfBaseEvent, BaseEventCallback } from './base.event';
 
 declare var setImmediate; 
-if(typeof(setImmediate) === 'undefined') { setImmediate = setTimeout; console.log('setImmediate not defined, using setTimeout'); }
+if(typeof(setImmediate) === 'undefined') { var setImmediate: any = setTimeout; console.log('setImmediate not defined, using setTimeout'); }
 
 export class EventQueue {
     protected events: { [key: string]: { [key: string]: Activator<BaseEvent<any>>[] } } = {};

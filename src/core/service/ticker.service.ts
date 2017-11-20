@@ -94,7 +94,7 @@ export class TickerService extends BaseService {
         return this.promise;
     }
     
-    getLastPrice(ticker) {
+    getLastPrice(ticker?: string) {
         //http://download.finance.yahoo.com/d/quotes.csv?s=^DJI&f=sl1c1p2l1bac8
         if(!ticker) {
             ticker = '^GSPC+^DJX+^IXIC'; //,^TNX for 10 year

@@ -8,7 +8,7 @@ export class Config {
     static DIR_UTILITY = Config.DIR_CORE + 'utility/';
     static DIR_VIEW = Config.BASE_DIR + '/view/';
     static DIR_HOME = Config.BASE_DIR + '/home/';
-    static DIR_JS = './js/';
+    static DIR_JS = './scripts/';
 
     /*** databases ***/
     static MONGO_IP = '127.0.0.1'; //127.0.0.1 //34.230.238.122
