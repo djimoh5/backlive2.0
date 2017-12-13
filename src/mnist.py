@@ -1,5 +1,5 @@
-#from tensorflow.examples.tutorials.mnist import input_data
-#mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
+from tensorflow.examples.tutorials.mnist import input_data
+mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 import sys, json, math, numpy as np
 import time
@@ -223,4 +223,4 @@ def run_mnist():
     run(np.concatenate((mnist.train.images, mnist.test.images)), np.concatenate((mnist.train.labels, mnist.test.labels)), .2, .5, 30, 100, 0, 1, [100], False)
     return 1
 
-#run_mnist()
+run_mnist()

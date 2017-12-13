@@ -9,6 +9,6 @@ import {AppService, UserService} from 'backlive/service';
 })
 export class HomeComponent {
     constructor(appService: AppService, userService: UserService) {
-        appService.navigate(Route.Dashboard);
+        appService.navigate(Route.CryptoTrader);
     }
 }

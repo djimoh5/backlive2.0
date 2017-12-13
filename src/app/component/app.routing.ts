@@ -9,6 +9,7 @@ export const routes: Routes = [
     { path: '', component: HomeComponent, canActivate: [AuthGuard] },
     
     //lazy loaded modules
+    { path: 'trader', loadChildren: 'app/component/crypto-trader/crypto-trader.module#CryptoTraderModule' },
     { path: 'dashboard', loadChildren: 'app/component/dashboard/dashboard.module#DashboardModule' },
     { path: 'strategy', loadChildren: 'app/component/network/network.module#NetworkModule' },
     { path: 'research', loadChildren: 'app/component/research/research.module#ResearchModule' },

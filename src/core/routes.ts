@@ -17,6 +17,7 @@ export var routes: RouteInfo[] = [
     { path: '/dashboard', controller: HomeController },
     { path: '/portfolio', controller: HomeController },
     { path: '/research', controller: HomeController },
+    { path: '/trader', controller: HomeController },
     
     //API Endpoints
 	{ path: '/api/user', controller: UserController },

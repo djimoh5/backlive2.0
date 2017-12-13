@@ -14,7 +14,7 @@ import { PortfolioService } from './portfolio.service';
 import { StrategyService } from './strategy.service';
 import { TickerService } from './ticker.service';
 import { LookupService } from './lookup.service';
-
+import { CryptoService } from './crypto.service';
 
 import { ClientSocket } from './client.socket';
 
@@ -32,6 +32,7 @@ import { ClientSocket } from './client.socket';
         TickerService,
         UserService,
         LookupService,
+        CryptoService,
         ClientSocket
     ]
 })

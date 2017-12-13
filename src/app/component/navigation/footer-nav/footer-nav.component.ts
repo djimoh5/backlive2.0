@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { BaseComponent } from 'backlive/component/shared';
 
-import { AppService } from 'backlive/service';
+import { AppService, CryptoService } from 'backlive/service';
 import { LastPrice } from 'backlive/service/model';
 
 import { TickerLastPriceEvent } from 'backlive/event';
@@ -20,16 +20,17 @@ export class FooterNavComponent extends BaseComponent implements OnInit {
 
     static lastPrices: LastPrice[] = [];
     static isSubscribed: boolean;
+    static coins: { [key: string]: LastPrice };
     lastPrices: LastPrice[];
 
-    constructor (appService: AppService) {
+    constructor (appService: AppService, private cryptoService: CryptoService) {
         super(appService);
         this.lastPrices = FooterNavComponent.lastPrices;
     }
 
     ngOnInit() {
         if(!FooterNavComponent.isSubscribed) {
-            this.subscribeEvent(TickerLastPriceEvent, event => {
+            /*this.subscribeEvent(TickerLastPriceEvent, event => {
                 FooterNavComponent.lastPrices.splice(0, FooterNavComponent.lastPrices.length);
 
                 for(var key in event.data) {
@@ -43,6 +44,23 @@ export class FooterNavComponent extends BaseComponent implements OnInit {
                     }
 
                     FooterNavComponent.lastPrices.push(lastPrice);
+                }
+            });*/
+
+            FooterNavComponent.coins = {
+                'BTC-USD': { ticker: 'Bitcoin', price: 0, change: 0, percentChange: 0 },
+                'ETH-USD': { ticker: 'Ethereum', price: 0, change: 0, percentChange: 0 },
+                'LTC-USD': { ticker: 'Litecoin', price: 0, change: 0, percentChange: 0 }
+            }
+
+            for(var coin in FooterNavComponent.coins) {
+                FooterNavComponent.lastPrices.push(FooterNavComponent.coins[coin]);
+            }
+
+            this.cryptoService.ticker.subscribe(data => {
+                var coin = FooterNavComponent.coins[data.product_id];
+                if(coin) {
+                    coin.price = data.price;
                 }
             });
 
