@@ -1,5 +1,3 @@
-import { BaseModel } from './shared.model';
-
 export interface User {
     uid: string;
     token?: string;

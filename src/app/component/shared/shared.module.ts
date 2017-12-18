@@ -15,8 +15,9 @@ import { FilterMenuComponent } from './filter-menu/filter-menu.component';
 import { TableComponent } from './table/table.component';
 import { SplitViewComponent } from './split-view/split-view.component';
 import { AudioComponent } from './audio/audio.component';
+import { ChartComponent } from './chart/chart.component';
 
-var sharedComponents = [ModalComponent, SearchBarComponent, AccordionComponent, AccordionGroupComponent,
+var sharedComponents = [ModalComponent, SearchBarComponent, AccordionComponent, AccordionGroupComponent, ChartComponent,
     TabComponent, TabContentComponent, TabViewComponent, FilterMenuComponent, TableComponent, SplitViewComponent, AudioComponent];
 
 /* UI components */

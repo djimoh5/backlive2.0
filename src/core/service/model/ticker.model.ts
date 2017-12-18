@@ -1,5 +1,3 @@
-import { BaseModel } from './shared.model';
-
 export interface Ticker {
     name: string;
     prices?: Price[];
@@ -33,9 +31,16 @@ export interface Price {
     volume: number;
 }
 
+export enum TradeSide {
+    Buy = 1,
+    Sell = -1
+}
+
 export interface LastPrice {
     ticker: string;
     price: number;
     change: number;
     percentChange: number;
+    color?: string;
+    side?: TradeSide;
 }

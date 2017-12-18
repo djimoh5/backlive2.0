@@ -61,9 +61,9 @@
             </div>
             
             <div *ngIf="showStockTicker" class="clearfix">
-                <div class="stock-ticker" *ngFor="let price of lastPrices;">
-                    <span>{{price.ticker}}</span>&nbsp;&nbsp;{{price.price}}&nbsp;&nbsp;
-                    <span [class.color-red]="price.change < 0" [class.color-green]="price.change > 0">
+                <div class="stock-ticker" *ngFor="let price of lastPrices">
+                    <span [style.color]="price.color">{{price.ticker}}</span><span [class]="getPriceClass(price)">&nbsp;&nbsp;{{price.price | currency:'USD':'symbol':'1.2-2'}}&nbsp;&nbsp;</span>
+                    <span class="hide" [class.color-red]="price.change < 0" [class.color-green]="price.change > 0">
                         {{price.change}}&nbsp;&nbsp;{{price.percentChange}}%
                     </span>
                 </div>

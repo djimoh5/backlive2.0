@@ -32,6 +32,9 @@ class DateFormat {
 }
  
 export class Common {
+    static Color = {
+        ChartPrimary: '#12455a'
+    }
     
 	static objectToArray (obj: Object) {
 		var arr: { key: string, value: any }[] = [];

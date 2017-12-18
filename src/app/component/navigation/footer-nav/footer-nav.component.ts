@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { BaseComponent } from 'backlive/component/shared';
 
 import { AppService, CryptoService } from 'backlive/service';
-import { LastPrice } from 'backlive/service/model';
+import { LastPrice, TradeSide, CryptoTicker } from 'backlive/service/model';
 
 import { TickerLastPriceEvent } from 'backlive/event';
 
@@ -48,23 +48,28 @@ export class FooterNavComponent extends BaseComponent implements OnInit {
             });*/
 
             FooterNavComponent.coins = {
-                'BTC-USD': { ticker: 'Bitcoin', price: 0, change: 0, percentChange: 0 },
-                'ETH-USD': { ticker: 'Ethereum', price: 0, change: 0, percentChange: 0 },
-                'LTC-USD': { ticker: 'Litecoin', price: 0, change: 0, percentChange: 0 }
+                'BTC-USD': { ticker: 'Bitcoin', price: 0, change: 0, percentChange: 0, color: '#ff9900' },
+                'ETH-USD': { ticker: 'Ethereum', price: 0, change: 0, percentChange: 0, color: '#b19cd9' },
+                'LTC-USD': { ticker: 'Litecoin', price: 0, change: 0, percentChange: 0, color: '#cfcfcf' }
             }
 
-            for(var coin in FooterNavComponent.coins) {
-                FooterNavComponent.lastPrices.push(FooterNavComponent.coins[coin]);
+            for(var productId in FooterNavComponent.coins) {
+                FooterNavComponent.lastPrices.push(FooterNavComponent.coins[productId]);
             }
 
-            this.cryptoService.ticker.subscribe(data => {
+            this.cryptoService.ticker.subscribe((data: CryptoTicker) => {
                 var coin = FooterNavComponent.coins[data.product_id];
                 if(coin) {
-                    coin.price = data.price;
+                    coin.price = parseFloat(data.price);
+                    coin.side = data.side === 'buy' ? TradeSide.Buy : TradeSide.Sell;
                 }
             });
 
             FooterNavComponent.isSubscribed = true;
         }
+    }
+
+    getPriceClass(coin: LastPrice) {
+        return coin.side === TradeSide.Buy ? 'color-green' : 'color-red';
     }
 }

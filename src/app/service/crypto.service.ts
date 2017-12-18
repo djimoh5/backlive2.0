@@ -3,10 +3,12 @@ import { BaseService } from './base.service';
 import { ApiService } from './api.service';
 import { AppService } from './app.service';
 
+import { CryptoTicker } from './model/crypto.model';
+
 @Injectable()
 export class CryptoService extends BaseService {
     private gdaxSocket: WebSocket;
-    ticker: EventEmitter<{ ticker: string, price: number }> = new EventEmitter();
+    ticker: EventEmitter<CryptoTicker> = new EventEmitter<CryptoTicker>();
 
     constructor(apiService: ApiService, appService: AppService) {
         super(apiService, appService, 'crypto');
