@@ -17,7 +17,7 @@ import { Common } from 'backlive/utility';
 export class CryptoTraderComponent extends PageComponent implements OnInit {
     navItems: SlidingNavItem[];
     chartOptions: ChartOptions;
-    coins: { [key: string]: ChartSeries };
+    coins: { [key: string]: { series: ChartSeries } };
     
     @ViewChild(ChartComponent) chart: ChartComponent;
 
@@ -32,9 +32,9 @@ export class CryptoTraderComponent extends PageComponent implements OnInit {
         ];
 
         this.coins = {
-            'BTC-USD': {  name: 'BTC', data: [] },
-            'ETH-USD': {  name: 'ETH', data: [] },
-            'LTC-USD': {  name: 'LTC', data: [] }
+            'BTC-USD': {  series: { name: 'BTC', data: [] } },
+            /*'ETH-USD': { series: {  name: 'ETH', data: [] } },
+            'LTC-USD': { series: {  name: 'LTC', data: [] } }*/
         }
     }
 
@@ -42,16 +42,16 @@ export class CryptoTraderComponent extends PageComponent implements OnInit {
         var series: ChartSeries[] = [];
 
         for(var productId in this.coins) {
-            series.push(this.coins[productId]);
+            series.push(this.coins[productId].series);
         }
 
         this.chartOptions = {
-            type: ChartType.line,
+            type: ChartType.area,
             series: series,
-            xAxis: { type: ChartAxisType.datetime, dateFormat: '%b %Y' },
+            xAxis: { type: ChartAxisType.datetime/*, dateFormat: '%b %Y'*/ },
             title: 'Cryptocurrencies',
             colors: ['#ff9900', '#b19cd9', '#cfcfcf'],
-            disable3d: true,
+            disable3d: false,
             yAxis: { allowDecimals: true }
         };
 
@@ -60,8 +60,11 @@ export class CryptoTraderComponent extends PageComponent implements OnInit {
                 var coin = this.coins[data.product_id];
                 //console.log(data);
                 if(coin && data.time) {
-                    this.chart.addPoint(coin.name, [new Date(data.time).getTime(), parseFloat(data.price)]);
-                    (<[number, number][]>coin.data).push([new Date(data.time).getTime(), parseFloat(data.price)]);
+                    var price = parseFloat(data.price);
+                    this.chart.addPoint(coin.series.name, [new Date(data.time).getTime(), parseFloat(data.price)]);
+                    (<[number, number][]>coin.series.data).push([new Date(data.time).getTime(), price]);
+
+                    //TODO: for all other coins, add the last value again for this time
                 }
             }
         });

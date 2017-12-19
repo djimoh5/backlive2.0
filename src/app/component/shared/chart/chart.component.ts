@@ -58,22 +58,78 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
                 options3d: { enabled: !this.options.disable3d, alpha: 0, beta: 0, depth: 20, viewDistance: 25 },
                 //events: this.chartEventHandlers(),
                 borderWidth: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.6)'
+                backgroundColor: 'rgba(0, 0, 0, 0.8)'
             },
             plotOptions: {
                 series: {
-                    cursor: 'pointer',
-                    //point: { events: this.plotEventHandlers() },
-                    dataLabels: {
-                        enabled: true, formatter: function () {
-                            return self.formatValueY(this.y);
-                        }
-                    },
-                    slicedOffset: 30,
+                    fillOpacity: 0.3
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                style: {
+                    color: '#F0F0F0'
+                }
+            },
+            toolbar: {
+                itemStyle: {
+                    color: 'silver'
                 }
             },
             credits: { enabled: false },
-            legend: { enabled: true, itemStyle: { color: '#fff' } }
+            legend: { enabled: true, itemStyle: { color: '#fff' } },
+            navigator: { enabled: false },
+            rangeSelector: {
+                buttonTheme: {
+                    fill: {
+                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                        stops: [
+                            [0.4, '#555'],
+                            [0.6, '#222']
+                        ]
+                    },
+                    stroke: '#000000',
+                    style: {
+                        color: '#CCC',
+                        fontWeight: 'bold'
+                    },
+                    states: {
+                        hover: {
+                            fill: {
+                                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                                stops: [
+                                    [0.4, '#777'],
+                                    [0.6, '#444']
+                                ]
+                            },
+                            stroke: '#000000',
+                            style: {
+                                color: 'white'
+                            }
+                        },
+                        select: {
+                            fill: {
+                                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                                stops: [
+                                    [0.1, '#333'],
+                                    [0.3, '#111']
+                                ]
+                            },
+                            stroke: '#000000',
+                            style: {
+                                color: '#ff9900'
+                            }
+                        }
+                    }
+                },
+                inputStyle: {
+                    backgroundColor: '#333',
+                    color: 'silver'
+                },
+                labelStyle: {
+                    color: 'silver'
+                }
+            }
         };
 
         if (this.options.title) {
@@ -128,19 +184,12 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
             this.highChartOptions.chart.type = ChartType.pie;
             this.highChartOptions.plotOptions.pie.innerSize = 100;           
         }
+
         if (this.options.disableDatalabels) {
             this.highChartOptions.plotOptions.pie = { allowPointSelect: false };
             this.highChartOptions.plotOptions.pie.dataLabels = { enabled: false };
             this.highChartOptions.plotOptions.pie.innerSize = 100;
         }
-       
-        this.highChartOptions.plotOptions.series.dataLabels = {
-            useHTML: true,
-            connectorPadding: 5,
-            formatter: function () {
-                return `<span style="top:-10px;position:relative;">${self.formatValueY(this.y)} </br><b>${this.series.options.labels && this.series.options.labels[this.point.name] ? this.series.options.labels[this.point.name] : this.point.name}</b></span>`;             
-            },
-        };
     }
 
     buildAxisOptions(axis: string) {
@@ -150,7 +199,11 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
             this.options[axis] = {};
         }
 
-        this.highChartOptions[axis] = { type: this.options[axis].type, title: this.options[axis].title };
+        this.highChartOptions[axis] = { 
+            type: this.options[axis].type, 
+            title: this.options[axis].title,
+            gridLineWidth: 0
+        };
 
         if (this.options[axis].categories) {
             this.highChartOptions[axis].categories = this.options[axis].categories;
@@ -209,13 +262,7 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
 
             for (var key in s.data) {
                 if (this.highChartOptions.chart.type === ChartType.pie) {
-                    (<ChartDataPoint[]>newSeries.data).push(
-                        {
-                            'name': key,
-                            'y': s.data[key],
-                            'sliced': (this.options.selected && key === this.options.selected[0]) ? true : false,
-                            'selected': (this.options.selected && key === this.options.selected[0]) ? true : false
-                        });
+                    (<ChartDataPoint[]>newSeries.data).push({ name: key, y: s.data[key] });
                 }
                 else {
                     if (!usedCategories[key]) {
@@ -225,21 +272,7 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
                     }
 
                     newSeries.data[categoriesIndex[key]] = s.data[key];
-                }
-            }
-
-            if (this.options.selected && this.options.selected[0] === key) {
-                for (var k in newSeries.data) {
-                    if (newSeries.data[k].selected) {
-                        setTimeout(() => { this.onSelect.emit(newSeries.data[k]); }, 100);
-                        this.isSliced = true;
-                    }
-                }
-            }
-            else if (this.options.selected && this.options.selected[0] != key) {
-                if (iterator === 0) {
-                    setTimeout(() => { this.onSelect.emit(null); }, 100);
-                    iterator++;
+                    this.setMinMaxVal(newSeries, s.data[key]);
                 }
             }
 
@@ -259,135 +292,36 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
 
     addPoint(seriesName: string, point: [number, number]) {
         if(this.chart && this.chart.series) {
-            for(var i = 0, series; series = this.chart.series.length; i++) {
+            for(var i = 0, series; series = this.chart.series[i]; i++) {
                 if(series.name === seriesName) {
                     series.addPoint(point);
-                    console.log(series);
-                }
-            }
-        }
-    }
-
-    chartEventHandlers() {
-        var self = this;
-        return {
-            click: function () {
-                setTimeout(() => {
-                    self.ngZone.run(() => {
-                        if (self.options.type != ChartType.pie && self.options.type != ChartType.donut) {
-                            if (self.selectedBarCategory != 0) {
-                                self.onSelect.emit(null);
-                            }
-                            self.selectedBarCategory = 0;
-
-                            for(var i = 0, series: any; series = self.chart.series[i]; i++) {
-                                for(var i = 0, data: any; data = series.data[i]; i++) {
-                                    if (data.baseColor) {
-                                        data.update({ color: data.baseColor }, true, false);
-                                    }
-                                }
-                            }
-                        }
-                        else {
-                            if(self.isSliced) {
-                                self.onSelect.emit(null);
-                            }
-                        }
-                    });
-                }, 100);
-            }
-        };
-    }
-
-    plotEventHandlers() {
-        var self = this;
-        return {
-            click: function (event) {
-                if (self.options.type != ChartType.pie && self.options.type != ChartType.donut) {
-                    if (self.selectedBarCategory != event.point.category && !self.options.multipleSelect) {
-                        self.onSelect.emit(this.category);
-                        self.selectedBarCategory = event.point.category;
-
-                        for(var i = 0, series: any; series = self.chart.series[i]; i++) {
-                            for(var i = 0, data: any; data = series.data[i]; i++) {
-                                if (data.category !== self.selectedBarCategory) {
-                                    if (!data.baseColor) {
-                                        data.baseColor = data.color;
-                                    }
-
-                                    data.update({ color: 'rgba(200, 200, 200, 0.25)' }, true, false);
-                                }
-                                else if (data.baseColor) {
-                                    data.update({ color: data.baseColor }, true, false);
-                                }
-                            }
-                        }
+                    
+                    if(this.setMinMaxVal(series, point[1])) {
+                        this.setExtremes('yAxis', series.minVal, series.maxVal);
                     }
-                    else if (self.options.multipleSelect) {
-                        self.selectedBarCategory = event.point.category;
-                        self.processCategoryArray();
-
-                        for(var i = 0, data: any; series = this.series.data[i]; i++) {
-                            if (!self.selectedBarCategoryArray.some(column => { return column === data.category.toString(); })) {
-                                if (!data.baseColor) {
-                                    data.baseColor = data.color;
-                                }
-
-                                data.update({ color: 'rgba(255, 108, 47, 0.40)' }, true, false);
-                            }
-                        }
-
-                        if (!self.isRemoved && !self.isArrayEmpty && this.baseColor) {
-                            this.update({ color: this.baseColor }, true, false);
-                        }
-                        else if (self.isArrayEmpty) {
-                            self.selectedBarCategory = 0;
-                            self.onSelect.emit(null);
-
-                            for(var i = 0, data: any; data = this.series.data[i]; i++) {
-                                if (data.baseColor) {
-                                    data.update({ color: data.baseColor }, true, false);
-                                }
-                            }
-                        }
-                        self.onSelect.emit(self.selectedBarCategoryArray);                 
-                    }
-                    else {
-                        self.selectedBarCategory = 0;
-                        self.onSelect.emit(null);
-
-                        for(var i = 0, series: any; series = self.chart.series[i]; i++) {
-                            for(var i = 0, data: any; data = series.data[i]; i++) {
-                                if (data.baseColor) {
-                                    data.update({ color: data.baseColor }, true, false);
-                                }
-                            }
-                        }
-                    }   
-                }
-                else {
-                    setTimeout(() => {
-                        self.ngZone.run(() => {
-                            self.onSelect.emit(this.options);
-                            self.isSliced = this.options.selected ? true : false;
-                        });
-                    }, 100);
                 }
             }
-        };
+        }
     }
 
-    processCategoryArray() {
-        var index = this.selectedBarCategoryArray.indexOf(this.selectedBarCategory);
-        if (index === -1) {
-            this.selectedBarCategoryArray.push(this.selectedBarCategory);
-            this.isRemoved = false;
+    private setMinMaxVal(series: any, val: number): boolean {
+        var updateExtremes = false;
+
+        if(typeof series.minVal === 'undefined' || val < series.minVal) {
+            series.minVal = val;
+            updateExtremes = true;
         }
-        else {
-            this.selectedBarCategoryArray.splice(index, 1);
-            this.isRemoved = true;
-            this.isArrayEmpty = this.selectedBarCategoryArray.length === 0;
+
+        if(typeof series.maxVal === 'undefined' || val > series.maxVal) {
+            series.maxVal = val;
+            updateExtremes = true;
         }
+
+        return updateExtremes;
+    }
+
+    setExtremes(axis: string, min: number, max: number) {
+        this.chart[axis][0].setExtremes(min - (min * .0001), max + (max * .0001));
     }
 }
 
@@ -401,8 +335,6 @@ export interface ChartOptions {
     colors?: string[];
     plotOptions?: string[];
     disable3d?: boolean;
-    multipleSelect?: boolean;
-    selected?: (string | number)[];
     disableDatalabels?: boolean;
     disableExporting?: boolean;
 }
