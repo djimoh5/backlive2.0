@@ -1,4 +1,4 @@
-import { BaseController, Get } from './base.controller';
+import { BaseController, Get, Request, Response } from './base.controller';
 import { NewsService } from '../service/news.service';
 
 export class NewsController extends BaseController {
@@ -7,37 +7,41 @@ export class NewsController extends BaseController {
 	}
 
 	@Get('custom')
-	custom(req, res) {
-        res.services.newsService.customFeed(req.query.rss).done(function(data) {
+	custom(req: Request, res: Response) {
+        (<NewsService>res.services.newsService).getCustomFeed(req.query.rss).then(function(data) {
 			res.send(data);
 		});
 	}
-    
+
     @Get('market')
-	market(req, res) {
-        res.services.newsService.getMarketNews().done(function(data) {
+	market(req: Request, res: Response) {
+        (<NewsService>res.services.newsService).getMarketNews().then(function(data) {
 			res.send(data);
 		});
 	}
     
 	@Get('cnbc')
-    cnbc(req, res) {
-        res.services.newsService.getCNBCNews().done(function(data) {
+    cnbc(req: Request, res: Response) {
+        (<NewsService>res.services.newsService).getCNBCNews().then(function(data) {
 			res.send(data);
 		});
 	}
     
     @Get('bloombergRadio')
-	bloombergRadio(req, res) {
-        res.services.newsService.getBloombergRadio().done(function(data) {
+	bloombergRadio(req: Request, res: Response) {
+        (<NewsService>res.services.newsService).getBloombergRadio().then(function(data) {
 			res.send(data);
 		});
 	}
     
     @Get('economist')
-	economist(req, res) {
-        res.services.newsService.getEconomist().done(function(data) {
+	economist(req: Request, res: Response) {
+        (<NewsService>res.services.newsService).getEconomist().then(function(data) {
 			res.send(data);
 		});
 	}
+}
+
+interface Services<T> {
+
 }

@@ -30,27 +30,11 @@ export class FooterNavComponent extends BaseComponent implements OnInit {
 
     ngOnInit() {
         if(!FooterNavComponent.isSubscribed) {
-            /*this.subscribeEvent(TickerLastPriceEvent, event => {
-                FooterNavComponent.lastPrices.splice(0, FooterNavComponent.lastPrices.length);
-
-                for(var key in event.data) {
-                    var lastPrice = event.data[key];
-                    lastPrice.ticker = lastPrice.ticker.replace('^', '');
-
-                    switch(lastPrice.ticker) {
-                        case 'GSPC': lastPrice.ticker = 'S&P 500'; break;
-                        case 'DJX': lastPrice.ticker = 'Dow Jones'; lastPrice.price = Common.round(lastPrice.price * 100, 2); break;
-                        case 'IXIC': lastPrice.ticker = 'Nasdaq'; break;
-                    }
-
-                    FooterNavComponent.lastPrices.push(lastPrice);
-                }
-            });*/
-
             FooterNavComponent.coins = {
                 'BTC-USD': { ticker: 'Bitcoin', price: 0, change: 0, percentChange: 0, color: CryptoColor.BTC },
+                'BCH-USD': { ticker: 'Bitcoin Cash', price: 0, change: 0, percentChange: 0, color: CryptoColor.BCH },
                 'ETH-USD': { ticker: 'Ethereum', price: 0, change: 0, percentChange: 0, color: CryptoColor.ETH },
-                'LTC-USD': { ticker: 'Litecoin', price: 0, change: 0, percentChange: 0, color: CryptoColor.LTC }
+                'LTC-USD': { ticker: 'Litecoin', price: 0, change: 0, percentChange: 0, color: CryptoColor.LTC },
             }
 
             for(var productId in FooterNavComponent.coins) {

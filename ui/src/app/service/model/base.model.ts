@@ -3,3 +3,8 @@ export class BaseModel {
     isFiltered: boolean = false;
     hidden: boolean = false;
 }
+
+export interface ApiResponse<T> {
+    success: boolean;
+    data: T;
+}

@@ -58,24 +58,38 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
                 options3d: { enabled: !this.options.disable3d, alpha: 0, beta: 0, depth: 20, viewDistance: 25 },
                 //events: this.chartEventHandlers(),
                 borderWidth: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.8)'
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                events: {
+                    load: function() {
+                        this.series.forEach(series => {
+                            if(series.visible) {
+                                setTimeout(function() {
+                                    self.setExtremes('yAxis', series.dataMin, series.dataMax);
+                                });
+                            }
+                        });
+                    }
+                }
             },
             plotOptions: {
                 series: {
                     fillOpacity: 0.3,
                     events: {
                         show: function() {
-                            for (var i = 0, series; series = this.chart.series[i]; i++) {
-                                if(series != this && series.visible) {
-                                    console.log('hiding', series.name);
-                                    series.hide();
+                            if(!this.options.multipleSeries) {
+                                for (var i = 0, series; series = this.chart.series[i]; i++) {
+                                    if(series != this && series.visible) {
+                                        series.hide();
+                                    }
                                 }
 
-                                self.setExtremes('yAxis', this.minVal, this.maxVal);
+                                setTimeout(() => {
+                                    self.setExtremes('yAxis', this.dataMin, this.dataMax);
+                                });
                             }
                         },
                         legendItemClick: function () {
-                            if (this.visible) {
+                            if (!this.options.multipleSeries && this.visible) {
                                 return false;
                             }
                         }
@@ -174,7 +188,19 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
         }
 
         //format data
-        if (Common.isObject(this.options.series[0].data)) { //data is in KeyValue pair format, so convert
+        if(Common.isArray(this.options.series[0].data)) {
+            /*this.options.series.forEach(series => {
+                if(series.data[1]) {
+                    var data = <[number, number]>series.data;
+                    for(var i = 0, d: [number, number]; d = series.data[i]; i++) {
+                        this.setMinMaxVal(series, d[1]);
+                    }
+                }
+
+                if(series.visible) console.log(series)
+            });*/
+        }
+        else if (Common.isObject(this.options.series[0].data)) { //data is in KeyValue pair format, so convert
             if (!this.options.xAxis) {
                 this.options.xAxis = {};
             }
@@ -295,7 +321,7 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
                     }
 
                     newSeries.data[categoriesIndex[key]] = s.data[key];
-                    this.setMinMaxVal(newSeries, s.data[key]);
+                    //this.setMinMaxVal(newSeries, s.data[key]);
                 }
             }
 
@@ -319,28 +345,12 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
                 if (series.name === seriesName) {
                     series.addPoint(point);
 
-                    if (this.setMinMaxVal(series, point[1]) && series.visible) {
-                        this.setExtremes('yAxis', series.minVal, series.maxVal);
+                    if (series.visible) {
+                        this.setExtremes('yAxis', series.dataMin, series.dataMax);
                     }
                 }
             }
         }
-    }
-
-    private setMinMaxVal(series: any, val: number): boolean {
-        var updateExtremes = false;
-
-        if (typeof series.minVal === 'undefined' || val < series.minVal) {
-            series.minVal = val;
-            updateExtremes = true;
-        }
-
-        if (typeof series.maxVal === 'undefined' || val > series.maxVal) {
-            series.maxVal = val;
-            updateExtremes = true;
-        }
-
-        return updateExtremes;
     }
 
     setExtremes(axis: string, min: number, max: number) {
@@ -359,6 +369,7 @@ export interface ChartOptions {
     yAxis?: ChartAxis;
     colors?: string[];
     plotOptions?: string[];
+    multipleSeries?: boolean;
     disable3d?: boolean;
     disableDatalabels?: boolean;
     disableExporting?: boolean;
@@ -383,6 +394,7 @@ export interface ChartSeries {
     tooltipLabel?: string;
     labels?: { [key: string]: string };
     visible?: boolean;
+    color?: string; 
 }
 
 declare type ChartData = number[] | [number | string, number][] | ChartDataPoint[] | ChartKeyValueData;

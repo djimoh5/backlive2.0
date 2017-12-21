@@ -17,8 +17,34 @@ export interface CryptoTicker {
     volume_30d: string; //"39347634.80864972"
 }
 
+export interface CryptoProduct {
+    id: string;
+    ticker: string; //defined by me
+    base_currency: string;
+    quote_currency: string;
+    base_min_size: string;
+    base_max_size: string;
+    quote_increment: string;
+}
+
+export interface Crypto24HrStats {
+    open: string;
+    high: string;
+    low: string;
+    volume: string;
+}
+
+export type CryptoPrices = number[][]; //compressed json [ [ time, low, high, open, close, volume ], [ 1415398768, 0.32, 4.2, 0.35, 4.2, 12.3 ] ]
+
+export interface CryptoOrderBook {
+    sequence: number;
+    bids: string[][]; //compressed json [ [ price, size, num-orders ], [ "295.96", "4.39088265", 2 ] ]
+    ask: string[][];
+}
+
 export class CryptoColor {
     static BTC: string = '#ff9900';
+    static BCH: string = '#ccffcc';
     static ETH: string = '#b19cd9';
-    static LTC: string = '#afafaf';
+    static LTC: string = '#8f8f8f';
 }

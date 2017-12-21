@@ -26,21 +26,35 @@ export class CryptoTraderComponent extends PageComponent implements OnInit {
         
         this.navItems = [
             { icon: 'search', component: SearchBarComponent },
-            { icon: 'video', onClick: () => this.test(), tooltip:'test' },
-            { icon: 'list', onClick: () => this.test() },
+            { icon: 'video', onClick: null, tooltip:'test' },
+            { icon: 'list', onClick: null },
             { icon: 'settings', component: null }
         ];
-
-        this.coins = {
-            'BTC-USD': {  series: { name: 'BTC', data: [] } },
-            'ETH-USD': { series: {  name: 'ETH', data: [], visible: false } },
-            'LTC-USD': { series: {  name: 'LTC', data: [], visible: false } }
-        }
     }
 
     ngOnInit() {
-        var series: ChartSeries[] = [];
+        this.cryptoService.getProducts().then(products => {
+            this.coins = {};
+            products.data.forEach(product => {
+                this.coins[product.id] = { series: { name: product.ticker, data: [], color: CryptoColor[product.ticker], visible: product.ticker === 'BTC' } };
+            
+                if(this.coins[product.id].series.visible) {
+                    this.cryptoService.getPrices(product.id, 300).then(prices => {
+                        prices.data.reverse().forEach(price => {
+                            (<[number, number][]>this.coins[product.id].series.data).push([price[0] * 1000, price[3]]);
+                        });
 
+                        //console.log(product.id, prices.data);
+                        this.initChart();
+                    });
+                }
+            });
+        });
+    }
+
+    initChart() {
+        var series: ChartSeries[] = [];
+        
         for(var productId in this.coins) {
             series.push(this.coins[productId].series);
         }
@@ -50,7 +64,6 @@ export class CryptoTraderComponent extends PageComponent implements OnInit {
             series: series,
             xAxis: { type: ChartAxisType.datetime/*, dateFormat: '%b %Y'*/ },
             title: 'Cryptocurrencies',
-            colors: [CryptoColor.BTC, CryptoColor.ETH, CryptoColor.LTC],
             disable3d: true,
             yAxis: { allowDecimals: true }
         };
@@ -60,17 +73,18 @@ export class CryptoTraderComponent extends PageComponent implements OnInit {
                 var coin = this.coins[data.product_id];
                 //console.log(data);
                 if(coin && data.time) {
-                    var price = parseFloat(data.price);
-                    this.chart.addPoint(coin.series.name, [new Date(data.time).getTime(), parseFloat(data.price)]);
-                    (<[number, number][]>coin.series.data).push([new Date(data.time).getTime(), price]);
+                    var seriesData = <[number, number][]>coin.series.data;
+                    var time = Date.parse(data.time);
 
-                    //TODO: for all other coins, add the last value again for this time
+                    //update every 30s
+                    if(seriesData.length === 0 || seriesData[seriesData.length - 1][0] < (time - 1000)) {
+                        var point: [number, number] = [time, parseFloat(data.price)];
+                        this.chart.addPoint(coin.series.name, point);
+                        seriesData.push(point);
+                        console.log(data.product_id, point);
+                    }
                 }
             }
         });
-    }
-
-    test() {
-
     }
 }

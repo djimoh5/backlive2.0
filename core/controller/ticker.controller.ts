@@ -1,4 +1,4 @@
-import { BaseController, Get } from './base.controller';
+import { BaseController, Get, Request, Response } from './base.controller';
 import { TickerService } from '../service/ticker.service';
 import { NewsService } from '../service/news.service';
 import { IndicatorService } from '../service/indicator.service';
@@ -10,43 +10,43 @@ export class TickerController extends BaseController {
 	}
 
 	@Get(':ticker/prices')
-	prices(req, res) {
-		res.services.tickerService.getPrices(req.params.ticker, req.query.years).done(function (prices) {
+	prices(req: Request, res: Response) {
+		(<TickerService>res.services.tickerService).getPrices(req.params.ticker, req.query.years).then(function (prices) {
 			res.send(prices);
 		});
 	};
 
 	@Get(':ticker/price')
-	price(req, res) {
-		res.services.tickerService.getPrice(req.params.ticker, req.query.date).done(function (price) {
+	price(req: Request, res: Response) {
+		(<TickerService>res.services.tickerService).getPrice(req.params.ticker, req.query.date).then(function (price) {
 			res.send(price);
 		});
 	};
 
 	@Get(':ticker/lastprice')
-	lastPrice(req, res) {
-		res.services.tickerService.getLastPrice(req.params.ticker).done(function (price) {
+	lastPrice(req: Request, res: Response) {
+		(<TickerService>res.services.tickerService).getLastPrice(req.params.ticker).then(function (price) {
 			res.send(price);
 		});
 	};
 
 	@Get(':ticker/news')
-	news(req, res) {
-		res.services.newsService.getCompanyNews(req.params.ticker).done(function (price) {
+	news(req: Request, res: Response) {
+		(<NewsService>res.services.newsService).getCompanyNews(req.params.ticker).then(function (price) {
 			res.send(price);
 		});
 	};
 
 	@Get(':ticker/indicators')
-	indicators(req, res) {
-		res.services.indicatorService.getIndicatorsForTicker(req.params.ticker).done(function (price) {
+	indicators(req: Request, res: Response) {
+		/*(<IndicatorService>res.services.indicatorService).getIndicatorsForTicker(req.params.ticker).done(function (price) {
 			res.send(price);
-		});
+		});*/
 	};
 
 	@Get(':ticker/sec')
-	sec(req, res) {
-		res.services.secService.getDocument(req.query.path).done(function (price) {
+	sec(req: Request, res: Response) {
+		(<SECService>res.services.secService).getDocument(req.query.path).then(function (price) {
 			res.send(price);
 		});
 	};

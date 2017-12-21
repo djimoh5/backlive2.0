@@ -1,4 +1,4 @@
-import { BaseController, Get, Post, Delete } from './base.controller';
+import { BaseController, Get, Post, Delete, Request, Response } from './base.controller';
 import { NodeService } from '../service/node.service';
 import { Node } from '../service/model/node.model';
 
@@ -11,29 +11,29 @@ export abstract class NodeController<T extends Node> extends BaseController {
     }
 
     @Get('list')
-    list(req, res) {
-        res.services.nodeService.getNodes().then(function (nodes) {
+    list(req: Request, res: Response) {
+        (<NodeService<any>>res.services.nodeService).getNodes().then(nodes => {
             res.send(nodes);
         });
     }
 
     @Post('')
-    update(req, res) {
-        res.services.nodeService.update(req.body).then(function (node) {
+    update(req: Request, res: Response) {
+        (<NodeService<any>>res.services.nodeService).update(req.body).then(node => {
             res.send(node);
         });
     }
 
     @Delete(':id')
-    remove(req, res) {
-        res.services.nodeService.remove(req.params.id).then(function (result) {
+    remove(req: Request, res: Response) {
+        (<NodeService<any>>res.services.nodeService).remove(req.params.id).then(result => {
             res.send(result);
         });
     }
 
     @Get(':id/inputs')
-    inputs(req, res) {
-        res.services.nodeService.getInputs(req.params.id).then(function (nodes) {
+    inputs(req: Request, res: Response) {
+        (<NodeService<any>>res.services.nodeService).getInputs(req.params.id).then(nodes => {
             res.send(nodes);
         });
     }

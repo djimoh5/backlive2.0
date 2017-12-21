@@ -1,10 +1,10 @@
-import { BaseController, Get } from './base.controller';
+import { BaseController, Get, Request, Response } from './base.controller';
 
 var path = require("path");
 
 export class HomeController extends BaseController {
 	@Get('')
-	index(req, res) {
+	index(req: Request, res: Response) {
 		var baseDir = path.resolve(__dirname, '../../ui/');
 
 		if(req.session.user && req.session.user.token) {

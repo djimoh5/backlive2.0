@@ -3,7 +3,8 @@ import { BaseService } from './base.service';
 import { ApiService } from './api.service';
 import { AppService } from './app.service';
 
-import { CryptoTicker } from './model/crypto.model';
+import { ApiResponse } from './model/base.model';
+import { CryptoTicker, CryptoProduct, CryptoOrderBook, CryptoPrices, Crypto24HrStats } from './model/crypto.model';
 
 @Injectable()
 export class CryptoService extends BaseService {
@@ -12,22 +13,55 @@ export class CryptoService extends BaseService {
 
     constructor(apiService: ApiService, appService: AppService) {
         super(apiService, appService, 'crypto');
+        
+        this.getProducts().then(products => {
+            this.gdaxSocket = new WebSocket("wss://ws-feed.gdax.com");
+            this.gdaxSocket.onopen = () => {
+                console.log("gdax socket connected");
+    
+                this.gdaxSend({
+                    "type": "subscribe",
+                    "channels": [{ "name": "ticker", "product_ids": products.data.map(p => { return p.id; }) }]
+                });
+            };
+            this.gdaxSocket.onmessage = (evt) => { 
+                this.processGdaxMessage(evt);
+            };
+            this.gdaxSocket.onclose = () => {
+                console.log("gdax socket closed");
+            }
+        });
 
-        this.gdaxSocket = new WebSocket("wss://ws-feed.gdax.com");
-        this.gdaxSocket.onopen = () => {
-            console.log("gdax socket connected");
+        
+    }
 
-            this.gdaxSend({
-                "type": "subscribe",
-                "channels": [{ "name": "ticker", "product_ids": ["BTC-USD", "ETH-USD", "LTC-USD"] }]
-            });
-        };
-        this.gdaxSocket.onmessage = (evt) => { 
-            this.processGdaxMessage(evt);
-        };
-        this.gdaxSocket.onclose = () => {
-            console.log("gdax socket closed");
-        }
+    getProducts(): Promise<ApiResponse<CryptoProduct[]>> {
+        return this.get('products', null, true, { expiration: 84600 }).then((products: ApiResponse<CryptoProduct[]>) => {
+            if(products.success) {
+                products.data = products.data.filter(p => {
+                    if(p.id.indexOf('-USD') > 0) {
+                        p.ticker = p.id.replace('-USD', '');
+                        return true;
+                    }
+
+                    return false;
+                });
+            }
+            
+            return products;
+        });
+    }
+
+    get24HourStats(productId: string): Promise<ApiResponse<Crypto24HrStats>> {
+        return this.get(`${productId}/stats`);
+    }
+
+    getOrderBook(productId: string): Promise<ApiResponse<CryptoOrderBook>> {
+        return this.get(`${productId}/order-book`);
+    }
+
+    getPrices(productId: string, granularity: number): Promise<ApiResponse<CryptoPrices>> {
+        return this.get(`${productId}/prices`, { granularity: granularity });
     }
 
     private gdaxSend(json: any) {

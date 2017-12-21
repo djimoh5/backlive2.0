@@ -9,6 +9,7 @@ import { TickerController } from '../controller/ticker.controller';
 import { UserController } from '../controller/user.controller';
 import { LookupController } from '../controller/lookup.controller';
 import { NewsController } from '../controller/news.controller';
+import { CryptoController } from '../controller/crypto.controller';
 
 export var routes: RouteInfo[] = [
     //Pages
@@ -29,6 +30,7 @@ export var routes: RouteInfo[] = [
     { path: '/api/portfolio', controller: PortfolioController },
     { path: '/api/strategy', controller: StrategyController },
     { path: '/api/lookup', controller: LookupController },
+    { path: '/api/crypto', controller: CryptoController },
 
     //must be last to prevent dup router middleware calls
     { path: '/', controller: HomeController }

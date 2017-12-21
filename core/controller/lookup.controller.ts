@@ -1,4 +1,4 @@
-import { BaseController, Get } from './base.controller';
+import { BaseController, Get, Request, Response } from './base.controller';
 import { LookupService } from '../service/lookup.service';
 
 export class LookupController extends BaseController {
@@ -7,8 +7,8 @@ export class LookupController extends BaseController {
 	}
 
 	@Get('data/fields')
-	dataFields(req, res) {
-		res.services.lookupService.getDataFields().then(function (dataFields) {
+	dataFields(req: Request, res: Response) {
+		(<LookupService>res.services.lookupService).getDataFields().then(function (dataFields) {
 			res.send(dataFields);
 		});
 	};

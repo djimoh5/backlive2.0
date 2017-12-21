@@ -1,4 +1,4 @@
-import { BaseController, Get, Post } from './base.controller';
+import { BaseController, Get, Post, Response, Request } from './base.controller';
 import { UserService } from '../service/user.service';
 
 export class UserController extends BaseController {
@@ -7,27 +7,27 @@ export class UserController extends BaseController {
 	}
 	
 	@Get('')
-	user(req, res) {
+	user(req: Request, res) {
 		res.send(req.session.user);
 	}
 
 	@Post('register')
-	register(req, res) {
-		res.services.userService.register(req.body.username, req.body.password, req.body.email).done(function(user) {
+	register(req: Request, res: Response) {
+		(<UserService>res.services.userService).register(req.body.username, req.body.password, req.body.email).then(function(user) {
 			res.send(user);	
 		});
 	};
 
 	@Post('login')
-	login(req, res) {
-		res.services.userService.login(req.body.username, req.body.password).done(function(user) {
+	login(req: Request, res: Response) {
+		(<UserService>res.services.userService).login(req.body.username, req.body.password).then(function(user) {
 			res.send(user);
 		});
 	};
 
 	@Get('logout')
-	logout(req, res) {
-		res.services.userService.logout();
+	logout(req: Request, res: Response) {
+		(<UserService>res.services.userService).logout();
 		res.send({ success: 1 });
 	};
 }

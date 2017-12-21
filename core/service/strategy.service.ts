@@ -271,5 +271,7 @@ export class StrategyService extends NodeService<Strategy> {
         this.database.collection('user_stgy').update({ _id: oid, uid: this.user.uid }, { $set:{ exec: date } }, (err) => {
             this.done({ "success":err ? 0 : 1 });
         });
+
+        return this.promise;
     }
 }

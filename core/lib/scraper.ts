@@ -1,5 +1,4 @@
-var whttp = require("./whttp.js");
-
+import { Http } from './http';
 import { Common } from '../../ui/src/app/utility/common';
 import { Database } from './database';
 
@@ -10,7 +9,7 @@ export class Scraper {
 		var start = `a=${'11'}&b=${'31'}&c=${'2002'}`;
 		var path = `/table.csv?s=${tkr.replace('.', '-')}&${start}&${end}&g=d&ignore=.csv`;
 		
-		whttp.get('ichart.finance.yahoo.com', path, function(data) {
+		new Http().get('ichart.finance.yahoo.com', path, function(data) {
 			data = data.split('\n');
             var results = [];   
             var time = (new Date()).getTime();

@@ -3,7 +3,7 @@ import { BaseService } from './base.service';
 import { Session } from '../lib/session';
 
 //var urlParser = require("url");
-var whttp = require("../lib/whttp.js");
+import { Http } from '../lib/http';
 
 export class SECService extends BaseService {
     constructor(session: Session) {
@@ -11,7 +11,7 @@ export class SECService extends BaseService {
     }
    
     getDocument(path) {
-        whttp.get('ftp://ftp.sec.gov/', '/' + path, (data) => {
+        new Http().get('ftp://ftp.sec.gov/', '/' + path, (data) => {
             this.done(data);
         });
         

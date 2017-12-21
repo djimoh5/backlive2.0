@@ -8,7 +8,7 @@ import { Scraper } from '../lib/scraper';
 
 import { Tickerc } from '../service/model/ticker.model';
 
-var whttp = require("../lib/whttp.js");
+import { Http } from '../lib/http';
 
 export class TickerService extends BaseService {
     protected get pricingDatabase(): any { return Database.mongoPricing; };
@@ -100,7 +100,7 @@ export class TickerService extends BaseService {
             ticker = '^GSPC+^DJX+^IXIC'; //,^TNX for 10 year
         }
          
-        whttp.get('download.finance.yahoo.com', '/d/quotes.csv?s=' + ticker + '&f=sl1c1p2bac8', (data) => {
+        new Http().get('download.finance.yahoo.com', '/d/quotes.csv?s=' + ticker + '&f=sl1c1p2bac8', (data) => {
             data = data.replace(/"/g, " ").split('\n');
             var tkrPrices = {};
 

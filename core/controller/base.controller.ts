@@ -1,6 +1,7 @@
 var url = require('url');
 
 import * as express from 'express';
+import { Request as ExpressRequest, Response as ExpressResponse, NextFunction } from 'express';
 import * as bodyParser from 'body-parser';
 import { ISession, Session } from '../lib/session';
 import { BaseService } from '../service/base.service';
@@ -26,6 +27,14 @@ export function Delete(path) {
     };
 }
 
+export interface Request extends ExpressRequest {
+    session: Session;
+}
+
+export interface Response extends ExpressResponse {
+    services: { [key: string]: BaseService };
+}
+
 export class BaseController {
     private services: { [key: string]: { new(session: ISession): BaseService; } };
     private router: express.Router = express.Router();
@@ -41,22 +50,22 @@ export class BaseController {
 
         this.router.use(bodyParser.json());
         this.router.use(bodyParser.urlencoded());
-        this.router.use((req, res, next) => { this.queryParser(req, res, next); });
-        this.router.use((req, res, next) => { this.initSession(req, res, next); });
-        this.router.use((req, res, next) => { this.injectServices(req, res, next); });
+        this.router.use((req: Request, res: Response, next) => { this.queryParser(req, res, next); });
+        this.router.use((req: Request, res: Response, next) => { this.initSession(req, res, next); });
+        this.router.use((req: Request, res: Response, next) => { this.injectServices(req, res, next); });
     }
 
-    private queryParser(req, res, next) {
+    private queryParser(req: Request, res: Response, next: NextFunction) {
         req.query = url.parse(req.url, true).query;
         next();
     }
     
-	private initSession(req, res, next) {
+	private initSession(req: Request, res: Response, next: NextFunction) {
 		req.session = new Session(req, res);
 		next();
 	}
 	
-	private injectServices(req, res, next) {
+	private injectServices(req: Request, res: Response, next: NextFunction) {
 		if(this.services) {
 			res.services = {};
 			for(var serviceIdentifier in this.services) {
@@ -68,7 +77,7 @@ export class BaseController {
 		next();
 	}
     
-    private logRequest(req) {
+    private logRequest(req: Request) {
         if(req.originalUrl.indexOf('/api/') >= 0) {
             console.log(req.originalUrl);
             if(this.hasKeys(req.query)) {
