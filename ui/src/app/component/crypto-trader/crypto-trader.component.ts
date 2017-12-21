@@ -71,7 +71,6 @@ export class CryptoTraderComponent extends PageComponent implements OnInit {
         this.cryptoService.ticker.subscribe((data: CryptoTicker) => {
             if(this.chart) {
                 var coin = this.coins[data.product_id];
-                //console.log(data);
                 if(coin && data.time) {
                     var seriesData = <[number, number][]>coin.series.data;
                     var time = Date.parse(data.time);
@@ -81,7 +80,7 @@ export class CryptoTraderComponent extends PageComponent implements OnInit {
                         var point: [number, number] = [time, parseFloat(data.price)];
                         this.chart.addPoint(coin.series.name, point);
                         seriesData.push(point);
-                        console.log(data.product_id, point);
+                        //console.log(data.product_id, point);
                     }
                 }
             }

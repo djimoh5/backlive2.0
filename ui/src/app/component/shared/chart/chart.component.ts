@@ -61,10 +61,12 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
                 events: {
                     load: function() {
-                        this.series.forEach(series => {
+                        this.series.forEach((series, i) => {
+                            series.minVal = self.options.series[i]['minVal'];
+                            series.maxVal = self.options.series[i]['maxVal'];
                             if(series.visible) {
                                 setTimeout(function() {
-                                    self.setExtremes('yAxis', series.dataMin, series.dataMax);
+                                    self.setExtremes('yAxis', series.minVal, series.maxVal);
                                 });
                             }
                         });
@@ -83,9 +85,7 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
                                     }
                                 }
 
-                                setTimeout(() => {
-                                    self.setExtremes('yAxis', this.dataMin, this.dataMax);
-                                });
+                                self.setExtremes('yAxis', this.minVal, this.maxVal);
                             }
                         },
                         legendItemClick: function () {
@@ -189,16 +189,14 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
 
         //format data
         if(Common.isArray(this.options.series[0].data)) {
-            /*this.options.series.forEach(series => {
+            this.options.series.forEach(series => {
                 if(series.data[1]) {
                     var data = <[number, number]>series.data;
                     for(var i = 0, d: [number, number]; d = series.data[i]; i++) {
                         this.setMinMaxVal(series, d[1]);
                     }
                 }
-
-                if(series.visible) console.log(series)
-            });*/
+            });
         }
         else if (Common.isObject(this.options.series[0].data)) { //data is in KeyValue pair format, so convert
             if (!this.options.xAxis) {
@@ -345,8 +343,8 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
                 if (series.name === seriesName) {
                     series.addPoint(point);
 
-                    if (series.visible) {
-                        this.setExtremes('yAxis', series.dataMin, series.dataMax);
+                    if (this.setMinMaxVal(series, point[1]) && series.visible) {
+                        this.setExtremes('yAxis', series.minVal, series.maxVal);
                     }
                 }
             }
@@ -354,9 +352,26 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
     }
 
     setExtremes(axis: string, min: number, max: number) {
+        console.log('extremes', min, max);
         if(typeof min !== 'undefined' && typeof max !== 'undefined') {
             this.chart[axis][0].setExtremes(min - (min * .0001), max + (max * .0001));
         }
+    }
+
+    private setMinMaxVal(series: any, val: number): boolean {
+        var updateExtremes = false;
+
+        if (typeof series.minVal === 'undefined' || val < series.minVal) {
+            series.minVal = val;
+            updateExtremes = true;
+        }
+
+        if (typeof series.maxVal === 'undefined' || val > series.maxVal) {
+            series.maxVal = val;
+            updateExtremes = true;
+        }
+
+        return updateExtremes;
     }
 }
 
