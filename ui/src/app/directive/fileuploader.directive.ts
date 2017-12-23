@@ -64,14 +64,14 @@ export class FileUploaderDirective implements OnInit {
         this.elementRef.nativeElement.dropZone = dropZone;
         dropZone.on('success', (file: any, response: boolean) => this.onSuccess(file, response));
         dropZone.on('error', (file: any, error: string) => this.onError(file, error));
-        dropZone.on('totaluploadprogress', (uploadProgress: number, totalBytes: number, totalBytesSent: number) => this.updateProgress(uploadProgress, totalBytes, totalBytesSent));
-        dropZone.on('totaluploadprogress', (uploadProgress: number, totalBytes: number, totalBytesSent: number) => this.updateProgress(uploadProgress, totalBytes, totalBytesSent));
+        dropZone.on('totaluploadprogress', (uploadProgress: number) => this.updateProgress(uploadProgress));
+        dropZone.on('totaluploadprogress', (uploadProgress: number) => this.updateProgress(uploadProgress));
         dropZone.on('complete', (file: any) => {
             dropZone.removeFile(file);
             dropZone.setupEventListeners();
             this.platformUI.query('.header-fileuploader').removeClass('disabled');
         });
-        dropZone.on('addedfile', (file: any) => {
+        dropZone.on('addedfile', () => {
             dropZone.removeEventListeners();
             this.platformUI.query('.header-fileuploader').addClass('disabled');
         });
@@ -88,7 +88,7 @@ export class FileUploaderDirective implements OnInit {
         this.elementRef.nativeElement.dropZone.processQueue();
     }
 
-    updateProgress(progress : number, totalBytes : number, totalBytesSent: number) {
+    updateProgress(progress : number) {
         if(progress == 100 || Math.abs(this.lastProgress - progress) > 2) {
             this.lastProgress = Math.round(progress);
             

@@ -22,7 +22,7 @@ export class AutoCompleterDirective implements OnChanges {
         private apiService: ApiService) {
     }
 
-    ngOnChanges(simpleChanges: SimpleChanges) {
+    ngOnChanges(_simpleChanges: SimpleChanges) {
         var $elem = this.platformUI.query(this.elementRef.nativeElement);
         var options: Options = {
             ajaxSettings: { headers: this.apiService.AuthorizationHeader },

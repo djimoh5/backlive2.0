@@ -27,8 +27,8 @@ export class Session implements ISession {
         else if(!this.user.username) {
             var oid = new db.ObjectID(this.user.uid);
             
-            db.mongo.collection('user', (error, collection) => {
-                collection.findOne({ _id:oid }, (err, result) => {
+            db.mongo.collection('user', (_error, collection) => {
+                collection.findOne({ _id:oid }, (_err, result) => {
                     this.user.username = result.u;
                     this.user.email = result.e;
                     this.user.btuid = result.btuid;
@@ -41,8 +41,8 @@ export class Session implements ISession {
 
     static load() {
         //load user sessions from DB
-        db.mongo.collection('session', (error, collection) => {
-            collection.find({}).toArray((err, results) => {
+        db.mongo.collection('session', (_error, collection) => {
+            collection.find({}).toArray((_err, results) => {
                 for(var i = 0, cnt = results.length; i < cnt; i++) {
                     Session.users[results[i].sessId] = { uid: results[i].uid, token: results[i].token, sessId: results[i].sessId };
                 }

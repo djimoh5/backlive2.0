@@ -4,9 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --deploy-url=dist/ --watch",
-    "aot": "ng build --aot --deploy-url=dist/ --watch",
-    "release": "ng build --aot --prod --deploy-url=dist/",
+    "build": "ng lint && ng build --deploy-url=dist/ --watch",
+    "aot": "ng lint && ng build --aot --deploy-url=dist/ --watch",
+    "release": "ng lint && ng build --aot --prod --deploy-url=dist/",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

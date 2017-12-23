@@ -17,7 +17,7 @@ export class AppService {
     private eventQueue: EventQueue;
 
     private componentLoaded: boolean; //denotes when at least one component has loaded after routing
-    protected get ServiceComponentId() { return 'service'; };
+    protected get ServiceComponentId() { return 'service'; }
     
     constructor(public routerService: RouterService, public clientSocket: ClientSocket, private platformUI: PlatformUI) {
         this.eventQueue = new EventQueue();
@@ -50,7 +50,7 @@ export class AppService {
         this.platformUI.scrollToTop();
     }
 
-    open(route: RouteInfo, params: {} = null, queryParams: {} = {}) {
+    open(route: RouteInfo, params: {} = null) {
         params = this.setAccountIdParam(params);
         this.routerService.open(route, params);
     }

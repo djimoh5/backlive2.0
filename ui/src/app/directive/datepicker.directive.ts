@@ -51,10 +51,10 @@ export class DatePickerDirective implements OnChanges {
             changeMonth: true,
             changeYear: true,
             onSelect: (dateText: string) => {
-                this.onTimeChanged(dateText);
+                this.onTimeChanged();
                 this.onDateChanged(dateText);
             },
-            beforeShow: function (input, inst) {
+            beforeShow: function (_input, inst) {
                 if (inst.input.hasClass('month-only')) {
                     inst.dpDiv.addClass('hide-calendar');
 
@@ -91,7 +91,7 @@ export class DatePickerDirective implements OnChanges {
         this.datepickerChange.emit(this.date);
     }
     
-    onTimeChanged(date: string) {
+    onTimeChanged() {
         this.timeChange.emit(this.platformUI.query(this.elementRef.nativeElement).datepicker('getDate').getTime());
     }
     
@@ -111,7 +111,7 @@ export class DatePickerDirective implements OnChanges {
     
     formattedDate(date: any) {
         
-        if (!date) { return ''; };
+        if (!date) { return ''; }
 
         if (this.format) {
             var dateObj = Common.parseDate(date);

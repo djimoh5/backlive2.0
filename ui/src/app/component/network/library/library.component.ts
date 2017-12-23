@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
 import { PageComponent } from '../../shared/page.component';
 
-import { AppService, UserService, NetworkService, IndicatorService } from 'backlive/service';
+import { AppService, NetworkService, IndicatorService } from 'backlive/service';
 
 import { Node, NodeType, Indicator } from 'backlive/service/model';
 
@@ -18,7 +18,7 @@ export class LibraryComponent extends PageComponent implements OnInit {
 
     allNodes: Nodes[] = [];
 
-    constructor(appService: AppService, private userService: UserService, private networkService: NetworkService, private indicatorService: IndicatorService) {
+    constructor(appService: AppService, private networkService: NetworkService, private indicatorService: IndicatorService) {
         super(appService);
     }
 

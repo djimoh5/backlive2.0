@@ -52,7 +52,7 @@ export class Network {
     constructor(private dataNode: BaseDataNode, private executionNode?: IExecutionNode) {
         //AppEventQueue.subscribe(LoadNetworkEvent, this.subscriberName, event => this.loadNetwork(event.data));
         AppEventQueue.subscribe(ExecuteNetworkEvent, this.subscriberName, event => this.executeNetwork(event.data));
-        AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, event => this.onEpochComplete());
+        AppEventQueue.subscribe(EpochCompleteEvent, this.subscriberName, () => this.onEpochComplete());
 
         Database.open(() => {
             console.log('Database opened');
@@ -116,10 +116,10 @@ export class Network {
         console.log('loading network');
     }
 
-    executeNetwork(network: NetworkModel, rootNode: Node = null) {
+    executeNetwork(network: NetworkModel) {
         this.resetNetwork();
 
-        this.dataNode.load(trainingData => {
+        this.dataNode.load(_trainingData => {
             this.nodes[this.dataNode.getNode()._id] = this.dataNode;
             var inputLayer: BaseNode<Node> = this.dataNode;
 
@@ -301,7 +301,7 @@ export class Network {
         //console.log(this.network);
 
         if(this.network.inputs) {
-            this.network.inputs.forEach(id => {
+            this.network.inputs.forEach(_id => {
                 //this.print(this.nodes[id], 0);
             });
         }

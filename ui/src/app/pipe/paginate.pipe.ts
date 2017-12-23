@@ -8,7 +8,7 @@ export class PaginatePipe implements PipeTransform  {
     numPages: number;
     temp: any[] = [];
     
-    transform(value: any, itemsPerPage: number, pageNum: number = 0, ...refreshers: any[]) : any[] {
+    transform(value: any, itemsPerPage: number, pageNum: number = 0, ..._refreshers: any[]) : any[] {
         if (value) {
             var numItems = value.length;
             this.numPages = Math.ceil(numItems / itemsPerPage);

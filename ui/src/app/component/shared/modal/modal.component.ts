@@ -1,4 +1,4 @@
-import { Component, Type, ComponentRef, ComponentFactoryResolver, EventEmitter, NgZone, ViewChild, ViewContainerRef, ElementRef, OnDestroy } from '@angular/core';
+import { Component, Type, ComponentRef, ComponentFactoryResolver, EventEmitter, NgZone, ViewChild, ViewContainerRef, OnDestroy } from '@angular/core';
 
 import { Common } from 'backlive/utility';
 import { PlatformUI } from 'backlive/utility/ui';
@@ -25,7 +25,7 @@ export class ModalComponent extends BaseComponent implements OnDestroy {
     @ViewChild('modalbody', {read: ViewContainerRef}) modalbodyRef: ViewContainerRef;
     @ViewChild('modalfooter', {read: ViewContainerRef}) modalfooterRef: ViewContainerRef;
 
-    constructor(appService: AppService, private componentResolver: ComponentFactoryResolver, private platformUI: PlatformUI, private elementRef: ElementRef, private ngZone: NgZone) {
+    constructor(appService: AppService, private componentResolver: ComponentFactoryResolver, private platformUI: PlatformUI, private ngZone: NgZone) {
         super(appService);
 
         this.options = { title: 'BackLive' };
@@ -39,7 +39,7 @@ export class ModalComponent extends BaseComponent implements OnDestroy {
 
     ngAfterViewInit() {
         var $elem = this.platformUI.query(`#${this.id}`);
-        $elem.on('hidden.bs.modal', (res) => {
+        $elem.on('hidden.bs.modal', () => {
             this.ngZone.run(() => {
                 this.appService.notify(new CloseModalEvent(null));
             });

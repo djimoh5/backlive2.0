@@ -1,4 +1,4 @@
-import { Component, ElementRef, ComponentRef, ComponentFactoryResolver, EventEmitter, ViewChild, ViewContainerRef, Input, OnChanges, OnDestroy } from '@angular/core';
+import { Component, ComponentRef, ComponentFactoryResolver, EventEmitter, ViewChild, ViewContainerRef, Input, OnChanges, OnDestroy } from '@angular/core';
 
 import { BaseComponent } from 'backlive/component/shared';
 
@@ -21,7 +21,7 @@ export class SlidingNavComponent extends BaseComponent implements OnChanges, OnD
     isVisible: boolean = false;
     activeItem: SlidingNavItem;
     
-    constructor(appService:AppService, private componentResolver: ComponentFactoryResolver, private elementRef: ElementRef) {
+    constructor(appService:AppService, private componentResolver: ComponentFactoryResolver) {
         super(appService);
         this.items = [];
     }

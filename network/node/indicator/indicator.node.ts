@@ -23,7 +23,7 @@ export class IndicatorNode extends BaseNode<Indicator> {
         this.notify(new DataSubscriptionEvent({ params: this.calculator.getIndicatorParams([node]), isFeature: true }), true);
     }
     
-    receive(event: ActivateNodeEvent) {}
+    receive(_event: ActivateNodeEvent) {}
 
     processData(event: DataEvent) {
         //console.log('Indicator ' + this.nodeId + ' received data event');

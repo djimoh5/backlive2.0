@@ -3,7 +3,7 @@ import { Component, OnInit, Input } from '@angular/core';
 
 import { NodeComponent } from 'backlive/component/shared';
 
-import { AppService, UserService, PortfolioService } from 'backlive/service';
+import { AppService, PortfolioService } from 'backlive/service';
 import { Portfolio, Strategy } from 'backlive/service/model';
 
 @Component({
@@ -15,7 +15,7 @@ import { Portfolio, Strategy } from 'backlive/service/model';
 export class PortfolioComponent extends NodeComponent<Portfolio> implements OnInit {
     @Input() portfolio: Portfolio;
     
-    constructor(appService: AppService, private userService: UserService, private portfolioService: PortfolioService) {
+    constructor(appService: AppService, private portfolioService: PortfolioService) {
         super(appService, portfolioService);
     }
     

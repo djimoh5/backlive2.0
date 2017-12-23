@@ -27,7 +27,7 @@ export class SearchBoxDirective implements OnInit {
     }
     
     @HostListener('keyup', ['$event'])
-    onKeyup(event: Event) {
+    onKeyup(_event: Event) {
         this.searchKey = this.elementRef.nativeElement.value;
         
         if (this.typingInterval == null && this.previousKey !== this.searchKey) {

@@ -8,7 +8,7 @@ if (!FileReader.prototype.readAsBinaryString) {
         var binary = "";
         var pt = this;
         var reader = new FileReader();
-        reader.onload = function (e) {
+        reader.onload = function () {
             var bytes = new Uint8Array(reader.result);
             var length = bytes.byteLength;
             for (var i = 0; i < length; i++) {

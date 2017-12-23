@@ -9,7 +9,7 @@ import { Observable } from 'rxjs/Observable';
 export class AuthGuard implements CanActivate {
     constructor(private userService: UserService) {}
     
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
+    canActivate(route: ActivatedRouteSnapshot, _state: RouterStateSnapshot): Observable<boolean> | boolean {
         RouterService.activeRoute = route;
 
         return Observable.create(observer => {

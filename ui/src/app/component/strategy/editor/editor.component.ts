@@ -4,7 +4,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { BaseComponent } from 'backlive/component/shared';
 import { RadioButtonOption } from 'backlive/component/shared/ui';
 
-import { AppService, StrategyService } from 'backlive/service';
+import { AppService } from 'backlive/service';
 import { Strategy, StrategySettings, StrategyFilter, PortfolioWeighting, FrictionType, TradingFrequency } from 'backlive/service/model';
 
 @Component({
@@ -20,7 +20,7 @@ export class StrategyEditorComponent extends BaseComponent implements OnInit {
     FrictionType = FrictionType;
     TradingFrequency = TradingFrequency;
       
-    constructor(appService: AppService, private strategyService: StrategyService) {
+    constructor(appService: AppService) {
         super(appService);
     }
     

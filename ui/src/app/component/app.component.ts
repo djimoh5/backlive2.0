@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
 import { BaseComponent } from 'backlive/component/shared';
 
 /* services */
-import { AppService, RouterService, UserService } from 'backlive/service';
+import { AppService, UserService } from 'backlive/service';
 
 /* models */
 import { User } from 'backlive/service/model';
@@ -18,12 +18,11 @@ import { SlidingNavVisibleEvent, PageLoadingEvent, RouterLoadingEvent } from 'ba
 })
 export class AppComponent extends BaseComponent {
     userService: UserService;
-    routerService: RouterService;
     isSlidingNavVisible: boolean;
     isPageLoading: boolean;
     isRouterLoading: boolean;
 
-    constructor(routerService: RouterService, appService: AppService, userService: UserService) {
+    constructor(appService: AppService, userService: UserService) {
         super(appService);
         this.appService = appService;
         this.userService = userService;
@@ -37,7 +36,7 @@ export class AppComponent extends BaseComponent {
         this.subscribeEvent(RouterLoadingEvent, event => { this.isRouterLoading = event.data; });
     }
     
-    init(user: User) {
+    init(_user: User) {
         
     }
 }

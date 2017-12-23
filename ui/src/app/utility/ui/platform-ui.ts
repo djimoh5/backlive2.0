@@ -1,26 +1,24 @@
 export class PlatformUI {
     static canvas: { center: { x: number, y: number } };
     
-    reload(path: string = null, event?: MouseEvent) { };
-    open(path: string = null) { };
-    openExternal(path: string = null) { };
-    redirect(path: string, event?: MouseEvent) {};
-    query(selector: any): any {};
+    reload(_path: string = null, _event?: MouseEvent) { }
+    open(_path: string = null) { }
+    openExternal(_path: string = null) { }
+    redirect(_path: string, _event?: MouseEvent) {}
+    query(_selector: any): any {}
     
-    onResize(eventNamespace: string, callback: (size: { width: number, height: number }) => void) {};
-    endOnResize(eventNamespace: string) { };
+    onResize(_eventNamespace: string, _callback: (size: { width: number, height: number }) => void) {}
+    endOnResize(_eventNamespace: string) { }
 
-    onScroll(eventNamespace: string, callback: (scrollTop: number) => void) {};
-    endOnScroll(eventNamespace: string) { };
+    onScroll(_eventNamespace: string, _callback: (scrollTop: number) => void) {}
+    endOnScroll(_eventNamespace: string) { }
 
-    infiniteScroll(onMoreResults: Function, scrollBuffer: number) {};
-    endInfiniteScroll() { };
+    infiniteScroll(_onMoreResults: Function, _scrollBuffer: number) {}
+    endInfiniteScroll() { }
 
-    scrollToTop(animationTime?: number) { };
-    scrollToItem(tagId: string) { };
+    scrollToTop(_animationTime?: number) { }
+    scrollToItem(_tagId: string) { }
 
-    addDocumentOffClick(nativeElem: any, thenDo: Function) { };
-    endDocumentOffClick() { };
-
-    registerGlobalMethod(name: string, fn:any) { };
+    addDocumentOffClick(_nativeElem: any, _thenDo: Function) { }
+    endDocumentOffClick() { }
 }

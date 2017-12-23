@@ -18,7 +18,7 @@ export class StrategyService extends NodeService<Strategy> {
 
     getBacktests() {
         var query = { name:{ $ne:null }, uid: this.user.uid };
-        this.database.collection('log_bt').find(query).sort({"_id":1}).toArray((err, results) => {
+        this.database.collection('log_bt').find(query).sort({"_id":1}).toArray((_err, results) => {
             this.done(results);
         });
         
@@ -91,12 +91,12 @@ export class StrategyService extends NodeService<Strategy> {
         var oid = this.dbObjectId(backtestId);  
         var collection = this.database.collection("log_bt");
         
-        collection.findOne({ _id:oid, uid: this.user.uid }, (err, doc)  => {
+        collection.findOne({ _id:oid, uid: this.user.uid }, (_err, doc)  => {
             if(doc && !doc.live) {
                 collection.remove({ _id:oid, uid: this.user.uid }, () => {
-                    this.database.collection("log_bt_cp", (error, collection) => {
+                    this.database.collection("log_bt_cp", (_error, collection) => {
                         collection.remove({ id:oid }, () => {
-                            this.database.collection("log_bt_tr", (error, collection) => {
+                            this.database.collection("log_bt_tr", (_error, collection) => {
                                 collection.remove({ id:oid }, () => {
                                     this.success();
                                 });
@@ -137,13 +137,13 @@ export class StrategyService extends NodeService<Strategy> {
         }
         else {
             collection = this.database.collection("user");
-            collection.findOne({ u:username }, { _id:1, e:1 }, (err, result) => {
+            collection.findOne({ u:username }, { _id:1, e:1 }, (_err, result) => {
                 if(result) {
                     var uid = result._id.toString();
                     var email = result.e;
                     
-                    this.database.collection("log_bt", (error, collection) => {
-                        collection.findOne({ _id:oid, uid: this.user.uid }, (err, result) => {
+                    this.database.collection("log_bt", (_error, collection) => {
+                        collection.findOne({ _id:oid, uid: this.user.uid }, (_err, result) => {
                             if(result) {
                                 var bt = result;
                                 bt.ref_id = bt._id;
@@ -173,9 +173,9 @@ export class StrategyService extends NodeService<Strategy> {
 	}
     
     getAutomatedStrategy(backtestId) {
-        this.database.collection('user_stgy').findOne({ uid: this.user.uid, bt_id:backtestId }, (err, result)  => {
+        this.database.collection('user_stgy').findOne({ uid: this.user.uid, bt_id:backtestId }, (_err, result)  => {
             if(result) {
-                this.database.collection('user_stgy_tr').find({ id:result._id.toString() }).sort({ date:1 }).toArray((err, data) => {
+                this.database.collection('user_stgy_tr').find({ id:result._id.toString() }).sort({ date:1 }).toArray((_err, data) => {
                     this.done({ id:result._id, bt_id:result.bt_id, capt:result.capt, exec:result.exec, data:data });
                 });
             }

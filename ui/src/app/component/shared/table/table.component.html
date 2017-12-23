@@ -14,7 +14,7 @@
                         <div class="th-tablerow">
                             <div class="th-tablecell name">{{tableColumn.name}}</div>
                             <div *ngIf="tableColumn.filterable" class="th-tablecell filter">
-                                <dropdown-menu class="data-filter" (click)="filterClick($event, tableColumn.name)" title="" size="small" [class.active-data-filter]="isActiveFilter(tableColumn.name)" [class.empty-data-filter]="!isPopulatedFilter(tableColumn.name)" [activeFilter]="false" [autoClose]="false" icon="filter">
+                                <dropdown-menu class="data-filter" (click)="filterClick(tableColumn.name)" title="" size="small" [class.active-data-filter]="isActiveFilter(tableColumn.name)" [class.empty-data-filter]="!isPopulatedFilter(tableColumn.name)" [activeFilter]="false" [autoClose]="false" icon="filter">
                                     <!--<filter-menu [filters]="filters" [selectedName]="selectedTableColumnName" [isDataFilter]="true" (onChange)="filterData($event)"></filter-menu>-->
                                 </dropdown-menu>
                             </div>

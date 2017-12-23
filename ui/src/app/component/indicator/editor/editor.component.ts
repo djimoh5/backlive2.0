@@ -4,8 +4,8 @@ import { Component, Input, OnInit, AfterViewInit, ViewChild, ElementRef } from '
 import { BaseComponent } from 'backlive/component/shared';
 import { Common } from 'backlive/utility';
 
-import { AppService, IndicatorService } from 'backlive/service';
-import { Indicator, SportsIndicator, IndicatorParam, IndicatorParamType, Operator, AggregationType } from 'backlive/service/model';
+import { AppService } from 'backlive/service';
+import { Indicator, IndicatorParam, IndicatorParamType, Operator, AggregationType } from 'backlive/service/model';
 
 import { CloseFooterModalEvent } from 'backlive/event';
 
@@ -25,7 +25,7 @@ export class IndicatorEditorComponent extends BaseComponent implements OnInit, A
 
     AggregationType = AggregationType;
       
-    constructor(appService: AppService, private indicatorService: IndicatorService) {
+    constructor(appService: AppService) {
         super(appService);
     }
     

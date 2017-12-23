@@ -82,12 +82,12 @@ export class TabViewComponent extends BaseComponent implements AfterContentInit 
             }
             
             if(!tab.hasSubscription) {
-                tab.clicked.subscribe(event => this.tabClicked(index, event));
+                tab.clicked.subscribe(() => this.tabClicked(index));
             }
         });
     }
     
-    tabClicked(index: number, event: any = null) {
+    tabClicked(index: number) {
         this.tabs.forEach(tab => {
             tab.setActive(false);
         });

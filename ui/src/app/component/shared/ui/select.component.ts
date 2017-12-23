@@ -180,7 +180,7 @@ export class SelectComponent implements OnChanges, ControlValueAccessor, Validat
         this.propagateTouch = fn;
     }
 
-    validate(control: AbstractControl) {
+    validate(_control: AbstractControl) {
         if (!this.model && this.model !== 0) {
             return {
                 validateValue: { valid: false }
@@ -331,7 +331,7 @@ export class SelectComponent implements OnChanges, ControlValueAccessor, Validat
             if (this.options.length > 0 && this.options.length - 1 > this.searchIndex) {
                 this.clearSearchOption();
                 this.searchOption = this.options[++this.searchIndex];
-                this.selectSearchOption(true);
+                this.selectSearchOption();
             }
         }
         if (keyCode == 38) { // up
@@ -341,7 +341,7 @@ export class SelectComponent implements OnChanges, ControlValueAccessor, Validat
                 }
                 this.clearSearchOption();
                 this.searchOption = this.options[--this.searchIndex];
-                this.selectSearchOption(false);
+                this.selectSearchOption();
             }
         }
     }
@@ -352,14 +352,14 @@ export class SelectComponent implements OnChanges, ControlValueAccessor, Validat
         }
     }
 
-    selectSearchOption(scrolledDown: boolean) {
+    selectSearchOption() {
         if (this.searchOption) {
             this.searchOption.selected = true;
-            this.scrollToElement(this.searchIndex, this.searchOption, scrolledDown);
+            this.scrollToElement(this.searchIndex, this.searchOption);
         }
     }
 
-    scrollToElement(index: number, selectListItem: SelectOptionComponent, scrolledDown: boolean) {
+    scrollToElement(index: number, selectListItem: SelectOptionComponent) {
         var elementTop = selectListItem.top();
         var scrollTop = this.dropdownListElement.scrollTop();
         var scrollOffset = this.dropdownListElement.height() * .5;

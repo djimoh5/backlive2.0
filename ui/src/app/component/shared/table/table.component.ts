@@ -84,7 +84,7 @@ export class TableComponent implements AfterViewChecked, OnInit, OnChanges, OnDe
         this.checkForMobile(this.platformUI.query(window).width());
     }
 
-    filterClick(event, columnName: string) {
+    filterClick(columnName: string) {
         this.selectedTableColumnName = columnName;
     }
 
@@ -315,7 +315,7 @@ export class TableComponent implements AfterViewChecked, OnInit, OnChanges, OnDe
                     if (!row.hidden) {
                         break;
                     }
-                };
+                }
             });
         }
     }

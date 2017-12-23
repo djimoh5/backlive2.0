@@ -12,7 +12,7 @@ export class CheckboxComponent {
     constructor () {}
     
     @HostListener('click', ['$event'])
-    onClick(event: Event) {
+    onClick(_event: Event) {
         if(!this.readonly) {
             this.checked = !this.checked;
             this.checkedChange.emit(this.checked);

@@ -1,4 +1,3 @@
-import { Component } from '@angular/core';
 import { BaseComponent } from './base.component';
 
 import { AnimationType } from 'backlive/directive';

@@ -62,11 +62,11 @@ export class DropdownMenuComponent extends ButtonComponent implements AfterViewI
         }
 
         var $elem = this.platformUI.query(this.elementRef.nativeElement);
-        $elem.on('hidden.bs.dropdown', (res) => {
+        $elem.on('hidden.bs.dropdown', () => {
             this.fireOnClick(false);
         });
 
-        $elem.on('shown.bs.dropdown', (res) => {
+        $elem.on('shown.bs.dropdown', () => {
             this.fireOnClick(true);
         });
     }

@@ -29,7 +29,7 @@ export class CryptoService extends BaseService {
             };
             this.gdaxSocket.onclose = () => {
                 console.log("gdax socket closed");
-            }
+            };
         });
 
         

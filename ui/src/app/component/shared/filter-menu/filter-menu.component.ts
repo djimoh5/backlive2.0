@@ -66,7 +66,7 @@ export class FilterMenuComponent extends BaseComponent implements OnChanges {
         }
     }
 
-    filterChanged(option: FilterOption) {
+    filterChanged(_option: FilterOption) {
         var filterOptions: FilterOption[] = [];
 
         this.filters.forEach(filter => {

@@ -45,14 +45,14 @@ export class ButtonComponent extends BaseComponent implements OnInit, OnChanges 
         }
     }
 
-    ngOnChanges(simpleChanges: SimpleChanges) {
+    ngOnChanges(_simpleChanges: SimpleChanges) {
         this.btnClass = "btn";
         this.btnClass += ' ' + (this.type && Type[this.type] ? Type[this.type] : Type.default);
         this.btnClass += ' ' + (this.size && Size[this.size] ? Size[this.size] : Size.default);
     }
 
     @HostListener('click', ['$event'])
-    onButtonClickListener(event: MouseEvent) {
+    onButtonClickListener(_event: MouseEvent) {
         this.hasBeenClicked = true;
     }
 

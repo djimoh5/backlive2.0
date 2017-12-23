@@ -49,11 +49,11 @@ export class AccordionComponent extends BaseComponent implements AfterViewInit {
 
     ngAfterViewInit() {
         var $elem = this.platformUI.query(this.elementRef.nativeElement);
-        $elem.on('hidden.bs.collapse', (res) => {
+        $elem.on('hidden.bs.collapse', () => {
             this.fireOnClick(false);
         });
 
-        $elem.on('shown.bs.collapse', (res) => {
+        $elem.on('shown.bs.collapse', () => {
             this.fireOnClick(true);
         });
     }

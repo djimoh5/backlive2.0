@@ -123,9 +123,4 @@ export class DomUI implements PlatformUI {
             $('html,body').scrollTop(top - 150);   
         }
     }
-
-    registerGlobalMethod(name: string, fn: any) {
-        // used for iframe interaction (ie FDFs)
-        window[name] = fn;
-    }
 }

@@ -5,7 +5,7 @@ import { SearchBarComponent } from 'backlive/component/shared/ui';
 import { NetworkListComponent } from './shared/list/list.component';
 import { SlidingNavItem } from 'backlive/component/navigation';
 
-import { AppService, UserService, NetworkService, BasicNodeService, LookupService, RouterService } from 'backlive/service';
+import { AppService, NetworkService, LookupService, RouterService } from 'backlive/service';
 
 import { Route } from 'backlive/routes';
 import { Network, Portfolio, Node, NodeType } from 'backlive/service/model';
@@ -14,8 +14,6 @@ import { NodeChangeEvent, ActivateNodeEvent, ExecuteStrategyEvent, ExecuteNetwor
 import { PlatformUI } from 'backlive/utility/ui';
 
 import { Common, Cache } from 'backlive/utility';
-
-declare var d3;
 
 @Component({
     selector: 'backlive-network',
@@ -37,8 +35,8 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
     todayDate: number;
     minStartDate: number = 20030103;
 
-    constructor(appService: AppService, private userService: UserService, private lookupService: LookupService, private platformUI: PlatformUI, 
-        private nodeService: BasicNodeService, private networkService: NetworkService, private routerService: RouterService) {
+    constructor(appService: AppService, private lookupService: LookupService, private platformUI: PlatformUI, 
+        private networkService: NetworkService, private routerService: RouterService) {
         super(appService);
 
         this.todayDate = Common.dbDate(new Date());
@@ -52,7 +50,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         this.life = { numLoops: 0 };
         this.lookupService.getDataFields(); //just to cache data
 
-        this.platformUI.onResize('network', size => this.positionNodes());
+        this.platformUI.onResize('network', () => this.positionNodes());
         this.setCanvas();
 
         this.subscribeEvent(ActivateNodeEvent, event => {
@@ -124,7 +122,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         Cache.set('strategyId', network._id, 0, 'pref');
     }
 
-    loadNode<T extends Node>(node: Node) {
+    loadNode<T extends Node>(node: T) {
         node['activating'] = node['activated'] = false;
 
         var index = this.nodes.findIndex(n => { return n._id === node._id; });
@@ -136,7 +134,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         }
     }
 
-    onLoadInputs(node: Node, inputNodes: Node[]) {
+    onLoadInputs(_node: Node, inputNodes: Node[]) {
         inputNodes.forEach(node => {
             this.loadNode(node);
         });
@@ -170,7 +168,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         }
     }
 
-    onRemoveNode(node: Node, index: number = null) {
+    onRemoveNode(_node: Node, index: number = null) {
         this.nodes.splice(index, 1);
     }
 
@@ -217,7 +215,7 @@ export class NetworkComponent extends PageComponent implements OnInit, OnDestroy
         }
     }
 
-    positionNodes(animating: boolean = false) {
+    positionNodes(_animating: boolean = false) {
         if(this.network && this.network.inputs) {
             this.setCanvas();
             this.appService.notify(new RedrawNodeEvent(this.network.inputs[0]));

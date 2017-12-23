@@ -13,7 +13,7 @@ import { PlatformUI } from 'backlive/utility/ui';
 
 import { Common } from 'backlive/utility';
 
-declare var d3;
+//declare var d3;
 
 export abstract class NodeComponent<T extends Node> extends BaseComponent {
     @Output() nodeChange: EventEmitter<Node> = new EventEmitter<Node>();
@@ -23,36 +23,36 @@ export abstract class NodeComponent<T extends Node> extends BaseComponent {
 
     static outputs = ['nodeChange', 'loadInputs', 'addInput', 'remove'];
 
-    private node: Node;
+    private node: T;
     inputs: Node[] = [];
 
     constructor(appService: AppService, private nodeService: NodeService<Node>) {
         super(appService);
     }
 
-    protected init(node: Node) {
+    protected init(node: T) {
         this.node = node;
 
         this.getInputs(true);
 
-        this.subscribeEvent(NodeChangeEvent, event => {
+        this.subscribeEvent(NodeChangeEvent, () => {
             this.update();
             
             if(this.node.inputs && this.node.inputs.length !== this.inputs.length) {
                 this.getInputs(true);
             }
-        }, { filter: (event, index) => { return event.data._id === this.node._id; } });
+        }, { filter: (event) => { return event.data._id === this.node._id; } });
 
         this.subscribeEvent(RemoveNodeEvent, event => {
             this.onInputRemoved(event.data);
-        }, { filter: (event, index) => { return this.inputs.indexOf(event.data) >= 0; } });
+        }, { filter: (event) => { return this.inputs.indexOf(event.data) >= 0; } });
 
-        this.subscribeEvent(RedrawNodeEvent, event => this.redraw(), { 
-            filter: (event, index) => { return this.node._id === event.data; } 
+        this.subscribeEvent(RedrawNodeEvent, () => this.redraw(), { 
+            filter: (event) => { return this.node._id === event.data; } 
         });
     }
 
-    abstract update()
+    abstract update();
 
     onRemove() {
         if(!this.node.name) {

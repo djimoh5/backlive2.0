@@ -1,14 +1,14 @@
-import {Component} from '@angular/core';
-import {Route} from 'backlive/routes';
+import { Component } from '@angular/core';
+import { Route } from 'backlive/routes';
 
-import {AppService, UserService} from 'backlive/service';
+import { AppService } from 'backlive/service';
 
 @Component({
     selector: 'backlive-home',
     template: ``
 })
 export class HomeComponent {
-    constructor(appService: AppService, userService: UserService) {
+    constructor(appService: AppService) {
         appService.navigate(Route.CryptoTrader);
     }
 }

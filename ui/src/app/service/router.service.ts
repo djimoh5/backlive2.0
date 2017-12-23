@@ -8,8 +8,6 @@ import { Subscription } from 'rxjs/Subscription';
 import { Common } from '../utility/common';
 import { Config } from 'backlive/config';
 
-declare var System: any;
-
 @Injectable()
 export class RouterService {
     static activeRoute: ActivatedRouteSnapshot;
@@ -62,7 +60,7 @@ export class RouterService {
 
             if (e instanceof NavigationEnd) {
                 RouterService.activeUrl = e.url;
-                this.setTitle(e.url);
+                this.setTitle();
                 this.isActiveRouteTree = null;
 
                 if (this.routerSubcriber) {
@@ -224,7 +222,7 @@ export class RouterService {
         }
     }
 
-    open(route: RouteInfo, params: { [key: string]: any }, queryParams: {} = null) {
+    open(route: RouteInfo, params: { [key: string]: any }) {
         window.open(this.getLinkUrl(route, params));
     }
 
@@ -233,7 +231,7 @@ export class RouterService {
         this.updatePageTitle(pageTitle);
     }
 
-    private setTitle(url: string) {
+    private setTitle() {
         var pageTitle;
 
         if (RouterService.activeUrl) {
@@ -244,7 +242,7 @@ export class RouterService {
                 var urls: string[] = RouterService.activeUrl.split('?')[0].split(';')[0].split('/');
                 for (var i = urls.length - 1; i >= 0; i--) {
                     if (urls[i] && urls[i].length < 24) {
-                        pageTitle = urls[i].toLowerCase().replace(/-/g, ' ').replace(/\b[a-z](?=[a-z]{2})/g, function (letter) { return letter.toUpperCase(); });;
+                        pageTitle = urls[i].toLowerCase().replace(/-/g, ' ').replace(/\b[a-z](?=[a-z]{2})/g, function (letter) { return letter.toUpperCase(); });
                         break;
                     }
                 }

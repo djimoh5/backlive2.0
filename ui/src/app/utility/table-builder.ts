@@ -36,7 +36,7 @@ export class TableBuilder {
                         }
                         else {
                             column.type = <TableColumnType>options.columnTypes[field];
-                        };
+                        }
                     }
 
                     if (options.clickableColumns && options.clickableColumns[field]) {
@@ -65,13 +65,13 @@ export class TableBuilder {
         });
 
         if (rows[0] && dataFooterRows.length > 0) {
-            rows[0].footerColumns = TableBuilder.getFooterColumns(dataFooterRows, options);
+            rows[0].footerColumns = TableBuilder.getFooterColumns(dataFooterRows);
         }
 
         return rows;
-    };
+    }
 
-    private static getFooterColumns(dataFooterRows: {}[], options: TableBuilderOptions = null): TableFooterColumn[] {
+    private static getFooterColumns(dataFooterRows: {}[]): TableFooterColumn[] {
         var footerRow: TableFooterColumn[] = [];
 
         if (dataFooterRows.length > 0) {

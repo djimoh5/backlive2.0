@@ -13,12 +13,12 @@ export class NavigateDirective implements OnChanges {
 
     @HostBinding('attr.href') href: string;
 
-    @HostBinding('attr.target') get targetLink(): string { return this.target; };
+    @HostBinding('attr.target') get targetLink(): string { return this.target; }
 
     constructor(private appService: AppService) {
     }
 
-    ngOnChanges(simpleChanges: SimpleChanges) {
+    ngOnChanges(_simpleChanges: SimpleChanges) {
         if (this.routerLink) {
             if (Common.isString(this.routerLink)) {
                 this.href = <string> this.routerLink;

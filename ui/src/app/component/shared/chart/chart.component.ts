@@ -20,6 +20,7 @@ declare var Highcharts;
 export class ChartComponent extends BaseComponent implements AfterViewInit {
     @Input() options: ChartOptions;
     @Output() onSelect: EventEmitter<any> = new EventEmitter<any>();
+    @Output() showSeries: EventEmitter<ChartSeries> = new EventEmitter<ChartSeries>();    
 
     chart: any;
     private highChartOptions: any;
@@ -34,6 +35,7 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
         super(appService);
 
         Highcharts.setOptions({
+            global: { useUTC: false },
             lang: { thousandsSep: ',' }
         });
 
@@ -62,11 +64,11 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
                 events: {
                     load: function() {
                         this.series.forEach((series, i) => {
-                            series.minVal = self.options.series[i]['minVal'];
-                            series.maxVal = self.options.series[i]['maxVal'];
+                            series.yMin = self.options.series[i].yMin;
+                            series.yMax = self.options.series[i].yMax;
                             if(series.visible) {
                                 setTimeout(function() {
-                                    self.setExtremes('yAxis', series.minVal, series.maxVal);
+                                    self.setExtremes('yAxis', series.yMin, series.yMax);
                                 });
                             }
                         });
@@ -85,7 +87,11 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
                                     }
                                 }
 
-                                self.setExtremes('yAxis', this.minVal, this.maxVal);
+                                self.ngZone.run(() => {
+                                    self.showSeries.emit(this);
+                                });
+                                
+                                self.setExtremes('yAxis', this.yMin, this.yMax);
                             }
                         },
                         legendItemClick: function () {
@@ -191,8 +197,8 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
         if(Common.isArray(this.options.series[0].data)) {
             this.options.series.forEach(series => {
                 if(series.data[1]) {
-                    var data = <[number, number]>series.data;
-                    for(var i = 0, d: [number, number]; d = series.data[i]; i++) {
+                    var data = <[number, number][]>series.data;
+                    for(var i = 0, d: [number, number]; d = data[i]; i++) {
                         this.setMinMaxVal(series, d[1]);
                     }
                 }
@@ -217,7 +223,6 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
     }
 
     buildPieChart() {
-        var self = this;
         this.highChartOptions.chart.options3d = { enabled: true, alpha: 30 };
         this.highChartOptions.plotOptions.pie = { cursor: 'pointer', allowPointSelect: true, depth: 45, showInLegend: true };
 
@@ -234,8 +239,6 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
     }
 
     buildAxisOptions(axis: string) {
-        var self = this;
-
         if (!this.options[axis]) {
             this.options[axis] = {};
         }
@@ -295,7 +298,6 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
 
         var usedCategories = {};
         var categoriesIndex = {};
-        var iterator = 0;
         var nextIndex = 0;
 
         for (var i = 0, s: ChartSeries; s = series[i]; i++) {
@@ -337,37 +339,52 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
         return (this.options.yAxis && this.options.yAxis.type === ChartAxisType.currency ? '$' : '') + Highcharts.numberFormat(y, null, null, ',');
     }
 
-    addPoint(seriesName: string, point: [number, number]) {
-        if (this.chart && this.chart.series) {
-            for (var i = 0, series; series = this.chart.series[i]; i++) {
-                if (series.name === seriesName) {
-                    series.addPoint(point);
+    addPoints(seriesName: string, points: [number, number][]) {
+        var series: ChartSeries;
+        console.log(points.length);
 
-                    if (this.setMinMaxVal(series, point[1]) && series.visible) {
-                        this.setExtremes('yAxis', series.minVal, series.maxVal);
-                    }
-                }
-            }
+        for(var j = 0, point: [number, number]; point = points[j]; j++) {
+            this.addPoint(seriesName, point, false);
+            series = series ? this.addSeriesPoint(series, point, false) : this.addPoint(seriesName, point, false);
         }
+
+        this.chart.redraw();
+        this.setExtremes('yAxis', series.yMin, series.yMax);
+    }
+
+    addPoint(seriesName: string, point: [number, number], redraw: boolean = true) {
+        if (this.chart && this.chart.series) {
+            var series = this.chart.series.find(s => { return s.name === seriesName; });
+            return this.addSeriesPoint(series, point, redraw);
+        }
+    }
+
+    private addSeriesPoint(series: ChartSeries, point: [number, number], redraw: boolean = true) {
+        series.addPoint(point, redraw);
+
+        if (this.setMinMaxVal(series, point[1]) && series.visible && redraw) {
+            this.setExtremes('yAxis', series.yMin, series.yMax);
+        }
+
+        return series;
     }
 
     setExtremes(axis: string, min: number, max: number) {
-        console.log('extremes', min, max);
         if(typeof min !== 'undefined' && typeof max !== 'undefined') {
-            this.chart[axis][0].setExtremes(min - (min * .0001), max + (max * .0001));
+            this.chart[axis][0].setExtremes(min, max);
         }
     }
 
-    private setMinMaxVal(series: any, val: number): boolean {
+    private setMinMaxVal(series: ChartSeries, val: number): boolean {
         var updateExtremes = false;
 
-        if (typeof series.minVal === 'undefined' || val < series.minVal) {
-            series.minVal = val;
+        if (typeof series.yMin === 'undefined' || val < series.yMin) {
+            series.yMin = val;
             updateExtremes = true;
         }
 
-        if (typeof series.maxVal === 'undefined' || val > series.maxVal) {
-            series.maxVal = val;
+        if (typeof series.yMax === 'undefined' || val > series.yMax) {
+            series.yMax = val;
             updateExtremes = true;
         }
 
@@ -409,7 +426,12 @@ export interface ChartSeries {
     tooltipLabel?: string;
     labels?: { [key: string]: string };
     visible?: boolean;
-    color?: string; 
+    color?: string;
+    yMin?: number;
+    yMax?: number;
+    xMin?: number;
+    xMax?: number;
+    addPoint?(point: [number, number], redraw?: boolean);
 }
 
 declare type ChartData = number[] | [number | string, number][] | ChartDataPoint[] | ChartKeyValueData;

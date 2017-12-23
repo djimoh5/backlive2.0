@@ -56,7 +56,7 @@ export abstract class BaseNode<T extends Node> {
         }
 
         this.subscribe(BackpropagateEvent, event => this.backpropagate(event), 
-            { filter: (event, index) => { return Common.inArray(event.senderId, this.outputs); } }
+            { filter: (event) => { return Common.inArray(event.senderId, this.outputs); } }
         );
 
         this.clearState();
@@ -75,14 +75,14 @@ export abstract class BaseNode<T extends Node> {
 
         if(node.inputs) {
             this.nodeService.getInputs(node._id).then(nodes => {
-                this.subscribeInputs(nodes); 
+                this.subscribeInputs(); 
                 if(this.onNodeLoaded) { this.onNodeLoaded(nodes); }
             }).catch(err => {
               throw err;
             });
 
             this.unsubscribe(UpdateNodeWeightsEvent);
-            this.subscribe(UpdateNodeWeightsEvent, event => this.updateWeights());
+            this.subscribe(UpdateNodeWeightsEvent, () => this.updateWeights());
         }
         else {
             setImmediate(() => { //have to run on next turn or onUpdateInputs won't be set yet
@@ -104,11 +104,11 @@ export abstract class BaseNode<T extends Node> {
         return this.outputs;
     }
 
-    subscribeInputs(nodes: Node[]) {
+    subscribeInputs() {
         this.unsubscribe(ActivateNodeEvent);
         this.subscribe(ActivateNodeEvent,
             event => this.receiveActivation(event), 
-            { filter: (event, index) => { return Common.inArray(event.senderId, this.node.inputs); } }
+            { filter: (event) => { return Common.inArray(event.senderId, this.node.inputs); } }
         );
     }
 
@@ -170,7 +170,7 @@ export abstract class BaseNode<T extends Node> {
         this.notify(event);
     }
 
-    activateMatrix(activation: Activation, inActivation: Activation, useLinear: boolean) {
+    activateMatrix(activation: Activation, inActivation: Activation, _useLinear: boolean) {
         aoA.activate(Buffer.from(<ArrayBuffer>activation.data().buffer), inActivation.data(), this.node.weights, this.node.bias, inActivation.rows());
         /*var featLen = inActivation.columns();
 

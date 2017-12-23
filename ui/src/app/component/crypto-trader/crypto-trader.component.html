@@ -1,5 +1,7 @@
 <div [animate]="pageAnimation" class="main-with-slider">
-    <backlive-chart #chart *ngIf="chartOptions" [options]="chartOptions"></backlive-chart>
+    <div [style.height.px]="chartHeight">
+        <backlive-chart #chart *ngIf="chartOptions" [options]="chartOptions" (showSeries)="onShowSeries($event)"></backlive-chart>
+    </div>
 </div>
 
 <sliding-nav [items]="navItems"></sliding-nav>

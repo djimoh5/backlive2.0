@@ -15,9 +15,9 @@ export class ApiService {
     private http: Http;
     private token: string;
     
-    get baseUrl(): string { return '/api/'; };
-    get AuthorizationHeader(): { [key: string]: string }  { return this.getAuthorizatioHeader(); };
-    get ApiCacheCategory(): string { return 'api'; };
+    get baseUrl(): string { return '/api/'; }
+    get AuthorizationHeader(): { [key: string]: string }  { return this.getAuthorizatioHeader(); }
+    get ApiCacheCategory(): string { return 'api'; }
     
     constructor(http: Http) {
         this.http = http;

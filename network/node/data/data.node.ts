@@ -55,7 +55,7 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
             }
         });
 
-        this.subscribe(ValidateDataEvent, event => {
+        this.subscribe(ValidateDataEvent, () => {
             this.currentRecord = 0;
             this.validating = true;
             this.nextBatch();
@@ -114,8 +114,8 @@ export abstract class BaseDataNode extends BaseNode<Node> implements IDataNode {
     protected cacheData(id: string, date: number, input: number[], lbls: number[], keys?: string[]) {
         var cache = { id: id, date: date, input: input, lbls: lbls, keys: keys, numFeat: this.numFeatures, numCls: this.numClasses };
         var collection = Database.cache.collection('nn_data_cache');
-        collection.remove({ id: Network.network._id, date: date }, function (err) {
-            collection.insert(cache, function (err) {});
+        collection.remove({ id: Network.network._id, date: date }, function (_err) {
+            collection.insert(cache, function (_err) {});
         });
     }
 

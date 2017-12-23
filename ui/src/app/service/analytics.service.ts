@@ -1,7 +1,4 @@
-declare var Appcues: any;
-declare var __insp: any;
 declare var ga: any;
-declare var SnapEngage: any, SnapABugChat: any, SnapABug: any;
 
 import { Injectable } from '@angular/core';
 import { AppService } from './app.service';
@@ -10,17 +7,12 @@ import { AnalyticsDimension, AnalyticsEvent, AnalyticsTiming } from './model/ana
 
 import { User } from 'backlive/service/model';
 
-import { PlatformUI } from 'backlive/utility/ui';
-
-declare var System: any;
-declare var WEB_CONFIG: any;
-
 @Injectable()
 export class AnalyticsService {
     user: User;
     static gaTrackerName: string = null;
 
-    constructor(private appService: AppService, private platformUI: PlatformUI) {
+    constructor(private appService: AppService) {
     }
     
     initialize(user: User) {
@@ -28,10 +20,10 @@ export class AnalyticsService {
 
         this.initGoogleAnalytics(user);
 
-        this.appService.routerService.subscribeToUrl((path, currentParams) => this.setPageView(path, currentParams));
+        this.appService.routerService.subscribeToUrl((path) => this.setPageView(path));
     }
     
-    setPageView(path: string, params: { [key: string]: any } = {}) {
+    setPageView(path: string) {
         if (AnalyticsService.gaEnabled()) {
             var customDimensions;
             

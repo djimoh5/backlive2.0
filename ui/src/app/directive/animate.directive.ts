@@ -41,7 +41,7 @@ export class AnimateDirective implements OnChanges {
         return this.hideElement;
     }
     
-    ngOnChanges(simpleChanges: SimpleChanges) {
+    ngOnChanges(_simpleChanges: SimpleChanges) {
         if(this.animationType == AnimationType.Hide) {
             this.hideElement = true;
         }
