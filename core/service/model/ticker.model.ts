@@ -37,10 +37,12 @@ export enum TradeSide {
 }
 
 export interface LastPrice {
+    productId?: string;
     ticker: string;
     price: number;
     change: number;
     percentChange: number;
+    open?: number;
     color?: string;
     side?: TradeSide;
 }

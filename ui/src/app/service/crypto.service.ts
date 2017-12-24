@@ -9,6 +9,8 @@ import { CryptoTicker, CryptoProduct, CryptoOrderBook, CryptoPrices, Crypto24HrS
 @Injectable()
 export class CryptoService extends BaseService {
     private gdaxSocket: WebSocket;
+
+    defaultProductId: string = 'BTC-USD';
     ticker: EventEmitter<CryptoTicker> = new EventEmitter<CryptoTicker>();
 
     constructor(apiService: ApiService, appService: AppService) {
@@ -45,8 +47,20 @@ export class CryptoService extends BaseService {
                     }
 
                     return false;
+                }).sort((a, b) => {
+                    if (a.id === this.defaultProductId) {
+                        return -1;
+                    }
+                    else if (b.id === this.defaultProductId) {
+                        return 1;
+                    }
+                    else {
+                        return (a <= b ? -1 : 1);
+                    }
                 });
             }
+
+            console.log(products);
             
             return products;
         });
@@ -62,6 +76,16 @@ export class CryptoService extends BaseService {
 
     getPrices(productId: string, granularity: number): Promise<ApiResponse<CryptoPrices>> {
         return this.get(`${productId}/prices`, { granularity: granularity });
+    }
+
+    private productName = {
+        'BTC-USD': 'Bitcoin',
+        'BCH-USD': 'Bitcoin Cash',
+        'ETH-USD': 'Ethereum',
+        'LTC-USD': 'Litecoin'
+    };
+    getProductName(productId: string) {
+        return this.productName[productId] ? this.productName[productId] : productId.replace('-USD', '');
     }
 
     private gdaxSend(json: any) {

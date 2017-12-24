@@ -1,4 +1,4 @@
-import { Component, Input, Output, ElementRef, AfterViewInit, EventEmitter, NgZone } from '@angular/core';
+import { Component, Input, Output, OnChanges, SimpleChanges, ElementRef, AfterViewInit, EventEmitter, NgZone } from '@angular/core';
 
 import { BaseComponent } from '../base.component';
 import { AppService } from 'backlive/service';
@@ -17,19 +17,14 @@ declare var Highcharts;
         }
     `]
 })
-export class ChartComponent extends BaseComponent implements AfterViewInit {
+export class ChartComponent extends BaseComponent implements AfterViewInit, OnChanges {
     @Input() options: ChartOptions;
-    @Output() onSelect: EventEmitter<any> = new EventEmitter<any>();
+    @Input() title: string;
+    @Output() select: EventEmitter<any> = new EventEmitter<any>();
     @Output() showSeries: EventEmitter<ChartSeries> = new EventEmitter<ChartSeries>();    
 
-    chart: any;
+    private chart: any;
     private highChartOptions: any;
-
-    selectedBarCategory: number = 0;
-    selectedBarCategoryArray: number[] = [];
-    isSliced: boolean = false;
-    isRemoved: boolean;
-    isArrayEmpty: boolean;
 
     constructor(appService: AppService, private platformUI: PlatformUI, private elementRef: ElementRef, private ngZone: NgZone) {
         super(appService);
@@ -52,14 +47,22 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
         this.chart = this.platformUI.query(this.elementRef.nativeElement).find('.chart').highcharts('StockChart', this.buildChartOptions()).highcharts();
     }
 
+    ngOnChanges(simpleChanges: SimpleChanges) {
+        if(simpleChanges.title && this.chart) {
+            this.chart.setTitle({ text: this.title });
+        }
+    }
+
     buildChartOptions() {
         var self = this;
         this.highChartOptions = {
             chart: {
                 type: this.options.type,
+                legend: !this.options.disableLegend,
                 options3d: { enabled: !this.options.disable3d, alpha: 0, beta: 0, depth: 20, viewDistance: 25 },
                 //events: this.chartEventHandlers(),
                 borderWidth: 0,
+                borderRadius: 10,
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
                 events: {
                     load: function() {
@@ -80,19 +83,7 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
                     fillOpacity: 0.3,
                     events: {
                         show: function() {
-                            if(!this.options.multipleSeries) {
-                                for (var i = 0, series; series = this.chart.series[i]; i++) {
-                                    if(series != this && series.visible) {
-                                        series.hide();
-                                    }
-                                }
-
-                                self.ngZone.run(() => {
-                                    self.showSeries.emit(this);
-                                });
-                                
-                                self.setExtremes('yAxis', this.yMin, this.yMax);
-                            }
+                            self.onSelectSeries(this);
                         },
                         legendItemClick: function () {
                             if (!this.options.multipleSeries && this.visible) {
@@ -369,6 +360,28 @@ export class ChartComponent extends BaseComponent implements AfterViewInit {
         return series;
     }
 
+    private onSelectSeries(selectedSeries: ChartSeries) {
+        if(!this.options.multipleSeries) {
+            for (var i = 0, series; series = this.chart.series[i]; i++) {
+                if(series != selectedSeries && series.visible) {
+                    series.hide();
+                }
+            }
+
+            this.setExtremes('yAxis', selectedSeries.yMin, selectedSeries.yMax);
+        }
+
+        this.ngZone.run(() => {
+            this.showSeries.emit(selectedSeries);
+        });
+    }
+
+    selectSeries(seriesName: string) {
+        var series = this.chart.series.find(s => { return s.name === seriesName; });
+        series.show();
+        this.onSelectSeries(series);
+    }
+
     setExtremes(axis: string, min: number, max: number) {
         if(typeof min !== 'undefined' && typeof max !== 'undefined') {
             this.chart[axis][0].setExtremes(min, max);
@@ -402,6 +415,7 @@ export interface ChartOptions {
     colors?: string[];
     plotOptions?: string[];
     multipleSeries?: boolean;
+    disableLegend?: boolean;
     disable3d?: boolean;
     disableDatalabels?: boolean;
     disableExporting?: boolean;
