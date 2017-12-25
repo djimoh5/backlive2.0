@@ -1,0 +1,10 @@
+<div [animate]="pageAnimation" *ngIf="rssFeed">
+    <h3>{{rssFeed.title}}</h3>
+    <div *ngFor="let item of rssFeed.items" class="item">
+        <h4 class="title">
+            <a [href]="item.link" target="_blank">{{item.title}}</a>
+        </h4>
+        <div class="created">{{getItemDate(item) | date:'medium'}}</div>
+        <div class="description">{{item.description}}</div>
+    </div>
+</div>

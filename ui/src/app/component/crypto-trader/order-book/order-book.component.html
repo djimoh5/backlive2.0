@@ -1,0 +1,25 @@
+<div [animate]="pageAnimation" *ngIf="orderBook">
+    <div class="row heading">
+        <div class="col-xs-4">Price</div>
+        <div class="col-xs-4">Size</div>
+        <div class="col-xs-4"># Orders</div>
+    </div>
+    <div #scrollView class="scroll-view" [style.max-height.px]="scrollViewHeight">
+        <ng-container *ngTemplateOutlet="orderBookTemplate; context: { $implicit: orderBook.asks, isAsks: true }"></ng-container>
+        <div class="row spread">
+            <div class="col-xs-12">Spread {{(orderBook.asks[orderBook.asks.length - 1][0] - orderBook.bids[0][0]).toFixed(2)}}</div>
+        </div>
+        <ng-container *ngTemplateOutlet="orderBookTemplate; context: { $implicit: orderBook.bids, isAsks: false }"></ng-container>
+    </div>
+</div>
+
+<ng-template #orderBookTemplate let-orders let-isAsks="isAsks">
+    <div *ngFor="let order of orders">
+        <div class="row order">
+            <div class="col-xs-4" [class.color-green]="!isAsks" [class.color-red]="isAsks">{{order[0]}}</div>
+            <div class="col-xs-4">{{order[1]}}</div>
+            <div class="col-xs-4">{{order[2]}}</div>
+        </div>
+        
+    </div>
+</ng-template>

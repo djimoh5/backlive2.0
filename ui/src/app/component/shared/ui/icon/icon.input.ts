@@ -28,6 +28,7 @@ export class Type {
     static grid: string = 'glyphicon-th';
     static folder: string = 'glyphicon-folder-close';
     static folderOpen: string = 'glyphicon-folder-open';
+    static book: string = 'glyphicon-book';
     static video: string = 'glyphicon-facetime-video';
     static recycle: string = 'glyphicon-retweet';
     static fontColor: string = 'glyphicon-text-color';
@@ -35,6 +36,8 @@ export class Type {
     static view: string = 'glyphicon-eye-open';
     static question: string = 'glyphicon-question-sign';
     static play: string = 'glyphicon-play-circle';
+    static usd: string = 'glyphicon-usd';
+    static horn: string = 'glyphicon-bullhorn';
 
     static globe: string = 'glyphicon-globe';
     static signal: string = 'glyphicon-signal';

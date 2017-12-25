@@ -3,6 +3,7 @@ import { Session } from '../lib/session';
 import { Http } from '../lib/http';
 
 var urlParser = require("url");
+var Feed = require('rss-to-json');
 
 export class NewsService extends BaseService {
     constructor(session: Session) {
@@ -20,6 +21,18 @@ export class NewsService extends BaseService {
             this.done('');
         }
 
+        return this.promise;
+    }
+
+    getCoinDesk() {
+        Feed.load('http://feeds.feedburner.com/Coindesk?format=xml', (_err, rss) =>{
+            this.done(rss);
+        });
+
+        /*new Http().get('feeds.feedburner.com', '/Coindesk?format=xml', (data) => {
+            this.done(data);
+        });*/
+        
         return this.promise;
     }
     

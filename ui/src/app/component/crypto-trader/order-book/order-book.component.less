@@ -1,0 +1,35 @@
+@import "~styles/plugins/mixins.less";
+@import "~styles/themes/colors.less";
+@import "~styles/themes/text.less";
+
+.scroll-view {
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: @text-small;
+}
+.heading {
+    border-bottom: 1px solid @border-default;
+    color: @text-lighter;
+    padding: 5px;
+    margin: 5px;
+    .bold();
+}
+.order {
+    color: @white;
+    padding: 1px;
+    .color-red {
+        color: @brand-danger;
+    }
+    .color-green {
+        color: @brand-success;
+    }
+}
+.spread {
+    text-align: center;
+    .bold();
+    padding: 5px;
+    margin: 5px 0;
+    color: @text-lighter;
+    border-top: 1px solid @border-default;
+    border-bottom: 1px solid @border-default;
+}

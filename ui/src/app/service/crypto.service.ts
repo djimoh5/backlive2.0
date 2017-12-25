@@ -60,8 +60,6 @@ export class CryptoService extends BaseService {
                 });
             }
 
-            console.log(products);
-            
             return products;
         });
     }

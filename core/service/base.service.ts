@@ -4,6 +4,11 @@ import { BaseRepository } from '../repository/base.repository';
 
 var Q = require('q');
 
+export class RateLimiter {
+    static requestCount: number = 0;
+    static period: number = 350;
+}
+
 export abstract class BaseService {
     protected get database(): any { return Database.mongo; };
     protected session: ISession;

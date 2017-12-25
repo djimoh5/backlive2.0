@@ -13,7 +13,7 @@ export class CryptoController extends BaseController {
 		});
 	}
 	
-	@Get(':product/order-book')
+	@Get(':productid/order-book')
 	orderBook(req: Request, res: Response) {
         (<CryptoService>res.services.cryptoService).getOrderBook(req.params.productid).then(data => {
 			res.send(data);

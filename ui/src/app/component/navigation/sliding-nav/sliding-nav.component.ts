@@ -5,6 +5,7 @@ import { BaseComponent } from 'backlive/component/shared';
 import { AppService } from 'backlive/service';
 
 import { SlidingNavVisibleEvent } from 'backlive/event';
+import { PlatformUI } from 'backlive/utility/ui';
 
 @Component({
     selector: 'sliding-nav',
@@ -20,10 +21,16 @@ export class SlidingNavComponent extends BaseComponent implements OnChanges, OnD
     isActive: boolean = false;
     isVisible: boolean = false;
     activeItem: SlidingNavItem;
+
+    scrollViewHeight: number;
     
-    constructor(appService:AppService, private componentResolver: ComponentFactoryResolver) {
+    constructor(appService:AppService, private componentResolver: ComponentFactoryResolver, private platformUI: PlatformUI) {
         super(appService);
         this.items = [];
+
+        this.platformUI.onResize('sliding-nav', size => {
+            this.scrollViewHeight = size.height - 80;
+        });
     }
 
     ngOnChanges() {
@@ -56,6 +63,13 @@ export class SlidingNavComponent extends BaseComponent implements OnChanges, OnD
             if(isActive) {
                 setTimeout(() => {
                     this.activeComponent = this.componentRef.createComponent(this.componentResolver.resolveComponentFactory(navItem.component));
+                    
+                    if (navItem.model) {
+                        for (var key in navItem.model) {
+                            this.activeComponent.instance[key] = navItem.model[key];
+                        }
+                    }
+                    
                     for (var key in this.activeComponent.instance) {
                         if (this.activeComponent.instance[key] instanceof EventEmitter) {
                             this.activeComponent.instance[key].subscribe(this.fireEvent(key));
@@ -89,6 +103,7 @@ export class SlidingNavComponent extends BaseComponent implements OnChanges, OnD
     ngOnDestroy() {
         super.ngOnDestroy();
         this.appService.notify(new SlidingNavVisibleEvent(false));
+        this.platformUI.endOnResize('sliding-nav');
     }
 }
 
@@ -96,6 +111,7 @@ export interface SlidingNavItem {
     icon: string;
     isActive?: boolean;
     component?: any; //either component or onClick should be set, component takes precendence
+    model?: {};
     eventHandlers?: { [key:string]: Function };
     onClick?: Function;
     tooltip?: string;

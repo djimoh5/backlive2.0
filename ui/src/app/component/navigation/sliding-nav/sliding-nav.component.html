@@ -5,6 +5,8 @@
         </a>
     </div>
     <div class="component">
-        <div #component></div>
+        <div #scrollView class="scroll-view" [style.max-height.px]="scrollViewHeight">
+            <div #component></div>
+        </div>
     </div>
 </div>

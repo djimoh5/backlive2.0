@@ -4,7 +4,6 @@ import { BaseComponent } from 'backlive/component/shared';
 
 import { AppService, CryptoService } from 'backlive/service';
 import { LastPrice, TradeSide, CryptoTicker, CryptoColor } from 'backlive/service/model';
-import { setTimeout } from 'timers';
 
 @Component({
     selector: 'footer-nav',

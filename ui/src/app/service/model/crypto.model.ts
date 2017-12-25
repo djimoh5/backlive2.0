@@ -38,8 +38,8 @@ export type CryptoPrices = number[][]; //compressed json [ [ time, low, high, op
 
 export interface CryptoOrderBook {
     sequence: number;
-    bids: string[][]; //compressed json [ [ price, size, num-orders ], [ "295.96", "4.39088265", 2 ] ]
-    ask: string[][];
+    asks: string[][]; //compressed json [ [ price, size, num-orders ], [ "295.96", "4.39088265", 2 ] ]
+    bids: string[][];
 }
 
 export class CryptoColor {

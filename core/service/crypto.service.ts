@@ -1,18 +1,15 @@
-import { BaseService } from './base.service';
+import { BaseService, RateLimiter } from './base.service';
 import { Session } from '../lib/session';
 
 const Gdax = require('gdax');
 
 export class CryptoService extends BaseService {
-    private static rateLimitedRequests: number = 0;
-    private static rateLimitPeriod: number = 350;
-    
     constructor(session: Session) {
         super(session);
     }
 
     getProducts() {
-        this.gdaxClient().getProducts((a,b,c,) => this.onResponse(a,b,c));
+        this.rateLimit(this.gdaxClient(), 'getProducts');
         return this.promise;
     }
 
@@ -22,6 +19,7 @@ export class CryptoService extends BaseService {
     }
 
     getOrderBook(productId: string) {
+        console.log('order book', productId)
         this.rateLimit(this.gdaxClient(productId), 'getProductOrderBook', { level: 2 });
         return this.promise;
     }
@@ -46,7 +44,7 @@ export class CryptoService extends BaseService {
     private rateLimit(client: any, serviceMethod: string, params?: { [key: string]: any }) {
 		setTimeout(() => {
             var callback = (error, response, data) => {
-                CryptoService.rateLimitedRequests--;
+                RateLimiter.requestCount--;
                 this.onResponse(error, response, data);
             };
 
@@ -56,9 +54,9 @@ export class CryptoService extends BaseService {
             else {
                 client[serviceMethod](callback);
             }
-		}, CryptoService.rateLimitedRequests * CryptoService.rateLimitPeriod);
+		}, RateLimiter.requestCount * RateLimiter.period);
 
-		console.log('rate limit wait time', CryptoService.rateLimitedRequests * CryptoService.rateLimitPeriod);
-		CryptoService.rateLimitedRequests++;
+		console.log('rate limit wait time', RateLimiter.requestCount * RateLimiter.period);
+		RateLimiter.requestCount++;
 	}
 }

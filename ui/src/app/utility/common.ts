@@ -242,7 +242,12 @@ export class Common {
 		}
 		
 		return x1 + x2;
-	}
+    }
+    
+    static dynamicProperty(obj: any, dynamicPropertyName: string, propertyGenerator: () => any) {
+        if (!obj[dynamicPropertyName]) { obj[dynamicPropertyName] = propertyGenerator(); }
+        return obj[dynamicPropertyName];
+    }
 
     static sort(values: any[], sortBy: string) {
         var sortAscFlag = 1;

@@ -13,6 +13,13 @@ export class NewsController extends BaseController {
 		});
 	}
 
+	@Get('coindesk')
+	coindesk(req: Request, res: Response) {
+		(<NewsService>res.services.newsService).getCoinDesk().then(function(data) {
+			res.send(data);
+		});
+	}
+
     @Get('market')
 	market(req: Request, res: Response) {
         (<NewsService>res.services.newsService).getMarketNews().then(function(data) {
